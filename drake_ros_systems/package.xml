@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>drake_ros_systems</name>
+  <version>0.1.0</version>
+  <description>Drake systems for interacting with ROS 2.</description>
+  <maintainer email="sloretz@openrobotics.org">Shane Loretz</maintainer>
+  <license>Apache License 2.0</license>
+
+  <depend>rclcpp</depend>
+  <depend>rosidl_runtime_c</depend>
+  <depend>rosidl_typesupport_cpp</depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
