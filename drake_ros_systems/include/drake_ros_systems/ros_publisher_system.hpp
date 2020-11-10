@@ -16,12 +16,11 @@ namespace drake_ros_systems
 /// PIMPL forward declaration
 class RosPublisherSystemPrivate;
 
-/// System that subscribes to a ROS topic and makes it available on an output port
+/// Accepts ROS messages on an input port and publishes them to a ROS topic
 class RosPublisherSystem: public drake::systems::LeafSystem<double>
 {
 public:
-
-  /// Convenience method to make a subscriber system given a ROS message type
+  /// Convenience method to make a publisher system given a ROS message type
   template <typename MessageT>
   static
   std::unique_ptr<RosPublisherSystem>
@@ -58,12 +57,6 @@ public:
   publish(const rclcpp::SerializedMessage & serialized_msg);
 
 protected:
-  /// Override as a place to schedule event to move ROS message into a context
-  // void DoCalcNextUpdateTime(
-  //     const Context<double>&,
-  //     systems::CompositeEventCollection<double>*,
-  //     double*) const override;
-
   std::unique_ptr<RosPublisherSystemPrivate> impl_;
 };
 }  // namespace drake_ros_systems
