@@ -28,7 +28,7 @@ public:
   {
     // Assume C++ typesupport since this is a C++ template function
     return std::make_unique<RosPublisherSystem>(
-        rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
+        *rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
         ros_interface);
   }
 

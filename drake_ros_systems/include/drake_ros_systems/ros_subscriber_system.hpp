@@ -27,12 +27,12 @@ public:
   {
     // Assume C++ typesupport since this is a C++ template function
     return std::make_unique<RosSubscriberSystem>(
-        rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
+        *rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
         ros_interface);
   }
 
   RosSubscriberSystem(
-    const rosidl_message_type_support_t * ts,
+    const rosidl_message_type_support_t & ts,
     std::shared_ptr<DrakeRosInterface> ros_interface);
 
   virtual ~RosSubscriberSystem();
