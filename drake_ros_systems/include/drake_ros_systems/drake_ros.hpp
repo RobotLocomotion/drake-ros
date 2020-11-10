@@ -4,6 +4,9 @@
 #include <rmw/serialized_message.h>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
+#include <drake_ros_systems/drake_ros_interface.hpp>
+
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -33,7 +36,7 @@ public:
   create_subscription(
     const rosidl_message_type_support_t & ts,
     const std::string & topic_name,
-    const rclcpp::QoS & qos
+    const rclcpp::QoS & qos,
     std::function<void(std::shared_ptr<rmw_serialized_message_t>)> callback) final;
 
   void

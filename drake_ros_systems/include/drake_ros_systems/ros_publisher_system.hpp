@@ -17,17 +17,18 @@ namespace drake_ros_systems
 class RosPublisherSystemPrivate;
 
 /// System that subscribes to a ROS topic and makes it available on an output port
-class RosPublisherSystem: public LeafSystem<double>
+class RosPublisherSystem: public drake::systems::LeafSystem<double>
 {
 public:
 
   /// Convenience method to make a subscriber system given a ROS message type
   template <typename MessageT>
+  static
   std::unique_ptr<RosPublisherSystem>
   Make(std::shared_ptr<DrakeRosInterface> ros_interface)
   {
     // Assume C++ typesupport since this is a C++ template function
-    return std::make_shared<RosPublisherSystem>(
+    return std::make_unique<RosPublisherSystem>(
         rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
         ros_interface);
   }
@@ -47,7 +48,7 @@ public:
     const auto ret = rmw_serialize(
       &message,
       rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
-      &serialized_msg->get_rcl_serialized_message());
+      &serialized_msg.get_rcl_serialized_message());
     // TODO(sloretz) throw if failed to serialize
     publish(serialized_msg);
   }
@@ -58,10 +59,10 @@ public:
 
 protected:
   /// Override as a place to schedule event to move ROS message into a context
-  void DoCalcNextUpdateTime(
-      const Context<double>&,
-      systems::CompositeEventCollection<double>*,
-      double*) const override;
+  // void DoCalcNextUpdateTime(
+  //     const Context<double>&,
+  //     systems::CompositeEventCollection<double>*,
+  //     double*) const override;
 
   std::unique_ptr<RosPublisherSystemPrivate> impl_;
 };

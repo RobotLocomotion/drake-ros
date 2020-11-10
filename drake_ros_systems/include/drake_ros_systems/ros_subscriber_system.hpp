@@ -15,23 +15,24 @@ namespace drake_ros_systems
 class RosSubscriberSystemPrivate;
 
 /// System that subscribes to a ROS topic and makes it available on an output port
-class RosSubscriberSystem: public LeafSystem<double>
+class RosSubscriberSystem : public drake::systems::LeafSystem<double>
 {
 public:
 
   /// Convenience method to make a subscriber system given a ROS message type
   template <typename MessageT>
+  static
   std::unique_ptr<RosSubscriberSystem>
   Make(std::shared_ptr<DrakeRosInterface> ros_interface)
   {
     // Assume C++ typesupport since this is a C++ template function
-    return std::make_shared<RosSubscriberSystem>(
+    return std::make_unique<RosSubscriberSystem>(
         rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
         ros_interface);
   }
 
   RosSubscriberSystem(
-    const rosidl_message_type_support_t & ts,
+    const rosidl_message_type_support_t * ts,
     std::shared_ptr<DrakeRosInterface> ros_interface);
 
   virtual ~RosSubscriberSystem();
@@ -39,8 +40,8 @@ public:
 protected:
   /// Override as a place to schedule event to move ROS message into a context
   void DoCalcNextUpdateTime(
-      const Context<double>&,
-      systems::CompositeEventCollection<double>*,
+      const drake::systems::Context<double>&,
+      drake::systems::CompositeEventCollection<double>*,
       double*) const override;
 
   std::unique_ptr<RosSubscriberSystemPrivate> impl_;

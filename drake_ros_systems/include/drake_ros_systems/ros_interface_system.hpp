@@ -13,7 +13,7 @@ namespace drake_ros_systems
 class RosInterfaceSystemPrivate;
 
 /// System that takes care of calling spin() in Drake's systems framework
-class RosInterfaceSystem: public LeafSystem<double>
+class RosInterfaceSystem : public drake::systems::LeafSystem<double>
 {
 public:
   RosInterfaceSystem();
@@ -26,8 +26,8 @@ public:
 protected:
   /// Override as a place to call rclcpp::spin()
   void DoCalcNextUpdateTime(
-      const Context<double>&,
-      systems::CompositeEventCollection<double>*,
+      const drake::systems::Context<double>&,
+      drake::systems::CompositeEventCollection<double>*,
       double*) const override;
 
   std::unique_ptr<RosInterfaceSystemPrivate> impl_;
