@@ -16,7 +16,7 @@ class RosInterfaceSystemPrivate;
 class RosInterfaceSystem : public drake::systems::LeafSystem<double>
 {
 public:
-  RosInterfaceSystem();
+  RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros);
   virtual ~RosInterfaceSystem();
 
   /// Return a handle for interacting with ROS

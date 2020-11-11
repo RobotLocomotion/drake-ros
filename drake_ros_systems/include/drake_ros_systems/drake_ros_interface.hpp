@@ -1,7 +1,6 @@
 #ifndef DRAKE_ROS_SYSTEMS__DRAKE_ROS_INTERFACE_HPP_
 #define DRAKE_ROS_SYSTEMS__DRAKE_ROS_INTERFACE_HPP_
 
-#include <rmw/serialized_message.h>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 #include <functional>
@@ -9,6 +8,7 @@
 #include <string>
 
 #include <rclcpp/qos.hpp>
+#include <rclcpp/serialized_message.hpp>
 
 namespace drake_ros_systems
 {
@@ -33,7 +33,7 @@ public:
     const rosidl_message_type_support_t & ts,
     const std::string & topic_name,
     const rclcpp::QoS & qos,
-    std::function<void(std::shared_ptr<rmw_serialized_message_t>)> callback) = 0;
+    std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback) = 0;
 
   virtual
   void
