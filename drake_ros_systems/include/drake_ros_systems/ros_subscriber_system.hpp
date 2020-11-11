@@ -23,16 +23,23 @@ public:
   template <typename MessageT>
   static
   std::unique_ptr<RosSubscriberSystem>
-  Make(std::shared_ptr<DrakeRosInterface> ros_interface)
+  Make(
+    const std::string & topic_name,
+    const rclcpp::QoS & qos,
+    std::shared_ptr<DrakeRosInterface> ros_interface)
   {
     // Assume C++ typesupport since this is a C++ template function
     return std::make_unique<RosSubscriberSystem>(
         *rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
-        ros_interface);
+        [](){return std::make_unique<drake::Value<MessageT>>(MessageT());},
+        topic_name, qos, ros_interface);
   }
 
   RosSubscriberSystem(
     const rosidl_message_type_support_t & ts,
+    std::function<std::unique_ptr<drake::AbstractValue>(void)> create_default_value,
+    const std::string & topic_name,
+    const rclcpp::QoS & qos,
     std::shared_ptr<DrakeRosInterface> ros_interface);
 
   virtual ~RosSubscriberSystem();
