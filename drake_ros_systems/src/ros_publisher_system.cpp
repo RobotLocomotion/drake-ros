@@ -1,4 +1,5 @@
 #include <drake_ros_systems/ros_publisher_system.hpp>
+#include <drake_ros_systems/serializer_interface.hpp>
 
 #include "publisher.hpp"
 
@@ -8,24 +9,23 @@ class RosPublisherSystemPrivate
 {
 public:
   const rosidl_message_type_support_t * type_support_;
-  std::function<void(const drake::AbstractValue &, rclcpp::SerializedMessage &)> serialize_abstract_value_;
+  std::unique_ptr<SerializerInterface> serializer_;
   std::unique_ptr<Publisher> pub_;
 };
 
 RosPublisherSystem::RosPublisherSystem(
   const rosidl_message_type_support_t & ts,
-  std::function<std::unique_ptr<drake::AbstractValue>(void)> create_default_value,
-  std::function<void(const drake::AbstractValue &, rclcpp::SerializedMessage &)> serialize_abstract_value,
+  std::unique_ptr<SerializerInterface> & serializer,
   const std::string & topic_name,
   const rclcpp::QoS & qos,
   std::shared_ptr<DrakeRosInterface> ros)
 : impl_(new RosPublisherSystemPrivate())
 {
   impl_->type_support_ = &ts;
-  impl_->serialize_abstract_value_ = serialize_abstract_value;
+  impl_->serializer_ = std::move(serializer);
   impl_->pub_ = ros->create_publisher(ts, topic_name, qos);
 
-  DeclareAbstractInputPort("message", *create_default_value());
+  DeclareAbstractInputPort("message", *(impl_->serializer_->create_default_value()));
 
   // TODO(sloretz) customizable triggers like lcm system
   DeclarePerStepEvent(
@@ -49,11 +49,7 @@ RosPublisherSystem::publish(const rclcpp::SerializedMessage & serialized_msg)
 void
 RosPublisherSystem::publish_input(const drake::systems::Context<double> & context)
 {
-  // Converts the input into LCM message bytes.
   const drake::AbstractValue & input = get_input_port().Eval<drake::AbstractValue>(context);
-  rclcpp::SerializedMessage serialized_msg;
-  impl_->serialize_abstract_value_(input, serialized_msg);
-
-  impl_->pub_->publish(serialized_msg);
+  impl_->pub_->publish(impl_->serializer_->serialize(input));
 }
 }  // namespace drake_ros_systems

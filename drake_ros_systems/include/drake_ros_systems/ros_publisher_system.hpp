@@ -7,6 +7,8 @@
 #include <rmw/rmw.h>
 
 #include <drake_ros_systems/drake_ros_interface.hpp>
+#include <drake_ros_systems/serializer.hpp>
+#include <drake_ros_systems/serializer_interface.hpp>
 
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
@@ -30,43 +32,28 @@ public:
     std::shared_ptr<DrakeRosInterface> ros_interface)
   {
     // Assume C++ typesupport since this is a C++ template function
+    std::unique_ptr<SerializerInterface> serializer = std::make_unique<Serializer<MessageT>>();
     return std::make_unique<RosPublisherSystem>(
         *rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
-        [](){return std::make_unique<drake::Value<MessageT>>(MessageT());},
-        [](const drake::AbstractValue & av, rclcpp::SerializedMessage & serialized_msg){
-          const MessageT & message = av.get_value<MessageT>();
-          const auto ret = rmw_serialize(
-            &message,
-            rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
-            &serialized_msg.get_rcl_serialized_message());
-          // TODO(sloretz) throw if failed to serialize
-          (void)ret;
-        },
-        topic_name, qos, ros_interface);
+        serializer, topic_name, qos, ros_interface);
   }
 
   RosPublisherSystem(
     const rosidl_message_type_support_t & ts,
-    std::function<std::unique_ptr<drake::AbstractValue>(void)> create_default_value,
-    std::function<void(const drake::AbstractValue &, rclcpp::SerializedMessage &)> serialize_abstract_value,
+    std::unique_ptr<SerializerInterface> & serializer,
     const std::string & topic_name,
     const rclcpp::QoS & qos,
     std::shared_ptr<DrakeRosInterface> ros_interface);
 
   virtual ~RosPublisherSystem();
 
-  /// Publish a ROS message
+  /// Convenience method to publish a C++ ROS message
   template <typename MessageT>
   void
   publish(const MessageT & message)
   {
-    rclcpp::SerializedMessage serialized_msg;
-    const auto ret = rmw_serialize(
-      &message,
-      rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
-      &serialized_msg.get_rcl_serialized_message());
-    // TODO(sloretz) throw if failed to serialize
-    publish(serialized_msg);
+    static const Serializer<MessageT> serializer;
+    publish(serializer->serialize(message));
   }
 
   /// Publish a serialized ROS message
