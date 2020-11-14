@@ -44,6 +44,8 @@ target_include_directories(drake_ros_systems
     "$<INSTALL_INTERFACE:include>"
 )
 
+add_subdirectory(example)
+
 ament_export_dependencies(drake)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_generator_c)
