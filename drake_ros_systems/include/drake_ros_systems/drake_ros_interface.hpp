@@ -28,7 +28,7 @@ public:
     const rclcpp::QoS & qos) = 0;
 
   virtual
-  std::unique_ptr<Subscription>
+  std::shared_ptr<Subscription>
   create_subscription(
     const rosidl_message_type_support_t & ts,
     const std::string & topic_name,

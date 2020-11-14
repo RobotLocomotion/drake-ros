@@ -64,5 +64,3 @@ private:
 };
 }  // namespace drake_ros_systems
 #endif  // DRAKE_ROS_SYSTEMS__SUBSCRIPTION_HPP_
-
-

@@ -47,19 +47,25 @@ DrakeRos::create_publisher(
   const std::string & topic_name,
   const rclcpp::QoS & qos)
 {
-  return std::unique_ptr<Publisher>(
-    new Publisher(impl_->node_->get_node_base_interface().get(), ts, topic_name, qos));
+  return std::make_unique<Publisher>(
+    impl_->node_->get_node_base_interface().get(), ts, topic_name, qos);
 }
 
-std::unique_ptr<Subscription>
+std::shared_ptr<Subscription>
 DrakeRos::create_subscription(
   const rosidl_message_type_support_t & ts,
   const std::string & topic_name,
   const rclcpp::QoS & qos,
   std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback)
 {
-  return std::unique_ptr<Subscription>(
-    new Subscription(impl_->node_->get_node_base_interface().get(), ts, topic_name, qos, callback));
+  auto sub = std::make_shared<Subscription>(
+    impl_->node_->get_node_base_interface().get(), ts, topic_name, qos, callback);
+  impl_->node_->get_node_topics_interface()->add_subscription(sub, nullptr);
+
+  // TODO(sloretz) return unique pointer to subscription and make subscription
+  // automatically unsubscribe when it's deleted
+
+  return sub;
 }
 
 void

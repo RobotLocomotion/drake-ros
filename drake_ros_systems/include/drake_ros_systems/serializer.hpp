@@ -31,14 +31,16 @@ public:
     return serialized_msg;
   }
 
-  void
+  bool
   deserialize(
-    const rclcpp::SerializedMessage & message,
+    const rclcpp::SerializedMessage & serialized_message,
     drake::AbstractValue & abstract_value) const override
   {
-    // TODO
-    (void) message;
-    (void) abstract_value;
+    const auto ret = rmw_deserialize(
+      &serialized_message.get_rcl_serialized_message(),
+      rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
+      &abstract_value.get_mutable_value<MessageT>());
+    return ret == RMW_RET_OK;
   }
 
   std::unique_ptr<drake::AbstractValue>

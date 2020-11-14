@@ -11,7 +11,7 @@ public:
   serialize(const drake::AbstractValue & abstract_value) const = 0;
 
   virtual
-  void
+  bool
   deserialize(
     const rclcpp::SerializedMessage & message,
     drake::AbstractValue & abstract_value) const = 0;
