@@ -30,7 +30,6 @@ public:
     return std::move(msg_);
   }
 
-  const rosidl_message_type_support_t * type_support_;
   std::unique_ptr<SerializerInterface> serializer_;
   // A handle to a subscription
   // TODO(sloretz) unique_ptr that unsubscribes in destructor
@@ -42,16 +41,14 @@ public:
 };
 
 RosSubscriberSystem::RosSubscriberSystem(
-  const rosidl_message_type_support_t & ts,
   std::unique_ptr<SerializerInterface> & serializer,
   const std::string & topic_name,
   const rclcpp::QoS & qos,
   std::shared_ptr<DrakeRosInterface> ros)
 : impl_(new RosSubscriberSystemPrivate())
 {
-  impl_->type_support_ = &ts;
   impl_->serializer_ = std::move(serializer);
-  impl_->sub_ = ros->create_subscription(ts, topic_name, qos,
+  impl_->sub_ = ros->create_subscription(*impl_->serializer_->get_type_support(), topic_name, qos,
     std::bind(&RosSubscriberSystemPrivate::handle_message, impl_.get(), std::placeholders::_1));
 
   DeclareAbstractOutputPort(

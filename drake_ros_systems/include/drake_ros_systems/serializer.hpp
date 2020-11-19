@@ -22,7 +22,7 @@ public:
     const MessageT & message = abstract_value.get_value<MessageT>();
     const auto ret = rmw_serialize(
       &message,
-      rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
+      get_type_support(),
       &serialized_msg.get_rcl_serialized_message());
     if (ret != RMW_RET_OK) {
       // TODO(sloretz) do something if serialization fails
@@ -38,7 +38,7 @@ public:
   {
     const auto ret = rmw_deserialize(
       &serialized_message.get_rcl_serialized_message(),
-      rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
+      get_type_support(),
       &abstract_value.get_mutable_value<MessageT>());
     return ret == RMW_RET_OK;
   }
@@ -47,6 +47,12 @@ public:
   create_default_value() const override
   {
     return std::make_unique<drake::Value<MessageT>>(MessageT());
+  }
+
+  const rosidl_message_type_support_t *
+  get_type_support() const override
+  {
+    return rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>();
   }
 };
 }  // namespace drake_ros_systems

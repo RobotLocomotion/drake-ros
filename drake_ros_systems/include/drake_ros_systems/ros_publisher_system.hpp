@@ -11,7 +11,6 @@
 #include <drake_ros_systems/serializer_interface.hpp>
 
 #include <rclcpp/serialized_message.hpp>
-#include <rosidl_typesupport_cpp/message_type_support.hpp>
 
 namespace drake_ros_systems
 {
@@ -33,13 +32,10 @@ public:
   {
     // Assume C++ typesupport since this is a C++ template function
     std::unique_ptr<SerializerInterface> serializer = std::make_unique<Serializer<MessageT>>();
-    return std::make_unique<RosPublisherSystem>(
-        *rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>(),
-        serializer, topic_name, qos, ros_interface);
+    return std::make_unique<RosPublisherSystem>(serializer, topic_name, qos, ros_interface);
   }
 
   RosPublisherSystem(
-    const rosidl_message_type_support_t & ts,
     std::unique_ptr<SerializerInterface> & serializer,
     const std::string & topic_name,
     const rclcpp::QoS & qos,
