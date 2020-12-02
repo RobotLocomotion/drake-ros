@@ -2,9 +2,10 @@
 
 #include <pybind11/pybind11.h>
 
+#include <drake_ros_systems/drake_ros.hpp>
+#include <drake_ros_systems/ros_interface_system.hpp>
 #include <drake_ros_systems/ros_publisher_system.hpp>
 
-#include "py_ros_interface_system.hpp"
 #include "py_serializer.hpp"
 
 namespace py = pybind11;
