@@ -5,6 +5,7 @@
 #include <drake_ros_systems/drake_ros.hpp>
 #include <drake_ros_systems/ros_interface_system.hpp>
 #include <drake_ros_systems/ros_publisher_system.hpp>
+#include <drake_ros_systems/ros_subscriber_system.hpp>
 
 #include "py_serializer.hpp"
 
@@ -17,6 +18,7 @@ using drake_ros_systems::DrakeRosInterface;
 using drake_ros_systems::PySerializer;
 using drake_ros_systems::RosInterfaceSystem;
 using drake_ros_systems::RosPublisherSystem;
+using drake_ros_systems::RosSubscriberSystem;
 using drake_ros_systems::SerializerInterface;
 
 
@@ -48,6 +50,19 @@ PYBIND11_MODULE(drake_ros_systems, m) {
         ros_interface);
     }));
 
+  py::class_<RosSubscriberSystem, LeafSystem<double>>(m, "RosSubscriberSystem")
+    .def(py::init([](
+      pybind11::object type,
+      const char * topic_name,
+      std::shared_ptr<DrakeRosInterface> ros_interface)
+    {
+      std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
+      return std::make_unique<RosSubscriberSystem>(
+        serializer,
+        topic_name,
+        rclcpp::QoS(10), // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
+        ros_interface);
+    }));
 
   /*
   py::class_<rccl::ROS>(m, "ROS")

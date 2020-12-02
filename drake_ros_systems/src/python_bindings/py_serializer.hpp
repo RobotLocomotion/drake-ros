@@ -120,9 +120,11 @@ public:
     }
 
     // Store the Python message in the AbstractValue
-    // TODO use python code to get access to drake::pydrake::Object type
-    abstract_value.get_mutable_value<py::object>() =
-      py::cast<py::object>(pymessage);
+    // convert to inaccessible drake::pydrake::Object type
+    py::dict scope;
+    scope["av"] = &abstract_value;
+    scope["message"] = pymessage;
+    py::exec("av.set_value(message)", scope);
 
     return true;
   }

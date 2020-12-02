@@ -2,6 +2,7 @@
 
 from drake_ros_systems import RosInterfaceSystem
 from drake_ros_systems import RosPublisherSystem
+from drake_ros_systems import RosSubscriberSystem
 
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
@@ -66,6 +67,13 @@ def main():
     builder.Connect(
         sys_hello_world.get_output_port(0),
         sys_ros_pub.get_input_port(0)
+    )
+
+    sys_ros_sub_pt = builder.AddSystem(RosSubscriberSystem(String, "input", sys_ros_interface.get_ros_interface()));
+    sys_ros_pub_pt = builder.AddSystem(RosPublisherSystem(String, "output", sys_ros_interface.get_ros_interface()));
+    builder.Connect(
+        sys_ros_sub_pt.get_output_port(0),
+        sys_ros_pub_pt.get_input_port(0)
     )
 
     diagram = builder.Build()
