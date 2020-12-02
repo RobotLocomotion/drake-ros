@@ -17,8 +17,8 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
-# find_package(pybind11_vendor)
-# find_package(pybind11 REQUIRED)
+# Must use Drake's fork of Pybind11
+find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
@@ -61,21 +61,29 @@ install(
   DESTINATION include
 )
 
-# pybind11_add_module(rccl SHARED
-#   use_ros.cpp
-# )
-# target_link_libraries(rccl PRIVATE
-#   rclcpp::rclcpp
-#   ${std_msgs_TARGETS}
-# )
-# 
-# # Sets PYTHON_INSTALL_DIR
-# _ament_cmake_python_get_python_install_dir()
-# 
-# install(
-#   TARGETS rccl
-#   DESTINATION "${PYTHON_INSTALL_DIR}"
-# )
+###
+# Python bindings
+###
+pybind11_add_module(py_drake_ros_systems SHARED
+  src/python_bindings/module_drake_ros_systems.cpp
+)
+set_target_properties(py_drake_ros_systems PROPERTIES OUTPUT_NAME "drake_ros_systems")
+target_link_libraries(py_drake_ros_systems PRIVATE
+  drake_ros_systems
+)
+target_include_directories(drake_ros_systems
+  PRIVATE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
+)
+
+# Sets PYTHON_INSTALL_DIR
+_ament_cmake_python_get_python_install_dir()
+
+install(
+  TARGETS py_drake_ros_systems
+  DESTINATION "${PYTHON_INSTALL_DIR}"
+)
+### End Python bindings
 
 ament_package()
 
