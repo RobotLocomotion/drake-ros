@@ -6,74 +6,117 @@ from drake_ros_systems import RosSubscriberSystem
 
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
-# from pydrake.systems.lcm import LcmInterfaceSystem
-# from pydrake.lcm import DrakeLcm
+from pydrake.systems.framework import UnrestrictedUpdateEvent
 from pydrake.common.value import AbstractValue
 from pydrake.systems.framework import LeafSystem
 
 from std_msgs.msg import String
+from std_msgs.msg import Bool
 
 
-def traced(func, ignoredirs=None):
-    """Decorates func such that its execution is traced, but filters out any
-     Python code outside of the system prefix."""
-    import functools
-    import sys
-    import trace
-    if ignoredirs is None:
-        ignoredirs = ["/usr", sys.prefix]
-    tracer = trace.Trace(trace=1, count=0, ignoredirs=ignoredirs)
-
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        return tracer.runfunc(func, *args, **kwargs)
-
-    return wrapped
-
-
-class HelloWorld(LeafSystem):
-    """Outputs Hello World bool message."""
+class NorGate(LeafSystem):
 
     def __init__(self):
         super().__init__()
+        self._a = self.DeclareAbstractInputPort("A", AbstractValue.Make(Bool()))
+        self._b = self.DeclareAbstractInputPort("B", AbstractValue.Make(Bool()))
 
         self.DeclareAbstractOutputPort(
-            'text',
-            lambda: AbstractValue.Make(String()),
-            self._do_output_text)
+            'Q',
+            lambda: AbstractValue.Make(Bool()),
+            self._calc_output_value)
 
-    def _do_output_text(self, context, data):
-        data.get_mutable_value().data = "hello world"
+    def _calc_output_value(self, context, data):
+        a = self._a.Eval(context)
+        b = self._b.Eval(context)
+        data.get_mutable_value().data = not (a.data or b.data)
 
 
-# @traced
+class Memory(LeafSystem):
+    """Delay input port by one time step to avoid algebraic loop error."""
+
+    def __init__(self, initial_value):
+        super().__init__()
+
+        self._input = self.DeclareAbstractInputPort("A", AbstractValue.Make(initial_value))
+
+        self.DeclareAbstractState(AbstractValue.Make(initial_value))
+
+        self.DeclareAbstractOutputPort(
+            'Q',
+            lambda: AbstractValue.Make(initial_value),
+            self._calc_output_value,
+            {self.all_state_ticket()})
+
+        self.DeclarePerStepEvent(UnrestrictedUpdateEvent(self._move_input_to_state))
+
+    def _move_input_to_state(self, context, event, state):
+        state.get_mutable_abstract_state().get_mutable_value(0).SetFrom(
+            AbstractValue.Make(self._input.Eval(context)))
+
+    def _calc_output_value(self, context, output):
+        output.SetFrom(context.get_abstract_state().get_value(0))
+
+
 def main():
+    # NOR gate RS flip flop example
+    # Input topics /S and /R are active high (true is logic 1 and false is logic 0)
+    # Output topics  /Q and /Q_not are active low (true is logic 0 and false is logic 1)
+
+    # Input/Output table
+    # S: false R: false | Q: no change  Q_not: no change
+    # S: true  R: false | Q: false      Q_not: true
+    # S: false R: true  | Q: true       Q_not: false
+    # S: true  R: true  | Q: invalid    Q_not: invalid
     builder = DiagramBuilder()
 
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem())
 
-    # can add publisher systems
-    # Need bindings for subscriber system
-    # Need python version of memory class
-    # Need python version of NAND gate class
-    # Need boilerplate to create system
+    sys_pub_Q = builder.AddSystem(
+        RosPublisherSystem(Bool, "Q", sys_ros_interface.get_ros_interface()))
+    sys_pub_Q_not = builder.AddSystem(
+        RosPublisherSystem(Bool, "Q_not", sys_ros_interface.get_ros_interface()))
 
-    # rps = RosPublisherSystem(String, "asdf", ris.get_ros_interface())
+    sys_sub_S = builder.AddSystem(
+        RosSubscriberSystem(Bool, "S", sys_ros_interface.get_ros_interface()))
+    sys_sub_R = builder.AddSystem(
+        RosSubscriberSystem(Bool, "R", sys_ros_interface.get_ros_interface()))
 
-    sys_hello_world = builder.AddSystem(HelloWorld())
-    sys_ros_pub = builder.AddSystem(
-        RosPublisherSystem(String, "asdf", sys_ros_interface.get_ros_interface()))
+    sys_nor_gate_1 = builder.AddSystem(NorGate())
+    sys_nor_gate_2 = builder.AddSystem(NorGate())
+
+    sys_memory = builder.AddSystem(Memory(Bool()))
 
     builder.Connect(
-        sys_hello_world.get_output_port(0),
-        sys_ros_pub.get_input_port(0)
+        sys_nor_gate_1.GetOutputPort('Q'),
+        sys_memory.get_input_port(0)
     )
 
-    sys_ros_sub_pt = builder.AddSystem(RosSubscriberSystem(String, "input", sys_ros_interface.get_ros_interface()));
-    sys_ros_pub_pt = builder.AddSystem(RosPublisherSystem(String, "output", sys_ros_interface.get_ros_interface()));
     builder.Connect(
-        sys_ros_sub_pt.get_output_port(0),
-        sys_ros_pub_pt.get_input_port(0)
+        sys_sub_S.get_output_port(0),
+        sys_nor_gate_1.GetInputPort('A'),
+    )
+    builder.Connect(
+        sys_nor_gate_2.GetOutputPort('Q'),
+        sys_nor_gate_1.GetInputPort('B'),
+    )
+
+    builder.Connect(
+        sys_memory.get_output_port(0),
+        sys_nor_gate_2.GetInputPort('A'),
+    )
+    builder.Connect(
+        sys_sub_R.get_output_port(0),
+        sys_nor_gate_2.GetInputPort('B'),
+    )
+
+    builder.Connect(
+        sys_nor_gate_1.GetOutputPort('Q'),
+        sys_pub_Q.get_input_port(0)
+    )
+    builder.Connect(
+        sys_nor_gate_2.GetOutputPort('Q'),
+        sys_pub_Q_not.get_input_port(0)
     )
 
     diagram = builder.Build()
