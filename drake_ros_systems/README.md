@@ -13,7 +13,7 @@ To build it:
 
 1. [Install ROS Rolling](https://index.ros.org/doc/ros2/Installation/Rolling/)
 1. Source your ROS installation `. /opt/ros/rolling/setup.bash`
-* [Install drake from November-ish 2020](https://drake.mit.edu/from_binary.html)
+1. [Install drake from November-ish 2020](https://drake.mit.edu/from_binary.html)
 1. Extract the Drake binary installation, install it's prerequisites, and [use this Python virutalenv trick](https://drake.mit.edu/python_bindings.html#inside-virtualenv).
 1. Activate the drake virtual environment
 1. Build it using Colcon, or using CMake directly
