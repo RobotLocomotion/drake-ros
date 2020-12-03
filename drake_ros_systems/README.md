@@ -4,59 +4,71 @@ This is a ROS 2 prototype of a solution to [robotlocomotion/Drake#9500](https://
 It is similar to this ROS 1 prototype [`gizatt/drake_ros_systems`](https://github.com/gizatt/drake_ros_systems).
 It explores ROS 2 equivalents of `LcmInterfaceSystem`, `LcmPublisherSystem`, and `LcmSubscriberSystem`.
 
-# Code examples
+# Building
 
-Create a system that publishes `std_msgs::msg::String`.
+This package has been built and tested on Ubuntu Focal with ROS Rolling, using a Drake nightly from November 2020.
+It may work on other versions of ROS and Drake, but it hasn't been tested.
 
-```C++
-#include <drake_ros_systems/ros_interface_system.h>
-#include <drake_ros_systems/ros_publisher_system.h>
+To build it:
 
-using drake_ros_systems::RosInterfaceSystem;
-using drake_ros_systems::RosPublisherSystem;
+1. [Install ROS Rolling](https://index.ros.org/doc/ros2/Installation/Rolling/)
+1. Source your ROS installation `. /opt/ros/rolling/setup.bash`
+* [Install drake from November-ish 2020](https://drake.mit.edu/from_binary.html)
+1. Extract the Drake binary installation, install it's prerequisites, and [use this Python virutalenv trick](https://drake.mit.edu/python_bindings.html#inside-virtualenv).
+1. Activate the drake virtual environment
+1. Build it using Colcon, or using CMake directly
+    **Colcon**
+    1. Make a workspace `mkdir -p ./ws/src`
+    1. `cd ./ws/src`
+    1. Get this code `git clone https://github.com/sloretz/drake_ros2_demos.git`
+    1. `cd ..`
+    1. Build this package `colcon build --packages-select drake_ros_systems`
+    **CMake**
+    1. Manually set `CMAKE_PREFIX_PATH`: `export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$AMENT_PREFIX_PATH`
+    1. Get this code `git clone https://github.com/sloretz/drake_ros2_demos.git`
+    1. `cd drake_ros2_demos/drake_ros_systems`
+    1. Make a build and install folder to avoid installing to the whole system `mkdir build install`
+    1. `cd build`
+    1. Configure the project `cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/../install ..`
+    1. Build the project `make && make install`
 
-// This system initializes ROS and calls spin()
-// It creates a single ROS node called "drake_ros".
-auto spin_system = RosInterfaceSystem::Make(/* optionally rclcpp init options? */);
+# Running the Example
 
-const std::string topic{"chatter"};
-const double period_sec{0.1};  // 10Hz
+An example of using these systems is given in the [`example`](./example) folder in two languages: Python and C++.
 
-auto pub_system = RosPublisherSystem::Make<std_msgs::msg::String>(
-    spin_system.get_ros_interface(), topic, period_sec);
+If you built with `colcon`, then source your workspace.
 
-auto pub_context = pub_system->CreateDefaultContext();
-std_msgs::msg::String pub_msg;
-pub_msg.data = "Hello from Drake";
-pub_context->FixInputPort(0,  AbstractValue::Make(pub_msg));
-pub_system->Publish(*pub_context);
+```
+. ./ws/install/setup.bash
+# Also make sure to activate drake virtual environment
 ```
 
-Create a system that subscribes to `std_msgs::msg::String`.
+If you built with plain CMake, then source the ROS workspace and set these variables.
 
-```C++
-#include <drake_ros_systems/ros_interface_system.h>
-#include <drake_ros_systems/ros_subsciber_system.h>
-
-using drake_ros_systems::RosInterfaceSystem;
-using drake_ros_systems::RosSubscriberSystem;
-
-// This system initializes ROS and calls spin()
-// It creates a single ROS node called "drake_ros".
-auto spin_system = RosInterfaceSystem(/* optionally rclcpp init options? */);
-
-const std::string topic{"chatter"};
-
-auto pub_system = RosSubscriberSystem::Make<std_msgs::msg::String>(
-    spin_system.get_ros_interface(), topic, period_sec);
-
-auto sub_context = sub_system->CreateDefaultContext();
-// somehow this sub context is added to a diagram builder with the system
-// so the subscriber can update that message
-
-// huh...?
-std_msgs::msg::String sub_msg = sub_context->get_output_stuff(...);
+```
+. /opt/ros/rolling/setup.bash
+# Also make sure to activate drake virtual environment
+# CD to folder containing `build` and `install` created earlier, commands below use PWD to find correct path
+export LD_LIBRARY_PATH=$(pwd)/install/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=$(pwd)/install/lib/$(python -c 'import sys; print(f"python{sys.version_info[0]}.{sys.version_info[1]}")')/site-packages:$PYTHONPATH
 ```
 
-Could use an example of drake systems built with a diagram builder and connected to input/output ports of other systems.
+Now you can run the C++ example from the build folder
 
+If built with **colcon** using an isolated build (default)
+
+```
+./build/drake_ros_systems/example/rs_flip_flop
+```
+
+If built with **cmake** or a non-isolated build of **colcon**
+
+```
+./build/example/rs_flip_flop
+```
+
+The Python example can be run from the source folder.
+
+```
+python3 ./example/rs_flip_flop.py
+```
