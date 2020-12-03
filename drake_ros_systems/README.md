@@ -34,9 +34,43 @@ To build it:
     1. Configure the project `cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/../install ..`
     1. Build the project `make && make install`
 
-# Running the Example
+# Example
 
 An example of using these systems is given in the [`example`](./example) folder in two languages: Python and C++.
+Both examples implement an RS flip flop using NOR gates.
+They subscribe to the following topics:
+
+* `/R`
+* `/S`
+
+And publish to the following topics
+
+* `/Q`
+* `/Q_not`
+
+Run these commands in different terminals with your ROS installation sourced to echo the output topics:
+
+```
+ros2 topic echo /Q
+```
+
+```
+ros2 topic echo /Q_not
+```
+
+Run these commands in different terminals with your ROS installation sourced to play with the input topics.
+
+```
+ros2 topic pub /S std_msgs/msg/Bool "data: false"
+ros2 topic pub /S std_msgs/msg/Bool "data: true"
+```
+
+```
+ros2 topic pub /R std_msgs/msg/Bool "data: false"
+ros2 topic pub /R std_msgs/msg/Bool "data: true"
+```
+
+## Running the Example
 
 If you built with `colcon`, then source your workspace.
 
