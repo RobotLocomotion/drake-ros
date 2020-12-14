@@ -23,7 +23,6 @@ from pydrake.systems.framework import UnrestrictedUpdateEvent
 from pydrake.common.value import AbstractValue
 from pydrake.systems.framework import LeafSystem
 
-from std_msgs.msg import String
 from std_msgs.msg import Bool
 
 
