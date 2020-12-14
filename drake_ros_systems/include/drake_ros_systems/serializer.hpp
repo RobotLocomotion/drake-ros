@@ -24,7 +24,7 @@
 
 namespace drake_ros_systems
 {
-template <typename MessageT>
+template<typename MessageT>
 class Serializer : public SerializerInterface
 {
 public:

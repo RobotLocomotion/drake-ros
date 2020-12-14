@@ -40,11 +40,12 @@ RosPublisherSystem::RosPublisherSystem(
 
   // TODO(sloretz) customizable triggers like lcm system
   DeclarePerStepEvent(
-    drake::systems::PublishEvent<double>([this](
-        const drake::systems::Context<double>& context,
-        const drake::systems::PublishEvent<double>&) {
-      publish_input(context);
-    }));
+    drake::systems::PublishEvent<double>(
+      [this](
+        const drake::systems::Context<double> & context,
+        const drake::systems::PublishEvent<double> &) {
+        publish_input(context);
+      }));
 }
 
 RosPublisherSystem::~RosPublisherSystem()

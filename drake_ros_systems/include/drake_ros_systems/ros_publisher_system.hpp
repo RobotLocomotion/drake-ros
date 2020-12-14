@@ -31,11 +31,11 @@ namespace drake_ros_systems
 class RosPublisherSystemPrivate;
 
 /// Accepts ROS messages on an input port and publishes them to a ROS topic
-class RosPublisherSystem: public drake::systems::LeafSystem<double>
+class RosPublisherSystem : public drake::systems::LeafSystem<double>
 {
 public:
   /// Convenience method to make a publisher system given a ROS message type
-  template <typename MessageT>
+  template<typename MessageT>
   static
   std::unique_ptr<RosPublisherSystem>
   Make(
@@ -57,7 +57,7 @@ public:
   virtual ~RosPublisherSystem();
 
   /// Convenience method to publish a C++ ROS message
-  template <typename MessageT>
+  template<typename MessageT>
   void
   publish(const MessageT & message)
   {
@@ -70,7 +70,6 @@ public:
   publish(const rclcpp::SerializedMessage & serialized_msg);
 
 protected:
-
   void
   publish_input(const drake::systems::Context<double> & context);
 

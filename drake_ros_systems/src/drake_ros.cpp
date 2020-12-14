@@ -29,7 +29,7 @@ public:
 };
 
 DrakeRos::DrakeRos()
-  : impl_(new DrakeRosPrivate())
+: impl_(new DrakeRosPrivate())
 {
   impl_->context_ = std::make_shared<rclcpp::Context>();
 

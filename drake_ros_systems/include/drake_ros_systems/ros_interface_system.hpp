@@ -39,9 +39,9 @@ public:
 protected:
   /// Override as a place to call rclcpp::spin()
   void DoCalcNextUpdateTime(
-      const drake::systems::Context<double>&,
-      drake::systems::CompositeEventCollection<double>*,
-      double*) const override;
+    const drake::systems::Context<double> &,
+    drake::systems::CompositeEventCollection<double> *,
+    double *) const override;
 
   std::unique_ptr<RosInterfaceSystemPrivate> impl_;
 };

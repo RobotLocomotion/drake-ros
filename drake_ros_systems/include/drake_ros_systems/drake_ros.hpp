@@ -33,7 +33,7 @@ class Publisher;
 class Subscription;
 
 /// System that abstracts working with ROS
-class DrakeRos final: public DrakeRosInterface
+class DrakeRos final : public DrakeRosInterface
 {
 public:
   DrakeRos();

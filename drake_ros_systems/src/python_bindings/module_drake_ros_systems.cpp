@@ -45,46 +45,40 @@ PYBIND11_MODULE(drake_ros_systems, m) {
   py::class_<DrakeRosInterface, std::shared_ptr<DrakeRosInterface>>(m, "DrakeRosInterface");
 
   py::class_<RosInterfaceSystem, LeafSystem<double>>(m, "RosInterfaceSystem")
-    .def(py::init([](){
-      return std::make_unique<RosInterfaceSystem>(std::make_unique<DrakeRos>());}))
-    .def("get_ros_interface", &RosInterfaceSystem::get_ros_interface);
+  .def(
+    py::init(
+      []() {return std::make_unique<RosInterfaceSystem>(std::make_unique<DrakeRos>());}))
+  .def("get_ros_interface", &RosInterfaceSystem::get_ros_interface);
 
   py::class_<RosPublisherSystem, LeafSystem<double>>(m, "RosPublisherSystem")
-    .def(py::init([](
-      pybind11::object type,
-      const char * topic_name,
-      std::shared_ptr<DrakeRosInterface> ros_interface)
-    {
-      std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
-      return std::make_unique<RosPublisherSystem>(
-        serializer,
-        topic_name,
-        rclcpp::QoS(10), // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
-        ros_interface);
-    }));
+  .def(
+    py::init(
+      [](
+        pybind11::object type,
+        const char * topic_name,
+        std::shared_ptr<DrakeRosInterface> ros_interface)
+      {
+        std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
+        return std::make_unique<RosPublisherSystem>(
+          serializer,
+          topic_name,
+          rclcpp::QoS(10), // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
+          ros_interface);
+      }));
 
   py::class_<RosSubscriberSystem, LeafSystem<double>>(m, "RosSubscriberSystem")
-    .def(py::init([](
-      pybind11::object type,
-      const char * topic_name,
-      std::shared_ptr<DrakeRosInterface> ros_interface)
-    {
-      std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
-      return std::make_unique<RosSubscriberSystem>(
-        serializer,
-        topic_name,
-        rclcpp::QoS(10), // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
-        ros_interface);
-    }));
-
-  /*
-  py::class_<rccl::ROS>(m, "ROS")
-    .def(py::init())
-    .def("spin", &rccl::ROS::spin);
-
-  py::class_<rccl::PingPong>(m, "PingPong")
-    .def(py::init<rccl::ROS &>())
-    .def("ping", &rccl::PingPong::ping,
-        py::arg("msg") = "C++ ping");
-  */
+  .def(
+    py::init(
+      [](
+        pybind11::object type,
+        const char * topic_name,
+        std::shared_ptr<DrakeRosInterface> ros_interface)
+      {
+        std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
+        return std::make_unique<RosSubscriberSystem>(
+          serializer,
+          topic_name,
+          rclcpp::QoS(10), // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
+          ros_interface);
+      }));
 }

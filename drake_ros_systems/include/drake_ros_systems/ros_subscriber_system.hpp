@@ -33,9 +33,8 @@ class RosSubscriberSystemPrivate;
 class RosSubscriberSystem : public drake::systems::LeafSystem<double>
 {
 public:
-
   /// Convenience method to make a subscriber system given a ROS message type
-  template <typename MessageT>
+  template<typename MessageT>
   static
   std::unique_ptr<RosSubscriberSystem>
   Make(
@@ -59,9 +58,9 @@ public:
 protected:
   /// Override as a place to schedule event to move ROS message into a context
   void DoCalcNextUpdateTime(
-      const drake::systems::Context<double>&,
-      drake::systems::CompositeEventCollection<double>*,
-      double*) const override;
+    const drake::systems::Context<double> &,
+    drake::systems::CompositeEventCollection<double> *,
+    double *) const override;
 
   std::unique_ptr<RosSubscriberSystemPrivate> impl_;
 };

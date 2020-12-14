@@ -82,4 +82,3 @@ Subscription::return_serialized_message(std::shared_ptr<rclcpp::SerializedMessag
   message.reset();
 }
 }  // namespace drake_ros_systems
-

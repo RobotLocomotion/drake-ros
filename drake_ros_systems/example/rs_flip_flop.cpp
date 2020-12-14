@@ -42,7 +42,9 @@ public:
 
 private:
   void
-  calc_output_value(const drake::systems::Context<double> & context, std_msgs::msg::Bool * output) const
+  calc_output_value(
+    const drake::systems::Context<double> & context,
+    std_msgs::msg::Bool * output) const
   {
     const bool a = GetInputPort("A").Eval<std_msgs::msg::Bool>(context).data;
     const bool b = GetInputPort("B").Eval<std_msgs::msg::Bool>(context).data;
@@ -52,7 +54,7 @@ private:
 
 // Delay's input port by one timestep to avoid algebraic loop error
 // Inspired by Simulink's Memory block
-template <typename T>
+template<typename T>
 class Memory : public drake::systems::LeafSystem<double>
 {
 public:
@@ -67,15 +69,16 @@ public:
     DeclareAbstractOutputPort("value", &Memory::calc_output_value, {all_state_ticket()});
 
     DeclarePerStepEvent(
-      drake::systems::UnrestrictedUpdateEvent<double>([this](
-          const drake::systems::Context<double>& context,
-          const drake::systems::UnrestrictedUpdateEvent<double>&,
+      drake::systems::UnrestrictedUpdateEvent<double>(
+        [this](
+          const drake::systems::Context<double> & context,
+          const drake::systems::UnrestrictedUpdateEvent<double> &,
           drake::systems::State<double> * state) {
-        // Copy input value to state
-        drake::systems::AbstractValues & abstract_state = state->get_mutable_abstract_state();
-        abstract_state.get_mutable_value(0).SetFrom(
-          get_input_port().Eval<drake::AbstractValue>(context));
-      }));
+          // Copy input value to state
+          drake::systems::AbstractValues & abstract_state = state->get_mutable_abstract_state();
+          abstract_state.get_mutable_value(0).SetFrom(
+            get_input_port().Eval<drake::AbstractValue>(context));
+        }));
   }
 
   virtual ~Memory() = default;
@@ -134,7 +137,8 @@ int main()
   auto diagram = builder.Build();
   auto context = diagram->CreateDefaultContext();
 
-  auto simulator = std::make_unique<drake::systems::Simulator<double>>(*diagram, std::move(context));
+  auto simulator =
+    std::make_unique<drake::systems::Simulator<double>>(*diagram, std::move(context));
   simulator->set_target_realtime_rate(1.0);
   simulator->Initialize();
 

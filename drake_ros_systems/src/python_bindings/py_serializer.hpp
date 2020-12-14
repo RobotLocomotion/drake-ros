@@ -31,7 +31,7 @@ class PySerializer : public SerializerInterface
 {
 public:
   PySerializer(py::object message_type)
-    : message_type_(message_type)
+  : message_type_(message_type)
   {
     // Check if message_type.__class__._TYPE_SUPPORT is None,
     py::object metaclass = message_type.attr("__class__");
@@ -163,10 +163,10 @@ private:
   py::object message_type_;
   rosidl_message_type_support_t * type_support_;
 
-  bool (*convert_from_py_)(PyObject *, void *);
-  PyObject * (*convert_to_py_)(void *);
-  void * (*create_ros_message_)(void);
-  void (*destroy_ros_message_)(void *);
+  bool (* convert_from_py_)(PyObject *, void *);
+  PyObject * (* convert_to_py_)(void *);
+  void * (* create_ros_message_)(void);
+  void (* destroy_ros_message_)(void *);
 };
 }  // namespace drake_ros_systems
 #endif  // PY_SERIALIZER_HPP_
