@@ -15,6 +15,7 @@
 #define DRAKE_ROS_SYSTEMS__DRAKE_ROS_HPP_
 
 #include <rosidl_runtime_c/message_type_support_struct.h>
+#include <rclcpp/node_options.hpp>
 #include <rclcpp/qos.hpp>
 #include <rclcpp/serialized_message.hpp>
 
@@ -35,7 +36,12 @@ class Subscription;
 class DrakeRos final : public DrakeRosInterface
 {
 public:
-  DrakeRos();
+  DrakeRos()
+  : DrakeRos("DrakeRosSystems", rclcpp::NodeOptions{}) {}
+
+  DrakeRos(
+    const std::string & node_name,
+    rclcpp::NodeOptions node_options);
 
   virtual ~DrakeRos();
 

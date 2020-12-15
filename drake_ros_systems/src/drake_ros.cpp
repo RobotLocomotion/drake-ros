@@ -27,23 +27,36 @@ namespace drake_ros_systems
 class DrakeRosPrivate
 {
 public:
+  bool externally_init_;
   rclcpp::Context::SharedPtr context_;
   rclcpp::Node::UniquePtr node_;
   rclcpp::executors::SingleThreadedExecutor::UniquePtr executor_;
 };
 
-DrakeRos::DrakeRos()
+DrakeRos::DrakeRos(
+  const std::string & node_name,
+  rclcpp::NodeOptions node_options)
 : impl_(new DrakeRosPrivate())
 {
-  impl_->context_ = std::make_shared<rclcpp::Context>();
+  if (node_options.context()) {
+    // Already given a context - don't create a new one
+    impl_->context_ = node_options.context();
+  } else {
+    // Need a context - create one
+    impl_->context_ = std::make_shared<rclcpp::Context>();
+    node_options.context(impl_->context_);
+  }
 
-  // TODO(sloretz) allow passing args and init options in constructor
-  impl_->context_->init(0, nullptr);
+  if (impl_->context_->is_valid()) {
+    // Context is being init/shutdown outside of this system
+    impl_->externally_init_ = true;
+  } else {
+    // This system will init/shutdown the context
+    impl_->externally_init_ = false;
+    impl_->context_->init(0, nullptr);
+  }
 
-  // TODO(sloretz) allow passing in node name and node options
-  rclcpp::NodeOptions no;
-  no.context(impl_->context_);
-  impl_->node_.reset(new rclcpp::Node("DrakeRosSystems", no));
+  impl_->node_.reset(new rclcpp::Node(node_name, node_options));
 
   // TODO(sloretz) allow passing in executor options
   rclcpp::ExecutorOptions eo;
@@ -55,7 +68,10 @@ DrakeRos::DrakeRos()
 
 DrakeRos::~DrakeRos()
 {
-  impl_->context_->shutdown("~DrakeRos()");
+  if (impl_->externally_init_) {
+    // This system init'd the context, so this system will shut it down too.
+    impl_->context_->shutdown("~DrakeRos()");
+  }
 }
 
 std::unique_ptr<Publisher>
