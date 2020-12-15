@@ -21,6 +21,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_set>
 
 #include "drake_ros_systems/drake_ros_interface.hpp"
 #include "drake_ros_systems/serializer.hpp"
@@ -45,16 +46,35 @@ public:
     const rclcpp::QoS & qos,
     std::shared_ptr<DrakeRosInterface> ros_interface)
   {
+    return Make<MessageT>(
+      topic_name, qos, ros_interface,
+      {drake::systems::TriggerType::kPerStep, drake::systems::TriggerType::kForced}, 0.0);
+  }
+
+  /// Convenience method to make a publisher system given a ROS message type and publish triggers
+  template<typename MessageT>
+  static
+  std::unique_ptr<RosPublisherSystem>
+  Make(
+    const std::string & topic_name,
+    const rclcpp::QoS & qos,
+    std::shared_ptr<DrakeRosInterface> ros_interface,
+    const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
+    double publish_period = 0.0)
+  {
     // Assume C++ typesupport since this is a C++ template function
     std::unique_ptr<SerializerInterface> serializer = std::make_unique<Serializer<MessageT>>();
-    return std::make_unique<RosPublisherSystem>(serializer, topic_name, qos, ros_interface);
+    return std::make_unique<RosPublisherSystem>(
+      serializer, topic_name, qos, ros_interface, publish_triggers, publish_period);
   }
 
   RosPublisherSystem(
     std::unique_ptr<SerializerInterface> & serializer,
     const std::string & topic_name,
     const rclcpp::QoS & qos,
-    std::shared_ptr<DrakeRosInterface> ros_interface);
+    std::shared_ptr<DrakeRosInterface> ros_interface,
+    const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
+    double publish_period = 0.0);
 
   virtual ~RosPublisherSystem();
 
@@ -72,8 +92,8 @@ public:
   publish(const rclcpp::SerializedMessage & serialized_msg);
 
 protected:
-  void
-  publish_input(const drake::systems::Context<double> & context);
+  drake::systems::EventStatus
+  publish_input(const drake::systems::Context<double> & context) const;
 
   std::unique_ptr<RosPublisherSystemPrivate> impl_;
 };

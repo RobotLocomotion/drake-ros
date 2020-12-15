@@ -16,6 +16,7 @@
 #include <pybind11/pybind11.h>
 
 #include <memory>
+#include <unordered_set>
 
 #include "drake_ros_systems/drake_ros.hpp"
 #include "drake_ros_systems/ros_interface_system.hpp"
@@ -27,6 +28,7 @@
 namespace py = pybind11;
 
 using drake::systems::LeafSystem;
+using drake::systems::TriggerType;
 
 using drake_ros_systems::DrakeRos;
 using drake_ros_systems::DrakeRosInterface;
@@ -65,7 +67,9 @@ PYBIND11_MODULE(drake_ros_systems, m) {
           serializer,
           topic_name,
           rclcpp::QoS(10),  // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
-          ros_interface);
+          ros_interface,
+          std::unordered_set<TriggerType>{TriggerType::kPerStep, TriggerType::kForced},
+          0.0);  // TODO(sloretz) Expose Publish triggers to python
       }));
 
   py::class_<RosSubscriberSystem, LeafSystem<double>>(m, "RosSubscriberSystem")
