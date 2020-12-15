@@ -14,16 +14,18 @@
 #ifndef DRAKE_ROS_SYSTEMS__ROS_PUBLISHER_SYSTEM_HPP_
 #define DRAKE_ROS_SYSTEMS__ROS_PUBLISHER_SYSTEM_HPP_
 
-#include <memory>
-
 #include <drake/systems/framework/leaf_system.h>
 #include <rmw/rmw.h>
 
-#include <drake_ros_systems/drake_ros_interface.hpp>
-#include <drake_ros_systems/serializer.hpp>
-#include <drake_ros_systems/serializer_interface.hpp>
-
 #include <rclcpp/serialized_message.hpp>
+
+#include <memory>
+#include <string>
+
+#include "drake_ros_systems/drake_ros_interface.hpp"
+#include "drake_ros_systems/serializer.hpp"
+#include "drake_ros_systems/serializer_interface.hpp"
+
 
 namespace drake_ros_systems
 {
@@ -76,4 +78,4 @@ protected:
   std::unique_ptr<RosPublisherSystemPrivate> impl_;
 };
 }  // namespace drake_ros_systems
-#endif  // DRAKE_ROS_SYSTEMS__ROS_INTERFACE_SYSTEM_HPP_
+#endif  // DRAKE_ROS_SYSTEMS__ROS_PUBLISHER_SYSTEM_HPP_

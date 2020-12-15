@@ -15,15 +15,14 @@
 #define DRAKE_ROS_SYSTEMS__DRAKE_ROS_HPP_
 
 #include <rosidl_runtime_c/message_type_support_struct.h>
-
-#include <drake_ros_systems/drake_ros_interface.hpp>
+#include <rclcpp/qos.hpp>
+#include <rclcpp/serialized_message.hpp>
 
 #include <functional>
 #include <memory>
 #include <string>
 
-#include <rclcpp/qos.hpp>
-#include <rclcpp/serialized_message.hpp>
+#include "drake_ros_systems/drake_ros_interface.hpp"
 
 namespace drake_ros_systems
 {
@@ -46,7 +45,6 @@ public:
     const std::string & topic_name,
     const rclcpp::QoS & qos) final;
 
-  virtual
   std::shared_ptr<Subscription>
   create_subscription(
     const rosidl_message_type_support_t & ts,

@@ -14,11 +14,11 @@
 #ifndef DRAKE_ROS_SYSTEMS__ROS_INTERFACE_SYSTEM_HPP_
 #define DRAKE_ROS_SYSTEMS__ROS_INTERFACE_SYSTEM_HPP_
 
-#include <memory>
-
 #include <drake/systems/framework/leaf_system.h>
 
-#include <drake_ros_systems/drake_ros_interface.hpp>
+#include <memory>
+
+#include "drake_ros_systems/drake_ros_interface.hpp"
 
 namespace drake_ros_systems
 {
@@ -29,7 +29,7 @@ class RosInterfaceSystemPrivate;
 class RosInterfaceSystem : public drake::systems::LeafSystem<double>
 {
 public:
-  RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros);
+  explicit RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros);
   virtual ~RosInterfaceSystem();
 
   /// Return a handle for interacting with ROS

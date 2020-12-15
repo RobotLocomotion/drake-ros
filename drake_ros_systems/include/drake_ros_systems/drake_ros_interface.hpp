@@ -15,13 +15,12 @@
 #define DRAKE_ROS_SYSTEMS__DRAKE_ROS_INTERFACE_HPP_
 
 #include <rosidl_runtime_c/message_type_support_struct.h>
+#include <rclcpp/qos.hpp>
+#include <rclcpp/serialized_message.hpp>
 
 #include <functional>
 #include <memory>
 #include <string>
-
-#include <rclcpp/qos.hpp>
-#include <rclcpp/serialized_message.hpp>
 
 namespace drake_ros_systems
 {

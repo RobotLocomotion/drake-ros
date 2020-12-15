@@ -11,7 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <drake_ros_systems/ros_interface_system.hpp>
+
+#include <limits>
+#include <memory>
+#include <utility>
+
+#include "drake_ros_systems/ros_interface_system.hpp"
 
 namespace drake_ros_systems
 {

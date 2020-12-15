@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_SYSTEMS__SUBSCRIPTION_HPP_
-#define DRAKE_ROS_SYSTEMS__SUBSCRIPTION_HPP_
+#ifndef SUBSCRIPTION_HPP_
+#define SUBSCRIPTION_HPP_
 
 #include <rmw/serialized_message.h>
 #include <rosidl_runtime_c/message_type_support_struct.h>
@@ -20,8 +20,8 @@
 #include <memory>
 #include <string>
 
-#include <rclcpp/qos.hpp>
-#include <rclcpp/subscription_base.hpp>
+#include "rclcpp/qos.hpp"
+#include "rclcpp/subscription_base.hpp"
 
 namespace drake_ros_systems
 {
@@ -76,4 +76,4 @@ private:
   std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback_;
 };
 }  // namespace drake_ros_systems
-#endif  // DRAKE_ROS_SYSTEMS__SUBSCRIPTION_HPP_
+#endif  // SUBSCRIPTION_HPP_

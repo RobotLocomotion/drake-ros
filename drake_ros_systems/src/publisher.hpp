@@ -11,17 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_SYSTEMS__PUBLISHER_HPP_
-#define DRAKE_ROS_SYSTEMS__PUBLISHER_HPP_
+#ifndef PUBLISHER_HPP_
+#define PUBLISHER_HPP_
 
 #include <rosidl_runtime_c/message_type_support_struct.h>
-
-#include <memory>
-#include <string>
 
 #include <rclcpp/publisher_base.hpp>
 #include <rclcpp/qos.hpp>
 #include <rclcpp/serialized_message.hpp>
+
+#include <memory>
+#include <string>
+
 
 namespace drake_ros_systems
 {
@@ -40,4 +41,4 @@ public:
   publish(const rclcpp::SerializedMessage & serialized_msg);
 };
 }  // namespace drake_ros_systems
-#endif  // DRAKE_ROS_SYSTEMS__PUBLISHER_HPP_
+#endif  // PUBLISHER_HPP_

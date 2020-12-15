@@ -13,6 +13,9 @@
 // limitations under the License.
 #include "subscription.hpp"
 
+#include <memory>
+#include <string>
+
 namespace drake_ros_systems
 {
 // Copied from rosbag2_transport rosbag2_get_subscription_options

@@ -17,10 +17,12 @@
 #include <drake/common/value.h>
 #include <rmw/rmw.h>
 
-#include <drake_ros_systems/serializer_interface.hpp>
-
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
+
+#include <memory>
+
+#include "drake_ros_systems/serializer_interface.hpp"
 
 namespace drake_ros_systems
 {

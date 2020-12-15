@@ -22,6 +22,9 @@
 
 #include <std_msgs/msg/bool.hpp>
 
+#include <memory>
+#include <utility>
+
 using drake_ros_systems::DrakeRos;
 using drake_ros_systems::RosInterfaceSystem;
 using drake_ros_systems::RosPublisherSystem;
@@ -58,7 +61,7 @@ template<typename T>
 class Memory : public drake::systems::LeafSystem<double>
 {
 public:
-  Memory(const T & initial_value)
+  explicit Memory(const T & initial_value)
   {
     DeclareAbstractInputPort("value", *drake::AbstractValue::Make(T()));
 

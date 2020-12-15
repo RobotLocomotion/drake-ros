@@ -15,10 +15,12 @@
 
 #include <pybind11/pybind11.h>
 
-#include <drake_ros_systems/drake_ros.hpp>
-#include <drake_ros_systems/ros_interface_system.hpp>
-#include <drake_ros_systems/ros_publisher_system.hpp>
-#include <drake_ros_systems/ros_subscriber_system.hpp>
+#include <memory>
+
+#include "drake_ros_systems/drake_ros.hpp"
+#include "drake_ros_systems/ros_interface_system.hpp"
+#include "drake_ros_systems/ros_publisher_system.hpp"
+#include "drake_ros_systems/ros_subscriber_system.hpp"
 
 #include "py_serializer.hpp"
 
@@ -62,7 +64,7 @@ PYBIND11_MODULE(drake_ros_systems, m) {
         return std::make_unique<RosPublisherSystem>(
           serializer,
           topic_name,
-          rclcpp::QoS(10), // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
+          rclcpp::QoS(10),  // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
           ros_interface);
       }));
 
@@ -78,7 +80,7 @@ PYBIND11_MODULE(drake_ros_systems, m) {
         return std::make_unique<RosSubscriberSystem>(
           serializer,
           topic_name,
-          rclcpp::QoS(10), // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
+          rclcpp::QoS(10),  // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
           ros_interface);
       }));
 }

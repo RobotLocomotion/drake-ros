@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef PY_SERIALIZER_HPP_
-#define PY_SERIALIZER_HPP_
+#ifndef PYTHON_BINDINGS__PY_SERIALIZER_HPP_
+#define PYTHON_BINDINGS__PY_SERIALIZER_HPP_
 
 #include <pybind11/eval.h>
 #include <pybind11/pybind11.h>
@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include <drake_ros_systems/serializer_interface.hpp>
+#include "drake_ros_systems/serializer_interface.hpp"
 
 namespace py = pybind11;
 
@@ -30,7 +30,7 @@ namespace drake_ros_systems
 class PySerializer : public SerializerInterface
 {
 public:
-  PySerializer(py::object message_type)
+  explicit PySerializer(py::object message_type)
   : message_type_(message_type)
   {
     // Check if message_type.__class__._TYPE_SUPPORT is None,
@@ -169,4 +169,4 @@ private:
   void (* destroy_ros_message_)(void *);
 };
 }  // namespace drake_ros_systems
-#endif  // PY_SERIALIZER_HPP_
+#endif  // PYTHON_BINDINGS__PY_SERIALIZER_HPP_

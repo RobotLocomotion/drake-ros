@@ -15,11 +15,10 @@
 #define DRAKE_ROS_SYSTEMS__SERIALIZER_INTERFACE_HPP_
 
 #include <drake/common/value.h>
-
-#include <memory>
-
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
+
+#include <memory>
 
 namespace drake_ros_systems
 {
