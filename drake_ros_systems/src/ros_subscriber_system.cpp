@@ -47,7 +47,6 @@ public:
 
   std::unique_ptr<SerializerInterface> serializer_;
   // A handle to a subscription
-  // TODO(sloretz) unique_ptr that unsubscribes in destructor
   std::shared_ptr<Subscription> sub_;
   // Mutex to prevent multiple threads from modifying this class
   std::mutex mutex_;
