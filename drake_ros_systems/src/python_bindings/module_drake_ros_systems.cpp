@@ -24,6 +24,7 @@
 #include "drake_ros_systems/ros_subscriber_system.hpp"
 
 #include "py_serializer.hpp"
+#include "qos_type_caster.hpp"
 
 namespace py = pybind11;
 
@@ -60,13 +61,14 @@ PYBIND11_MODULE(drake_ros_systems, m) {
       [](
         pybind11::object type,
         const char * topic_name,
+        drake_ros_systems::QoS qos,
         std::shared_ptr<DrakeRosInterface> ros_interface)
       {
         std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
         return std::make_unique<RosPublisherSystem>(
           serializer,
           topic_name,
-          rclcpp::QoS(10),  // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
+          qos,
           ros_interface,
           std::unordered_set<TriggerType>{TriggerType::kPerStep, TriggerType::kForced},
           0.0);  // TODO(sloretz) Expose Publish triggers to python
@@ -78,13 +80,14 @@ PYBIND11_MODULE(drake_ros_systems, m) {
       [](
         pybind11::object type,
         const char * topic_name,
+        drake_ros_systems::QoS qos,
         std::shared_ptr<DrakeRosInterface> ros_interface)
       {
         std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
         return std::make_unique<RosSubscriberSystem>(
           serializer,
           topic_name,
-          rclcpp::QoS(10),  // TODO(sloretz) Custom cast for rclpy.QoSProfile <--> rclcpp::Qos
+          qos,
           ros_interface);
       }));
 }
