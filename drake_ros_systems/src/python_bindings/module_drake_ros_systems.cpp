@@ -71,7 +71,26 @@ PYBIND11_MODULE(drake_ros_systems, m) {
           qos,
           ros_interface,
           std::unordered_set<TriggerType>{TriggerType::kPerStep, TriggerType::kForced},
-          0.0);  // TODO(sloretz) Expose Publish triggers to python
+          0.0);
+      }))
+  .def(
+    py::init(
+      [](
+        pybind11::object type,
+        const char * topic_name,
+        drake_ros_systems::QoS qos,
+        std::shared_ptr<DrakeRosInterface> ros_interface,
+        std::unordered_set<TriggerType> publish_triggers,
+        double publish_period)
+      {
+        std::unique_ptr<SerializerInterface> serializer = std::make_unique<PySerializer>(type);
+        return std::make_unique<RosPublisherSystem>(
+          serializer,
+          topic_name,
+          qos,
+          ros_interface,
+          publish_triggers,
+          publish_period);
       }));
 
   py::class_<RosSubscriberSystem, LeafSystem<double>>(m, "RosSubscriberSystem")
