@@ -83,8 +83,7 @@ public:
 
     // Convert the Python message to a C ROS message
     if (!convert_from_py_(message.ptr(), c_ros_message.get())) {
-      // TODO(sloretz) Error handling? Throw?
-      return rclcpp::SerializedMessage();
+      throw std::runtime_error("Failed to convert Python message to C ROS message");
     }
 
     // Serialize the C message
@@ -94,8 +93,7 @@ public:
       type_support_,
       &serialized_msg.get_rcl_serialized_message());
     if (ret != RMW_RET_OK) {
-      // TODO(sloretz) do something if serialization fails
-      return rclcpp::SerializedMessage();
+      throw std::runtime_error("Failed to serialize C ROS message");
     }
     return serialized_msg;
   }
