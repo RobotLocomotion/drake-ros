@@ -87,7 +87,16 @@ install(
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  find_package(test_msgs REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  ament_add_gtest(test_integration test/integration.cpp)
+  message(STATUS "Got test_msgs targets ${test_msgs_TARGETS}")
+  target_link_libraries(test_integration
+    drake::drake
+    drake_ros_systems
+    ${test_msgs_TARGETS}
+  )
 endif()
 
 ament_package()

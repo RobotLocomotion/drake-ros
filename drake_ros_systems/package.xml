@@ -6,14 +6,17 @@
   <maintainer email="sloretz@openrobotics.org">Shane Loretz</maintainer>
   <license>Apache License 2.0</license>
 
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+
   <depend>rclcpp</depend>
   <depend>rosidl_runtime_c</depend>
   <depend>rosidl_typesupport_cpp</depend>
 
+  <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
   <export>
-    <build_type>cmake</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
