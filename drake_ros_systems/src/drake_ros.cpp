@@ -38,15 +38,11 @@ DrakeRos::DrakeRos(
   rclcpp::NodeOptions node_options)
 : impl_(new DrakeRosPrivate())
 {
-  if (node_options.context()) {
-    // Already given a context - don't create a new one
-    impl_->context_ = node_options.context();
-  } else {
-    // Need a context - create one
-    impl_->context_ = std::make_shared<rclcpp::Context>();
-    node_options.context(impl_->context_);
+  if (!node_options.context()) {
+    // Require context is constructed (NodeOptions uses Global Context by default)
+    throw std::invalid_argument("NodeOptions must contain a non-null context");
   }
-
+  impl_->context_ = node_options.context();
   if (impl_->context_->is_valid()) {
     // Context is being init/shutdown outside of this system
     impl_->externally_init_ = true;
