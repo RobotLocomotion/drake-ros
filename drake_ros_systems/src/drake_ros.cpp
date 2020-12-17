@@ -95,9 +95,6 @@ DrakeRos::create_subscription(
     impl_->node_->get_node_base_interface().get(), ts, topic_name, qos, callback);
   impl_->node_->get_node_topics_interface()->add_subscription(sub, nullptr);
 
-  // TODO(sloretz) return unique pointer to subscription and make subscription
-  // automatically unsubscribe when it's deleted
-
   return sub;
 }
 
