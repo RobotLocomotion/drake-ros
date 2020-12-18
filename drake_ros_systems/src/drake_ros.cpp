@@ -64,7 +64,7 @@ DrakeRos::DrakeRos(
 
 DrakeRos::~DrakeRos()
 {
-  if (impl_->externally_init_) {
+  if (!impl_->externally_init_) {
     // This system init'd the context, so this system will shut it down too.
     impl_->context_->shutdown("~DrakeRos()");
   }
