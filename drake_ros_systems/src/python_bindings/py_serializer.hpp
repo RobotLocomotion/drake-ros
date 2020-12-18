@@ -33,37 +33,51 @@ public:
   explicit PySerializer(py::object message_type)
   : message_type_(message_type)
   {
-    // Check if message_type.__class__._TYPE_SUPPORT is None,
-    py::object metaclass = message_type.attr("__class__");
-    if (metaclass.attr("_TYPE_SUPPORT").is_none()) {
-      // call message_type.__class__.__import_type_support__()
-      metaclass.attr("__import_type_support__")();
-    }
+    py::dict scope;
+    py::exec(
+      R"delim(
+def get_typesupport(msg_type, attribute_name):
+    metaclass = msg_type.__class__
+    if metaclass._TYPE_SUPPORT is None:
+        # Import typesupport if not done already
+        metaclass.__import_type_support__()
+    return getattr(metaclass, attribute_name)
+
+
+def make_abstract_value(some_type):
+    from pydrake.common.value import AbstractValue
+    return AbstractValue.Make(some_type())
+      )delim",
+      py::globals(), scope);
+
+    py_make_abstract_value_ = scope["make_abstract_value"];
+    py::object py_get_typesupport = scope["get_typesupport"];
+
     // Get type support capsule and pointer
-    auto typesupport = py::cast<py::capsule>(metaclass.attr("_TYPE_SUPPORT"));
+    auto typesupport = py::cast<py::capsule>(py_get_typesupport(message_type, "_TYPE_SUPPORT"));
     // TODO(sloretz) use get_pointer() in py 2.6+
     type_support_ = static_cast<decltype(type_support_)>(typesupport);
 
     auto convert_from_py =
-      py::cast<py::capsule>(metaclass.attr("_CONVERT_FROM_PY"));
+      py::cast<py::capsule>(py_get_typesupport(message_type, "_CONVERT_FROM_PY"));
     // TODO(sloretz) use get_pointer() in py 2.6+
     convert_from_py_ = reinterpret_cast<decltype(convert_from_py_)>(
       static_cast<void *>(convert_from_py));
 
     auto convert_to_py =
-      py::cast<py::capsule>(metaclass.attr("_CONVERT_TO_PY"));
+      py::cast<py::capsule>(py_get_typesupport(message_type, "_CONVERT_TO_PY"));
     // TODO(sloretz) use get_pointer() in py 2.6+
     convert_to_py_ = reinterpret_cast<decltype(convert_to_py_)>(
       static_cast<void *>(convert_to_py));
 
     auto create_ros_message =
-      py::cast<py::capsule>(metaclass.attr("_CREATE_ROS_MESSAGE"));
+      py::cast<py::capsule>(py_get_typesupport(message_type, "_CREATE_ROS_MESSAGE"));
     // TODO(sloretz) use get_pointer() in py 2.6+
     create_ros_message_ = reinterpret_cast<decltype(create_ros_message_)>(
       static_cast<void *>(create_ros_message));
 
     auto destroy_ros_message =
-      py::cast<py::capsule>(metaclass.attr("_DESTROY_ROS_MESSAGE"));
+      py::cast<py::capsule>(py_get_typesupport(message_type, "_DESTROY_ROS_MESSAGE"));
     // TODO(sloretz) use get_pointer() in py 2.6+
     destroy_ros_message_ = reinterpret_cast<decltype(destroy_ros_message_)>(
       static_cast<void *>(destroy_ros_message));
@@ -143,12 +157,7 @@ public:
   std::unique_ptr<drake::AbstractValue>
   create_default_value() const override
   {
-    // convert to inaccessible drake::pydrake::Object type
-    py::object scope = py::module::import("pydrake.common.value").attr("__dict__");
-    py::object lambda = py::eval("lambda msg: AbstractValue.Make(msg)", scope);
-    py::object result = lambda(message_type_());
-
-    return py::cast<std::unique_ptr<drake::AbstractValue>>(result);
+    return py::cast<std::unique_ptr<drake::AbstractValue>>(py_make_abstract_value_(message_type_));
   }
 
   const rosidl_message_type_support_t *
@@ -160,6 +169,8 @@ public:
 private:
   py::object message_type_;
   rosidl_message_type_support_t * type_support_;
+
+  py::object py_make_abstract_value_;
 
   bool (* convert_from_py_)(PyObject *, void *);
   PyObject * (* convert_to_py_)(void *);
