@@ -103,6 +103,11 @@ if(BUILD_TESTING)
     # TODO(sloretz) Remove when this is included in pybind11::embed
     ${PYTHON_LIBRARIES}
   )
+
+  ament_add_gtest(test_drake_ros test/drake_ros.cpp)
+  target_link_libraries(test_drake_ros
+    drake_ros_systems
+  )
 endif()
 
 ament_package()
