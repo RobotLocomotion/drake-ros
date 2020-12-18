@@ -15,6 +15,7 @@
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <gtest/gtest.h>
+#include <pybind11/embed.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <test_msgs/msg/basic_types.hpp>
@@ -33,6 +34,7 @@ using drake_ros_systems::RosInterfaceSystem;
 using drake_ros_systems::RosPublisherSystem;
 using drake_ros_systems::RosSubscriberSystem;
 
+namespace py = pybind11;
 
 TEST(Integration, sub_to_pub) {
   drake::systems::DiagramBuilder<double> builder;
@@ -88,6 +90,88 @@ TEST(Integration, sub_to_pub) {
   for (int i = 0; i < timeout_sec * spins_per_sec && rx_msgs.size() < num_msgs; ++i) {
     rclcpp::spin_some(node);
     simulator->AdvanceTo(simulator_context.get_time() + time_delta);
+  }
+
+  // Make sure same number of messages got out
+  ASSERT_EQ(num_msgs, rx_msgs.size());
+}
+
+TEST(Integration, sub_to_pub_py) {
+  py::scoped_interpreter guard{};
+
+  py::dict scope;
+  py::exec(
+    R"delim(
+from drake_ros_systems import RosInterfaceSystem
+from drake_ros_systems import RosPublisherSystem
+from drake_ros_systems import RosSubscriberSystem
+
+from pydrake.systems.analysis import Simulator
+from pydrake.systems.framework import DiagramBuilder
+
+from rclpy.qos import DurabilityPolicy
+from rclpy.qos import HistoryPolicy
+from rclpy.qos import QoSProfile
+from rclpy.qos import ReliabilityPolicy
+
+from test_msgs.msg import BasicTypes
+
+builder = DiagramBuilder()
+
+sys_ros_interface = builder.AddSystem(RosInterfaceSystem())
+
+qos = QoSProfile(
+    depth=10,
+    history=HistoryPolicy.KEEP_LAST,
+    reliability=ReliabilityPolicy.RELIABLE,
+    durability=DurabilityPolicy.TRANSIENT_LOCAL)
+
+sys_pub = builder.AddSystem(
+    RosPublisherSystem(BasicTypes, 'out_py', qos, sys_ros_interface.get_ros_interface()))
+
+sys_sub = builder.AddSystem(
+    RosSubscriberSystem(BasicTypes, 'in_py', qos, sys_ros_interface.get_ros_interface()))
+
+builder.Connect(sys_sub.get_output_port(0), sys_pub.get_input_port(0))
+diagram = builder.Build()
+simulator = Simulator(diagram)
+simulator_context = simulator.get_mutable_context()
+simulator.set_target_realtime_rate(1.0)
+)delim",
+    py::globals(), scope);
+
+  const size_t num_msgs = 5;
+  rclcpp::QoS qos{rclcpp::KeepLast(num_msgs)};
+  qos.transient_local().reliable();
+
+  // Don't need to rclcpp::init because DrakeRos uses global rclcpp::Context by default
+  auto node = rclcpp::Node::make_shared("sub_to_pub_py");
+
+  // Create publisher talking to subscriber system.
+  auto publisher = node->create_publisher<test_msgs::msg::BasicTypes>("in_py", qos);
+
+  // Create subscription listening to publisher system
+  std::vector<std::unique_ptr<test_msgs::msg::BasicTypes>> rx_msgs;
+  auto rx_callback = [&](std::unique_ptr<test_msgs::msg::BasicTypes> msg)
+    {
+      rx_msgs.push_back(std::move(msg));
+    };
+  auto subscription =
+    node->create_subscription<test_msgs::msg::BasicTypes>("out_py", qos, rx_callback);
+
+  // Send messages into the drake system
+  for (size_t p = 0; p < num_msgs; ++p) {
+    publisher->publish(std::make_unique<test_msgs::msg::BasicTypes>());
+  }
+
+  const int timeout_sec = 5;
+  const int spins_per_sec = 10;
+  const float time_delta = 1.0f / spins_per_sec;
+  scope["time_delta"] = time_delta;
+  for (int i = 0; i < timeout_sec * spins_per_sec && rx_msgs.size() < num_msgs; ++i) {
+    rclcpp::spin_some(node);
+    py::exec(
+      "simulator.AdvanceTo(simulator_context.get_time() + time_delta)", py::globals(), scope);
   }
 
   // Make sure same number of messages got out

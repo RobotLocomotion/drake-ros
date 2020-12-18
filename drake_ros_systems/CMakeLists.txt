@@ -91,11 +91,18 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   ament_add_gtest(test_integration test/integration.cpp)
+
+  # TODO(sloretz) Why isn't pybind11::embed including python libs?
+  find_package(PythonLibs REQUIRED)
+
   message(STATUS "Got test_msgs targets ${test_msgs_TARGETS}")
   target_link_libraries(test_integration
     drake::drake
     drake_ros_systems
     ${test_msgs_TARGETS}
+    pybind11::embed
+    # TODO(sloretz) Remove when this is included in pybind11::embed
+    ${PYTHON_LIBRARIES}
   )
 endif()
 
