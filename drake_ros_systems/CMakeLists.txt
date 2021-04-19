@@ -22,6 +22,7 @@ find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 add_library(drake_ros_systems
   src/drake_ros.cpp
@@ -30,7 +31,9 @@ add_library(drake_ros_systems
   src/ros_publisher_system.cpp
   src/ros_subscriber_system.cpp
   src/subscription.cpp
+  src/tf_broadcaster_system.cpp
 )
+
 target_link_libraries(drake_ros_systems PUBLIC
   drake::drake
   rclcpp::rclcpp

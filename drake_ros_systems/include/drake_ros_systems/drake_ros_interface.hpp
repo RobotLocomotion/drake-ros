@@ -48,6 +48,14 @@ public:
     std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback) = 0;
 
   virtual
+  std::unique_ptr<tf2_ros::TransformBroadcaster>
+  create_tf_broadcaster() = 0;
+
+  virtual
+  std::shared_ptr<rclcpp::Clock>
+  get_clock() = 0;
+
+  virtual
   void
   spin(
     int timeout_millis) = 0;
