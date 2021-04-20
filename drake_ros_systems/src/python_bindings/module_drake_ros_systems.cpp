@@ -14,6 +14,7 @@
 #include <drake/systems/framework/leaf_system.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <memory>
 #include <unordered_set>
@@ -127,9 +128,10 @@ PYBIND11_MODULE(drake_ros_systems, m) {
     py::init(
       [](DrakeRosInterface * ros_interface)
       {
+        const std::unordered_map<std::string, std::string> kNoRemappings{};
         constexpr double kZeroPublishPeriod{0.0};
         return std::make_unique<TfBroadcasterSystem>(
-          ros_interface,
+          ros_interface, kNoRemappings,
           std::unordered_set<TriggerType>{
             TriggerType::kPerStep, TriggerType::kForced},
           kZeroPublishPeriod);
@@ -138,10 +140,11 @@ PYBIND11_MODULE(drake_ros_systems, m) {
     py::init(
       [](
         DrakeRosInterface * ros_interface,
+        std::unordered_map<std::string, std::string> remappings,
         std::unordered_set<TriggerType> publish_triggers,
         double publish_period)
       {
         return std::make_unique<TfBroadcasterSystem>(
-          ros_interface, publish_triggers, publish_period);
+          ros_interface, remappings, publish_triggers, publish_period);
       }));
 }

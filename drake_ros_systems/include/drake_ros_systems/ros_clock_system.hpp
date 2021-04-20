@@ -14,7 +14,6 @@
 #ifndef DRAKE_ROS_SYSTEMS__ROS_CLOCK_SYSTEM_HPP_
 #define DRAKE_ROS_SYSTEMS__ROS_CLOCK_SYSTEM_HPP_
 
-#include <chrono>
 #include <memory>
 
 #include <drake/systems/framework/leaf_system.h>
@@ -37,7 +36,7 @@ private:
   void
   DoCalcOutput(
     const drake::systems::Context<double> & context,
-    std::chrono::nanoseconds * output_value) const;
+    double * output_value) const;
 
   std::unique_ptr<RosClockSystemPrivate> impl_;
 };
