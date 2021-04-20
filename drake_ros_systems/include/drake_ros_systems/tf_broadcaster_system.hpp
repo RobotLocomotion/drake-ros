@@ -33,7 +33,7 @@ public:
     DrakeRosInterface * ros_interface,
     const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
     double publish_period = 0.0);
-  virtual ~TfBroadcasterSystem() = default;
+  virtual ~TfBroadcasterSystem();
 
 private:
   drake::systems::EventStatus

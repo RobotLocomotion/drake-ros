@@ -98,6 +98,10 @@ TfBroadcasterSystem::TfBroadcasterSystem(
   // ^^^ Mostly copied from LcmPublisherSystem ^^^
 }
 
+TfBroadcasterSystem::~TfBroadcasterSystem()
+{
+}
+
 drake::systems::EventStatus
 TfBroadcasterSystem::DoPublishFrames(
   const drake::systems::Context<double> & context) const

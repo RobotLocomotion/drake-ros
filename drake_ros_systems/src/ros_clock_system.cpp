@@ -36,14 +36,18 @@ RosClockSystem::RosClockSystem(DrakeRosInterface * ros)
   DeclareAbstractOutputPort("clock", &RosClockSystem::DoCalcOutput);
 }
 
+RosClockSystem::~RosClockSystem()
+{
+}
+
 void
 RosClockSystem::DoCalcOutput(
   const drake::systems::Context<double> &,
-  drake::AbstractValue * output_value) const
+  std::chrono::nanoseconds * output_value) const
 {
   // Transfer message from state to output port
-  output_value->set_value(std::chrono::nanoseconds(
-    impl_->clock_->now().nanoseconds()));
+  *output_value = std::chrono::nanoseconds(
+    impl_->clock_->now().nanoseconds());
 }
 
 }  // namespace drake_ros_systems

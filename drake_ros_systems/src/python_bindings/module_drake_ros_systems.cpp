@@ -36,6 +36,7 @@ using drake::systems::TriggerType;
 using drake_ros_systems::DrakeRos;
 using drake_ros_systems::DrakeRosInterface;
 using drake_ros_systems::PySerializer;
+using drake_ros_systems::RosClockSystem;
 using drake_ros_systems::RosInterfaceSystem;
 using drake_ros_systems::RosPublisherSystem;
 using drake_ros_systems::RosSubscriberSystem;

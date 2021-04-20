@@ -14,9 +14,10 @@
 #ifndef DRAKE_ROS_SYSTEMS__ROS_CLOCK_SYSTEM_HPP_
 #define DRAKE_ROS_SYSTEMS__ROS_CLOCK_SYSTEM_HPP_
 
-#include <drake/systems/framework/leaf_system.h>
-
+#include <chrono>
 #include <memory>
+
+#include <drake/systems/framework/leaf_system.h>
 
 #include "drake_ros_systems/drake_ros_interface.hpp"
 
@@ -30,13 +31,13 @@ class RosClockSystem : public drake::systems::LeafSystem<double>
 {
 public:
   RosClockSystem(DrakeRosInterface * ros_interface);
-  virtual ~RosClockSystem() = default;
+  virtual ~RosClockSystem();
 
 private:
   void
   DoCalcOutput(
     const drake::systems::Context<double> & context,
-    drake::AbstractValue * output_value) const;
+    std::chrono::nanoseconds * output_value) const;
 
   std::unique_ptr<RosClockSystemPrivate> impl_;
 };

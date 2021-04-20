@@ -66,7 +66,7 @@ public:
     DeclareAbstractInputPort("value", *drake::AbstractValue::Make(T()));
 
     // State for value
-    DeclareAbstractState(drake::AbstractValue::Make(initial_value));
+    DeclareAbstractState(drake::Value<T>(initial_value));
 
     // Output depends only on the previous state
     DeclareAbstractOutputPort("value", &Memory::calc_output_value, {all_state_ticket()});

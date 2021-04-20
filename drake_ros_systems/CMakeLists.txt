@@ -40,6 +40,7 @@ target_link_libraries(drake_ros_systems PUBLIC
   rclcpp::rclcpp
   rosidl_runtime_c::rosidl_runtime_c
   rosidl_typesupport_cpp::rosidl_typesupport_cpp
+  tf2_ros::tf2_ros
 )
 target_include_directories(drake_ros_systems
   PUBLIC
