@@ -1,4 +1,4 @@
-// Copyright 2020 Open Source Robotics Foundation, Inc.
+// Copyright 2021 Open Source Robotics Foundation, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,13 @@
 #include <unordered_set>
 #include <utility>
 
+#include <drake/common/eigen_types.h>
+#include <drake/geometry/query_object.h>
+#include <drake/geometry/scene_graph_inspector.h>
+#include <drake/math/rotation_matrix.h>
+
 #include <rclcpp/clock.hpp>
-#include <tf2_ros/transform_broadcaster.h> // NOLINT
+#include <tf2_ros/transform_broadcaster.h>
 
 #include "drake_ros_systems/tf_broadcaster_system.hpp"
 
@@ -29,20 +34,23 @@ class TfBroadcasterSystemPrivate
 {
 public:
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-  std::shared_ptr<rclcpp::Clock> clock_;
+  const drake::systems::InputPort<double> * query_object_port_{nullptr};
+  const drake::systems::InputPort<double> * clock_port_{nullptr};
 };
 
 TfBroadcasterSystem::TfBroadcasterSystem(
   DrakeRosInterface * ros,
   const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
   double publish_period)
-: impl_(new TFBroadcasterSystemPrivate())
+: impl_(new TfBroadcasterSystemPrivate())
 {
-  impl_->clock_ = ros->get_clock();
   impl_->tf_broadcaster_ = ros->create_tf_broadcaster();
 
-  DeclareAbstractInputPort(
-    "graph_query", drake::Value<drake::geometry::QueryObject<double>>{});
+  impl_->query_object_port_ = &DeclareAbstractInputPort(
+    "query_object", drake::Value<drake::geometry::QueryObject<double>>{});
+
+  impl_->clock_port_ = &DeclareAbstractInputPort(
+    "clock", drake::Value<std::chrono::nanoseconds>{});
 
   // vvv Mostly copied from LcmPublisherSystem vvv
   using TriggerType = drake::systems::TriggerType;
@@ -61,7 +69,7 @@ TfBroadcasterSystem::TfBroadcasterSystem(
   // Declare a forced publish so that any time Publish(.) is called on this
   // system (or a Diagram containing it), a message is emitted.
   if (publish_triggers.find(TriggerType::kForced) != publish_triggers.end()) {
-    this->DeclareForcedPublishEvent(&TFBroadcasterSystem::DoPublishFrames);
+    this->DeclareForcedPublishEvent(&TfBroadcasterSystem::DoPublishFrames);
   }
 
   if (publish_triggers.find(TriggerType::kPeriodic) != publish_triggers.end()) {
@@ -95,26 +103,29 @@ TfBroadcasterSystem::DoPublishFrames(
   const drake::systems::Context<double> & context) const
 {
   const drake::geometry::QueryObject<double> & query_object =
-    get_input_port().Eval<drake::geometry::QueryObject<double>>(context);
-  const drake::geometry::SceneGraphInspector<double> & inspector =
-    query_object.inspector();
+    impl_->query_object_port_->Eval<drake::geometry::QueryObject<double>>(context);
+  const drake::geometry::SceneGraphInspector<double> & inspector = query_object.inspector();
   // TODO(hidmic): publish frame transforms w.r.t. to their parent frame
   //               instead of the world frame when an API is made available.
   std::vector<geometry_msgs::msg::TransformStamped> all_messages;
   all_messages.reserve(inspector.num_frames() - 1);
   const std::string & world_frame_name =
-    inspector.Getname(inspector.world_frame_id());
+    inspector.GetName(inspector.world_frame_id());
   geometry_msgs::msg::TransformStamped message;
   message.header.frame_id = world_frame_name;
-  message.header.stamp = impl_->clock_->now();
+  const std::chrono::nanoseconds & time =
+    impl_->clock_port_->Eval<std::chrono::nanoseconds>(context);
+  auto sec = std::chrono::duration_cast<std::chrono::seconds>(time);
+  message.header.stamp.sec = sec.count();
+  message.header.stamp.nanosec = (time - sec).count();
   for (const drake::geometry::FrameId & frame_id : inspector.all_frame_ids()) {
     if (frame_id != inspector.world_frame_id()) {
       continue;
     }
     const drake::math::RigidTransform<double> & X_FW =
-      query_object.GetPoseInWord(frame_id);
+      query_object.GetPoseInWorld(frame_id);
     message.child_frame_id = inspector.GetName(frame_id);
-    const drake::math::Vector3<double> & p_FW = X_FW.translation();
+    const drake::Vector3<double> & p_FW = X_FW.translation();
     message.transform.translation.x = p_FW.x();
     message.transform.translation.y = p_FW.y();
     message.transform.translation.z = p_FW.z();

@@ -97,7 +97,7 @@ DrakeRos::create_subscription(
 std::unique_ptr<tf2_ros::TransformBroadcaster>
 DrakeRos::create_tf_broadcaster()
 {
-  return std::make_unique<tf2_ros::TransformBroadcaster>(impl_->node_);
+  return std::make_unique<tf2_ros::TransformBroadcaster>(*impl_->node_);
 }
 
 std::shared_ptr<rclcpp::Clock>

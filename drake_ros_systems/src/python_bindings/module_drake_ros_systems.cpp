@@ -19,6 +19,7 @@
 #include <unordered_set>
 
 #include "drake_ros_systems/drake_ros.hpp"
+#include "drake_ros_systems/ros_clock_system.hpp"
 #include "drake_ros_systems/ros_interface_system.hpp"
 #include "drake_ros_systems/ros_publisher_system.hpp"
 #include "drake_ros_systems/ros_subscriber_system.hpp"
@@ -50,6 +51,14 @@ PYBIND11_MODULE(drake_ros_systems, m) {
   // Use std::shared_ptr holder so pybind11 doesn't try to delete interfaces returned from
   // get_ros_interface
   py::class_<DrakeRosInterface, std::shared_ptr<DrakeRosInterface>>(m, "DrakeRosInterface");
+
+  py::class_<RosClockSystem, LeafSystem<double>>(m, "RosClockSystem")
+  .def(
+    py::init(
+      [](DrakeRosInterface * ros_interface)
+      {
+        return std::make_unique<RosClockSystem>(ros_interface);
+      }));
 
   py::class_<RosInterfaceSystem, LeafSystem<double>>(m, "RosInterfaceSystem")
   .def(
@@ -113,25 +122,25 @@ PYBIND11_MODULE(drake_ros_systems, m) {
       }));
 
   py::class_<TfBroadcasterSystem, LeafSystem<double>>(m, "TfBroadcasterSystem")
-    .def(
-      py::init(
-        [](DrakeRosInterface* ros_interface)
-        {
-          constexpr double kZeroPublishPeriod{0.0};
-          return std::make_unique<TfBroadcasterSystem>(
-            ros_interface,
-            std::unordered_set<TriggerType>{
-              TriggerType::kPerStep, TriggerType::kForced},
-            kZeroPublishPeriod);
-        }))
-    .def(
-      py::init(
-        [](
-          DrakeRosInterface* ros_interface
-          std::unordered_set<TriggerType> publish_triggers,
-          double publish_period)
-        {
-          return std::make_unique<TfBroadcasterSystem>(
-            ros_interface, publish_triggers, publish_period);
-        }));
+  .def(
+    py::init(
+      [](DrakeRosInterface * ros_interface)
+      {
+        constexpr double kZeroPublishPeriod{0.0};
+        return std::make_unique<TfBroadcasterSystem>(
+          ros_interface,
+          std::unordered_set<TriggerType>{
+            TriggerType::kPerStep, TriggerType::kForced},
+          kZeroPublishPeriod);
+      }))
+  .def(
+    py::init(
+      [](
+        DrakeRosInterface * ros_interface,
+        std::unordered_set<TriggerType> publish_triggers,
+        double publish_period)
+      {
+        return std::make_unique<TfBroadcasterSystem>(
+          ros_interface, publish_triggers, publish_period);
+      }));
 }

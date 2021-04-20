@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_SYSTEMS__TF_BROADCASTER_SYSTEM_HPP_
-#define DRAKE_ROS_SYSTEMS__TF_BROADCASTER_SYSTEM_HPP_
+#ifndef DRAKE_ROS_SYSTEMS__ROS_CLOCK_SYSTEM_HPP_
+#define DRAKE_ROS_SYSTEMS__ROS_CLOCK_SYSTEM_HPP_
 
 #include <drake/systems/framework/leaf_system.h>
 
@@ -24,22 +24,21 @@
 namespace drake_ros_systems
 {
 // PIMPL forward declaration
-class TfBroadcasterSystemPrivate;
+class RosClockSystemPrivate;
 
-class TfBroadcasterSystem : public drake::systems::LeafSystem<double>
+class RosClockSystem : public drake::systems::LeafSystem<double>
 {
 public:
-  TfBroadcasterSystem(
-    DrakeRosInterface * ros_interface,
-    const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
-    double publish_period = 0.0);
-  virtual ~TfBroadcasterSystem() = default;
+  RosClockSystem(DrakeRosInterface * ros_interface);
+  virtual ~RosClockSystem() = default;
 
 private:
-  drake::systems::EventStatus
-  DoPublishFrames(const drake::systems::Context<double> & context) const;
+  void
+  DoCalcOutput(
+    const drake::systems::Context<double> & context,
+    drake::AbstractValue * output_value) const;
 
-  std::unique_ptr<TfBroadcasterSystemPrivate> impl_;
+  std::unique_ptr<RosClockSystemPrivate> impl_;
 };
 }  // namespace drake_ros_systems
-#endif  // DRAKE_ROS_SYSTEMS__TF_BROADCASTER_SYSTEM_HPP_
+#endif  // DRAKE_ROS_SYSTEMS__ROS_CLOCK_SYSTEM_HPP_

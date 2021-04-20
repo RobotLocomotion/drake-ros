@@ -15,9 +15,11 @@
 #define DRAKE_ROS_SYSTEMS__DRAKE_ROS_HPP_
 
 #include <rosidl_runtime_c/message_type_support_struct.h>
+#include <rclcpp/clock.hpp>
 #include <rclcpp/node_options.hpp>
 #include <rclcpp/qos.hpp>
 #include <rclcpp/serialized_message.hpp>
+#include <tf2_ros/transform_broadcaster.h>
 
 #include <functional>
 #include <memory>
