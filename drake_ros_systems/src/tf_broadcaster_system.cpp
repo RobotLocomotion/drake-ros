@@ -34,7 +34,7 @@ class TfBroadcasterSystemPrivate
 {
 public:
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-  const drake::systems::InputPort<double> * query_object_port_{nullptr};
+  const drake::systems::InputPort<double> * graph_query_port_{nullptr};
   const drake::systems::InputPort<double> * clock_port_{nullptr};
 };
 
@@ -46,8 +46,8 @@ TfBroadcasterSystem::TfBroadcasterSystem(
 {
   impl_->tf_broadcaster_ = ros->create_tf_broadcaster();
 
-  impl_->query_object_port_ = &DeclareAbstractInputPort(
-    "query_object", drake::Value<drake::geometry::QueryObject<double>>{});
+  impl_->graph_query_port_ = &DeclareAbstractInputPort(
+    "graph_query", drake::Value<drake::geometry::QueryObject<double>>{});
 
   impl_->clock_port_ = &DeclareAbstractInputPort(
     "clock", drake::Value<std::chrono::nanoseconds>{});
@@ -107,7 +107,7 @@ TfBroadcasterSystem::DoPublishFrames(
   const drake::systems::Context<double> & context) const
 {
   const drake::geometry::QueryObject<double> & query_object =
-    impl_->query_object_port_->Eval<drake::geometry::QueryObject<double>>(context);
+    impl_->graph_query_port_->Eval<drake::geometry::QueryObject<double>>(context);
   const drake::geometry::SceneGraphInspector<double> & inspector = query_object.inspector();
   // TODO(hidmic): publish frame transforms w.r.t. to their parent frame
   //               instead of the world frame when an API is made available.
