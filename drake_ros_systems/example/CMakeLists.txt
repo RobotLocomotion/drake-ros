@@ -6,3 +6,9 @@ target_link_libraries(rs_flip_flop
   drake_ros_systems
   ${std_msgs_TARGETS}
 )
+
+add_executable(iiwa_manipulator iiwa_manipulator.cpp)
+target_link_libraries(iiwa_manipulator
+  drake::drake
+  drake_ros_systems
+)
