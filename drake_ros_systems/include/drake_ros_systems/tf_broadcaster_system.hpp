@@ -17,8 +17,6 @@
 #include <drake/systems/framework/leaf_system.h>
 
 #include <memory>
-#include <string>
-#include <unordered_map>
 #include <unordered_set>
 
 #include "drake_ros_systems/drake_ros_interface.hpp"
@@ -34,7 +32,6 @@ class TfBroadcasterSystem : public drake::systems::LeafSystem<double>
 public:
   TfBroadcasterSystem(
     DrakeRosInterface * ros_interface,
-    const std::unordered_map<std::string, std::string> & remappings,
     const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
     double publish_period = 0.0);
   virtual ~TfBroadcasterSystem();
