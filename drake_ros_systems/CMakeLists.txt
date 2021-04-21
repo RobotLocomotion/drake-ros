@@ -23,6 +23,7 @@ find_package(rclcpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 add_library(drake_ros_systems
   src/drake_ros.cpp
@@ -31,8 +32,11 @@ add_library(drake_ros_systems
   src/ros_interface_system.cpp
   src/ros_publisher_system.cpp
   src/ros_subscriber_system.cpp
+  src/rviz_visualizer.cpp
+  src/scene_markers_system.cpp
   src/subscription.cpp
   src/tf_broadcaster_system.cpp
+  src/utilities/type_conversion.cpp
 )
 
 target_link_libraries(drake_ros_systems PUBLIC
@@ -41,7 +45,9 @@ target_link_libraries(drake_ros_systems PUBLIC
   rosidl_runtime_c::rosidl_runtime_c
   rosidl_typesupport_cpp::rosidl_typesupport_cpp
   tf2_ros::tf2_ros
+  ${visualization_msgs_TARGETS}
 )
+
 target_include_directories(drake_ros_systems
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
