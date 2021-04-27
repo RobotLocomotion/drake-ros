@@ -23,9 +23,10 @@
 
 namespace drake_ros_systems
 {
-// PIMPL forward declaration
-class RosClockSystemPrivate;
-
+/// Source system that abstracts the ROS clock.
+///
+/// It has one output port:
+/// - *clock* (abstract): clock time in seconds, as a double.
 class RosClockSystem : public drake::systems::LeafSystem<double>
 {
 public:
@@ -34,9 +35,12 @@ public:
 
 private:
   void
-  DoCalcOutput(
+  CalcOutput(
     const drake::systems::Context<double> & context,
     double * output_value) const;
+
+  // PIMPL forward declaration
+  class RosClockSystemPrivate;
 
   std::unique_ptr<RosClockSystemPrivate> impl_;
 };

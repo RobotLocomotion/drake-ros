@@ -24,9 +24,15 @@
 
 namespace drake_ros_systems
 {
-// PIMPL forward declaration
-class TfBroadcasterSystemPrivate;
-
+/// System for tf2 transform broadcasting.
+///
+/// This system publishes all frame transforms found in a SceneGraph
+/// to the `/tf` ROS topic, using an external clock signal to timestamp
+/// `geometry_msgs/msg/TransformStamped` messages.
+///
+/// It has two input ports:
+/// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
+/// - *clock* (abstract): expects clock time in seconds, as a double.
 class TfBroadcasterSystem : public drake::systems::LeafSystem<double>
 {
 public:
@@ -38,7 +44,10 @@ public:
 
 private:
   drake::systems::EventStatus
-  DoPublishFrames(const drake::systems::Context<double> & context) const;
+  PublishFrames(const drake::systems::Context<double> & context) const;
+
+  // PIMPL forward declaration
+  class TfBroadcasterSystemPrivate;
 
   std::unique_ptr<TfBroadcasterSystemPrivate> impl_;
 };

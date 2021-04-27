@@ -26,6 +26,25 @@
 namespace drake_ros_systems
 {
 
+/// System for SceneGraph depiction as a ROS markers array.
+///
+/// This system outputs a `visualization_msg/msg/MarkerArray` populated with
+/// all geometries found in a SceneGraph, using an external clock signal
+/// to timestamp `geometry_msgs/msg/TransformStamped` messages.
+///
+/// It has two input ports:
+/// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
+/// - *clock* (abstract): expects clock time in seconds, as a double.
+///
+/// It has one output port:
+/// - *scene_markers* (abstract): all scene geometries, as a
+///   visualization_msg::msg::MarkerArray message.
+///
+/// This system provides the same base functionality in terms of SceneGraph
+/// geometries lookup and message conversion for ROS-based applications as
+/// the DrakeVisualizer system does for LCM-based applications.
+/// Thus, discussions in DrakeVisualizer's documentation about geometry
+/// versioning, geometry roles, and so on are equally applicable here.
 class SceneMarkersSystem : public drake::systems::LeafSystem<double>
 {
 public:
@@ -35,14 +54,21 @@ public:
   virtual ~SceneMarkersSystem();
 
 private:
+  // Outputs visualization_msgs::msg::MarkerArray message,
+  // timestamping the most up-to-date version.
   void
   PopulateSceneMarkersMessage(
     const drake::systems::Context<double> & context,
     visualization_msgs::msg::MarkerArray * output_value) const;
 
+  // Returns cached visualization_msgs::msg::MarkerArray message,
+  // which is invalidated (and thus recomputed) upon a SceneGraph
+  // geometry version change.
   const visualization_msgs::msg::MarkerArray &
   EvalSceneMarkers(const drake::systems::Context<double> & context) const;
 
+  // Inspects the SceneGraph and carries out the conversion
+  // to visualization_msgs::msg::MarkerArray message unconditionally.
   void
   CalcSceneMarkers(
     const drake::systems::Context<double> & context,

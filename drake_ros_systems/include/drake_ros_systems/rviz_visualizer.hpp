@@ -24,6 +24,18 @@
 
 namespace drake_ros_systems {
 
+/// System for SceneGraph visualization in RViz.
+///
+/// This system is a subdiagram aggregating a SceneMarkersSystem, a
+/// RosPublisherSystem, and optionally a TfBroadcasterSystem to enable
+/// SceneGraph visualization in RViz. All scene geometries are published
+/// as a visualization_msgs/msg/MarkerArray message to a `/scene_markers`
+/// ROS topic. If `publish_tf` is `true`, all SceneGraph frames are
+/// broadcasted as tf2 transforms.
+///
+/// It exports two input ports:
+/// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
+/// - *clock* (abstract): expects clock time in seconds, as a double.
 class RvizVisualizer : public drake::systems::Diagram<double>
 {
 public:

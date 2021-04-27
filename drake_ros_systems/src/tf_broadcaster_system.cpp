@@ -30,7 +30,7 @@
 
 namespace drake_ros_systems
 {
-class TfBroadcasterSystemPrivate
+class TfBroadcasterSystem::TfBroadcasterSystemPrivate
 {
 public:
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
@@ -70,7 +70,7 @@ TfBroadcasterSystem::TfBroadcasterSystem(
   // Declare a forced publish so that any time Publish(.) is called on this
   // system (or a Diagram containing it), a message is emitted.
   if (publish_triggers.find(TriggerType::kForced) != publish_triggers.end()) {
-    this->DeclareForcedPublishEvent(&TfBroadcasterSystem::DoPublishFrames);
+    this->DeclareForcedPublishEvent(&TfBroadcasterSystem::PublishFrames);
   }
 
   if (publish_triggers.find(TriggerType::kPeriodic) != publish_triggers.end()) {
@@ -80,7 +80,7 @@ TfBroadcasterSystem::TfBroadcasterSystem(
     const double offset = 0.0;
     this->DeclarePeriodicPublishEvent(
       publish_period, offset,
-      &TfBroadcasterSystem::DoPublishFrames);
+      &TfBroadcasterSystem::PublishFrames);
   } else if (publish_period > 0) {
     // publish_period > 0 without drake::systems::TriggerType::kPeriodic has no meaning and is
     // likely a mistake.
@@ -93,7 +93,7 @@ TfBroadcasterSystem::TfBroadcasterSystem(
         [this](
           const drake::systems::Context<double> & context,
           const drake::systems::PublishEvent<double> &) {
-          DoPublishFrames(context);
+          PublishFrames(context);
         }));
   }
   // ^^^ Mostly copied from LcmPublisherSystem ^^^
@@ -104,7 +104,7 @@ TfBroadcasterSystem::~TfBroadcasterSystem()
 }
 
 drake::systems::EventStatus
-TfBroadcasterSystem::DoPublishFrames(
+TfBroadcasterSystem::PublishFrames(
   const drake::systems::Context<double> & context) const
 {
   const drake::geometry::QueryObject<double> & query_object =

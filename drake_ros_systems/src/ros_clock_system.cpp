@@ -22,7 +22,7 @@
 
 namespace drake_ros_systems
 {
-class RosClockSystemPrivate
+class RosClockSystem::RosClockSystemPrivate
 {
 public:
   std::shared_ptr<rclcpp::Clock> clock_;
@@ -33,7 +33,7 @@ RosClockSystem::RosClockSystem(DrakeRosInterface * ros)
 {
   impl_->clock_ = ros->get_clock();
 
-  DeclareAbstractOutputPort("clock", &RosClockSystem::DoCalcOutput);
+  DeclareAbstractOutputPort("clock", &RosClockSystem::CalcOutput);
 }
 
 RosClockSystem::~RosClockSystem()
@@ -41,7 +41,7 @@ RosClockSystem::~RosClockSystem()
 }
 
 void
-RosClockSystem::DoCalcOutput(
+RosClockSystem::CalcOutput(
   const drake::systems::Context<double> &,
   double * output_value) const
 {
