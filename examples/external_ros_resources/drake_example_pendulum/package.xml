@@ -6,7 +6,7 @@
   <description>Example showing usage of resource from an external ROS package in Drake</description>
   <author email="drake-users@mit.edu">Drake Users</author>
   <maintainer email="drake-users@mit.edu">Drake Users</maintainer>
-  <license>BSD</license>
+  <license>Apache License 2.0</license>
   <url type="website">https://drake.mit.edu</url>
   <url type="bugtracker">https://github.com/RobotLocomotion/drake-ros/issues</url>
   <url type="repository">https://github.com/RobotLocomotion/drake-ros</url>
