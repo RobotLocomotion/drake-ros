@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <unordered_set>
-
 #include <drake/systems/framework/diagram_builder.h>
 
 #include <rclcpp/qos.hpp>
-
 #include <visualization_msgs/msg/marker_array.hpp>
+
+#include <memory>
+#include <unordered_set>
 
 #include "drake_ros_systems/ros_publisher_system.hpp"
 #include "drake_ros_systems/scene_markers_system.hpp"
@@ -28,7 +27,8 @@
 #include "drake_ros_systems/rviz_visualizer.hpp"
 
 
-namespace drake_ros_systems {
+namespace drake_ros_systems
+{
 
 RvizVisualizer::RvizVisualizer(
   std::shared_ptr<DrakeRosInterface> ros_interface,
@@ -60,4 +60,3 @@ RvizVisualizer::RvizVisualizer(
 }
 
 }  // namespace drake_ros_systems
-

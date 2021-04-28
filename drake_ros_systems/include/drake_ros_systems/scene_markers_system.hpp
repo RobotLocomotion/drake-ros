@@ -14,13 +14,13 @@
 #ifndef DRAKE_ROS_SYSTEMS__SCENE_MARKERS_SYSTEM_HPP_
 #define DRAKE_ROS_SYSTEMS__SCENE_MARKERS_SYSTEM_HPP_
 
-#include <memory>
-
 #include <drake/geometry/geometry_roles.h>
 #include <drake/geometry/rgba.h>
 #include <drake/systems/framework/leaf_system.h>
 
 #include <visualization_msgs/msg/marker_array.hpp>
+
+#include <memory>
 
 
 namespace drake_ros_systems

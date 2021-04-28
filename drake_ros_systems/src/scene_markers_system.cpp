@@ -33,11 +33,14 @@
 #include "drake_ros_systems/utilities/type_conversion.hpp"
 
 
-namespace drake_ros_systems {
+namespace drake_ros_systems
+{
 
-namespace {
+namespace
+{
 
-class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
+class SceneGeometryToMarkers : public drake::geometry::ShapeReifier
+{
 public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SceneGeometryToMarkers)
 
@@ -61,8 +64,8 @@ public:
 
     prototype_marker_.header.frame_id =
       inspector.GetName(inspector.GetFrameId(geometry_id));
-    prototype_marker_.ns = inspector.GetOwningSourceName(geometry_id)
-                           + "::" + inspector.GetName(geometry_id);
+    prototype_marker_.ns = inspector.GetOwningSourceName(geometry_id) +
+      "::" + inspector.GetName(geometry_id);
     prototype_marker_.id = 0;
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
 
@@ -79,7 +82,7 @@ public:
       if (illustration_props) {
         default_color =
           illustration_props->GetPropertyOrDefault(
-            "phong", "diffuse", default_color);
+          "phong", "diffuse", default_color);
       }
     }
     const drake::geometry::Rgba & color =
@@ -250,12 +253,13 @@ SceneMarkersSystem::SceneMarkersSystem(
 {
   impl_->graph_query_port_index =
     this->DeclareAbstractInputPort(
-      "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
+    "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
 
   impl_->scene_markers_cache_index =
-      this->DeclareCacheEntry("scene_markers_cache",
-                              &SceneMarkersSystem::CalcSceneMarkers,
-                              {nothing_ticket()}).cache_index();
+    this->DeclareCacheEntry(
+    "scene_markers_cache",
+    &SceneMarkersSystem::CalcSceneMarkers,
+    {nothing_ticket()}).cache_index();
 
   this->DeclareAbstractOutputPort(
     "scene_markers", &SceneMarkersSystem::PopulateSceneMarkersMessage);
@@ -274,8 +278,7 @@ SceneMarkersSystem::PopulateSceneMarkersMessage(
 
   const builtin_interfaces::msg::Time stamp =
     rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
-  for (visualization_msgs::msg::Marker & marker : output_value->markers)
-  {
+  for (visualization_msgs::msg::Marker & marker : output_value->markers) {
     marker.header.stamp = stamp;
   }
 }
@@ -286,18 +289,18 @@ SceneMarkersSystem::EvalSceneMarkers(
 {
   const drake::geometry::QueryObject<double> & query_object =
     get_input_port(impl_->graph_query_port_index)
-      .Eval<drake::geometry::QueryObject<double>>(context);
+    .Eval<drake::geometry::QueryObject<double>>(context);
   const drake::geometry::GeometryVersion & current_version =
     query_object.inspector().geometry_version();
   if (!impl_->version.IsSameAs(current_version, impl_->role)) {
     // Invalidate scene markers cache
     get_cache_entry(impl_->scene_markers_cache_index)
-      .get_mutable_cache_entry_value(context)
-        .mark_out_of_date();
+    .get_mutable_cache_entry_value(context)
+    .mark_out_of_date();
     impl_->version = current_version;
   }
   return get_cache_entry(impl_->scene_markers_cache_index)
-    .Eval<visualization_msgs::msg::MarkerArray>(context);
+         .Eval<visualization_msgs::msg::MarkerArray>(context);
 }
 
 void
@@ -307,16 +310,17 @@ SceneMarkersSystem::CalcSceneMarkers(
 {
   const drake::geometry::QueryObject<double> & query_object =
     get_input_port(impl_->graph_query_port_index)
-      .Eval<drake::geometry::QueryObject<double>>(context);
+    .Eval<drake::geometry::QueryObject<double>>(context);
   const drake::geometry::SceneGraphInspector<double> & inspector = query_object.inspector();
   output_value->markers.reserve(inspector.NumGeometriesWithRole(impl_->role));
   for (const drake::geometry::FrameId & frame_id : inspector.all_frame_ids()) {
     for (const drake::geometry::GeometryId & geometry_id :
-         inspector.GetGeometries(frame_id, impl_->role)) {
+      inspector.GetGeometries(frame_id, impl_->role))
+    {
       SceneGeometryToMarkers(impl_->role, impl_->default_color)
-        .Populate(inspector, geometry_id, output_value);
+      .Populate(inspector, geometry_id, output_value);
     }
   }
 }
 
-}  // drake_ros_systems
+}  // namespace drake_ros_systems

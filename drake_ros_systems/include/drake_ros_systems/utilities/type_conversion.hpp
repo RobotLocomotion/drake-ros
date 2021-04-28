@@ -19,8 +19,10 @@
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/transform.hpp>
 
-namespace drake_ros_systems {
-namespace utilities {
+namespace drake_ros_systems
+{
+namespace utilities
+{
 
 geometry_msgs::msg::Pose
 ToPoseMsg(const drake::math::RigidTransform<double> X_AB);

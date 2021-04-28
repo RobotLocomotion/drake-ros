@@ -22,7 +22,8 @@
 #include "drake_ros_systems/drake_ros_interface.hpp"
 
 
-namespace drake_ros_systems {
+namespace drake_ros_systems
+{
 
 /// System for SceneGraph visualization in RViz.
 ///

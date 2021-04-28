@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 
 #include <drake/examples/manipulation_station/manipulation_station.h>
 
 #include <drake_ros_systems/drake_ros.hpp>
-#include <drake_ros_systems/ros_clock_system.hpp>
 #include <drake_ros_systems/ros_interface_system.hpp>
 #include <drake_ros_systems/rviz_visualizer.hpp>
 
@@ -25,14 +25,14 @@
 #include <utility>
 
 using drake_ros_systems::DrakeRos;
-using drake_ros_systems::RosClockSystem;
 using drake_ros_systems::RosInterfaceSystem;
 using drake_ros_systems::RvizVisualizer;
 
 using drake::examples::manipulation_station::ManipulationStation;
 
 
-int main() {
+int main()
+{
   drake::systems::DiagramBuilder<double> builder;
 
   auto ros_interface_system =
@@ -63,16 +63,15 @@ int main() {
     diagram->GetMutableSubsystemContext(*manipulation_station, &simulator_context);
 
   manipulation_station->GetInputPort("iiwa_position")
-    .FixValue(
-        &manipulation_station_context,
-        manipulation_station->GetIiwaPosition(manipulation_station_context));
+  .FixValue(
+    &manipulation_station_context,
+    manipulation_station->GetIiwaPosition(manipulation_station_context));
 
   manipulation_station->GetInputPort("wsg_position")
-    .FixValue(&manipulation_station_context, 0.);
+  .FixValue(&manipulation_station_context, 0.);
 
   while (true) {
     simulator->AdvanceTo(simulator_context.get_time() + 0.1);
   }
   return 0;
-
 }
