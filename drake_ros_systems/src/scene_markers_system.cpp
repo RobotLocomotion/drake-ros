@@ -241,7 +241,6 @@ public:
   mutable drake::geometry::GeometryVersion version;
   drake::systems::CacheIndex scene_markers_cache_index;
   drake::systems::InputPortIndex graph_query_port_index;
-  drake::systems::InputPortIndex clock_port_index;
 };
 
 SceneMarkersSystem::SceneMarkersSystem(
@@ -252,9 +251,6 @@ SceneMarkersSystem::SceneMarkersSystem(
   impl_->graph_query_port_index =
     this->DeclareAbstractInputPort(
       "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
-
-  impl_->clock_port_index =
-    this->DeclareAbstractInputPort("clock", drake::Value<double>{}).get_index();
 
   impl_->scene_markers_cache_index =
       this->DeclareCacheEntry("scene_markers_cache",
@@ -276,10 +272,8 @@ SceneMarkersSystem::PopulateSceneMarkersMessage(
 {
   *output_value = this->EvalSceneMarkers(context);
 
-  rclcpp::Time current_time;
-  current_time += rclcpp::Duration::from_seconds(
-    get_input_port(impl_->clock_port_index).Eval<double>(context));
-  builtin_interfaces::msg::Time stamp = current_time;
+  const builtin_interfaces::msg::Time stamp =
+    rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
   for (visualization_msgs::msg::Marker & marker : output_value->markers)
   {
     marker.header.stamp = stamp;

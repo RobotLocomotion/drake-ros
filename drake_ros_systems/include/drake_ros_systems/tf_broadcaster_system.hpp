@@ -27,12 +27,11 @@ namespace drake_ros_systems
 /// System for tf2 transform broadcasting.
 ///
 /// This system publishes all frame transforms found in a SceneGraph
-/// to the `/tf` ROS topic, using an external clock signal to timestamp
+/// to the `/tf` ROS topic, using Context time to timestamp
 /// `geometry_msgs/msg/TransformStamped` messages.
 ///
-/// It has two input ports:
+/// It has one input port:
 /// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
-/// - *clock* (abstract): expects clock time in seconds, as a double.
 class TfBroadcasterSystem : public drake::systems::LeafSystem<double>
 {
 public:

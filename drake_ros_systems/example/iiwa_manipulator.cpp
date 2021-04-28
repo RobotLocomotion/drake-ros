@@ -42,15 +42,8 @@ int main() {
   manipulation_station->SetupClutterClearingStation();
   manipulation_station->Finalize();
 
-  auto clock_system = builder.AddSystem<RosClockSystem>(
-    ros_interface_system->get_ros_interface().get());
-
   auto rviz_visualizer = builder.AddSystem<RvizVisualizer>(
     ros_interface_system->get_ros_interface());
-
-  builder.Connect(
-    clock_system->GetOutputPort("clock"),
-    rviz_visualizer->GetInputPort("clock"));
 
   builder.Connect(
     manipulation_station->GetOutputPort("query_object"),

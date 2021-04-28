@@ -47,14 +47,12 @@ RvizVisualizer::RvizVisualizer(
     scene_markers->GetOutputPort("scene_markers"),
     scene_markers_publisher->GetInputPort("message"));
 
-  builder.ExportInput(scene_markers->GetInputPort("clock"), "clock");
   builder.ExportInput(scene_markers->GetInputPort("graph_query"), "graph_query");
 
   if (publish_tf) {
     auto tf_broadcaster = builder.AddSystem<TfBroadcasterSystem>(
       ros_interface.get(), publish_triggers, publish_period);
 
-    builder.ConnectInput("clock", tf_broadcaster->GetInputPort("clock"));
     builder.ConnectInput("graph_query", tf_broadcaster->GetInputPort("graph_query"));
   }
 

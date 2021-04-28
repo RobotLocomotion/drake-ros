@@ -35,7 +35,6 @@ class TfBroadcasterSystem::TfBroadcasterSystemPrivate
 public:
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   drake::systems::InputPortIndex graph_query_port_index;
-  drake::systems::InputPortIndex clock_port_index;
 };
 
 TfBroadcasterSystem::TfBroadcasterSystem(
@@ -49,9 +48,6 @@ TfBroadcasterSystem::TfBroadcasterSystem(
   impl_->graph_query_port_index =
     this->DeclareAbstractInputPort(
       "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
-
-  impl_->clock_port_index =
-    this->DeclareAbstractInputPort("clock", drake::Value<double>{}).get_index();
 
   // vvv Mostly copied from LcmPublisherSystem vvv
   using TriggerType = drake::systems::TriggerType;
@@ -117,9 +113,9 @@ TfBroadcasterSystem::PublishFrames(
     std::vector<geometry_msgs::msg::TransformStamped> transforms;
     transforms.reserve(inspector.num_frames() - 1);
     geometry_msgs::msg::TransformStamped transform;
+    transform.header.stamp =
+      rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
     transform.header.frame_id = inspector.GetName(inspector.world_frame_id());
-    const double time = get_input_port(impl_->clock_port_index).Eval<double>(context);
-    transform.header.stamp = rclcpp::Time() + rclcpp::Duration::from_seconds(time);
     for (const drake::geometry::FrameId & frame_id : inspector.all_frame_ids()) {
       if (frame_id == inspector.world_frame_id()) {
         continue;

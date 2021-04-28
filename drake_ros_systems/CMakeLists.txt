@@ -28,7 +28,6 @@ find_package(visualization_msgs REQUIRED)
 add_library(drake_ros_systems
   src/drake_ros.cpp
   src/publisher.cpp
-  src/ros_clock_system.cpp
   src/ros_interface_system.cpp
   src/ros_publisher_system.cpp
   src/ros_subscriber_system.cpp

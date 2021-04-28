@@ -29,12 +29,11 @@ namespace drake_ros_systems
 /// System for SceneGraph depiction as a ROS markers array.
 ///
 /// This system outputs a `visualization_msg/msg/MarkerArray` populated with
-/// all geometries found in a SceneGraph, using an external clock signal
-/// to timestamp `geometry_msgs/msg/TransformStamped` messages.
+/// all geometries found in a SceneGraph, using Context time to timestamp
+/// `geometry_msgs/msg/TransformStamped` messages.
 ///
-/// It has two input ports:
+/// It has one input port:
 /// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
-/// - *clock* (abstract): expects clock time in seconds, as a double.
 ///
 /// It has one output port:
 /// - *scene_markers* (abstract): all scene geometries, as a

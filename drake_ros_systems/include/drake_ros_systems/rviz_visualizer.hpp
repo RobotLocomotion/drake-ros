@@ -33,9 +33,8 @@ namespace drake_ros_systems {
 /// ROS topic. If `publish_tf` is `true`, all SceneGraph frames are
 /// broadcasted as tf2 transforms.
 ///
-/// It exports two input ports:
+/// It exports one input port:
 /// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
-/// - *clock* (abstract): expects clock time in seconds, as a double.
 class RvizVisualizer : public drake::systems::Diagram<double>
 {
 public:
