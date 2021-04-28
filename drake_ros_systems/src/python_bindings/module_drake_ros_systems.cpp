@@ -120,33 +120,17 @@ PYBIND11_MODULE(drake_ros_systems, m) {
 
   py::class_<TfBroadcasterSystem, LeafSystem<double>>(m, "TfBroadcasterSystem")
   .def(
-    py::init(
-      [](DrakeRosInterface * ros_interface)
-      {
-        constexpr double kZeroPublishPeriod{0.0};
-        return std::make_unique<TfBroadcasterSystem>(
-          ros_interface,
-          std::unordered_set<TriggerType>{
-            TriggerType::kPerStep, TriggerType::kForced},
-          kZeroPublishPeriod);
-      }))
-  .def(
-    py::init(
-      [](
-        DrakeRosInterface * ros_interface,
-        std::unordered_set<TriggerType> publish_triggers,
-        double publish_period)
-      {
-        return std::make_unique<TfBroadcasterSystem>(
-          ros_interface, publish_triggers, publish_period);
-      }));
+    py::init<DrakeRosInterface *, std::unordered_set<TriggerType>, double>(),
+    py::arg("ros_interface"),
+    py::arg("publish_triggers") = {TriggerType::kPerStep, TriggerType::kForced},
+    py::arg("publish_period") = 0.0)
+  .def("get_graph_query_port", &TfBroadcasterSystem::get_graph_query_port);
 
   py::class_<SceneMarkersSystem, LeafSystem<double>>(m, "SceneMarkersSystem")
-  .def(py::init([]() { return std::make_unique<SceneMarkersSystem>(); }))
+  .def(py::init([]() {return std::make_unique<SceneMarkersSystem>();}))
   .def(
     py::init(
-      [](const drake::geometry::Role & role,
-         const drake::geometry::Rgba & default_color)
+      [](const drake::geometry::Role & role, const drake::geometry::Rgba & default_color)
       {
         return std::make_unique<SceneMarkersSystem>(role, default_color);
       }));
@@ -160,7 +144,8 @@ PYBIND11_MODULE(drake_ros_systems, m) {
       }))
   .def(
     py::init(
-      [](std::shared_ptr<DrakeRosInterface> ros_interface,
+      [](
+         std::shared_ptr<DrakeRosInterface> ros_interface,
          std::unordered_set<TriggerType> publish_triggers,
          double publish_period, bool publish_tf)
       {

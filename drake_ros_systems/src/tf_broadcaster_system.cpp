@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <string>
-#include <unordered_set>
-#include <utility>
-
 #include <drake/common/eigen_types.h>
 #include <drake/geometry/query_object.h>
 #include <drake/geometry/scene_graph_inspector.h>
 
 #include <rclcpp/clock.hpp>
 #include <tf2_ros/transform_broadcaster.h>
+
+#include <memory>
+#include <string>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 #include "drake_ros_systems/tf_broadcaster_system.hpp"
 #include "drake_ros_systems/utilities/type_conversion.hpp"
@@ -47,7 +48,7 @@ TfBroadcasterSystem::TfBroadcasterSystem(
 
   impl_->graph_query_port_index =
     this->DeclareAbstractInputPort(
-      "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
+    "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
 
   // vvv Mostly copied from LcmPublisherSystem vvv
   using TriggerType = drake::systems::TriggerType;
@@ -59,7 +60,7 @@ TfBroadcasterSystem::TfBroadcasterSystem(
       (trigger != TriggerType::kPerStep))
     {
       throw std::invalid_argument(
-        "Only kForced, kPeriodic, or kPerStep are supported");
+              "Only kForced, kPeriodic, or kPerStep are supported");
     }
   }
 
@@ -99,13 +100,18 @@ TfBroadcasterSystem::~TfBroadcasterSystem()
 {
 }
 
+const drake::systems::InputPort<double> &
+TfBroadcasterSystem::get_graph_query_port() const
+{
+  return get_input_port(impl_->graph_query_port_index);
+}
+
 drake::systems::EventStatus
 TfBroadcasterSystem::PublishFrames(
   const drake::systems::Context<double> & context) const
 {
   const drake::geometry::QueryObject<double> & query_object =
-    get_input_port(impl_->graph_query_port_index)
-      .Eval<drake::geometry::QueryObject<double>>(context);
+    get_graph_query_port().Eval<drake::geometry::QueryObject<double>>(context);
   const drake::geometry::SceneGraphInspector<double> & inspector = query_object.inspector();
   // TODO(hidmic): publish frame transforms w.r.t. to their parent frame
   //               instead of the world frame when an API is made available.

@@ -37,10 +37,12 @@ class TfBroadcasterSystem : public drake::systems::LeafSystem<double>
 public:
   TfBroadcasterSystem(
     DrakeRosInterface * ros_interface,
-    const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
+    const std::unordered_set<drake::systems::TriggerType> & publish_triggers = {
+      drake::systems::TriggerType::kPerStep, drake::systems::kForced},
     double publish_period = 0.0);
   virtual ~TfBroadcasterSystem();
 
+  const drake::systems::InputPort<double> & get_graph_query_port() const;
 private:
   drake::systems::EventStatus
   PublishFrames(const drake::systems::Context<double> & context) const;
