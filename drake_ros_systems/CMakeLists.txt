@@ -16,6 +16,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake_ros REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(drake REQUIRED)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
@@ -100,6 +101,9 @@ if(BUILD_TESTING)
   find_package(test_msgs REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_pytest REQUIRED)
+
   ament_add_gtest(test_integration test/integration.cpp)
 
   # TODO(sloretz) Why isn't pybind11::embed including python libs?
@@ -118,6 +122,17 @@ if(BUILD_TESTING)
   target_link_libraries(test_drake_ros
     drake_ros_systems
   )
+
+  ament_add_gtest(test_tf_broadcaster test/test_tf_broadcaster.cpp)
+  target_link_libraries(test_tf_broadcaster
+    drake::drake
+    drake_ros_systems
+    ${geometry_msgs_TARGETS}
+    rclcpp::rclcpp
+    tf2_ros::tf2_ros
+  )
+
+  ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py)
 endif()
 
 ament_package()
