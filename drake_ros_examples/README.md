@@ -57,7 +57,7 @@ export PYTHONPATH=$(pwd)/drake_ros_systems/install/lib/$(python -c 'import sys; 
 export PYTHONPATH=$(pwd)/drake_ros_examples/install/lib/$(python -c 'import sys; print(f"python{sys.version_info[0]}.{sys.version_info[1]}")')/site-packages:$PYTHONPATH
 ```
 
-  Now you can run C++ and Python examples from the install folder using `./install/lib/drake_ros_examples/<example-executable-or-script>`.
+  Now you can run C++ and Python examples from the install folder using `./drake-ros/drake_ros_examples/install/lib/drake_ros_examples/<example-executable-or-script>`.
 
 ## List of examples
 
