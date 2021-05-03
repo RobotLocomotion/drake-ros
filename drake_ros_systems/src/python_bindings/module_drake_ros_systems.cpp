@@ -134,7 +134,7 @@ PYBIND11_MODULE(drake_ros_systems, m) {
     py::arg("publish_triggers") =
     std::unordered_set<TriggerType>{TriggerType::kPerStep, TriggerType::kForced},
     py::arg("publish_period") = 0.0,
-    py::arg("publish_tf") = false)
+    py::arg("publish_tf") = true)
   .def(
     "get_graph_query_port", &RvizVisualizer::get_graph_query_port,
     py::return_value_policy::reference_internal);
