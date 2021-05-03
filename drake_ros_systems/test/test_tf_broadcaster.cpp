@@ -90,19 +90,22 @@ TEST(TfBroadcasting, nominal_case) {
   // Don't need to rclcpp::init because DrakeRos uses global rclcpp::Context by default
   auto node = rclcpp::Node::make_shared("tf_listener");
 
-  constexpr bool kNoSpinThread{false};
   tf2_ros::Buffer buffer(node->get_clock());
+  buffer.setUsingDedicatedThread(true);  // Shut tf2 warnings.
+
+  constexpr bool kNoSpinThread{false};
   tf2_ros::TransformListener listener(buffer, node, kNoSpinThread);
 
-  const rclcpp::Time time = node->get_clock()->now();
-  const builtin_interfaces::msg::Time stamp = time;
+  const auto time = rclcpp::Time() + rclcpp::Duration::from_seconds(13.);
 
   context->SetTime(time.seconds());
   diagram->Publish(*context);
   rclcpp::spin_some(node);
 
+  EXPECT_TRUE(buffer.canTransform("world", "odom", time));
   const geometry_msgs::msg::TransformStamped world_to_odom =
     buffer.lookupTransform("world", "odom", time);
+  const builtin_interfaces::msg::Time stamp = time;
   EXPECT_EQ(world_to_odom.header.stamp.sec, stamp.sec);
   EXPECT_EQ(world_to_odom.header.stamp.nanosec, stamp.nanosec);
   const drake::Vector3<double> & p_WO = X_WO.translation();
@@ -115,6 +118,7 @@ TEST(TfBroadcasting, nominal_case) {
   EXPECT_DOUBLE_EQ(world_to_odom.transform.rotation.z, R_WO.z());
   EXPECT_DOUBLE_EQ(world_to_odom.transform.rotation.w, R_WO.w());
 
+  EXPECT_TRUE(buffer.canTransform("odom", "base_link", time));
   const geometry_msgs::msg::TransformStamped odom_to_base_link =
     buffer.lookupTransform("odom", "base_link", time);
   EXPECT_EQ(odom_to_base_link.header.stamp.sec, stamp.sec);

@@ -125,7 +125,9 @@ PYBIND11_MODULE(drake_ros_systems, m) {
     py::arg("publish_triggers") = std::unordered_set<TriggerType>{
     TriggerType::kPerStep, TriggerType::kForced},
     py::arg("publish_period") = 0.0)
-  .def("get_graph_query_port", &TfBroadcasterSystem::get_graph_query_port);
+  .def(
+    "get_graph_query_port", &TfBroadcasterSystem::get_graph_query_port,
+    py::return_value_policy::reference_internal);
 
   py::class_<SceneMarkersSystem, LeafSystem<double>>(m, "SceneMarkersSystem")
   .def(py::init([]() {return std::make_unique<SceneMarkersSystem>();}))

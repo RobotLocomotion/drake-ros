@@ -18,8 +18,9 @@ import numpy as np
 from drake_ros_systems import RosInterfaceSystem
 from drake_ros_systems import TfBroadcasterSystem
 
-from pydrake.common import AbstractValue
+from pydrake.common.value import AbstractValue
 from pydrake.math import RigidTransform
+from pydrake.math import RollPitchYaw
 from pydrake.math import RotationMatrix
 from pydrake.geometry import FramePoseVector
 from pydrake.geometry import GeometryFrame
@@ -29,6 +30,7 @@ from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantValueSource
 
 import rclpy
+import rclpy.time
 import tf2_ros
 
 
@@ -48,7 +50,7 @@ def test_nominal_case():
         R=RotationMatrix.Identity(),
         p=np.array([1., 1., 0.]))
     X_OB = RigidTransform(
-        rpy=np.array([0., 0., np.pi / 2.]),
+        rpy=RollPitchYaw(0., 0., math.pi / 2.),
         p=np.array([1., 1., 0.]))
 
     pose_vector = FramePoseVector()
@@ -63,10 +65,11 @@ def test_nominal_case():
         scene_graph.get_source_pose_port(source_id))
 
     tf_broadcaster = builder.AddSystem(TfBroadcasterSystem(
-        sys_ros_interface, publish_triggers={TriggerType.kForced}))
+        sys_ros_interface.get_ros_interface(),
+        publish_triggers={TriggerType.kForced}))
 
     builder.Connect(
-        scene_graph.get_query_object_port(),
+        scene_graph.get_query_output_port(),
         tf_broadcaster.get_graph_query_port())
 
     diagram = builder.Build()
@@ -78,14 +81,15 @@ def test_nominal_case():
     buffer_ = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(buffer_, node, spin_thread=False)  # noqa
 
-    time = node.get_clock().now()
+    time = rclpy.time.Time(seconds=13.)
     stamp = time.to_msg()
 
     context.SetTime(time.nanoseconds / 1e9)
     diagram.Publish(context)
     rclpy.spin_once(node)
 
-    world_to_odom = buffer_.lookupTransform('world', 'odom', time)
+    assert buffer_.can_transform('world', 'odom', time)
+    world_to_odom = buffer_.lookup_transform('world', 'odom', time)
     assert world_to_odom.header.stamp.sec == stamp.sec
     assert world_to_odom.header.stamp.nanosec == stamp.nanosec
     p_WO = X_WO.translation()
@@ -98,7 +102,8 @@ def test_nominal_case():
     assert math.isclose(world_to_odom.transform.rotation.z, R_WO.z())
     assert math.isclose(world_to_odom.transform.rotation.w, R_WO.w())
 
-    odom_to_base_link = buffer_.lookupTransform('odom', 'base_link', time)
+    assert buffer_.can_transform('odom', 'base_link', time)
+    odom_to_base_link = buffer_.lookup_transform('odom', 'base_link', time)
     assert odom_to_base_link.header.stamp.sec == stamp.sec
     assert odom_to_base_link.header.stamp.nanosec == stamp.nanosec
     p_OB = X_OB.translation()
