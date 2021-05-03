@@ -51,11 +51,11 @@ TEST(TfBroadcasting, nominal_case) {
 
   auto scene_graph = builder.AddSystem<drake::geometry::SceneGraph>();
   const drake::geometry::SourceId source_id =
-      scene_graph->RegisterSource("test_source");
+    scene_graph->RegisterSource("test_source");
   const drake::geometry::FrameId odom_frame = scene_graph->RegisterFrame(
-      source_id, drake::geometry::GeometryFrame("odom"));
+    source_id, drake::geometry::GeometryFrame("odom"));
   const drake::geometry::FrameId base_frame = scene_graph->RegisterFrame(
-      source_id, odom_frame, drake::geometry::GeometryFrame("base_link"));
+    source_id, odom_frame, drake::geometry::GeometryFrame("base_link"));
 
   const drake::math::RigidTransform<double> X_WO{  // World to Odom
     drake::math::RotationMatrix<double>::Identity(),

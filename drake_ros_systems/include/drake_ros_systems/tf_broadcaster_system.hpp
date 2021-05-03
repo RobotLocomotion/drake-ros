@@ -43,6 +43,7 @@ public:
   virtual ~TfBroadcasterSystem();
 
   const drake::systems::InputPort<double> & get_graph_query_port() const;
+
 private:
   drake::systems::EventStatus
   PublishFrames(const drake::systems::Context<double> & context) const;

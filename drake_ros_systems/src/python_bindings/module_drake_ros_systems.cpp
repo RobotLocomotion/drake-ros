@@ -123,7 +123,7 @@ PYBIND11_MODULE(drake_ros_systems, m) {
     py::init<DrakeRosInterface *, std::unordered_set<TriggerType>, double>(),
     py::arg("ros_interface"),
     py::arg("publish_triggers") = std::unordered_set<TriggerType>{
-      TriggerType::kPerStep, TriggerType::kForced},
+    TriggerType::kPerStep, TriggerType::kForced},
     py::arg("publish_period") = 0.0)
   .def("get_graph_query_port", &TfBroadcasterSystem::get_graph_query_port);
 
@@ -146,9 +146,9 @@ PYBIND11_MODULE(drake_ros_systems, m) {
   .def(
     py::init(
       [](
-         std::shared_ptr<DrakeRosInterface> ros_interface,
-         std::unordered_set<TriggerType> publish_triggers,
-         double publish_period, bool publish_tf)
+        std::shared_ptr<DrakeRosInterface> ros_interface,
+        std::unordered_set<TriggerType> publish_triggers,
+        double publish_period, bool publish_tf)
       {
         return std::make_unique<RvizVisualizer>(
           ros_interface, publish_triggers, publish_period, publish_tf);
