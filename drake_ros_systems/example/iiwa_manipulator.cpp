@@ -47,7 +47,7 @@ int main()
 
   builder.Connect(
     manipulation_station->GetOutputPort("query_object"),
-    rviz_visualizer->GetInputPort("graph_query"));
+    rviz_visualizer->get_graph_query_port());
 
   auto diagram = builder.Build();
   auto context = diagram->CreateDefaultContext();
