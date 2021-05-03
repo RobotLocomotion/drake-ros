@@ -45,6 +45,8 @@ public:
       drake::systems::TriggerType::kForced, drake::systems::TriggerType::kPeriodic},
     double publish_period = 0.05,
     bool publish_tf = true);
+
+  const drake::systems::InputPort<double> & get_graph_query_port() const;
 };
 
 }  // namespace drake_ros_systems

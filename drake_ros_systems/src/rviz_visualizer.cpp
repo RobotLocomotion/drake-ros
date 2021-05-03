@@ -44,19 +44,25 @@ RvizVisualizer::RvizVisualizer(
       "/scene_markers", rclcpp::QoS(1), ros_interface, publish_triggers, publish_period));
 
   builder.Connect(
-    scene_markers->GetOutputPort("scene_markers"),
-    scene_markers_publisher->GetInputPort("message"));
+    scene_markers->get_markers_output_port(),
+    scene_markers_publisher->get_input_port());
 
-  builder.ExportInput(scene_markers->GetInputPort("graph_query"), "graph_query");
+  builder.ExportInput(scene_markers->get_graph_query_port(), "graph_query");
 
   if (publish_tf) {
     auto tf_broadcaster = builder.AddSystem<TfBroadcasterSystem>(
       ros_interface.get(), publish_triggers, publish_period);
 
-    builder.ConnectInput("graph_query", tf_broadcaster->GetInputPort("graph_query"));
+    builder.ConnectInput("graph_query", tf_broadcaster->get_graph_query_port());
   }
 
   builder.BuildInto(this);
+}
+
+const drake::systems::InputPort<double> &
+RvizVisualizer::get_graph_query_port() const
+{
+  return get_input_port();
 }
 
 }  // namespace drake_ros_systems
