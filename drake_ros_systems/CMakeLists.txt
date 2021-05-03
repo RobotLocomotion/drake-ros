@@ -40,6 +40,7 @@ target_link_libraries(drake_ros_systems PUBLIC
     rosidl_runtime_c::rosidl_runtime_c
     rosidl_typesupport_cpp::rosidl_typesupport_cpp
     tf2_ros::tf2_ros
+    ${geometry_msgs_TARGETS}
     ${visualization_msgs_TARGETS}
 )
 
@@ -55,6 +56,7 @@ ament_export_libraries(drake_ros_systems)
 ament_export_targets(${PROJECT_NAME})
 
 ament_export_dependencies(drake)
+ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_generator_c)
 ament_export_dependencies(tf2_ros)
@@ -138,6 +140,12 @@ if(BUILD_TESTING)
     drake::drake
     drake_ros_systems
     ${visualization_msgs_TARGETS}
+  )
+
+  ament_add_gtest(test_type_conversion test/test_type_conversion.cpp)
+  target_link_libraries(test_type_conversion
+    drake::drake
+    drake_ros_systems
   )
 endif()
 
