@@ -104,12 +104,12 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
 
-  ament_add_gtest(test_integration test/integration.cpp)
+  ament_add_gtest(test_pub_sub test/test_pub_sub.cpp)
 
   # TODO(sloretz) Why isn't pybind11::embed including python libs?
   find_package(PythonLibs REQUIRED)
 
-  target_link_libraries(test_integration
+  target_link_libraries(test_pub_sub
     drake::drake
     drake_ros_systems
     ${test_msgs_TARGETS}
@@ -118,7 +118,7 @@ if(BUILD_TESTING)
     ${PYTHON_LIBRARIES}
   )
 
-  ament_add_gtest(test_drake_ros test/drake_ros.cpp)
+  ament_add_gtest(test_drake_ros test/test_drake_ros.cpp)
   target_link_libraries(test_drake_ros
     drake_ros_systems
   )
@@ -133,6 +133,13 @@ if(BUILD_TESTING)
   )
 
   ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py)
+
+  ament_add_gtest(test_scene_markers test/test_scene_markers.cpp)
+  target_link_libraries(test_scene_markers
+    drake::drake
+    drake_ros_systems
+    ${visualization_msgs_TARGETS}
+  )
 endif()
 
 ament_package()
