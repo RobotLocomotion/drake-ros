@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(drake_ros_systems)
 
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
-
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -40,12 +35,12 @@ add_library(drake_ros_systems
 )
 
 target_link_libraries(drake_ros_systems PUBLIC
-  drake::drake
-  rclcpp::rclcpp
-  rosidl_runtime_c::rosidl_runtime_c
-  rosidl_typesupport_cpp::rosidl_typesupport_cpp
-  tf2_ros::tf2_ros
-  ${visualization_msgs_TARGETS}
+    drake::drake
+    rclcpp::rclcpp
+    rosidl_runtime_c::rosidl_runtime_c
+    rosidl_typesupport_cpp::rosidl_typesupport_cpp
+    tf2_ros::tf2_ros
+    ${visualization_msgs_TARGETS}
 )
 
 target_include_directories(drake_ros_systems
@@ -55,11 +50,15 @@ target_include_directories(drake_ros_systems
     "$<INSTALL_INTERFACE:include>"
 )
 
-add_subdirectory(example)
+ament_export_include_directories(include)
+ament_export_libraries(drake_ros_systems)
+ament_export_targets(${PROJECT_NAME})
 
 ament_export_dependencies(drake)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_generator_c)
+ament_export_dependencies(tf2_ros)
+ament_export_dependencies(visualization_msgs)
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
