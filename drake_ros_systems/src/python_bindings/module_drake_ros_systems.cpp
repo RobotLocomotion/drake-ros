@@ -122,7 +122,8 @@ PYBIND11_MODULE(drake_ros_systems, m) {
   .def(
     py::init<DrakeRosInterface *, std::unordered_set<TriggerType>, double>(),
     py::arg("ros_interface"),
-    py::arg("publish_triggers") = {TriggerType::kPerStep, TriggerType::kForced},
+    py::arg("publish_triggers") = std::unordered_set<TriggerType>{
+      TriggerType::kPerStep, TriggerType::kForced},
     py::arg("publish_period") = 0.0)
   .def("get_graph_query_port", &TfBroadcasterSystem::get_graph_query_port);
 

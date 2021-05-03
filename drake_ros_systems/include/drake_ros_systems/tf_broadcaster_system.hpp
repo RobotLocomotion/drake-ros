@@ -38,7 +38,7 @@ public:
   TfBroadcasterSystem(
     DrakeRosInterface * ros_interface,
     const std::unordered_set<drake::systems::TriggerType> & publish_triggers = {
-      drake::systems::TriggerType::kPerStep, drake::systems::kForced},
+      drake::systems::TriggerType::kPerStep, drake::systems::TriggerType::kForced},
     double publish_period = 0.0);
   virtual ~TfBroadcasterSystem();
 
