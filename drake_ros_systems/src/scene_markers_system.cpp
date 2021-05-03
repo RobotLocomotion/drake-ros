@@ -17,6 +17,7 @@
 #include <drake/geometry/geometry_properties.h>
 #include <drake/geometry/geometry_roles.h>
 #include <drake/geometry/query_object.h>
+#include <drake/geometry/scene_graph.h>
 #include <drake/geometry/scene_graph_inspector.h>
 #include <drake/geometry/shape_specification.h>
 #include <drake/math/rigid_transform.h>
@@ -244,6 +245,7 @@ public:
   mutable drake::geometry::GeometryVersion version;
   drake::systems::CacheIndex scene_markers_cache_index;
   drake::systems::InputPortIndex graph_query_port_index;
+  drake::systems::OutputPortIndex scene_markers_port_index;
 };
 
 SceneMarkersSystem::SceneMarkersSystem(
@@ -261,8 +263,8 @@ SceneMarkersSystem::SceneMarkersSystem(
     &SceneMarkersSystem::CalcSceneMarkers,
     {nothing_ticket()}).cache_index();
 
-  this->DeclareAbstractOutputPort(
-    "scene_markers", &SceneMarkersSystem::PopulateSceneMarkersMessage);
+  impl_->scene_markers_port_index = this->DeclareAbstractOutputPort(
+    "scene_markers", &SceneMarkersSystem::PopulateSceneMarkersMessage).get_index();
 }
 
 SceneMarkersSystem::~SceneMarkersSystem()
@@ -321,6 +323,30 @@ SceneMarkersSystem::CalcSceneMarkers(
       .Populate(inspector, geometry_id, output_value);
     }
   }
+}
+
+const drake::geometry::Role &
+SceneMarkersSystem::role() const
+{
+  return impl_->role;
+}
+
+const drake::geometry::Rgba &
+SceneMarkersSystem::default_color() const
+{
+  return impl_->default_color;
+}
+
+const drake::systems::InputPort<double> &
+SceneMarkersSystem::get_graph_query_port() const
+{
+  return get_input_port(impl_->graph_query_port_index);
+}
+
+const drake::systems::OutputPort<double> &
+SceneMarkersSystem::get_markers_output_port() const
+{
+  return get_output_port(impl_->scene_markers_port_index);
 }
 
 }  // namespace drake_ros_systems

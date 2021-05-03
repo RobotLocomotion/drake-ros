@@ -52,6 +52,16 @@ public:
     const drake::geometry::Rgba & default_color = {0.9, 0.9, 0.9, 1.0});
   virtual ~SceneMarkersSystem();
 
+  /// Role of the geometries this system targets.
+  const drake::geometry::Role & role() const;
+
+  /// Default color used when a phong/diffuse property cannot be found.
+  const drake::geometry::Rgba & default_color() const;
+
+  const drake::systems::InputPort<double> & get_graph_query_port() const;
+
+  const drake::systems::OutputPort<double> & get_markers_output_port() const;
+
 private:
   // Outputs visualization_msgs::msg::MarkerArray message,
   // timestamping the most up-to-date version.
