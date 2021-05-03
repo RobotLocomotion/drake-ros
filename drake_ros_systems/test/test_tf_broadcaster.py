@@ -12,16 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import numpy as np
 
+from drake_ros_systems import RosInterfaceSystem
 from drake_ros_systems import TfBroadcasterSystem
 
 from pydrake.common import AbstractValue
 from pydrake.math import RigidTransform
-from pydrake.geometry import SceneGraph
+from pydrake.math import RotationMatrix
 from pydrake.geometry import FramePoseVector
-from pydrake.systems.analysis import Simulator
+from pydrake.geometry import GeometryFrame
+from pydrake.geometry import SceneGraph
 from pydrake.systems.framework import DiagramBuilder
+from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantValueSource
 
 import rclpy
@@ -72,8 +76,7 @@ def test_nominal_case():
     node = rclpy.create_node('tf_listener')
 
     buffer_ = tf2_ros.Buffer()
-    listener = tf2_ros.TransformListener(
-        buffer_, node, spin_thread=False)
+    listener = tf2_ros.TransformListener(buffer_, node, spin_thread=False)  # noqa
 
     time = node.get_clock().now()
     stamp = time.to_msg()
