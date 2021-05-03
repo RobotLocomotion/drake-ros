@@ -24,7 +24,6 @@
 #include "drake_ros_systems/ros_publisher_system.hpp"
 #include "drake_ros_systems/ros_subscriber_system.hpp"
 #include "drake_ros_systems/rviz_visualizer.hpp"
-#include "drake_ros_systems/scene_markers_system.hpp"
 #include "drake_ros_systems/tf_broadcaster_system.hpp"
 
 #include "py_serializer.hpp"
@@ -43,7 +42,6 @@ using drake_ros_systems::RosInterfaceSystem;
 using drake_ros_systems::RosPublisherSystem;
 using drake_ros_systems::RosSubscriberSystem;
 using drake_ros_systems::RvizVisualizer;
-using drake_ros_systems::SceneMarkersSystem;
 using drake_ros_systems::SerializerInterface;
 using drake_ros_systems::TfBroadcasterSystem;
 
@@ -122,37 +120,22 @@ PYBIND11_MODULE(drake_ros_systems, m) {
   .def(
     py::init<DrakeRosInterface *, std::unordered_set<TriggerType>, double>(),
     py::arg("ros_interface"),
-    py::arg("publish_triggers") = std::unordered_set<TriggerType>{
-    TriggerType::kPerStep, TriggerType::kForced},
+    py::arg("publish_triggers") =
+    std::unordered_set<TriggerType>{TriggerType::kPerStep, TriggerType::kForced},
     py::arg("publish_period") = 0.0)
   .def(
     "get_graph_query_port", &TfBroadcasterSystem::get_graph_query_port,
     py::return_value_policy::reference_internal);
 
-  py::class_<SceneMarkersSystem, LeafSystem<double>>(m, "SceneMarkersSystem")
-  .def(py::init([]() {return std::make_unique<SceneMarkersSystem>();}))
-  .def(
-    py::init(
-      [](const drake::geometry::Role & role, const drake::geometry::Rgba & default_color)
-      {
-        return std::make_unique<SceneMarkersSystem>(role, default_color);
-      }));
-
   py::class_<RvizVisualizer, Diagram<double>>(m, "RvizVisualizer")
   .def(
-    py::init(
-      [](std::shared_ptr<DrakeRosInterface> ros_interface)
-      {
-        return std::make_unique<RvizVisualizer>(ros_interface);
-      }))
+    py::init<std::shared_ptr<DrakeRosInterface>, std::unordered_set<TriggerType>, double, bool>(),
+    py::arg("ros_interface"),
+    py::arg("publish_triggers") =
+    std::unordered_set<TriggerType>{TriggerType::kPerStep, TriggerType::kForced},
+    py::arg("publish_period") = 0.0,
+    py::arg("publish_tf") = false)
   .def(
-    py::init(
-      [](
-        std::shared_ptr<DrakeRosInterface> ros_interface,
-        std::unordered_set<TriggerType> publish_triggers,
-        double publish_period, bool publish_tf)
-      {
-        return std::make_unique<RvizVisualizer>(
-          ros_interface, publish_triggers, publish_period, publish_tf);
-      }));
+    "get_graph_query_port", &RvizVisualizer::get_graph_query_port,
+    py::return_value_policy::reference_internal);
 }
