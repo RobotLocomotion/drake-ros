@@ -76,7 +76,7 @@ def test_nominal_case():
         buffer_, node, spin_thread=False)
 
     time = node.get_clock().now()
-    stamp = time.to_msg();
+    stamp = time.to_msg()
 
     context.SetTime(time.nanoseconds / 1e9)
     diagram.Publish(context)
