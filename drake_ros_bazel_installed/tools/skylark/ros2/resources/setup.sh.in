@@ -1,0 +1,15 @@
+#! /bin/sh
+
+# Run @ID@
+
+# Source all workspaces
+for ws in @WORKSPACES@; do
+    . $ws/setup.sh
+done
+
+# Setup environment
+export ROS2BZL_PREFIX_PATH="@REPOSITORY_DIR@"
+export PYTHONPATH="@REPOSITORY_DIR@:$PYTHONPATH"
+export PATH="@REPOSITORY_DIR@:$PATH"
+
+exec $@

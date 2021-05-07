@@ -1,0 +1,7 @@
+# -*- mode: python -*-
+
+py_binary(
+    name = "rmw_fastrtps_profile_gen",
+    srcs = ["rmw_fastrtps_profile_gen.py"],
+    visibility = ["//visibility:public"],
+)
