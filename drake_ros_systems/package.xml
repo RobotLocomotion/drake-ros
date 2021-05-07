@@ -3,7 +3,9 @@
   <name>drake_ros_systems</name>
   <version>0.1.0</version>
   <description>Drake systems for interacting with ROS 2.</description>
+  <maintainer email="ian.mcmahon@tri.global">Ian McMahon</maintainer>
   <maintainer email="sloretz@openrobotics.org">Shane Loretz</maintainer>
+  <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
