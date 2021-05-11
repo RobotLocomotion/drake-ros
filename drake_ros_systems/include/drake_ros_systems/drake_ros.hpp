@@ -60,12 +60,6 @@ public:
     const rclcpp::QoS & qos,
     std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback) final;
 
-  std::unique_ptr<tf2_ros::TransformBroadcaster>
-  create_tf_broadcaster() final;
-
-  std::shared_ptr<rclcpp::Clock>
-  get_clock() final;
-
   void
   spin(
     int timeout_millis) final;

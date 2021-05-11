@@ -94,19 +94,6 @@ DrakeRos::create_subscription(
   return sub;
 }
 
-std::unique_ptr<tf2_ros::TransformBroadcaster>
-DrakeRos::create_tf_broadcaster()
-{
-  return std::make_unique<tf2_ros::TransformBroadcaster>(*impl_->node_);
-}
-
-std::shared_ptr<rclcpp::Clock>
-DrakeRos::get_clock()
-{
-  return impl_->node_->get_clock();
-}
-
-
 void
 DrakeRos::spin(
   int timeout_millis)
