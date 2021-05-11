@@ -30,10 +30,6 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} drake::drake)
 
-install(FILES LICENSE
-  DESTINATION share/doc/${PROJECT_NAME}
-)
-
 install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
 )
