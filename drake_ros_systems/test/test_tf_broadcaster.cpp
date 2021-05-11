@@ -78,7 +78,7 @@ TEST(TfBroadcasting, nominal_case) {
   const std::unordered_set<drake::systems::TriggerType>
   publish_triggers{drake::systems::TriggerType::kForced};
   auto broadcaster = builder.AddSystem<TfBroadcasterSystem>(
-    sys_ros_interface->get_ros_interface().get(), publish_triggers);
+    sys_ros_interface->get_ros_interface(), publish_triggers);
 
   builder.Connect(
     scene_graph->get_query_output_port(),

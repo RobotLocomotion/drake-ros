@@ -51,7 +51,7 @@ RvizVisualizer::RvizVisualizer(
 
   if (publish_tf) {
     auto tf_broadcaster = builder.AddSystem<TfBroadcasterSystem>(
-      ros_interface.get(), publish_triggers, publish_period);
+      ros_interface, publish_triggers, publish_period);
 
     builder.ConnectInput("graph_query", tf_broadcaster->get_graph_query_port());
   }

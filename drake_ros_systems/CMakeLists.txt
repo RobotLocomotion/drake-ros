@@ -29,6 +29,7 @@ add_library(drake_ros_systems
   src/ros_subscriber_system.cpp
   src/rviz_visualizer.cpp
   src/scene_markers_system.cpp
+  src/scene_tf_system.cpp
   src/subscription.cpp
   src/tf_broadcaster_system.cpp
   src/utilities/type_conversion.cpp

@@ -26,32 +26,22 @@ namespace drake_ros_systems
 {
 /// System for tf2 transform broadcasting.
 ///
-/// This system publishes all frame transforms found in a SceneGraph
-/// to the `/tf` ROS topic, using Context time to timestamp
-/// `geometry_msgs/msg/TransformStamped` messages.
+/// This system is a subdiagram aggregating a SceneTFSystem and a
+/// RosPublisherSystem to broadcast SceneGraph frame transforms.
+/// Messages are published to the `/tf` ROS topic.
 ///
-/// It has one input port:
+/// It exports one input port:
 /// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
-class TfBroadcasterSystem : public drake::systems::LeafSystem<double>
+class TfBroadcasterSystem : public drake::systems::Diagram<double>
 {
 public:
   TfBroadcasterSystem(
-    DrakeRosInterface * ros_interface,
+    std::shared_ptr<DrakeRosInterface> ros_interface,
     const std::unordered_set<drake::systems::TriggerType> & publish_triggers = {
       drake::systems::TriggerType::kPerStep, drake::systems::TriggerType::kForced},
     double publish_period = 0.0);
-  virtual ~TfBroadcasterSystem();
 
   const drake::systems::InputPort<double> & get_graph_query_port() const;
-
-private:
-  drake::systems::EventStatus
-  PublishFrames(const drake::systems::Context<double> & context) const;
-
-  // PIMPL forward declaration
-  class TfBroadcasterSystemPrivate;
-
-  std::unique_ptr<TfBroadcasterSystemPrivate> impl_;
 };
 }  // namespace drake_ros_systems
 #endif  // DRAKE_ROS_SYSTEMS__TF_BROADCASTER_SYSTEM_HPP_

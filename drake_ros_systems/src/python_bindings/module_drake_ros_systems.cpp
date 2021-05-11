@@ -116,9 +116,9 @@ PYBIND11_MODULE(drake_ros_systems, m) {
           ros_interface);
       }));
 
-  py::class_<TfBroadcasterSystem, LeafSystem<double>>(m, "TfBroadcasterSystem")
+  py::class_<TfBroadcasterSystem, Diagram<double>>(m, "TfBroadcasterSystem")
   .def(
-    py::init<DrakeRosInterface *, std::unordered_set<TriggerType>, double>(),
+    py::init<std::shared_ptr<DrakeRosInterface>, std::unordered_set<TriggerType>, double>(),
     py::arg("ros_interface"),
     py::arg("publish_triggers") =
     std::unordered_set<TriggerType>{TriggerType::kPerStep, TriggerType::kForced},

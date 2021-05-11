@@ -12,128 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <drake/common/eigen_types.h>
-#include <drake/geometry/query_object.h>
-#include <drake/geometry/scene_graph_inspector.h>
+#include <drake/systems/framework/diagram_builder.h>
 
-#include <rclcpp/clock.hpp>
-#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_msgs/msg/tf_message.hpp>
+#include <tf2_ros/qos.hpp>
 
 #include <memory>
-#include <string>
 #include <unordered_set>
-#include <utility>
-#include <vector>
 
+#include "drake_ros_systems/drake_ros_interface.hpp"
+#include "drake_ros_systems/ros_publisher_system.hpp"
+#include "drake_ros_systems/scene_tf_system.hpp"
 #include "drake_ros_systems/tf_broadcaster_system.hpp"
-#include "drake_ros_systems/utilities/type_conversion.hpp"
 
 
 namespace drake_ros_systems
 {
-class TfBroadcasterSystem::TfBroadcasterSystemPrivate
-{
-public:
-  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-  drake::systems::InputPortIndex graph_query_port_index;
-};
 
 TfBroadcasterSystem::TfBroadcasterSystem(
-  DrakeRosInterface * ros,
+  std::shared_ptr<DrakeRosInterface> ros_interface,
   const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
   double publish_period)
-: impl_(new TfBroadcasterSystemPrivate())
 {
-  impl_->tf_broadcaster_ = ros->create_tf_broadcaster();
+  drake::systems::DiagramBuilder<double> builder;
 
-  impl_->graph_query_port_index =
-    this->DeclareAbstractInputPort(
-    "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
+  auto scene_tf = builder.AddSystem<SceneTfSystem>();
 
-  // vvv Mostly copied from LcmPublisherSystem vvv
-  using TriggerType = drake::systems::TriggerType;
-  // Check that publish_triggers does not contain an unsupported trigger.
-  for (const auto & trigger : publish_triggers) {
-    if (
-      (trigger != TriggerType::kForced) &&
-      (trigger != TriggerType::kPeriodic) &&
-      (trigger != TriggerType::kPerStep))
-    {
-      throw std::invalid_argument(
-              "Only kForced, kPeriodic, or kPerStep are supported");
-    }
-  }
+  auto scene_tf_publisher = builder.AddSystem(
+    RosPublisherSystem::Make<tf2_msgs::msg::TFMessage>(
+      "/tf", tf2_ros::DynamicBroadcasterQoS(),
+      ros_interface, publish_triggers, publish_period));
 
-  // Declare a forced publish so that any time Publish(.) is called on this
-  // system (or a Diagram containing it), a message is emitted.
-  if (publish_triggers.find(TriggerType::kForced) != publish_triggers.end()) {
-    this->DeclareForcedPublishEvent(&TfBroadcasterSystem::PublishFrames);
-  }
+  builder.Connect(
+    scene_tf->get_scene_tf_output_port(),
+    scene_tf_publisher->get_input_port());
 
-  if (publish_triggers.find(TriggerType::kPeriodic) != publish_triggers.end()) {
-    if (publish_period <= 0.0) {
-      throw std::invalid_argument("kPeriodic requires publish_period > 0");
-    }
-    const double offset = 0.0;
-    this->DeclarePeriodicPublishEvent(
-      publish_period, offset,
-      &TfBroadcasterSystem::PublishFrames);
-  } else if (publish_period > 0) {
-    // publish_period > 0 without drake::systems::TriggerType::kPeriodic has no meaning and is
-    // likely a mistake.
-    throw std::invalid_argument("publish_period > 0 requires kPeriodic");
-  }
+  builder.ExportInput(scene_tf->get_graph_query_port(), "graph_query");
 
-  if (publish_triggers.find(TriggerType::kPerStep) != publish_triggers.end()) {
-    DeclarePerStepEvent(
-      drake::systems::PublishEvent<double>(
-        [this](
-          const drake::systems::Context<double> & context,
-          const drake::systems::PublishEvent<double> &) {
-          PublishFrames(context);
-        }));
-  }
-  // ^^^ Mostly copied from LcmPublisherSystem ^^^
-}
-
-TfBroadcasterSystem::~TfBroadcasterSystem()
-{
+  builder.BuildInto(this);
 }
 
 const drake::systems::InputPort<double> &
 TfBroadcasterSystem::get_graph_query_port() const
 {
-  return get_input_port(impl_->graph_query_port_index);
-}
-
-drake::systems::EventStatus
-TfBroadcasterSystem::PublishFrames(
-  const drake::systems::Context<double> & context) const
-{
-  const drake::geometry::QueryObject<double> & query_object =
-    get_graph_query_port().Eval<drake::geometry::QueryObject<double>>(context);
-  const drake::geometry::SceneGraphInspector<double> & inspector = query_object.inspector();
-  // TODO(hidmic): publish frame transforms w.r.t. to their parent frame
-  //               instead of the world frame when an API is made available.
-  if (inspector.num_frames() > 1) {
-    std::vector<geometry_msgs::msg::TransformStamped> transforms;
-    transforms.reserve(inspector.num_frames() - 1);
-    geometry_msgs::msg::TransformStamped transform;
-    transform.header.stamp =
-      rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
-    transform.header.frame_id = inspector.GetName(inspector.world_frame_id());
-    for (const drake::geometry::FrameId & frame_id : inspector.all_frame_ids()) {
-      if (frame_id == inspector.world_frame_id()) {
-        continue;
-      }
-      transform.child_frame_id = inspector.GetName(frame_id);
-      transform.transform =
-        utilities::ToTransformMsg(query_object.GetPoseInWorld(frame_id));
-      transforms.push_back(transform);
-    }
-    impl_->tf_broadcaster_->sendTransform(transforms);
-  }
-  return drake::systems::EventStatus::Succeeded();
+  return get_input_port();
 }
 
 }  // namespace drake_ros_systems
