@@ -85,8 +85,16 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
     target_name = cc_name(name, metadata)
     libraries = [sandbox(library) for library in properties['link_libraries']]
     include_directories = [sandbox(include) for include in properties['include_directories']]
-    # Assume package abides to REP-122 FHS layout.
-    includes = [os.path.join(include, name) for include in include_directories]
+    local_include_directories = [
+        os.path.join(include, name)  # assumes package abides to REP-122 FHS layout
+        for include in include_directories
+        if not os.path.isabs(include)
+    ]
+    # Push remaining nonlocal includes through compiler options
+    copts = ['-isystem ' + include for include in include_directories if os.path.isabs(include)]
+    copts.extend(properties['compile_flags'])
+    defines = properties['defines']
+
     linkopts = properties['link_flags']
     for link_directory in properties['link_directories']:
         link_directory = sandbox(link_directory)
@@ -96,8 +104,6 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
             '-L' + link_directory,
             '-Wl,-rpath ' + link_directory
         ]
-    copts = properties['compile_flags']
-    defines = properties['defines']
     deps = [
         cc_label(dependency_name, dependency_metadata)
         for dependency_name, dependency_metadata in dependencies.items()
@@ -124,15 +130,18 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
     )
     if load_paths:
         runenv['${LOAD_PATH}'] = ['path-prepend', *load_paths]
-    data.extend(libraries)
-    if extras and 'data' in extras:
-        data.extend(extras['data'].get(target_name, []))
+    data.extend(library for library in libraries if library not in data)
+    if extras and 'data' in extras and target_name in extras['data']:
+        data.extend(
+            label_or_path
+            for label_or_path in extras['data'][target_name]
+            if label_or_path not in data
+        )
 
     return load_resource('package_cc_library.bzl.tpl'), {
         'name': target_name,
         'srcs': libraries,
-        'includes': includes,
-        'include_directories': include_directories,
+        'includes': local_include_directories,
         'copts': copts,
         'defines': defines,
         'linkopts': linkopts,
