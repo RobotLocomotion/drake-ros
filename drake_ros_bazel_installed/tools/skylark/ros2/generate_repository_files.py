@@ -17,6 +17,7 @@ from ros2bzl.scrapping import build_dependency_graph
 from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_properties
 from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_direct_properties
 from ros2bzl.scrapping.ament_python import collect_ament_python_package_direct_properties
+from ros2bzl.scrapping.ament_python import PackageNotFoundError
 
 from ros2bzl.templates import configure_package_meta_py_library
 from ros2bzl.templates import configure_package_alias
@@ -125,7 +126,7 @@ def generate_build_file(packages, dependency_graph, cache, extras, sandbox):
                 )
                 # Add 'py' as language if not there.
                 metadata['langs'].add('py')
-            except ValueError:
+            except PackageNotFoundError:
                 if any('py' in metadata['langs'] for metadata in dependencies.values()):
                     metadata['langs'].add('py (transitively)')
                     # Dependencies still need to be propagated.

@@ -72,13 +72,3 @@ def find_library_dependencies(library_path):
                 yield match.group(1)
     except Exception:
         return
-
-
-def find_python_package(name, sysroot='/usr'):
-    v = sys.version_info
-    path = '{}/lib/python{}.{}/site-packages/{}'.format(
-        sysroot, v.major, v.minor, name
-    )
-    if not os.path.exists(os.path.join(path, '__init__.py')):
-        raise ValueError(name + ' is not a Python package')
-    return path

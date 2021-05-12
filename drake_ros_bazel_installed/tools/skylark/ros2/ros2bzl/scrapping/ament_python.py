@@ -1,14 +1,21 @@
 import glob
 
+from importlib.metadata import distribution
+from importlib.metadata import PackageNotFoundError
+
 from ros2bzl.scrapping.system import find_library_dependencies
-from ros2bzl.scrapping.system import find_python_package
 from ros2bzl.scrapping.system import is_system_library
 
 
+def find_python_package(name):
+    dist = distribution(name)
+    top_level = dist.read_text('top_level.txt')
+    top_level = top_level.rstrip('\n')
+    return str(dist.locate_file(top_level))
+
+
 def collect_ament_python_package_properties(name, metadata):
-    python_package_path = find_python_package(
-        name, sysroot=metadata['prefix']
-    )
+    python_package_path = find_python_package(name)
     properties = {'python_packages': [python_package_path]}
     cc_extensions = glob.glob(
         '{}/**/*.so'.format(python_package_path), recursive=True
