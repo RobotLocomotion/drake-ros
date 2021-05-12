@@ -3,11 +3,6 @@ cmake_minimum_required(VERSION 3.5)
 project(@NAME@ C CXX)
 
 find_package(ament_cmake REQUIRED)
-# TODO(hidmic): remove when rviz_default_plugins
-# export dependency on Qt5 component correctly
-if("@PACKAGE@" STREQUAL "rviz_default_plugins")
-  find_package(Qt5 COMPONENTS Widgets REQUIRED)
-endif()
 find_package(@PACKAGE@ REQUIRED)
 
 file(WRITE empty.cc "")
