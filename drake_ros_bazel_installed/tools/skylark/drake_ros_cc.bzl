@@ -14,7 +14,7 @@ def drake_ros_cc_library(name, deps = [], data = [], runenv = {},
     Equivalent to the cc_library() rule.
     """
     library = "_" + name
-    cc_library(
+    native.cc_library(
         name = library,
         deps = deps,
         data = data,
@@ -52,7 +52,7 @@ def drake_ros_cc_binary_import(name, executable, data = [], deps = [], tags = []
         testonly = testonly,
         visibility = visibility,
     )
-    cc_binary(
+    native.cc_binary(
         name = name,
         srcs = [shim],
         data = [executable] + data,
@@ -75,7 +75,7 @@ def drake_ros_cc_binary(name, srcs = [], data = [], deps = [], linkshared = None
     Propagation of runtime information is disabled if linkshared is True.
     """
     if linkshared:
-        cc_binary(
+        native.cc_binary(
             name = name,
             srcs = srcs,
             data = data,
@@ -88,7 +88,7 @@ def drake_ros_cc_binary(name, srcs = [], data = [], deps = [], linkshared = None
         )
         return
     binary = "_" + name
-    cc_binary(
+    native.cc_binary(
         name = binary,
         srcs = srcs,
         data = data,
@@ -109,7 +109,7 @@ def drake_ros_cc_binary(name, srcs = [], data = [], deps = [], linkshared = None
         testonly = testonly,
         visibility = visibility,
     )
-    cc_binary(
+    native.cc_binary(
         name = name,
         srcs = [shim],
         data = [":" + binary],
@@ -136,7 +136,7 @@ def drake_ros_cc_test(name, srcs = [], data = [], deps = [],
 
     test = "_" + name
 
-    cc_test(
+    native.cc_test(
         name = test,
         srcs = srcs,
         data = data,
@@ -155,7 +155,7 @@ def drake_ros_cc_test(name, srcs = [], data = [], deps = [],
         testonly = testonly,
         visibility = visibility,
     )
-    cc_test(
+    native.cc_test(
         name = name,
         srcs = [shim],
         data = [":" + test],

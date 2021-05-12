@@ -17,7 +17,7 @@ def drake_ros_py_library(name, srcs = [], main = None, imports = [],
     Equivalent to the py_library() rule.
     """
     library_name = "_" + name
-    py_library(
+    native.py_library(
         name = library_name,
         srcs = srcs,
         main = main,
@@ -50,7 +50,7 @@ def drake_ros_py_binary(name, srcs = [], main = None, imports = [], args = [],
     binary = "_" + name
     if not main:
         main = name + ".py"
-    py_binary(
+    native.py_binary(
         name = binary,
         srcs = srcs,
         main = main,
@@ -72,7 +72,7 @@ def drake_ros_py_binary(name, srcs = [], main = None, imports = [], args = [],
         testonly = testonly,
         visibility = visibility,
     )
-    py_binary(
+    native.py_binary(
         name = name,
         srcs = [shim],
         main = shim,
@@ -107,7 +107,7 @@ def drake_ros_py_test(name, srcs = [], main = None, imports = [],
 
     test = "_" + name
 
-    py_test(
+    native.py_test(
         name = test,
         srcs = srcs,
         main = main,
@@ -130,7 +130,7 @@ def drake_ros_py_test(name, srcs = [], main = None, imports = [],
         testonly = testonly,
         visibility = visibility,
     )
-    py_test(
+    native.py_test(
         name = name,
         srcs = [shim],
         data = [":" + test],
