@@ -65,9 +65,8 @@ public:
 
     prototype_marker_.header.frame_id =
       inspector.GetName(inspector.GetFrameId(geometry_id));
-    prototype_marker_.ns = inspector.GetOwningSourceName(geometry_id) +
-      "::" + inspector.GetName(geometry_id);
-    prototype_marker_.id = 0;
+    prototype_marker_.ns = inspector.GetOwningSourceName(geometry_id);
+    prototype_marker_.id = marker_array_->markers.size();
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
 
     prototype_marker_.lifetime = rclcpp::Duration::from_nanoseconds(0);
@@ -173,7 +172,7 @@ private:
     marker_array_->markers.push_back(body_marker);
 
     visualization_msgs::msg::Marker upper_cap_marker = prototype_marker_;
-    upper_cap_marker.id = 1;
+    upper_cap_marker.id = marker_array_->markers.size();
     upper_cap_marker.type = visualization_msgs::msg::Marker::SPHERE;
     upper_cap_marker.scale.x = capsule.radius();
     upper_cap_marker.scale.y = capsule.radius();
@@ -186,7 +185,7 @@ private:
     marker_array_->markers.push_back(upper_cap_marker);
 
     visualization_msgs::msg::Marker lower_cap_marker = upper_cap_marker;
-    lower_cap_marker.id = 2;
+    lower_cap_marker.id = marker_array_->markers.size();
     const drake::math::RigidTransform<double> X_GL{
       drake::Vector3<double>{0., 0., -capsule.length() / 2.}};
     const drake::math::RigidTransform<double> X_FL = X_FG_ * X_GL;
@@ -305,6 +304,17 @@ SceneMarkersSystem::EvalSceneMarkers(
          .Eval<visualization_msgs::msg::MarkerArray>(context);
 }
 
+namespace {
+
+visualization_msgs::msg::Marker MakeDeleteAllMarker()
+{
+  visualization_msgs::msg::Marker marker;
+  marker.action = visualization_msgs::msg::Marker::DELETEALL;
+  return marker;
+}
+
+}  // namespace
+
 void
 SceneMarkersSystem::CalcSceneMarkers(
   const drake::systems::Context<double> & context,
@@ -314,7 +324,8 @@ SceneMarkersSystem::CalcSceneMarkers(
     get_input_port(impl_->graph_query_port_index)
     .Eval<drake::geometry::QueryObject<double>>(context);
   const drake::geometry::SceneGraphInspector<double> & inspector = query_object.inspector();
-  output_value->markers.reserve(inspector.NumGeometriesWithRole(impl_->role));
+  output_value->markers.reserve(inspector.NumGeometriesWithRole(impl_->role) + 1);
+  output_value->markers.push_back(MakeDeleteAllMarker());  // always delete all first
   for (const drake::geometry::FrameId & frame_id : inspector.all_frame_ids()) {
     for (const drake::geometry::GeometryId & geometry_id :
       inspector.GetGeometries(frame_id, impl_->role))
