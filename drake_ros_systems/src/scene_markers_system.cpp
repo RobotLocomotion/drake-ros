@@ -108,9 +108,10 @@ private:
 
     visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
     marker.type = visualization_msgs::msg::Marker::SPHERE;
-    marker.scale.x = sphere.radius();
-    marker.scale.y = sphere.radius();
-    marker.scale.z = sphere.radius();
+    const double diameter = 2. * sphere.radius();
+    marker.scale.x = diameter;
+    marker.scale.y = diameter;
+    marker.scale.z = diameter;
     marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
@@ -120,9 +121,9 @@ private:
 
     visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
     marker.type = visualization_msgs::msg::Marker::SPHERE;
-    marker.scale.x = ellipsoid.a();
-    marker.scale.y = ellipsoid.b();
-    marker.scale.z = ellipsoid.c();
+    marker.scale.x = 2. * ellipsoid.a();
+    marker.scale.y = 2. * ellipsoid.b();
+    marker.scale.z = 2. * ellipsoid.c();
     marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
@@ -132,8 +133,9 @@ private:
 
     visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
     marker.type = visualization_msgs::msg::Marker::CYLINDER;
-    marker.scale.x = cylinder.radius();
-    marker.scale.y = cylinder.radius();
+    const double diameter = 2. * cylinder.radius();
+    marker.scale.x = diameter;
+    marker.scale.y = diameter;
     marker.scale.z = cylinder.length();
     marker.pose = utilities::ToPoseMsg(X_FG_);
   }
@@ -173,8 +175,9 @@ private:
 
     visualization_msgs::msg::Marker & body_marker = marker_array_->markers.back();
     body_marker.type = visualization_msgs::msg::Marker::CYLINDER;
-    body_marker.scale.x = capsule.radius();
-    body_marker.scale.y = capsule.radius();
+    const double diameter = 2. * capsule.radius();
+    body_marker.scale.x = diameter;
+    body_marker.scale.y = diameter;
     body_marker.scale.z = capsule.length();
     body_marker.pose = utilities::ToPoseMsg(X_FG_);
 
@@ -183,9 +186,9 @@ private:
     visualization_msgs::msg::Marker & upper_cap_marker = marker_array_->markers.back();
     upper_cap_marker.id = body_marker.id + 1;
     upper_cap_marker.type = visualization_msgs::msg::Marker::SPHERE;
-    upper_cap_marker.scale.x = capsule.radius();
-    upper_cap_marker.scale.y = capsule.radius();
-    upper_cap_marker.scale.z = capsule.radius();
+    upper_cap_marker.scale.x = diameter;
+    upper_cap_marker.scale.y = diameter;
+    upper_cap_marker.scale.z = diameter;
     const drake::math::RigidTransform<double> X_GU{
       drake::Vector3<double>{0., 0., capsule.length() / 2.}};
     const drake::math::RigidTransform<double> X_FU = X_FG_ * X_GU;

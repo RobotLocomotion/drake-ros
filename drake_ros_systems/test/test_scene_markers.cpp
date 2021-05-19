@@ -79,9 +79,10 @@ struct SingleSphereSceneTestDetails
     EXPECT_EQ(marker.lifetime.sec, 0);
     EXPECT_EQ(marker.lifetime.nanosec, 0u);
     EXPECT_TRUE(marker.frame_locked);
-    EXPECT_DOUBLE_EQ(marker.scale.x, kRadius);
-    EXPECT_DOUBLE_EQ(marker.scale.y, kRadius);
-    EXPECT_DOUBLE_EQ(marker.scale.z, kRadius);
+    constexpr double kDiameter = 2. * kRadius;
+    EXPECT_DOUBLE_EQ(marker.scale.x, kDiameter);
+    EXPECT_DOUBLE_EQ(marker.scale.y, kDiameter);
+    EXPECT_DOUBLE_EQ(marker.scale.z, kDiameter);
     const drake::geometry::Rgba & default_color =
       scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
@@ -144,9 +145,9 @@ struct SingleEllipsoidSceneTestDetails
     EXPECT_EQ(marker.lifetime.sec, 0);
     EXPECT_EQ(marker.lifetime.nanosec, 0u);
     EXPECT_TRUE(marker.frame_locked);
-    EXPECT_DOUBLE_EQ(marker.scale.x, kLengthA);
-    EXPECT_DOUBLE_EQ(marker.scale.y, kLengthB);
-    EXPECT_DOUBLE_EQ(marker.scale.z, kLengthC);
+    EXPECT_DOUBLE_EQ(marker.scale.x, 2. * kLengthA);
+    EXPECT_DOUBLE_EQ(marker.scale.y, 2. * kLengthB);
+    EXPECT_DOUBLE_EQ(marker.scale.z, 2. * kLengthC);
     const drake::geometry::Rgba & default_color =
       scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
@@ -207,8 +208,9 @@ struct SingleCylinderSceneTestDetails
     EXPECT_EQ(marker.lifetime.sec, 0);
     EXPECT_EQ(marker.lifetime.nanosec, 0u);
     EXPECT_TRUE(marker.frame_locked);
-    EXPECT_DOUBLE_EQ(marker.scale.x, kRadius);
-    EXPECT_DOUBLE_EQ(marker.scale.y, kRadius);
+    constexpr double kDiameter = 2. * kRadius;
+    EXPECT_DOUBLE_EQ(marker.scale.x, kDiameter);
+    EXPECT_DOUBLE_EQ(marker.scale.y, kDiameter);
     EXPECT_DOUBLE_EQ(marker.scale.z, kLength);
     const drake::geometry::Rgba & default_color =
       scene_markers_system->params().default_color;
@@ -390,8 +392,9 @@ struct SingleCapsuleSceneTestDetails
     EXPECT_EQ(body_marker.lifetime.sec, 0);
     EXPECT_EQ(body_marker.lifetime.nanosec, 0u);
     EXPECT_TRUE(body_marker.frame_locked);
-    EXPECT_DOUBLE_EQ(body_marker.scale.x, kRadius);
-    EXPECT_DOUBLE_EQ(body_marker.scale.y, kRadius);
+    constexpr double kDiameter = 2. * kRadius;
+    EXPECT_DOUBLE_EQ(body_marker.scale.x, kDiameter);
+    EXPECT_DOUBLE_EQ(body_marker.scale.y, kDiameter);
     EXPECT_DOUBLE_EQ(body_marker.scale.z, kLength);
     EXPECT_NEAR(body_marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(body_marker.color.g, default_color.g(), kTolerance);
@@ -416,9 +419,9 @@ struct SingleCapsuleSceneTestDetails
     EXPECT_EQ(upper_cap_marker.lifetime.sec, 0);
     EXPECT_EQ(upper_cap_marker.lifetime.nanosec, 0u);
     EXPECT_TRUE(upper_cap_marker.frame_locked);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.x, kRadius);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.y, kRadius);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.z, kRadius);
+    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.x, kDiameter);
+    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.y, kDiameter);
+    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.z, kDiameter);
     EXPECT_NEAR(upper_cap_marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(upper_cap_marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(upper_cap_marker.color.b, default_color.b(), kTolerance);
@@ -442,9 +445,9 @@ struct SingleCapsuleSceneTestDetails
     EXPECT_EQ(lower_cap_marker.lifetime.sec, 0);
     EXPECT_EQ(lower_cap_marker.lifetime.nanosec, 0u);
     EXPECT_TRUE(lower_cap_marker.frame_locked);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.x, kRadius);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.y, kRadius);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.z, kRadius);
+    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.x, kDiameter);
+    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.y, kDiameter);
+    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.z, kDiameter);
     EXPECT_NEAR(lower_cap_marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(lower_cap_marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(lower_cap_marker.color.b, default_color.b(), kTolerance);
