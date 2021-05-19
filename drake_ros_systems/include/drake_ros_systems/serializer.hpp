@@ -28,7 +28,6 @@
 #include "drake_ros_systems/serializer_interface.hpp"
 
 
-
 namespace drake_ros_systems
 {
 template<typename MessageT>

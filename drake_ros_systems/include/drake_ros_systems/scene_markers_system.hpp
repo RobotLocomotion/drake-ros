@@ -33,10 +33,11 @@ namespace drake_ros_systems
 struct SceneMarkersParams
 {
   /// Configure SceneMarkersSystem to depict illustration geometries.
-  static SceneMarkersParams Illustration() { return {}; }
+  static SceneMarkersParams Illustration() {return {};}
 
   /// Configure SceneMarkersSystem to depict proximity geometries.
-  static SceneMarkersParams Proximity() {
+  static SceneMarkersParams Proximity()
+  {
     SceneMarkersParams params;
     params.role = drake::geometry::Role::kProximity;
     params.default_color.set(0.5, 0.5, 0.5, 1.0);
@@ -105,8 +106,9 @@ private:
   // which is invalidated (and thus recomputed) upon a SceneGraph
   // geometry version change.
   const visualization_msgs::msg::MarkerArray &
-  EvalSceneMarkers(const drake::systems::Context<double> & context,
-                   bool * cached = nullptr) const;
+  EvalSceneMarkers(
+    const drake::systems::Context<double> & context,
+    bool * cached = nullptr) const;
 
   // Inspects the SceneGraph and carries out the conversion
   // to visualization_msgs::msg::MarkerArray message unconditionally.

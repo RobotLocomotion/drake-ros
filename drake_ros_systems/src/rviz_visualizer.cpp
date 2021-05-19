@@ -54,7 +54,7 @@ RvizVisualizer::RvizVisualizer(
 
   impl_->scene_visual_markers =
     builder.AddSystem<SceneMarkersSystem>(
-      SceneMarkersParams::Illustration());
+    SceneMarkersParams::Illustration());
 
   builder.Connect(
     impl_->scene_visual_markers->get_markers_output_port(),
@@ -70,7 +70,7 @@ RvizVisualizer::RvizVisualizer(
 
   impl_->scene_collision_markers =
     builder.AddSystem<SceneMarkersSystem>(
-      SceneMarkersParams::Proximity());
+    SceneMarkersParams::Proximity());
 
   builder.Connect(
     impl_->scene_collision_markers->get_markers_output_port(),
