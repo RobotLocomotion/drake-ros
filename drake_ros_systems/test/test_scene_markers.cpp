@@ -38,6 +38,7 @@ static constexpr double kTolerance{1e-6};
 
 struct SingleSphereSceneTestDetails
 {
+  static constexpr char kName[] = "sphere";
   static constexpr double kRadius{1.};
 
   static
@@ -50,7 +51,7 @@ struct SingleSphereSceneTestDetails
       scene_graph->RegisterAnchoredGeometry(
       source_id, std::make_unique<drake::geometry::GeometryInstance>(
         drake::math::RigidTransform<double>::Identity(),
-        std::make_unique<drake::geometry::Sphere>(kRadius), "sphere"));
+        std::make_unique<drake::geometry::Sphere>(kRadius), kName));
     scene_graph->AssignRole(
       source_id, geometry_id, drake::geometry::IllustrationProperties());
     return {};
@@ -62,12 +63,16 @@ struct SingleSphereSceneTestDetails
     const visualization_msgs::msg::MarkerArray & marker_array,
     SceneMarkersSystem * scene_markers_system)
   {
-    ASSERT_EQ(marker_array.markers.size(), 1u);
-    const visualization_msgs::msg::Marker & marker = marker_array.markers[0];
+    ASSERT_EQ(marker_array.markers.size(), 2u);
+    const visualization_msgs::msg::Marker & control_marker = marker_array.markers[0];
+    EXPECT_EQ(control_marker.action, visualization_msgs::msg::Marker::DELETEALL);
+    const visualization_msgs::msg::Marker & marker = marker_array.markers[1];
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, kSourceName);
+    std::stringstream ss;
+    ss << "/" << kSourceName << "/" << kName;
+    EXPECT_EQ(marker.ns, ss.str());
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -95,6 +100,7 @@ struct SingleSphereSceneTestDetails
 
 struct SingleEllipsoidSceneTestDetails
 {
+  static constexpr char kName[] = "ellipsoid";
   static constexpr double kLengthA{0.3};
   static constexpr double kLengthB{0.4};
   static constexpr double kLengthC{0.5};
@@ -110,7 +116,7 @@ struct SingleEllipsoidSceneTestDetails
       source_id, std::make_unique<drake::geometry::GeometryInstance>(
         drake::math::RigidTransform<double>::Identity(),
         std::make_unique<drake::geometry::Ellipsoid>(
-          kLengthA, kLengthB, kLengthC), "ellipsoid"));
+          kLengthA, kLengthB, kLengthC), kName));
     scene_graph->AssignRole(
       source_id, geometry_id, drake::geometry::IllustrationProperties());
     return {};
@@ -122,12 +128,16 @@ struct SingleEllipsoidSceneTestDetails
     const visualization_msgs::msg::MarkerArray & marker_array,
     SceneMarkersSystem * scene_markers_system)
   {
-    ASSERT_EQ(marker_array.markers.size(), 1u);
-    const visualization_msgs::msg::Marker & marker = marker_array.markers[0];
+    ASSERT_EQ(marker_array.markers.size(), 2u);
+    const visualization_msgs::msg::Marker & control_marker = marker_array.markers[0];
+    EXPECT_EQ(control_marker.action, visualization_msgs::msg::Marker::DELETEALL);
+    const visualization_msgs::msg::Marker & marker = marker_array.markers[1];
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, kSourceName);
+    std::stringstream ss;
+    ss << "/" << kSourceName << "/" << kName;
+    EXPECT_EQ(marker.ns, ss.str());
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -155,6 +165,7 @@ struct SingleEllipsoidSceneTestDetails
 
 struct SingleCylinderSceneTestDetails
 {
+  static constexpr char kName[] = "cylinder";
   static constexpr double kRadius{0.5};
   static constexpr double kLength{1.0};
 
@@ -168,7 +179,7 @@ struct SingleCylinderSceneTestDetails
       scene_graph->RegisterAnchoredGeometry(
       source_id, std::make_unique<drake::geometry::GeometryInstance>(
         drake::math::RigidTransform<double>::Identity(),
-        std::make_unique<drake::geometry::Cylinder>(kRadius, kLength), "cylinder"));
+        std::make_unique<drake::geometry::Cylinder>(kRadius, kLength), kName));
     scene_graph->AssignRole(
       source_id, geometry_id, drake::geometry::IllustrationProperties());
     return {};
@@ -180,12 +191,16 @@ struct SingleCylinderSceneTestDetails
     const visualization_msgs::msg::MarkerArray & marker_array,
     SceneMarkersSystem * scene_markers_system)
   {
-    ASSERT_EQ(marker_array.markers.size(), 1u);
-    const visualization_msgs::msg::Marker & marker = marker_array.markers[0];
+    ASSERT_EQ(marker_array.markers.size(), 2u);
+    const visualization_msgs::msg::Marker & control_marker = marker_array.markers[0];
+    EXPECT_EQ(control_marker.action, visualization_msgs::msg::Marker::DELETEALL);
+    const visualization_msgs::msg::Marker & marker = marker_array.markers[1];
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, kSourceName);
+    std::stringstream ss;
+    ss << "/" << kSourceName << "/" << kName;
+    EXPECT_EQ(marker.ns, ss.str());
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CYLINDER);
@@ -213,6 +228,8 @@ struct SingleCylinderSceneTestDetails
 
 struct SingleHalfSpaceSceneTestDetails
 {
+  static constexpr char kName[] = "hspace";
+
   static
   drake::geometry::FramePoseVector<double>
   PopulateSceneGraph(
@@ -223,7 +240,7 @@ struct SingleHalfSpaceSceneTestDetails
       scene_graph->RegisterAnchoredGeometry(
       source_id, std::make_unique<drake::geometry::GeometryInstance>(
         drake::math::RigidTransform<double>::Identity(),
-        std::make_unique<drake::geometry::HalfSpace>(), "hspace"));
+        std::make_unique<drake::geometry::HalfSpace>(), kName));
     scene_graph->AssignRole(
       source_id, geometry_id, drake::geometry::IllustrationProperties());
     return {};
@@ -235,12 +252,16 @@ struct SingleHalfSpaceSceneTestDetails
     const visualization_msgs::msg::MarkerArray & marker_array,
     SceneMarkersSystem * scene_markers_system)
   {
-    ASSERT_EQ(marker_array.markers.size(), 1u);
-    const visualization_msgs::msg::Marker & marker = marker_array.markers[0];
+    ASSERT_EQ(marker_array.markers.size(), 2u);
+    const visualization_msgs::msg::Marker & control_marker = marker_array.markers[0];
+    EXPECT_EQ(control_marker.action, visualization_msgs::msg::Marker::DELETEALL);
+    const visualization_msgs::msg::Marker & marker = marker_array.markers[1];
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, kSourceName);
+    std::stringstream ss;
+    ss << "/" << kSourceName << "/" << kName;
+    EXPECT_EQ(marker.ns, ss.str());
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
@@ -260,6 +281,7 @@ struct SingleHalfSpaceSceneTestDetails
 
 struct SingleBoxSceneTestDetails
 {
+  static constexpr char kName[] = "box";
   static constexpr double kWidth{0.5};
   static constexpr double kDepth{0.25};
   static constexpr double kHeight{1.0};
@@ -274,7 +296,7 @@ struct SingleBoxSceneTestDetails
       scene_graph->RegisterAnchoredGeometry(
       source_id, std::make_unique<drake::geometry::GeometryInstance>(
         drake::math::RigidTransform<double>::Identity(),
-        std::make_unique<drake::geometry::Box>(kWidth, kDepth, kHeight), "box"));
+        std::make_unique<drake::geometry::Box>(kWidth, kDepth, kHeight), kName));
     scene_graph->AssignRole(
       source_id, geometry_id, drake::geometry::IllustrationProperties());
     return {};
@@ -286,12 +308,16 @@ struct SingleBoxSceneTestDetails
     const visualization_msgs::msg::MarkerArray & marker_array,
     SceneMarkersSystem * scene_markers_system)
   {
-    ASSERT_EQ(marker_array.markers.size(), 1u);
-    const visualization_msgs::msg::Marker & marker = marker_array.markers[0];
+    ASSERT_EQ(marker_array.markers.size(), 2u);
+    const visualization_msgs::msg::Marker & control_marker = marker_array.markers[0];
+    EXPECT_EQ(control_marker.action, visualization_msgs::msg::Marker::DELETEALL);
+    const visualization_msgs::msg::Marker & marker = marker_array.markers[1];
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, kSourceName);
+    std::stringstream ss;
+    ss << "/" << kSourceName << "/" << kName;
+    EXPECT_EQ(marker.ns, ss.str());
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
@@ -319,6 +345,7 @@ struct SingleBoxSceneTestDetails
 
 struct SingleCapsuleSceneTestDetails
 {
+  static constexpr char kName[] = "capsule";
   static constexpr double kRadius{0.25};
   static constexpr double kLength{0.5};
 
@@ -332,7 +359,7 @@ struct SingleCapsuleSceneTestDetails
       scene_graph->RegisterAnchoredGeometry(
       source_id, std::make_unique<drake::geometry::GeometryInstance>(
         drake::math::RigidTransform<double>::Identity(),
-        std::make_unique<drake::geometry::Capsule>(kRadius, kLength), "capsule"));
+        std::make_unique<drake::geometry::Capsule>(kRadius, kLength), kName));
     scene_graph->AssignRole(
       source_id, geometry_id, drake::geometry::IllustrationProperties());
     return {};
@@ -344,14 +371,19 @@ struct SingleCapsuleSceneTestDetails
     const visualization_msgs::msg::MarkerArray & marker_array,
     SceneMarkersSystem * scene_markers_system)
   {
-    ASSERT_EQ(marker_array.markers.size(), 3u);
+    ASSERT_EQ(marker_array.markers.size(), 4u);
+    const visualization_msgs::msg::Marker & control_marker = marker_array.markers[0];
+    EXPECT_EQ(control_marker.action, visualization_msgs::msg::Marker::DELETEALL);
+
     const drake::geometry::Rgba & default_color = scene_markers_system->params().default_color;
 
-    const visualization_msgs::msg::Marker & body_marker = marker_array.markers[0];
+    const visualization_msgs::msg::Marker & body_marker = marker_array.markers[1];
     EXPECT_EQ(body_marker.header.frame_id, "world");
     EXPECT_EQ(body_marker.header.stamp.sec, 0);
     EXPECT_EQ(body_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(body_marker.ns, kSourceName);
+    std::stringstream ss;
+    ss << "/" << kSourceName << "/" << kName;
+    EXPECT_EQ(body_marker.ns, ss.str());
     EXPECT_EQ(body_marker.id, 0);
     EXPECT_EQ(body_marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(body_marker.type, visualization_msgs::msg::Marker::CYLINDER);
@@ -373,11 +405,11 @@ struct SingleCapsuleSceneTestDetails
     EXPECT_DOUBLE_EQ(body_marker.pose.orientation.z, 0.);
     EXPECT_DOUBLE_EQ(body_marker.pose.orientation.w, 1.);
 
-    const visualization_msgs::msg::Marker & upper_cap_marker = marker_array.markers[1];
+    const visualization_msgs::msg::Marker & upper_cap_marker = marker_array.markers[2];
     EXPECT_EQ(upper_cap_marker.header.frame_id, "world");
     EXPECT_EQ(upper_cap_marker.header.stamp.sec, 0);
     EXPECT_EQ(upper_cap_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(upper_cap_marker.ns, kSourceName);
+    EXPECT_EQ(upper_cap_marker.ns, ss.str());
     EXPECT_EQ(upper_cap_marker.id, 1);
     EXPECT_EQ(upper_cap_marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(upper_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -399,11 +431,11 @@ struct SingleCapsuleSceneTestDetails
     EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.z, 0.);
     EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.w, 1.);
 
-    const visualization_msgs::msg::Marker & lower_cap_marker = marker_array.markers[2];
+    const visualization_msgs::msg::Marker & lower_cap_marker = marker_array.markers[3];
     EXPECT_EQ(lower_cap_marker.header.frame_id, "world");
     EXPECT_EQ(lower_cap_marker.header.stamp.sec, 0);
     EXPECT_EQ(lower_cap_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(lower_cap_marker.ns, kSourceName);
+    EXPECT_EQ(lower_cap_marker.ns, ss.str());
     EXPECT_EQ(lower_cap_marker.id, 2);
     EXPECT_EQ(lower_cap_marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(lower_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -430,6 +462,7 @@ struct SingleCapsuleSceneTestDetails
 template<typename T>
 struct SingleMeshSceneTestDetails
 {
+  static constexpr char kName[] = "mesh";
   static constexpr char kFilename[] = "/tmp/dummy.obj";
   static constexpr double kScale{0.1};
 
@@ -443,7 +476,7 @@ struct SingleMeshSceneTestDetails
       scene_graph->RegisterAnchoredGeometry(
       source_id, std::make_unique<drake::geometry::GeometryInstance>(
         drake::math::RigidTransform<double>::Identity(),
-        std::make_unique<T>(kFilename, kScale), "mesh"));
+        std::make_unique<T>(kFilename, kScale), kName));
     scene_graph->AssignRole(
       source_id, geometry_id, drake::geometry::IllustrationProperties());
     return {};
@@ -455,12 +488,16 @@ struct SingleMeshSceneTestDetails
     const visualization_msgs::msg::MarkerArray & marker_array,
     SceneMarkersSystem * scene_markers_system)
   {
-    ASSERT_EQ(marker_array.markers.size(), 1u);
-    const visualization_msgs::msg::Marker & marker = marker_array.markers[0];
+    ASSERT_EQ(marker_array.markers.size(), 2u);
+    const visualization_msgs::msg::Marker & control_marker = marker_array.markers[0];
+    EXPECT_EQ(control_marker.action, visualization_msgs::msg::Marker::DELETEALL);
+    const visualization_msgs::msg::Marker & marker = marker_array.markers[1];
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, kSourceName);
+    std::stringstream ss;
+    ss << "/" << kSourceName << "/" << kName;
+    EXPECT_EQ(marker.ns, ss.str());
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::MESH_RESOURCE);
