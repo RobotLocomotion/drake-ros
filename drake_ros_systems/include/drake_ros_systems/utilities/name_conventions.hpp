@@ -39,7 +39,7 @@ GetTfFrameName(
   const drake::geometry::GeometryId & geometry_id);
 
 std::string
-GetMarkerNamespacePrefix(
+GetMarkerNamespace(
   const drake::geometry::SceneGraphInspector<double> & inspector,
   const std::unordered_set<const drake::multibody::MultibodyPlant<double> *> & plants,
   const drake::geometry::GeometryId & geometry_id);

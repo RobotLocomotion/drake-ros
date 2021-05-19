@@ -50,7 +50,6 @@ GetTfFrameName(
   const drake::geometry::FrameId & frame_id)
 {
   std::stringstream ss;
-  ss << "/";
   for (auto * plant : plants) {
     const drake::multibody::Body<double> * body =
       plant->GetBodyFromFrameId(frame_id);
@@ -87,7 +86,7 @@ GetTfFrameName(
 }
 
 std::string
-GetMarkerNamespacePrefix(
+GetMarkerNamespace(
   const drake::geometry::SceneGraphInspector<double> & inspector,
   const std::unordered_set<const drake::multibody::MultibodyPlant<double> *> & plants,
   const drake::geometry::GeometryId & geometry_id)

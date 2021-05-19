@@ -44,9 +44,9 @@ struct SceneMarkersParams
     return params;
   }
 
-  /// Optional marker namespace prefix, defaults to
-  /// utilities::GetMarkerNamespacePrefix() outcome.
-  std::optional<std::string> marker_namespace_prefix{std::nullopt};
+  /// Optional namespace for all markers, defaults
+  /// to utilities::GetMarkerNamespace() outcome.
+  std::optional<std::string> marker_namespace{std::nullopt};
 
   /// Role of the geometries to depict.
   drake::geometry::Role role{drake::geometry::Role::kIllustration};

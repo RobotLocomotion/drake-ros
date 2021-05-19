@@ -67,8 +67,8 @@ public:
 
     prototype_marker_.header.frame_id =
       utilities::GetTfFrameName(inspector, plants, geometry_id);
-    prototype_marker_.ns = params_.marker_namespace_prefix.value_or(
-      utilities::GetMarkerNamespacePrefix(inspector, plants, geometry_id));
+    prototype_marker_.ns = params_.marker_namespace.value_or(
+      utilities::GetMarkerNamespace(inspector, plants, geometry_id));
     prototype_marker_.id = marker_array_->markers.size();
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
 
