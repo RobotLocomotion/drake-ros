@@ -22,38 +22,57 @@
 
 #include "drake_ros_systems/drake_ros_interface.hpp"
 #include "drake_ros_systems/ros_publisher_system.hpp"
+#include "drake_ros_systems/scene_tf_broadcaster_system.hpp"
 #include "drake_ros_systems/scene_tf_system.hpp"
-#include "drake_ros_systems/tf_broadcaster_system.hpp"
 
 
 namespace drake_ros_systems
 {
 
-TfBroadcasterSystem::TfBroadcasterSystem(
+class SceneTfBroadcasterSystem::SceneTfBroadcasterSystemPrivate
+{
+public:
+  SceneTfSystem * scene_tf;
+};
+
+SceneTfBroadcasterSystem::SceneTfBroadcasterSystem(
   std::shared_ptr<DrakeRosInterface> ros_interface,
-  const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
-  double publish_period)
+  SceneTfBroadcasterParams params)
+: impl_(new SceneTfBroadcasterSystemPrivate())
 {
   drake::systems::DiagramBuilder<double> builder;
 
-  auto scene_tf = builder.AddSystem<SceneTfSystem>();
+  impl_->scene_tf = builder.AddSystem<SceneTfSystem>();
 
   auto scene_tf_publisher = builder.AddSystem(
     RosPublisherSystem::Make<tf2_msgs::msg::TFMessage>(
       "/tf", tf2_ros::DynamicBroadcasterQoS(),
-      ros_interface, publish_triggers, publish_period));
+      ros_interface, params.publish_triggers,
+      params.publish_period));
 
   builder.Connect(
-    scene_tf->get_scene_tf_output_port(),
+    impl_->scene_tf->get_scene_tf_output_port(),
     scene_tf_publisher->get_input_port());
 
-  builder.ExportInput(scene_tf->get_graph_query_port(), "graph_query");
+  builder.ExportInput(
+    impl_->scene_tf->get_graph_query_port(), "graph_query");
 
   builder.BuildInto(this);
 }
 
+SceneTfBroadcasterSystem::~SceneTfBroadcasterSystem()
+{
+}
+
+void
+SceneTfBroadcasterSystem::RegisterMultibodyPlant(
+  const drake::multibody::MultibodyPlant<double> * plant)
+{
+  impl_->scene_tf->RegisterMultibodyPlant(plant);
+}
+
 const drake::systems::InputPort<double> &
-TfBroadcasterSystem::get_graph_query_port() const
+SceneTfBroadcasterSystem::get_graph_query_port() const
 {
   return get_input_port();
 }

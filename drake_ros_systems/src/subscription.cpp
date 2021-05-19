@@ -59,8 +59,9 @@ Subscription::handle_message(
   std::shared_ptr<void> & message,
   const rclcpp::MessageInfo & message_info)
 {
-  (void) message_info;
-  callback_(std::static_pointer_cast<rclcpp::SerializedMessage>(message));
+  handle_serialized_message(
+    std::static_pointer_cast<rclcpp::SerializedMessage>(message),
+    message_info);
 }
 
 void
@@ -70,6 +71,15 @@ Subscription::handle_loaned_message(
   (void)loaned_message;
   (void)message_info;
   throw std::runtime_error("handle_loaned_message() not supported by drake_ros_systems");
+}
+
+void
+Subscription::handle_serialized_message(
+  const std::shared_ptr<rclcpp::SerializedMessage> & message,
+  const rclcpp::MessageInfo & message_info)
+{
+  (void)message_info;
+  callback_(message);
 }
 
 void

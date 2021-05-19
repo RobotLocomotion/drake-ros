@@ -16,7 +16,8 @@ import math
 import numpy as np
 
 from drake_ros_systems import RosInterfaceSystem
-from drake_ros_systems import TfBroadcasterSystem
+from drake_ros_systems import SceneTfBroadcasterSystem
+from drake_ros_systems import SceneTfBroadcasterParams
 
 from pydrake.common.value import AbstractValue
 from pydrake.math import RigidTransform
@@ -64,13 +65,18 @@ def test_nominal_case():
         pose_vector_source.get_output_port(),
         scene_graph.get_source_pose_port(source_id))
 
-    tf_broadcaster = builder.AddSystem(TfBroadcasterSystem(
-        sys_ros_interface.get_ros_interface(),
-        publish_triggers={TriggerType.kForced}))
+    scene_tf_broadcaster = builder.AddSystem(
+        SceneTfBroadcasterSystem(
+            sys_ros_interface.get_ros_interface(),
+            params=SceneTfBroadcasterParams(
+                publish_triggers={TriggerType.kForced}
+            )
+        )
+    )
 
     builder.Connect(
         scene_graph.get_query_output_port(),
-        tf_broadcaster.get_graph_query_port())
+        scene_tf_broadcaster.get_graph_query_port())
 
     diagram = builder.Build()
     context = diagram.CreateDefaultContext()

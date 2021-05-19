@@ -30,7 +30,11 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
+#include <unordered_set>
+#include <utility>
+
 #include "drake_ros_systems/scene_markers_system.hpp"
+#include "drake_ros_systems/utilities/name_conventions.hpp"
 #include "drake_ros_systems/utilities/type_conversion.hpp"
 
 
@@ -45,10 +49,8 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier
 public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SceneGeometryToMarkers)
 
-  SceneGeometryToMarkers(
-    const drake::geometry::Role & role,
-    const drake::geometry::Rgba & default_color)
-  : role_(role), default_color_(default_color)
+  explicit SceneGeometryToMarkers(const SceneMarkersParams & params)
+  : params_(params)
   {
   }
 
@@ -56,16 +58,17 @@ public:
 
   void Populate(
     const drake::geometry::SceneGraphInspector<double> & inspector,
+    const std::unordered_set<const drake::multibody::MultibodyPlant<double> *> plants,
     const drake::geometry::GeometryId & geometry_id,
     visualization_msgs::msg::MarkerArray * marker_array)
   {
     DRAKE_ASSERT(nullptr != marker_array);
-
     marker_array_ = marker_array;
 
     prototype_marker_.header.frame_id =
-      inspector.GetName(inspector.GetFrameId(geometry_id));
-    prototype_marker_.ns = inspector.GetOwningSourceName(geometry_id);
+      utilities::GetTfFrameName(inspector, plants, geometry_id);
+    prototype_marker_.ns = params_.marker_namespace_prefix.value_or(
+      utilities::GetMarkerNamespacePrefix(inspector, plants, geometry_id));
     prototype_marker_.id = marker_array_->markers.size();
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
 
@@ -73,15 +76,14 @@ public:
     prototype_marker_.frame_locked = true;
 
     const drake::geometry::GeometryProperties * props =
-      inspector.GetProperties(geometry_id, role_);
+      inspector.GetProperties(geometry_id, params_.role);
     DRAKE_ASSERT(nullptr != props);
-    drake::geometry::Rgba default_color = default_color_;
-    if (drake::geometry::Role::kIllustration != role_) {
+    drake::geometry::Rgba default_color = params_.default_color;
+    if (drake::geometry::Role::kIllustration != params_.role) {
       const drake::geometry::IllustrationProperties * illustration_props =
         inspector.GetIllustrationProperties(geometry_id);
       if (illustration_props) {
-        default_color =
-          illustration_props->GetPropertyOrDefault(
+        default_color = illustration_props->GetPropertyOrDefault(
           "phong", "diffuse", default_color);
       }
     }
@@ -102,77 +104,84 @@ private:
 
   void ImplementGeometry(const drake::geometry::Sphere & sphere, void *) override
   {
-    prototype_marker_.type = visualization_msgs::msg::Marker::SPHERE;
-    prototype_marker_.scale.x = sphere.radius();
-    prototype_marker_.scale.y = sphere.radius();
-    prototype_marker_.scale.z = sphere.radius();
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FG_);
     marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
+    marker.type = visualization_msgs::msg::Marker::SPHERE;
+    marker.scale.x = sphere.radius();
+    marker.scale.y = sphere.radius();
+    marker.scale.z = sphere.radius();
+    marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Ellipsoid & ellipsoid, void *) override
   {
-    prototype_marker_.type = visualization_msgs::msg::Marker::SPHERE;
-    prototype_marker_.scale.x = ellipsoid.a();
-    prototype_marker_.scale.y = ellipsoid.b();
-    prototype_marker_.scale.z = ellipsoid.c();
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FG_);
-
     marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
+    marker.type = visualization_msgs::msg::Marker::SPHERE;
+    marker.scale.x = ellipsoid.a();
+    marker.scale.y = ellipsoid.b();
+    marker.scale.z = ellipsoid.c();
+    marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Cylinder & cylinder, void *) override
   {
-    prototype_marker_.type = visualization_msgs::msg::Marker::CYLINDER;
-    prototype_marker_.scale.x = cylinder.radius();
-    prototype_marker_.scale.y = cylinder.radius();
-    prototype_marker_.scale.z = cylinder.length();
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FG_);
-
     marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
+    marker.type = visualization_msgs::msg::Marker::CYLINDER;
+    marker.scale.x = cylinder.radius();
+    marker.scale.y = cylinder.radius();
+    marker.scale.z = cylinder.length();
+    marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::HalfSpace &, void *) override
   {
+    marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
+    marker.type = visualization_msgs::msg::Marker::CUBE;
     constexpr double kHalfSpaceLength = 50.;
     constexpr double kHalfSpaceThickness = 1.;
-
-    prototype_marker_.type = visualization_msgs::msg::Marker::CUBE;
-    prototype_marker_.scale.x = kHalfSpaceLength;
-    prototype_marker_.scale.y = kHalfSpaceLength;
-    prototype_marker_.scale.z = kHalfSpaceThickness;
+    marker.scale.x = kHalfSpaceLength;
+    marker.scale.y = kHalfSpaceLength;
+    marker.scale.z = kHalfSpaceThickness;
     const drake::math::RigidTransform<double> X_GH{
       drake::Vector3<double>{0., 0., -kHalfSpaceThickness / 2.}};
     const drake::math::RigidTransform<double> X_FH = X_FG_ * X_GH;
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FH);
-
-    marker_array_->markers.push_back(prototype_marker_);
+    marker.pose = utilities::ToPoseMsg(X_FH);
   }
 
   void ImplementGeometry(const drake::geometry::Box & box, void *) override
   {
-    prototype_marker_.type = visualization_msgs::msg::Marker::CUBE;
-    prototype_marker_.scale.x = box.width();
-    prototype_marker_.scale.y = box.depth();
-    prototype_marker_.scale.z = box.height();
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FG_);
-
     marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
+    marker.type = visualization_msgs::msg::Marker::CUBE;
+    marker.scale.x = box.width();
+    marker.scale.y = box.depth();
+    marker.scale.z = box.height();
+    marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Capsule & capsule, void *) override
   {
-    visualization_msgs::msg::Marker body_marker = prototype_marker_;
+    marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & body_marker = marker_array_->markers.back();
     body_marker.type = visualization_msgs::msg::Marker::CYLINDER;
     body_marker.scale.x = capsule.radius();
     body_marker.scale.y = capsule.radius();
     body_marker.scale.z = capsule.length();
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FG_);
+    body_marker.pose = utilities::ToPoseMsg(X_FG_);
 
-    marker_array_->markers.push_back(body_marker);
+    marker_array_->markers.push_back(prototype_marker_);
 
-    visualization_msgs::msg::Marker upper_cap_marker = prototype_marker_;
-    upper_cap_marker.id = marker_array_->markers.size();
+    visualization_msgs::msg::Marker & upper_cap_marker = marker_array_->markers.back();
+    upper_cap_marker.id = body_marker.id + 1;
     upper_cap_marker.type = visualization_msgs::msg::Marker::SPHERE;
     upper_cap_marker.scale.x = capsule.radius();
     upper_cap_marker.scale.y = capsule.radius();
@@ -184,44 +193,43 @@ private:
 
     marker_array_->markers.push_back(upper_cap_marker);
 
-    visualization_msgs::msg::Marker lower_cap_marker = upper_cap_marker;
-    lower_cap_marker.id = marker_array_->markers.size();
+    visualization_msgs::msg::Marker & lower_cap_marker = marker_array_->markers.back();
+    lower_cap_marker.id = upper_cap_marker.id + 1;
     const drake::math::RigidTransform<double> X_GL{
       drake::Vector3<double>{0., 0., -capsule.length() / 2.}};
     const drake::math::RigidTransform<double> X_FL = X_FG_ * X_GL;
     lower_cap_marker.pose = utilities::ToPoseMsg(X_FL);
-
-    marker_array_->markers.push_back(lower_cap_marker);
   }
 
   void ImplementGeometry(const drake::geometry::Convex & convex, void *) override
   {
-    prototype_marker_.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
-    prototype_marker_.scale.x = convex.scale();
-    prototype_marker_.scale.y = convex.scale();
-    prototype_marker_.scale.z = convex.scale();
-    // Assume it is an absolute path and turn it into a file URL.
-    prototype_marker_.mesh_resource = "file://" + convex.filename();
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FG_);
-
     marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
+    marker.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
+    marker.scale.x = convex.scale();
+    marker.scale.y = convex.scale();
+    marker.scale.z = convex.scale();
+    // Assume it is an absolute path and turn it into a file URL.
+    marker.mesh_resource = "file://" + convex.filename();
+    marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Mesh & mesh, void *) override
   {
-    prototype_marker_.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
-    prototype_marker_.scale.x = mesh.scale();
-    prototype_marker_.scale.y = mesh.scale();
-    prototype_marker_.scale.z = mesh.scale();
-    // Assume it is an absolute path and turn it into a file URL.
-    prototype_marker_.mesh_resource = "file://" + mesh.filename();
-    prototype_marker_.pose = utilities::ToPoseMsg(X_FG_);
-
     marker_array_->markers.push_back(prototype_marker_);
+
+    visualization_msgs::msg::Marker & marker = marker_array_->markers.back();
+    marker.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
+    marker.scale.x = mesh.scale();
+    marker.scale.y = mesh.scale();
+    marker.scale.z = mesh.scale();
+    // Assume it is an absolute path and turn it into a file URL.
+    marker.mesh_resource = "file://" + mesh.filename();
+    marker.pose = utilities::ToPoseMsg(X_FG_);
   }
 
-  const drake::geometry::Role role_;
-  const drake::geometry::Rgba default_color_;
+  const SceneMarkersParams & params_;
   visualization_msgs::msg::MarkerArray * marker_array_{nullptr};
   visualization_msgs::msg::Marker prototype_marker_{};
   drake::math::RigidTransform<double> X_FG_{};
@@ -232,25 +240,21 @@ private:
 class SceneMarkersSystem::SceneMarkersSystemPrivate
 {
 public:
-  SceneMarkersSystemPrivate(
-    const drake::geometry::Role & _role,
-    const drake::geometry::Rgba & _default_color)
-  : role(_role), default_color(_default_color)
+  explicit SceneMarkersSystemPrivate(SceneMarkersParams _params)
+  : params(std::move(_params))
   {
   }
 
-  const drake::geometry::Role role;
-  const drake::geometry::Rgba default_color;
-  mutable drake::geometry::GeometryVersion version;
+  const SceneMarkersParams params;
   drake::systems::CacheIndex scene_markers_cache_index;
   drake::systems::InputPortIndex graph_query_port_index;
   drake::systems::OutputPortIndex scene_markers_port_index;
+  std::unordered_set<const drake::multibody::MultibodyPlant<double> *> plants;
+  mutable drake::geometry::GeometryVersion version;
 };
 
-SceneMarkersSystem::SceneMarkersSystem(
-  const drake::geometry::Role & role,
-  const drake::geometry::Rgba & default_color)
-: impl_(new SceneMarkersSystemPrivate(role, default_color))
+SceneMarkersSystem::SceneMarkersSystem(SceneMarkersParams params)
+: impl_(new SceneMarkersSystemPrivate(std::move(params)))
 {
   impl_->graph_query_port_index =
     this->DeclareAbstractInputPort(
@@ -271,40 +275,15 @@ SceneMarkersSystem::~SceneMarkersSystem()
 }
 
 void
-SceneMarkersSystem::PopulateSceneMarkersMessage(
-  const drake::systems::Context<double> & context,
-  visualization_msgs::msg::MarkerArray * output_value) const
+SceneMarkersSystem::RegisterMultibodyPlant(
+  const drake::multibody::MultibodyPlant<double> * plant)
 {
-  *output_value = this->EvalSceneMarkers(context);
-
-  const builtin_interfaces::msg::Time stamp =
-    rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
-  for (visualization_msgs::msg::Marker & marker : output_value->markers) {
-    marker.header.stamp = stamp;
-  }
+  DRAKE_THROW_UNLESS(plant != nullptr);
+  impl_->plants.insert(plant);
 }
 
-const visualization_msgs::msg::MarkerArray &
-SceneMarkersSystem::EvalSceneMarkers(
-  const drake::systems::Context<double> & context) const
+namespace
 {
-  const drake::geometry::QueryObject<double> & query_object =
-    get_input_port(impl_->graph_query_port_index)
-    .Eval<drake::geometry::QueryObject<double>>(context);
-  const drake::geometry::GeometryVersion & current_version =
-    query_object.inspector().geometry_version();
-  if (!impl_->version.IsSameAs(current_version, impl_->role)) {
-    // Invalidate scene markers cache
-    get_cache_entry(impl_->scene_markers_cache_index)
-    .get_mutable_cache_entry_value(context)
-    .mark_out_of_date();
-    impl_->version = current_version;
-  }
-  return get_cache_entry(impl_->scene_markers_cache_index)
-         .Eval<visualization_msgs::msg::MarkerArray>(context);
-}
-
-namespace {
 
 visualization_msgs::msg::Marker MakeDeleteAllMarker()
 {
@@ -316,6 +295,53 @@ visualization_msgs::msg::Marker MakeDeleteAllMarker()
 }  // namespace
 
 void
+SceneMarkersSystem::PopulateSceneMarkersMessage(
+  const drake::systems::Context<double> & context,
+  visualization_msgs::msg::MarkerArray * output_value) const
+{
+  bool cached;
+  *output_value = this->EvalSceneMarkers(context, &cached);
+  if (!cached) {
+    // Cache invalidated after scene change.
+    // Delete all pre-existing markers before an update.
+    output_value->markers.insert(
+      output_value->markers.begin(),
+      MakeDeleteAllMarker());
+  }
+  const builtin_interfaces::msg::Time stamp =
+    rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
+  for (visualization_msgs::msg::Marker & marker : output_value->markers) {
+    marker.header.stamp = stamp;
+  }
+}
+
+const visualization_msgs::msg::MarkerArray &
+SceneMarkersSystem::EvalSceneMarkers(
+  const drake::systems::Context<double> & context,
+  bool * cached) const
+{
+  const drake::geometry::QueryObject<double> & query_object =
+    get_input_port(impl_->graph_query_port_index)
+    .Eval<drake::geometry::QueryObject<double>>(context);
+  const drake::geometry::GeometryVersion & current_version =
+    query_object.inspector().geometry_version();
+  const bool same_version =
+    impl_->version.IsSameAs(current_version, impl_->params.role);
+  if (!same_version) {
+    // Invalidate scene markers cache
+    get_cache_entry(impl_->scene_markers_cache_index)
+    .get_mutable_cache_entry_value(context)
+    .mark_out_of_date();
+    impl_->version = current_version;
+  }
+  if (cached) {
+    *cached = same_version;
+  }
+  return get_cache_entry(impl_->scene_markers_cache_index)
+         .Eval<visualization_msgs::msg::MarkerArray>(context);
+}
+
+void
 SceneMarkersSystem::CalcSceneMarkers(
   const drake::systems::Context<double> & context,
   visualization_msgs::msg::MarkerArray * output_value) const
@@ -324,28 +350,21 @@ SceneMarkersSystem::CalcSceneMarkers(
     get_input_port(impl_->graph_query_port_index)
     .Eval<drake::geometry::QueryObject<double>>(context);
   const drake::geometry::SceneGraphInspector<double> & inspector = query_object.inspector();
-  output_value->markers.reserve(inspector.NumGeometriesWithRole(impl_->role) + 1);
-  output_value->markers.push_back(MakeDeleteAllMarker());  // always delete all first
+  output_value->markers.reserve(inspector.NumGeometriesWithRole(impl_->params.role));
   for (const drake::geometry::FrameId & frame_id : inspector.all_frame_ids()) {
     for (const drake::geometry::GeometryId & geometry_id :
-      inspector.GetGeometries(frame_id, impl_->role))
+      inspector.GetGeometries(frame_id, impl_->params.role))
     {
-      SceneGeometryToMarkers(impl_->role, impl_->default_color)
-      .Populate(inspector, geometry_id, output_value);
+      SceneGeometryToMarkers(impl_->params).Populate(
+        inspector, impl_->plants, geometry_id, output_value);
     }
   }
 }
 
-const drake::geometry::Role &
-SceneMarkersSystem::role() const
+const SceneMarkersParams &
+SceneMarkersSystem::params() const
 {
-  return impl_->role;
-}
-
-const drake::geometry::Rgba &
-SceneMarkersSystem::default_color() const
-{
-  return impl_->default_color;
+  return impl_->params;
 }
 
 const drake::systems::InputPort<double> &

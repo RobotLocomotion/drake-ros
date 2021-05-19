@@ -16,15 +16,43 @@
 
 #include <drake/geometry/geometry_roles.h>
 #include <drake/geometry/rgba.h>
+#include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
 
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <memory>
+#include <optional>  // NOLINT(build/include_order)
+#include <string>
 
 
 namespace drake_ros_systems
 {
+
+/// Set of parameters that configure a SceneMarkersSystem.
+struct SceneMarkersParams
+{
+  /// Configure SceneMarkersSystem to depict illustration geometries.
+  static SceneMarkersParams Illustration() { return {}; }
+
+  /// Configure SceneMarkersSystem to depict proximity geometries.
+  static SceneMarkersParams Proximity() {
+    SceneMarkersParams params;
+    params.role = drake::geometry::Role::kProximity;
+    params.default_color.set(0.5, 0.5, 0.5, 1.0);
+    return params;
+  }
+
+  /// Optional marker namespace prefix, defaults to
+  /// utilities::GetMarkerNamespacePrefix() outcome.
+  std::optional<std::string> marker_namespace_prefix{std::nullopt};
+
+  /// Role of the geometries to depict.
+  drake::geometry::Role role{drake::geometry::Role::kIllustration};
+
+  /// Default marker color if no ("phong", "diffuse") property is found.
+  drake::geometry::Rgba default_color{0.9, 0.9, 0.9, 1.0};
+};
 
 /// System for SceneGraph depiction as a ROS markers array.
 ///
@@ -47,16 +75,19 @@ namespace drake_ros_systems
 class SceneMarkersSystem : public drake::systems::LeafSystem<double>
 {
 public:
-  SceneMarkersSystem(
-    const drake::geometry::Role & role = drake::geometry::Role::kIllustration,
-    const drake::geometry::Rgba & default_color = {0.9, 0.9, 0.9, 1.0});
+  explicit SceneMarkersSystem(SceneMarkersParams params = {});
   virtual ~SceneMarkersSystem();
 
-  /// Role of the geometries this system targets.
-  const drake::geometry::Role & role() const;
+  /// Register a MultibodyPlant present in the scene
+  /**
+   * This provides the system with additional information to generate
+   * semantically meaningful frame string IDs and marker namespaces.
+   */
+  void
+  RegisterMultibodyPlant(
+    const drake::multibody::MultibodyPlant<double> * plant);
 
-  /// Default color used when a phong/diffuse property cannot be found.
-  const drake::geometry::Rgba & default_color() const;
+  const SceneMarkersParams & params() const;
 
   const drake::systems::InputPort<double> & get_graph_query_port() const;
 
@@ -74,7 +105,8 @@ private:
   // which is invalidated (and thus recomputed) upon a SceneGraph
   // geometry version change.
   const visualization_msgs::msg::MarkerArray &
-  EvalSceneMarkers(const drake::systems::Context<double> & context) const;
+  EvalSceneMarkers(const drake::systems::Context<double> & context,
+                   bool * cached = nullptr) const;
 
   // Inspects the SceneGraph and carries out the conversion
   // to visualization_msgs::msg::MarkerArray message unconditionally.

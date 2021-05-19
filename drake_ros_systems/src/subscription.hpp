@@ -62,6 +62,11 @@ protected:
   handle_loaned_message(
     void * loaned_message, const rclcpp::MessageInfo & message_info) override;
 
+  void
+  handle_serialized_message(
+    const std::shared_ptr<rclcpp::SerializedMessage> & message,
+    const rclcpp::MessageInfo & message_info) override;
+
   /// Return the message borrowed in create_message.
   /** \param[in] message Shared pointer to the returned message. */
   void

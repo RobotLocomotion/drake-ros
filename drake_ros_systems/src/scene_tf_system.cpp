@@ -18,7 +18,10 @@
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
 
+#include <unordered_set>
+
 #include "drake_ros_systems/scene_tf_system.hpp"
+#include "drake_ros_systems/utilities/name_conventions.hpp"
 #include "drake_ros_systems/utilities/type_conversion.hpp"
 
 
@@ -27,6 +30,7 @@ namespace drake_ros_systems
 class SceneTfSystem::SceneTfSystemPrivate
 {
 public:
+  std::unordered_set<const drake::multibody::MultibodyPlant<double> *> plants;
   drake::systems::InputPortIndex graph_query_port_index;
   drake::systems::OutputPortIndex scene_tf_port_index;
 };
@@ -45,6 +49,14 @@ SceneTfSystem::SceneTfSystem()
 
 SceneTfSystem::~SceneTfSystem()
 {
+}
+
+void
+SceneTfSystem::RegisterMultibodyPlant(
+  const drake::multibody::MultibodyPlant<double> * plant)
+{
+  DRAKE_THROW_UNLESS(plant != nullptr);
+  impl_->plants.insert(plant);
 }
 
 const drake::systems::InputPort<double> &
@@ -70,6 +82,7 @@ SceneTfSystem::CalcSceneTf(
   // TODO(hidmic): publish frame transforms w.r.t. to their parent frame
   //               instead of the world frame when an API is made available.
   if (inspector.num_frames() > 1) {
+    output_value->transforms.clear();
     output_value->transforms.reserve(inspector.num_frames() - 1);
 
     geometry_msgs::msg::TransformStamped transform;
@@ -80,7 +93,8 @@ SceneTfSystem::CalcSceneTf(
       if (frame_id == inspector.world_frame_id()) {
         continue;
       }
-      transform.child_frame_id = inspector.GetName(frame_id);
+      transform.child_frame_id =
+        utilities::GetTfFrameName(inspector, impl_->plants, frame_id);
       transform.transform =
         utilities::ToTransformMsg(query_object.GetPoseInWorld(frame_id));
       output_value->transforms.push_back(transform);

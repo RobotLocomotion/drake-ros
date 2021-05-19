@@ -11,9 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_SYSTEMS__TF_BROADCASTER_SYSTEM_HPP_
-#define DRAKE_ROS_SYSTEMS__TF_BROADCASTER_SYSTEM_HPP_
+#ifndef DRAKE_ROS_SYSTEMS__SCENE_TF_BROADCASTER_SYSTEM_HPP_
+#define DRAKE_ROS_SYSTEMS__SCENE_TF_BROADCASTER_SYSTEM_HPP_
 
+#include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
 
 #include <memory>
@@ -24,24 +25,47 @@
 
 namespace drake_ros_systems
 {
+
+/// Set of parameters that configure a SceneTfBroadcasterParams.
+struct SceneTfBroadcasterParams
+{
+  /// Publish triggers for tf broadcasting.
+  std::unordered_set<drake::systems::TriggerType>
+  publish_triggers{
+    drake::systems::TriggerType::kForced,
+    drake::systems::TriggerType::kPerStep};
+
+  /// Period for periodic tf broadcasting.
+  double publish_period{0.0};
+};
+
 /// System for tf2 transform broadcasting.
 ///
-/// This system is a subdiagram aggregating a SceneTFSystem and a
+/// This system is a subdiagram aggregating a SceneTfSystem and a
 /// RosPublisherSystem to broadcast SceneGraph frame transforms.
 /// Messages are published to the `/tf` ROS topic.
 ///
 /// It exports one input port:
 /// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
-class TfBroadcasterSystem : public drake::systems::Diagram<double>
+class SceneTfBroadcasterSystem : public drake::systems::Diagram<double>
 {
 public:
-  TfBroadcasterSystem(
+  explicit SceneTfBroadcasterSystem(
     std::shared_ptr<DrakeRosInterface> ros_interface,
-    const std::unordered_set<drake::systems::TriggerType> & publish_triggers = {
-      drake::systems::TriggerType::kPerStep, drake::systems::TriggerType::kForced},
-    double publish_period = 0.0);
+    SceneTfBroadcasterParams params = {});
+  ~SceneTfBroadcasterSystem() override;
+
+  // Forwarded to SceneTfSystem::RegisterMultibodyPlant
+  void
+  RegisterMultibodyPlant(
+    const drake::multibody::MultibodyPlant<double> * plant);
 
   const drake::systems::InputPort<double> & get_graph_query_port() const;
+
+private:
+  class SceneTfBroadcasterSystemPrivate;
+
+  std::unique_ptr<SceneTfBroadcasterSystemPrivate> impl_;
 };
 }  // namespace drake_ros_systems
-#endif  // DRAKE_ROS_SYSTEMS__TF_BROADCASTER_SYSTEM_HPP_
+#endif  // DRAKE_ROS_SYSTEMS__SCENE_TF_BROADCASTER_SYSTEM_HPP_

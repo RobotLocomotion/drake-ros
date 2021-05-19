@@ -67,7 +67,7 @@ struct SingleSphereSceneTestDetails
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName) + "::sphere");
+    EXPECT_EQ(marker.ns, kSourceName);
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -78,7 +78,7 @@ struct SingleSphereSceneTestDetails
     EXPECT_DOUBLE_EQ(marker.scale.y, kRadius);
     EXPECT_DOUBLE_EQ(marker.scale.z, kRadius);
     const drake::geometry::Rgba & default_color =
-      scene_markers_system->default_color();
+      scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
@@ -127,7 +127,7 @@ struct SingleEllipsoidSceneTestDetails
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName) + "::ellipsoid");
+    EXPECT_EQ(marker.ns, kSourceName);
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -138,7 +138,7 @@ struct SingleEllipsoidSceneTestDetails
     EXPECT_DOUBLE_EQ(marker.scale.y, kLengthB);
     EXPECT_DOUBLE_EQ(marker.scale.z, kLengthC);
     const drake::geometry::Rgba & default_color =
-      scene_markers_system->default_color();
+      scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
@@ -185,7 +185,7 @@ struct SingleCylinderSceneTestDetails
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName) + "::cylinder");
+    EXPECT_EQ(marker.ns, kSourceName);
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CYLINDER);
@@ -196,7 +196,7 @@ struct SingleCylinderSceneTestDetails
     EXPECT_DOUBLE_EQ(marker.scale.y, kRadius);
     EXPECT_DOUBLE_EQ(marker.scale.z, kLength);
     const drake::geometry::Rgba & default_color =
-      scene_markers_system->default_color();
+      scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
@@ -240,7 +240,7 @@ struct SingleHalfSpaceSceneTestDetails
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName) + "::hspace");
+    EXPECT_EQ(marker.ns, kSourceName);
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
@@ -250,7 +250,7 @@ struct SingleHalfSpaceSceneTestDetails
     EXPECT_GT(marker.scale.x, 10.0);
     EXPECT_GT(marker.scale.y, 10.0);
     const drake::geometry::Rgba & default_color =
-      scene_markers_system->default_color();
+      scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
@@ -291,7 +291,7 @@ struct SingleBoxSceneTestDetails
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName) + "::box");
+    EXPECT_EQ(marker.ns, kSourceName);
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
@@ -302,7 +302,7 @@ struct SingleBoxSceneTestDetails
     EXPECT_DOUBLE_EQ(marker.scale.y, kDepth);
     EXPECT_DOUBLE_EQ(marker.scale.z, kHeight);
     const drake::geometry::Rgba & default_color =
-      scene_markers_system->default_color();
+      scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
@@ -345,13 +345,13 @@ struct SingleCapsuleSceneTestDetails
     SceneMarkersSystem * scene_markers_system)
   {
     ASSERT_EQ(marker_array.markers.size(), 3u);
-    const drake::geometry::Rgba & default_color = scene_markers_system->default_color();
+    const drake::geometry::Rgba & default_color = scene_markers_system->params().default_color;
 
     const visualization_msgs::msg::Marker & body_marker = marker_array.markers[0];
     EXPECT_EQ(body_marker.header.frame_id, "world");
     EXPECT_EQ(body_marker.header.stamp.sec, 0);
     EXPECT_EQ(body_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(body_marker.ns, std::string(kSourceName) + "::capsule");
+    EXPECT_EQ(body_marker.ns, kSourceName);
     EXPECT_EQ(body_marker.id, 0);
     EXPECT_EQ(body_marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(body_marker.type, visualization_msgs::msg::Marker::CYLINDER);
@@ -377,7 +377,7 @@ struct SingleCapsuleSceneTestDetails
     EXPECT_EQ(upper_cap_marker.header.frame_id, "world");
     EXPECT_EQ(upper_cap_marker.header.stamp.sec, 0);
     EXPECT_EQ(upper_cap_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(upper_cap_marker.ns, std::string(kSourceName) + "::capsule");
+    EXPECT_EQ(upper_cap_marker.ns, kSourceName);
     EXPECT_EQ(upper_cap_marker.id, 1);
     EXPECT_EQ(upper_cap_marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(upper_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -403,7 +403,7 @@ struct SingleCapsuleSceneTestDetails
     EXPECT_EQ(lower_cap_marker.header.frame_id, "world");
     EXPECT_EQ(lower_cap_marker.header.stamp.sec, 0);
     EXPECT_EQ(lower_cap_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(lower_cap_marker.ns, std::string(kSourceName) + "::capsule");
+    EXPECT_EQ(lower_cap_marker.ns, kSourceName);
     EXPECT_EQ(lower_cap_marker.id, 2);
     EXPECT_EQ(lower_cap_marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(lower_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -460,7 +460,7 @@ struct SingleMeshSceneTestDetails
     EXPECT_EQ(marker.header.frame_id, "world");
     EXPECT_EQ(marker.header.stamp.sec, 0);
     EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName) + "::mesh");
+    EXPECT_EQ(marker.ns, kSourceName);
     EXPECT_EQ(marker.id, 0);
     EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
     EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::MESH_RESOURCE);
@@ -472,7 +472,7 @@ struct SingleMeshSceneTestDetails
     EXPECT_DOUBLE_EQ(marker.scale.y, kScale);
     EXPECT_DOUBLE_EQ(marker.scale.z, kScale);
     const drake::geometry::Rgba & default_color =
-      scene_markers_system->default_color();
+      scene_markers_system->params().default_color;
     EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
     EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
     EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
@@ -494,7 +494,7 @@ class SceneMarkersTest : public ::testing::Test
 
 TYPED_TEST_SUITE_P(SceneMarkersTest);
 
-TYPED_TEST_P(SceneMarkersTest, nominal)
+TYPED_TEST_P(SceneMarkersTest, NominalCase)
 {
   using TestDetails = TypeParam;
 
@@ -525,7 +525,7 @@ TYPED_TEST_P(SceneMarkersTest, nominal)
   TestDetails::CheckSceneMarkers(marker_array, scene_markers);
 }
 
-REGISTER_TYPED_TEST_SUITE_P(SceneMarkersTest, nominal);
+REGISTER_TYPED_TEST_SUITE_P(SceneMarkersTest, NominalCase);
 
 using SingleGeometrySceneTestDetails = ::testing::Types<
   SingleSphereSceneTestDetails,

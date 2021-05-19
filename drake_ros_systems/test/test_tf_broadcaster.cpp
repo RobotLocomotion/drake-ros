@@ -37,13 +37,14 @@
 
 #include "drake_ros_systems/drake_ros.hpp"
 #include "drake_ros_systems/ros_interface_system.hpp"
-#include "drake_ros_systems/tf_broadcaster_system.hpp"
+#include "drake_ros_systems/scene_tf_broadcaster_system.hpp"
 
 using drake_ros_systems::DrakeRos;
 using drake_ros_systems::RosInterfaceSystem;
-using drake_ros_systems::TfBroadcasterSystem;
+using drake_ros_systems::SceneTfBroadcasterSystem;
+using drake_ros_systems::SceneTfBroadcasterParams;
 
-TEST(TfBroadcasting, nominal_case) {
+TEST(SceneTfBroadcasting, NominalCase) {
   drake::systems::DiagramBuilder<double> builder;
 
   auto sys_ros_interface =
@@ -75,14 +76,13 @@ TEST(TfBroadcasting, nominal_case) {
     pose_vector_source->get_output_port(),
     scene_graph->get_source_pose_port(source_id));
 
-  const std::unordered_set<drake::systems::TriggerType>
-  publish_triggers{drake::systems::TriggerType::kForced};
-  auto broadcaster = builder.AddSystem<TfBroadcasterSystem>(
-    sys_ros_interface->get_ros_interface(), publish_triggers);
+  auto scene_tf_broadcaster = builder.AddSystem<SceneTfBroadcasterSystem>(
+    sys_ros_interface->get_ros_interface(),
+    SceneTfBroadcasterParams{{drake::systems::TriggerType::kForced}, 0.});
 
   builder.Connect(
     scene_graph->get_query_output_port(),
-    broadcaster->GetInputPort("graph_query"));
+    scene_tf_broadcaster->GetInputPort("graph_query"));
 
   auto diagram = builder.Build();
   auto context = diagram->CreateDefaultContext();

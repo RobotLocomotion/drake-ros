@@ -14,6 +14,7 @@
 #ifndef DRAKE_ROS_SYSTEMS__SCENE_TF_SYSTEM_HPP_
 #define DRAKE_ROS_SYSTEMS__SCENE_TF_SYSTEM_HPP_
 
+#include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/leaf_system.h>
 
@@ -42,6 +43,15 @@ class SceneTfSystem : public drake::systems::LeafSystem<double>
 public:
   SceneTfSystem();
   virtual ~SceneTfSystem();
+
+  /// Register a MultibodyPlant present in the scene
+  /**
+   * This provides the system with additional information
+   * to generate semantically meaningful frame string IDs.
+   */
+  void
+  RegisterMultibodyPlant(
+    const drake::multibody::MultibodyPlant<double> * plant);
 
   const drake::systems::InputPort<double> & get_graph_query_port() const;
 

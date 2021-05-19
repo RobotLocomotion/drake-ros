@@ -14,6 +14,7 @@
 #ifndef DRAKE_ROS_SYSTEMS__RVIZ_VISUALIZER_HPP_
 #define DRAKE_ROS_SYSTEMS__RVIZ_VISUALIZER_HPP_
 
+#include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/diagram.h>
 
 #include <memory>
@@ -24,6 +25,20 @@
 
 namespace drake_ros_systems
 {
+
+/// Set of parameters that configure an RvizVisualizer.
+struct RvizVisualizerParams
+{
+  /// Publish triggers for scene markers and tf broadcasting.
+  std::unordered_set<drake::systems::TriggerType> publish_triggers{
+    drake::systems::TriggerType::kForced, drake::systems::TriggerType::kPeriodic};
+
+  /// Period for periodic scene markers and tf broadcasting.
+  double publish_period{0.05};
+
+  /// Whether to perform tf broadcasting or not.
+  bool publish_tf{true};
+};
 
 /// System for SceneGraph visualization in RViz.
 ///
@@ -39,14 +54,24 @@ namespace drake_ros_systems
 class RvizVisualizer : public drake::systems::Diagram<double>
 {
 public:
-  RvizVisualizer(
+  explicit RvizVisualizer(
     std::shared_ptr<DrakeRosInterface> ros_interface,
-    const std::unordered_set<drake::systems::TriggerType> & publish_triggers = {
-      drake::systems::TriggerType::kForced, drake::systems::TriggerType::kPeriodic},
-    double publish_period = 0.05,
-    bool publish_tf = true);
+    RvizVisualizerParams params = {});
+
+  ~RvizVisualizer() override;
+
+  // Forwarded to SceneTfSystem::RegisterMultibodyPlant
+  // and SceneTfBroadcasterSystem::RegisterMultibodyPlant
+  void
+  RegisterMultibodyPlant(
+    const drake::multibody::MultibodyPlant<double> * plant);
 
   const drake::systems::InputPort<double> & get_graph_query_port() const;
+
+private:
+  class RvizVisualizerPrivate;
+
+  std::unique_ptr<RvizVisualizerPrivate> impl_;
 };
 
 }  // namespace drake_ros_systems

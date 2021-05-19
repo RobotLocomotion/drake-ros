@@ -3,7 +3,7 @@ project(drake_ros_systems)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -31,7 +31,8 @@ add_library(drake_ros_systems
   src/scene_markers_system.cpp
   src/scene_tf_system.cpp
   src/subscription.cpp
-  src/tf_broadcaster_system.cpp
+  src/scene_tf_broadcaster_system.cpp
+  src/utilities/name_conventions.cpp
   src/utilities/type_conversion.cpp
 )
 
