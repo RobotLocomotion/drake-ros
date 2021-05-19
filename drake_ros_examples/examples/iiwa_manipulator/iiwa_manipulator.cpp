@@ -81,6 +81,9 @@ int main()
   auto rviz_visualizer = builder.AddSystem<RvizVisualizer>(
     ros_interface_system->get_ros_interface());
 
+  rviz_visualizer->RegisterMultibodyPlant(
+    &manipulation_station->get_multibody_plant());
+
   builder.Connect(
     manipulation_station->GetOutputPort("query_object"),
     rviz_visualizer->get_graph_query_port());
