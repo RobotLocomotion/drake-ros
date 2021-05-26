@@ -6,14 +6,12 @@ MANIFEST = [
     "resources/package_py_library_with_cc_extensions.bzl.tpl",
     "resources/package_cc_library.bzl.tpl",
     "resources/BUILD.prologue.bazel",
-    "resources/rosidl_package.xml.in",
     "resources/ament_cmake_CMakeLists.txt.in",
     "resources/package_meta_py_library.bzl.tpl",
     "resources/package_alias.bzl.tpl",
     "resources/package_py_library.bzl.tpl",
     "resources/package_share_filegroup.bzl.tpl",
     "resources/prologue.bzl",
-    "resources/rosidl_cmake_CMakeLists.txt.in",
     "ros2bzl/utilities.py",
     "ros2bzl/sandboxing.py",
     "ros2bzl/resources.py",
@@ -24,7 +22,6 @@ MANIFEST = [
     "ros2bzl/scrapping/ament_python.py",
     "ros2bzl/scrapping/ament_cmake.py",
     "ros2bzl/scrapping/__init__.py",
-    "rosidl_generate_interfaces.py"
 ]
 
 def _execute_or_fail(repo_ctx, cmd, **kwargs):
