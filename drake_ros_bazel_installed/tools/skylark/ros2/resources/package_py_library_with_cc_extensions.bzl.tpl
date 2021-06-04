@@ -1,8 +1,12 @@
 drake_ros_py_library(
     name = {name},
-    srcs = glob(["{{}}/**/*.py".format(x) for x in {packages}]),
+    srcs = glob(["{{}}/**/*.py".format(x) for x in {tops}]),
     data = glob(
-       include=["{{}}/**/*.*".format(x) for x in {packages}],
+       include=[
+         "{{}}/**/*.*".format(x) for x in {tops}
+       ] + [
+         "{{}}/*".format(x) for x in {eggs}
+       ],
        exclude=["**/*.py", "**/*.so"],
     ) + {data},
     imports = {imports},

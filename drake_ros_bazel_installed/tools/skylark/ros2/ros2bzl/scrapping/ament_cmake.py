@@ -117,12 +117,17 @@ def collect_ament_cmake_package_properties(name, metadata):
             ament_prefix_path = os.environ['AMENT_PREFIX_PATH']
             cmake_prefix_path += ';' + ament_prefix_path.replace(':', ';')
 
-        with cmake_tools.server_mode(project_path) as cmake:
-            cmake.configure(attributes={'cacheArguments': [
-                '-DCMAKE_PREFIX_PATH=' + cmake_prefix_path
-            ]}, timeout=20, message_callback=print)
-            cmake.compute(timeout=20, message_callback=print)
-            codemodel = cmake.codemodel(timeout=5)
+        try:
+            with cmake_tools.server_mode(project_path) as cmake:
+                cmake.configure(attributes={'cacheArguments': [
+                    '-DCMAKE_PREFIX_PATH="{}"'.format(cmake_prefix_path)
+                ]}, timeout=20, message_callback=print)
+                cmake.compute(timeout=20, message_callback=print)
+                codemodel = cmake.codemodel(timeout=5)
+        except:
+            import shutil
+            shutil.copytree(project_path, 'error_case')
+            raise
 
         configurations = codemodel['configurations']
         assert len(configurations) == 1

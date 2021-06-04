@@ -1,6 +1,22 @@
+import os
+
 from ament_index_python import get_packages_with_prefixes
+from ament_index_python import get_search_paths
 
 from ros2bzl.scrapping.metadata import collect_package_metadata
+
+
+def list_all_executables():
+    executables = {}
+    for prefix in get_search_paths():
+        root = os.path.join(prefix, 'bin')
+        for path in os.listdir(root):
+            path = os.path.join(root, path)
+            if os.path.isfile(path) and os.access(path, os.X_OK):
+                name = os.path.basename(path)
+                if name not in executables:
+                    executables[name] = path
+    return list(executables.values())
 
 
 def index_all_packages():

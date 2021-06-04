@@ -39,6 +39,7 @@ def labels_with(suffix):
 
 
 share_name, share_label = labels_with(suffix='_share')
+c_name, _ = labels_with(suffix='_c')
 cc_name, cc_label = labels_with(suffix='_cc')
 py_name, py_label = labels_with(suffix='_py')
 meta_py_name, meta_py_label = labels_with(suffix='_transitively_py')
@@ -53,43 +54,19 @@ def configure_package_share_filegroup(name, metadata, sandbox):
         ]
     }
 
-
-def configure_package_executable_imports(name, metadata, dependencies, extras, sandbox):
-    if not metadata['executables']:
-        return []
-
-    common_data = []
-    dependencies = list(dependencies.items())
-    dependencies = [(name, metadata)] + dependencies
-    for dependency_name, dependency_metadata in dependencies:
-        # TODO(hidmic): use appropriate target based on executable file type
-        if 'cc' in dependency_metadata['langs']:
-            common_data.append(cc_label(dependency_name, dependency_metadata))
-        if 'py' in dependency_metadata['langs']:
-            common_data.append(py_label(dependency_name, dependency_metadata))
-        elif 'py (transitively)' in dependency_metadata['langs']:
-            common_data.append(meta_py_label(dependency_name, dependency_metadata))
-
-    target_prefix = label_name(name, metadata)
-    for executable in metadata['executables']:
-        target_name = '{}_{}'.format(target_prefix, os.path.basename(executable))
-        data = common_data
-        if extras and 'data' in extras and target_name in extras['data']:
-            data = data + extras['data'][target_name]
-        yield load_resource('package_cc_binary_import.bzl.tpl'), {
-            'name': target_name, 'executable': sandbox(executable), 'data': data
-        }
+def configure_package_interfaces_filegroup(name, metadata, sandbox):
+    return load_resource('package_interfaces_filegroup.bzl.tpl'), {
+        'name': name, 'share_directory': sandbox(metadata['share_directory'])
+    }
 
 
 def configure_package_cc_library(name, metadata, properties, dependencies, extras, sandbox):
     target_name = cc_name(name, metadata)
     libraries = [sandbox(library) for library in properties['link_libraries']]
     include_directories = [sandbox(include) for include in properties['include_directories']]
-    local_include_directories = [
-        os.path.join(include, name)  # assumes package abides to REP-122 FHS layout
-        for include in include_directories
-        if not os.path.isabs(include)
-    ]
+    local_includes = [include for include in include_directories if not os.path.isabs(include)]
+    # Assume package abides to REP-122 FHS layout
+    headers = [os.path.join(include, name) for include in local_includes]
     # Push remaining nonlocal includes through compiler options
     copts = ['-isystem ' + include for include in include_directories if os.path.isabs(include)]
     copts.extend(properties['compile_flags'])
@@ -141,7 +118,8 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
     return load_resource('package_cc_library.bzl.tpl'), {
         'name': target_name,
         'srcs': libraries,
-        'includes': local_include_directories,
+        'headers': headers,
+        'includes': local_includes,
         'copts': copts,
         'defines': defines,
         'linkopts': linkopts,
@@ -165,8 +143,9 @@ def configure_package_meta_py_library(name, metadata, dependencies):
 
 def configure_package_py_library(name, metadata, properties, dependencies, extras, sandbox):
     target_name = py_name(name, metadata)
-    packages = [sandbox(pkg) for pkg in properties['python_packages']]
-    imports = [os.path.dirname(pkg) for pkg in packages]
+    eggs = [sandbox(egg_path) for egg_path, _ in properties['python_packages']]
+    tops = [sandbox(top_level) for _, top_level in properties['python_packages']]
+    imports = [os.path.dirname(egg) for egg in eggs]
 
     deps = []
     for dependency_name, dependency_metadata in dependencies.items():
@@ -177,7 +156,8 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
 
     config = {
         'name': target_name,
-        'packages': packages,
+        'tops': tops,
+        'eggs': eggs,
         'imports': imports,
         'deps': deps
     }
@@ -227,3 +207,49 @@ def configure_package_alias(name, target):
     return load_resource('package_alias.bzl.tpl'), {
         'name': name, 'actual': ':' + target
     }
+
+
+def configure_package_c_library_alias(name, metadata):
+    return load_resource('package_alias.bzl.tpl'), {
+        'name': c_name(name, metadata),
+        'actual': cc_label(name, metadata)
+    }
+
+
+def configure_executable_imports(
+    executables, dependencies, sandbox, extras=None, prefix=None
+):
+    deps = []
+    common_data = []
+    for dependency_name, dependency_metadata in dependencies.items():
+        # TODO(hidmic): use appropriate target based on executable file type
+        if 'cc' in dependency_metadata['langs']:
+            common_data.append(cc_label(dependency_name, dependency_metadata))
+        if 'py' in dependency_metadata['langs']:
+            deps.append(py_label(dependency_name, dependency_metadata))
+        elif 'py (transitively)' in dependency_metadata['langs']:
+            common_data.append(meta_py_label(dependency_name, dependency_metadata))
+
+    for executable in executables:
+        target_name = os.path.basename(executable)
+        if prefix:
+            target_name = prefix + '_' + target_name
+        data = common_data
+        if extras and 'data' in extras and target_name in extras['data']:
+            data = data + extras['data'][target_name]
+        yield load_resource('executable_import.bzl.tpl'), {
+            'name': target_name,
+            'executable': sandbox(executable),
+            'data': data, 'deps': deps,
+        }
+
+
+def configure_package_executable_imports(
+    name, metadata, dependencies, sandbox, extras=None
+):
+    dependencies = dict(dependencies)
+    dependencies[name] = metadata
+    yield from configure_executable_imports(
+        metadata['executables'], dependencies, sandbox,
+        extras=extras, prefix=label_name(name, metadata)
+    )

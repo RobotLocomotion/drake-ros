@@ -13,18 +13,22 @@ import toposort
 sys.path.insert(0, os.path.dirname(__file__))  # noqa
 
 from ros2bzl.scrapping import index_all_packages
+from ros2bzl.scrapping import list_all_executables
 from ros2bzl.scrapping import build_dependency_graph
 from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_properties
 from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_direct_properties
 from ros2bzl.scrapping.ament_python import collect_ament_python_package_direct_properties
 from ros2bzl.scrapping.ament_python import PackageNotFoundError
 
+from ros2bzl.templates import configure_executable_imports
 from ros2bzl.templates import configure_package_meta_py_library
 from ros2bzl.templates import configure_package_alias
+from ros2bzl.templates import configure_package_c_library_alias
 from ros2bzl.templates import configure_package_cc_library
 from ros2bzl.templates import configure_package_executable_imports
 from ros2bzl.templates import configure_package_py_library
 from ros2bzl.templates import configure_package_share_filegroup
+from ros2bzl.templates import configure_package_interfaces_filegroup
 
 from ros2bzl.resources import load_resource
 from ros2bzl.resources import setup_underlay
@@ -81,7 +85,24 @@ def parse_arguments():
     return args
 
 
-def generate_build_file(packages, dependency_graph, cache, extras, sandbox):
+def generate_distro_file(packages):
+    typesupport_groups = [
+        'rosidl_typesupport_c_packages',
+        'rosidl_typesupport_cpp_packages'
+    ]
+    with open('distro.bzl', 'w') as fd:
+        fd.write(load_resource('distro.bzl.tpl').format(
+            available_typesupports=[
+                name for name, metadata in packages.items() if any(
+                    group in typesupport_groups for group in metadata['groups']
+                )
+            ]
+        ) + '\n')
+
+
+def generate_build_file(
+    packages, executables, dependency_graph, cache, extras, sandbox
+):
     rmw_implementation_packages = {
         name: metadata for name, metadata in packages.items()
         if 'rmw_implementation_packages' in metadata['groups']
@@ -98,11 +119,18 @@ def generate_build_file(packages, dependency_graph, cache, extras, sandbox):
                 for dependency_name in dependency_graph[name]
             }
 
+            targets = []
+
             template, config = \
                 configure_package_share_filegroup(name, metadata, sandbox)
             fd.write(interpolate(template, config) + '\n')
 
-            main_target = None
+            if 'rosidl_interface_packages' in metadata['groups']:
+                template, config = \
+                    configure_package_interfaces_filegroup(name, metadata, sandbox)
+                fd.write(interpolate(template, config) + '\n')
+                targets.append(config['name'])
+
             if metadata['build_type'] == 'ament_cmake':
                 properties = collect_ament_cmake_package_direct_properties(
                     name, metadata, dependencies, cache
@@ -113,10 +141,16 @@ def generate_build_file(packages, dependency_graph, cache, extras, sandbox):
                 )
 
                 if any(properties.values()):
-                    # Tentatively set as main target (for aliasing)
-                    main_target = config['name']
+                    targets.append(config['name'])
 
                 fd.write(interpolate(template, config) + '\n')
+
+                if 'rosidl_interface_packages' in metadata['groups']:
+                    # Alias C++ library as C library for interface packages
+                    # as their headers and artifacts cannot be discriminated.
+                    template, config = \
+                        configure_package_c_library_alias(name, metadata)
+                    fd.write(interpolate(template, config) + '\n')
 
             # No way to tell if there's Python code for this package
             # but to look for it.
@@ -140,22 +174,24 @@ def generate_build_file(packages, dependency_graph, cache, extras, sandbox):
                 template, config = configure_package_py_library(
                     name, metadata, properties, dependencies, extras, sandbox
                 )
+                fd.write(interpolate(template, config) + '\n')
+                targets.append(config['name'])
 
-                # Set as main target if not set already,
-                # otherwise there's no main target.
-                main_target = config['name'] if not main_target else None
-
+            if len(targets) == 1 and targets[0] != name:
+                template, config = configure_package_alias(name, targets[0])
                 fd.write(interpolate(template, config) + '\n')
 
-            if main_target is not None and main_target != name:
-                template, config = configure_package_alias(name, main_target)
-                fd.write(interpolate(template, config) + '\n')
+            if metadata['executables']:
+                dependencies.update(rmw_implementation_packages)
+                for template, config in configure_package_executable_imports(
+                    name, metadata, dependencies, sandbox, extras=extras
+                ):
+                    fd.write(interpolate(template, config) + '\n')
 
-            dependencies.update(rmw_implementation_packages)
-            for template, config in configure_package_executable_imports(
-                name, metadata, dependencies, extras, sandbox
-            ):
-                fd.write(interpolate(template, config) + '\n')
+        for template, config in configure_executable_imports(
+            executables, packages, sandbox, extras=extras
+        ):
+            fd.write(interpolate(template, config) + '\n')
 
 
 def precache_ament_cmake_properties(packages, jobs=None):
@@ -176,6 +212,8 @@ def precache_ament_cmake_properties(packages, jobs=None):
 def main():
     args = parse_arguments()
 
+    executables = list_all_executables()
+
     packages, dependency_graph = build_dependency_graph(
         index_all_packages(),
         set(args.include_packages),
@@ -186,7 +224,10 @@ def main():
         'ament_cmake': precache_ament_cmake_properties(packages, jobs=args.jobs)
     }
 
-    generate_build_file(packages, dependency_graph, cache, args.extras, args.sandbox)
+    generate_build_file(
+        packages, executables, dependency_graph, cache, args.extras, args.sandbox)
+
+    generate_distro_file(packages)
 
     for name, metadata in packages.items():
         # For downstream repositories to use

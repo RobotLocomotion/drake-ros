@@ -11,14 +11,14 @@ def find_python_package(name):
     dist = distribution(name)
     top_level = dist.read_text('top_level.txt')
     top_level = top_level.rstrip('\n')
-    return str(dist.locate_file(top_level))
+    return str(dist._path), str(dist.locate_file(top_level))
 
 
 def collect_ament_python_package_properties(name, metadata):
-    python_package_path = find_python_package(name)
-    properties = {'python_packages': [python_package_path]}
+    egg_path, top_level = find_python_package(name)
+    properties = {'python_packages': [(egg_path, top_level)]}
     cc_extensions = glob.glob(
-        '{}/**/*.so'.format(python_package_path), recursive=True
+        '{}/**/*.so'.format(top_level), recursive=True
     )
     if cc_extensions:
         cc_extensions_deps = set()

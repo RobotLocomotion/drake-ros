@@ -1,8 +1,9 @@
+load("//tools/skylark:execute.bzl", "execute_or_fail")
 
 MANIFEST = [
     "cmake_tools/server_mode.py",
     "cmake_tools/__init__.py",
-    "resources/package_cc_binary_import.bzl.tpl",
+    "resources/executable_import.bzl.tpl",
     "resources/package_py_library_with_cc_extensions.bzl.tpl",
     "resources/package_cc_library.bzl.tpl",
     "resources/BUILD.prologue.bazel",
@@ -11,7 +12,8 @@ MANIFEST = [
     "resources/package_alias.bzl.tpl",
     "resources/package_py_library.bzl.tpl",
     "resources/package_share_filegroup.bzl.tpl",
-    "resources/prologue.bzl",
+    "resources/package_interfaces_filegroup.bzl.tpl",
+
     "ros2bzl/utilities.py",
     "ros2bzl/sandboxing.py",
     "ros2bzl/resources.py",
@@ -24,30 +26,12 @@ MANIFEST = [
     "ros2bzl/scrapping/__init__.py",
 ]
 
-def _execute_or_fail(repo_ctx, cmd, **kwargs):
-    exec_result = repo_ctx.execute(cmd, **kwargs)
-    if exec_result.return_code != 0:
-        error_message ="'{}' exited with {}".format(
-            " ".join([str(token) for token in cmd]),
-            exec_result.return_code
-        )
-        if exec_result.stdout:
-            error_message += "\n--- captured stdout ---\n"
-            error_message += exec_result.stdout
-        if exec_result.stderr:
-            error_message += "\n--- captured stderr ---\n"
-            error_message += exec_result.stderr
-        fail("Failed to setup @{} repository: {}".format(
-            repo_ctx.name, error_message
-        ))
-    return exec_result
-
 def _label(relpath):
     return Label("//tools/skylark/ros2:" + relpath)
 
 def _uuid(repo_ctx):
     cmd = [repo_ctx.which("python3"), "-c", "import uuid; print(uuid.uuid1())"]
-    return _execute_or_fail(repo_ctx, cmd, quiet=True).stdout
+    return execute_or_fail(repo_ctx, cmd, quiet=True).stdout
 
 def _impl(repo_ctx):
     for relpath in MANIFEST:
@@ -61,6 +45,14 @@ def _impl(repo_ctx):
             "@WORKSPACES@": " ".join(repo_ctx.attr.workspaces),
         },
         executable = True
+    )
+
+    repo_ctx.template(
+        "rosidl.bzl", _label("resources/rosidl.bzl.tpl"),
+        substitutions = {
+            "@REPOSITORY_ROOT@": "@{}//".format(repo_ctx.name),
+        },
+        executable = False
     )
 
     generate_tool = repo_ctx.path(_label("generate_repository_files.py"))
@@ -78,7 +70,7 @@ def _impl(repo_ctx):
     if repo_ctx.attr.jobs > 0:
         cmd.extend(["-j", repr(repo_ctx.attr.jobs)])
     cmd.append(repo_ctx.name)
-    _execute_or_fail(repo_ctx, cmd, quiet=True)
+    execute_or_fail(repo_ctx, cmd, quiet=True)
 
 """
 Extracts relevant properties from CMake and Python stuff for ROS 2 install
@@ -110,20 +102,3 @@ ros2_local_repository = repository_rule(
     configure = True,
     implementation = _impl,
 )
-
-def package_share_filegroup(name, share_directories):
-    native.filegroup(
-        name = name,
-        srcs = [path for path in native.glob(
-            include = ["{}/**".format(dirpath) for dirpath in share_directories],
-            exclude = [
-                "*/cmake/**",
-                "*/environment/**",
-                "*/*.sh",
-                "*/*.bash",
-                "*/*.dsv",
-            ]
-        ) if " " not in path],
-        # NOTE(hidmic): workaround lack of support for spaces.
-        # See https://github.com/bazelbuild/bazel/issues/4327.
-    )
