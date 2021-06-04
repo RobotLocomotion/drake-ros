@@ -39,6 +39,44 @@ def drake_ros_py_library(name, srcs = [], main = None, imports = [],
         visibility = visibility,
     )
 
+def drake_ros_py_executable_import(
+    name, executable = [], imports = [], args = [],
+    data = [], deps = [], tags = [], testonly = 0,
+    visibility = None, **kwargs
+):
+    """
+    Imports an picking up runtime information in dependencies.
+
+    Args:
+        executable: executable file
+
+    Similar to the py_binary() rule.
+    """
+    shim = name + "_shim.py"
+    dload_py_shim(
+        name = shim,
+        target = executable,
+        data = data,
+        deps = deps,
+        testonly = testonly,
+        visibility = visibility,
+    )
+    native.py_binary(
+        name = name,
+        srcs = [shim],
+        main = shim,
+        imports = imports,
+        data = [executable] + data,
+        deps = [
+            "@bazel_tools//tools/python/runfiles",
+        ] + deps,
+        tags = ["nolint"] + tags,
+        testonly = testonly,
+        visibility = visibility,
+        python_version = "PY3",
+        **kwargs
+    )
+
 def drake_ros_py_binary(name, srcs = [], main = None, imports = [], args = [],
                         srcs_version = None, data = [], deps = [], tags = [],
                         testonly = 0, visibility = None, **kwargs):
