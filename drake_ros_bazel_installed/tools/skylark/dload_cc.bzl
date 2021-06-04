@@ -42,7 +42,7 @@ int main(int argc, const char * argv[]) {{
   for (size_t i = 0; i < names.size(); ++i) {{
     std::stringstream value;
     if (actions[i][0] == "replace") {{
-      assert(actions[i].size() != 2);
+      assert(actions[i].size() == 2);
       value << actions[i][1];
     }} else if (actions[i][0] == "path-replace") {{
       assert(actions[i].size() == 2);
