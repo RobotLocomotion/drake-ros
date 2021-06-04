@@ -1,0 +1,13 @@
+load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
+
+rosidl_interfaces_group(
+    name = "apps_msgs",
+    interfaces = [
+        "msg/Stats.msg",
+        "srv/QueryStats.srv",
+    ],
+    deps = [
+        "//common:common_msgs",
+        "@ros2//:builtin_interfaces",
+    ],
+)
