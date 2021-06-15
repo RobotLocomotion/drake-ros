@@ -20,9 +20,6 @@
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-#include <std_msgs/msg/bool.hpp>
-#include <tf2_msgs/msg/tf_message.hpp>
-
 #include <memory>
 
 #include "drake_ros_core/serializer_interface.hpp"
