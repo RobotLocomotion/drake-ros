@@ -1,4 +1,4 @@
-load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
+load("@ros2//:rosidl_tools.bzl", "rosidl_interfaces_group")
 
 rosidl_interfaces_group(
     name = "apps_msgs",
