@@ -1,61 +1,27 @@
 # -*- python -*-
-# vi: set ft=python :
 
-load(
-    "//tools/skylark:dload_py.bzl",
-    "dload_aware_py_library",
-    "dload_py_shim",
-)
+load("@REPOSITORY_ROOT@:distro.bzl", "RUNTIME_ENVIRONMENT")
+load("@drake_ros//tools/skylark:dload_py.bzl", "dload_py_shim")
 
-def drake_ros_py_library(name, srcs = [], main = None, imports = [],
-                         srcs_version = None, deps = [], data = [],
-                         runenv = {}, testonly = 0, visibility = None,
-                         **kwargs):
-    """
-    Adds a Python library and carries runtime information, if any.
-
-    Equivalent to the py_library() rule.
-    """
-    library_name = "_" + name
-    native.py_library(
-        name = library_name,
-        srcs = srcs,
-        main = main,
-        imports = imports,
-        srcs_version = srcs_version,
-        deps = deps,
-        data = data,
-        testonly = testonly,
-        visibility = visibility,
-        **kwargs
-    )
-    dload_aware_py_library(
-        name = name,
-        base = ":" + library_name,
-        data = data,
-        deps = [":" + library_name] + deps,
-        runenv = runenv,
-        testonly = testonly,
-        visibility = visibility,
-    )
-
-def drake_ros_py_executable_import(
+def ros_py_import(
     name, executable = [], imports = [], args = [],
     data = [], deps = [], tags = [], testonly = 0,
     visibility = None, **kwargs
 ):
     """
-    Imports an picking up runtime information in dependencies.
+    Imports an executable, injecting the runtime environment
+    specific to this ROS overlay.
 
     Args:
         executable: executable file
 
-    Similar to the py_binary() rule.
+    Akin to the cc_import() rule.
     """
     shim = name + "_shim.py"
     dload_py_shim(
         name = shim,
         target = executable,
+        env = RUNTIME_ENVIRONMENT,
         data = data,
         deps = deps,
         testonly = testonly,
@@ -77,11 +43,14 @@ def drake_ros_py_executable_import(
         **kwargs
     )
 
-def drake_ros_py_binary(name, srcs = [], main = None, imports = [], args = [],
-                        srcs_version = None, data = [], deps = [], tags = [],
-                        testonly = 0, visibility = None, **kwargs):
+def ros_py_binary(
+    name, srcs = [], main = None, imports = [], args = [],
+    srcs_version = None, data = [], deps = [], tags = [],
+    testonly = 0, visibility = None, **kwargs
+):
     """
-    Adds a Python executable, picking up runtime information in dependencies.
+    Adds a Python executable, injecting the runtime environment
+    specific to this ROS overlay.
 
     Equivalent to the py_library() rule.
     """
@@ -105,6 +74,7 @@ def drake_ros_py_binary(name, srcs = [], main = None, imports = [], args = [],
     dload_py_shim(
         name = shim,
         target = ":" + binary,
+        env = RUNTIME_ENVIRONMENT,
         data = data,
         deps = deps,
         testonly = testonly,
@@ -126,12 +96,14 @@ def drake_ros_py_binary(name, srcs = [], main = None, imports = [], args = [],
         **kwargs
     )
 
-def drake_ros_py_test(name, srcs = [], main = None, imports = [],
-                      srcs_version = None, data = [], args = [],
-                      deps = [], tags = [], visibility = None,
-                      testonly = 1, **kwargs):
+def ros_py_test(
+    name, srcs = [], main = None, imports = [], srcs_version = None,
+    data = [], args = [], deps = [], tags = [], visibility = None,
+    testonly = 1, **kwargs
+):
     """
-    Adds a Python test, picking up runtime information in dependencies.
+    Adds a Python test, injecting the runtime environment
+    specific to this ROS overlay.
 
     Equivalent to the py_test() rule.
     """
@@ -163,6 +135,7 @@ def drake_ros_py_test(name, srcs = [], main = None, imports = [],
     dload_py_shim(
         name = shim,
         target = ":" + test,
+        env = RUNTIME_ENVIRONMENT,
         data = data,
         deps = deps,
         testonly = testonly,

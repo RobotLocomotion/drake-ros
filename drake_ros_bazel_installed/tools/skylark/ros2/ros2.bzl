@@ -3,16 +3,22 @@ load("//tools/skylark:execute.bzl", "execute_or_fail")
 MANIFEST = [
     "cmake_tools/server_mode.py",
     "cmake_tools/__init__.py",
-    "resources/executable_import.bzl.tpl",
-    "resources/package_py_library_with_cc_extensions.bzl.tpl",
-    "resources/package_cc_library.bzl.tpl",
-    "resources/BUILD.prologue.bazel",
-    "resources/ament_cmake_CMakeLists.txt.in",
-    "resources/package_meta_py_library.bzl.tpl",
-    "resources/package_alias.bzl.tpl",
-    "resources/package_py_library.bzl.tpl",
-    "resources/package_share_filegroup.bzl.tpl",
-    "resources/package_interfaces_filegroup.bzl.tpl",
+
+    "resources/bazel/cc_tools.bzl.tpl",
+    "resources/bazel/distro.bzl.tpl",
+    "resources/bazel/py_tools.bzl.tpl",
+    "resources/bazel/rosidl_tools.bzl.tpl",
+    "resources/bazel/snippets/overlay_executable.bazel.tpl",
+    "resources/bazel/snippets/package_alias.bazel.tpl",
+    "resources/bazel/snippets/package_interfaces_filegroup.bazel.tpl",
+    "resources/bazel/snippets/package_cc_library.bazel.tpl",
+    "resources/bazel/snippets/package_cc_library_with_runtime_environ.bazel.tpl",
+    "resources/bazel/snippets/package_meta_py_library.bazel.tpl",
+    "resources/bazel/snippets/package_py_library.bazel.tpl",
+    "resources/bazel/snippets/package_share_filegroup.bazel.tpl",
+    "resources/bazel/snippets/prologue.bazel.tpl",
+
+    "resources/cmake/ament_cmake_CMakeLists.txt.in",
 
     "ros2bzl/utilities.py",
     "ros2bzl/sandboxing.py",
@@ -38,21 +44,13 @@ def _impl(repo_ctx):
         repo_ctx.symlink(_label(relpath), relpath)
 
     repo_ctx.template(
-        "setup.sh", _label("resources/setup.sh.in"),
+        "setup.sh", _label("resources/shell/setup.sh.in"),
         substitutions = {
             "@ID@": _uuid(repo_ctx),
             "@REPOSITORY_DIR@": str(repo_ctx.path(".")),
             "@WORKSPACES@": " ".join(repo_ctx.attr.workspaces),
         },
         executable = True
-    )
-
-    repo_ctx.template(
-        "rosidl.bzl", _label("resources/rosidl.bzl.tpl"),
-        substitutions = {
-            "@REPOSITORY_ROOT@": "@{}//".format(repo_ctx.name),
-        },
-        executable = False
     )
 
     generate_tool = repo_ctx.path(_label("generate_repository_files.py"))

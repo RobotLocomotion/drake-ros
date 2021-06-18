@@ -28,5 +28,7 @@ if("@PACKAGE@" STREQUAL "rviz_ogre_vendor")
   file(GLOB ogre_plugin_libraries "${OGRE_PLUGIN_DIR}/*.so*")
   target_link_libraries(${PROJECT_NAME} ${ogre_plugin_libraries})
 else()
+  # TODO(hidmic): figure out why this is sometimes necessary
   ament_target_dependencies(${PROJECT_NAME} @PACKAGE@)
+  target_link_libraries(${PROJECT_NAME} @PACKAGE@)
 endif()

@@ -1,5 +1,5 @@
 
-def package_share_filegroup(name, share_directories):
+def share_filegroup(name, share_directories):
     native.filegroup(
         name = name,
         srcs = [path for path in native.glob(
@@ -16,8 +16,7 @@ def package_share_filegroup(name, share_directories):
         # See https://github.com/bazelbuild/bazel/issues/4327.
     )
 
-
-def package_interfaces_filegroup(name, share_directory):
+def interfaces_filegroup(name, share_directory):
     native.filegroup(
         name = name + "_defs",
         srcs = native.glob(include = [

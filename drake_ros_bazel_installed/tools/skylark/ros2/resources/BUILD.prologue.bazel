@@ -1,9 +1,0 @@
-# -*- python -*-
-
-package(default_visibility = ["//visibility:public"])
-
-load("@drake_ros//tools/skylark:drake_ros_cc.bzl", "drake_ros_cc_library")
-load("@drake_ros//tools/skylark:drake_ros_py.bzl", "drake_ros_py_executable_import")
-load("@drake_ros//tools/skylark:drake_ros_py.bzl", "drake_ros_py_library")
-load("@drake_ros//tools/skylark/ros2:packages.bzl", "package_share_filegroup")
-load("@drake_ros//tools/skylark/ros2:packages.bzl", "package_interfaces_filegroup")

@@ -5,21 +5,21 @@ import collections
 import os
 import sys
 
-from multiprocessing.dummy import Pool
 import xml.etree.ElementTree as ET
 
 import toposort
 
 sys.path.insert(0, os.path.dirname(__file__))  # noqa
 
-from ros2bzl.scrapping import index_all_packages
-from ros2bzl.scrapping import list_all_executables
-from ros2bzl.scrapping import build_dependency_graph
+from ros2bzl.scrapping import load_distribution
 from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_properties
 from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_direct_properties
+from ros2bzl.scrapping.ament_cmake import precache_ament_cmake_properties
 from ros2bzl.scrapping.ament_python import collect_ament_python_package_direct_properties
 from ros2bzl.scrapping.ament_python import PackageNotFoundError
 
+from ros2bzl.templates import configure_cc_tools
+from ros2bzl.templates import configure_distro
 from ros2bzl.templates import configure_executable_imports
 from ros2bzl.templates import configure_package_meta_py_library
 from ros2bzl.templates import configure_package_alias
@@ -29,9 +29,11 @@ from ros2bzl.templates import configure_package_executable_imports
 from ros2bzl.templates import configure_package_py_library
 from ros2bzl.templates import configure_package_share_filegroup
 from ros2bzl.templates import configure_package_interfaces_filegroup
+from ros2bzl.templates import configure_py_tools
+from ros2bzl.templates import configure_prologue
+from ros2bzl.templates import configure_rosidl_tools
 
 from ros2bzl.resources import load_resource
-from ros2bzl.resources import setup_underlay
 
 import ros2bzl.sandboxing as sandboxing
 
@@ -86,69 +88,78 @@ def parse_arguments():
 
 
 def generate_distro_file(packages):
-    typesupport_groups = [
-        'rosidl_typesupport_c_packages',
-        'rosidl_typesupport_cpp_packages'
-    ]
     with open('distro.bzl', 'w') as fd:
-        fd.write(load_resource('distro.bzl.tpl').format(
-            available_typesupports=[
-                name for name, metadata in packages.items() if any(
-                    group in typesupport_groups for group in metadata['groups']
-                )
-            ]
-        ) + '\n')
+        template, config = configure_distro(packages)
+        fd.write(interpolate(template, config) + '\n')
 
 
-def generate_build_file(
-    packages, executables, dependency_graph, cache, extras, sandbox
-):
+def generate_cc_tools_file(repo_name):
+    with open('cc_tools.bzl', 'w') as fd:
+        template, config = configure_cc_tools(repo_name)
+        fd.write(interpolate(template, config) + '\n')
+
+
+def generate_py_tools_file(repo_name):
+    with open('py_tools.bzl', 'w') as fd:
+        template, config = configure_py_tools(repo_name)
+        fd.write(interpolate(template, config) + '\n')
+
+
+def generate_rosidl_tools_file(repo_name):
+    with open('rosidl_tools.bzl', 'w') as fd:
+        template, config = configure_rosidl_tools(repo_name)
+        fd.write(interpolate(template, config) + '\n')
+
+
+def generate_build_file(repo_name, distro, cache, extras, sandbox):
     rmw_implementation_packages = {
-        name: metadata for name, metadata in packages.items()
-        if 'rmw_implementation_packages' in metadata['groups']
+        name: metadata for name, metadata in distro['packages'].items()
+        if 'rmw_implementation_packages' in metadata.get('groups', [])
     }
 
     with open('BUILD.bazel', 'w') as fd:
-        fd.write(load_resource('BUILD.prologue.bazel') + '\n')
+        template, config = configure_prologue(repo_name)
+        fd.write(interpolate(template, config) + '\n')
 
-        for name in toposort.toposort_flatten(dependency_graph):
-            metadata = packages[name]
+        for name in toposort.toposort_flatten(distro['dependency_graph']):
+            metadata = distro['packages'][name]
 
             dependencies = {
-                dependency_name: packages[dependency_name]
-                for dependency_name in dependency_graph[name]
+                dependency_name: distro['packages'][dependency_name]
+                for dependency_name in distro['dependency_graph'][name]
             }
 
             targets = []
 
-            template, config = \
-                configure_package_share_filegroup(name, metadata, sandbox)
-            fd.write(interpolate(template, config) + '\n')
+            if 'share_directory' in metadata:
+                _, template, config = \
+                    configure_package_share_filegroup(name, metadata, sandbox)
+                fd.write(interpolate(template, config) + '\n')
 
-            if 'rosidl_interface_packages' in metadata['groups']:
-                template, config = \
+            if 'rosidl_interface_packages' in metadata.get('groups', []):
+                label, template, config = \
                     configure_package_interfaces_filegroup(name, metadata, sandbox)
                 fd.write(interpolate(template, config) + '\n')
-                targets.append(config['name'])
+                targets.append(label)
 
-            if metadata['build_type'] == 'ament_cmake':
+            if 'cmake' in metadata.get('build_type'):
                 properties = collect_ament_cmake_package_direct_properties(
                     name, metadata, dependencies, cache
                 )
 
-                template, config = configure_package_cc_library(
+                label, template, config = configure_package_cc_library(
                     name, metadata, properties, dependencies, extras, sandbox
                 )
 
                 if any(properties.values()):
-                    targets.append(config['name'])
+                    targets.append(label)
 
                 fd.write(interpolate(template, config) + '\n')
 
-                if 'rosidl_interface_packages' in metadata['groups']:
+                if 'rosidl_interface_packages' in metadata.get('groups', []):
                     # Alias C++ library as C library for interface packages
                     # as their headers and artifacts cannot be discriminated.
-                    template, config = \
+                    _, template, config = \
                         configure_package_c_library_alias(name, metadata)
                     fd.write(interpolate(template, config) + '\n')
 
@@ -159,80 +170,68 @@ def generate_build_file(
                     name, metadata, dependencies, cache
                 )
                 # Add 'py' as language if not there.
+                if 'langs' not in metadata:
+                    metadata['langs'] = set()
                 metadata['langs'].add('py')
             except PackageNotFoundError:
-                if any('py' in metadata['langs'] for metadata in dependencies.values()):
+                if any('py' in metadata.get('langs', []) for metadata in dependencies.values()):
                     metadata['langs'].add('py (transitively)')
                     # Dependencies still need to be propagated.
-                    template, config = \
+                    _, template, config = \
                         configure_package_meta_py_library(name, metadata, dependencies)
                     fd.write(interpolate(template, config) + '\n')
 
                 properties = {}
 
             if properties:
-                template, config = configure_package_py_library(
+                label, template, config = configure_package_py_library(
                     name, metadata, properties, dependencies, extras, sandbox
                 )
                 fd.write(interpolate(template, config) + '\n')
-                targets.append(config['name'])
+                targets.append(label)
 
             if len(targets) == 1 and targets[0] != name:
-                template, config = configure_package_alias(name, targets[0])
+                _, template, config = configure_package_alias(name, targets[0])
                 fd.write(interpolate(template, config) + '\n')
 
-            if metadata['executables']:
+            if metadata.get('executables'):
                 dependencies.update(rmw_implementation_packages)
-                for template, config in configure_package_executable_imports(
+                for _, template, config in configure_package_executable_imports(
                     name, metadata, dependencies, sandbox, extras=extras
                 ):
                     fd.write(interpolate(template, config) + '\n')
 
-        for template, config in configure_executable_imports(
-            executables, packages, sandbox, extras=extras
+        for _, template, config in configure_executable_imports(
+            distro['executables'], distro['packages'], sandbox, extras=extras
         ):
             fd.write(interpolate(template, config) + '\n')
-
-
-def precache_ament_cmake_properties(packages, jobs=None):
-    ament_cmake_packages = {
-        name: metadata
-        for name, metadata in packages.items()
-        if metadata['build_type'] == 'ament_cmake'
-    }
-    with Pool(jobs) as pool:
-         return dict(zip(
-            ament_cmake_packages.keys(), pool.starmap(
-                collect_ament_cmake_package_properties,
-                ament_cmake_packages.items()
-            )
-        ))
 
 
 def main():
     args = parse_arguments()
 
-    executables = list_all_executables()
-
-    packages, dependency_graph = build_dependency_graph(
-        index_all_packages(),
+    distro = load_distribution(
+        args.sandbox,
         set(args.include_packages),
-        set(args.exclude_packages)
-    )
+        set(args.exclude_packages))
 
     cache = {
-        'ament_cmake': precache_ament_cmake_properties(packages, jobs=args.jobs)
+        'ament_cmake': precache_ament_cmake_properties(
+            distro['packages'], jobs=args.jobs
+        )
     }
 
     generate_build_file(
-        packages, executables, dependency_graph, cache, args.extras, args.sandbox)
+        args.repository_name, distro,
+        cache, args.extras, args.sandbox)
 
-    generate_distro_file(packages)
+    generate_distro_file(distro)
 
-    for name, metadata in packages.items():
-        # For downstream repositories to use
-        metadata['bazel_workspace'] = args.repository_name
-    setup_underlay(packages, dependency_graph, cache, args.sandbox)
+    generate_cc_tools_file(args.repository_name)
+
+    generate_py_tools_file(args.repository_name)
+
+    generate_rosidl_tools_file(args.repository_name)
 
 
 if __name__ == '__main__':

@@ -1,17 +1,20 @@
 import os
 
-from ament_index_python import get_packages_with_prefixes
-from ament_index_python import get_search_paths
+import ament_index_python
+import cmake_tools
 
-from ros2bzl.scrapping.metadata import collect_package_metadata
+from ros2bzl.scrapping.metadata import collect_cmake_package_metadata
+from ros2bzl.scrapping.metadata import collect_ros_package_metadata
 
 
 def list_all_executables():
     executables = {}
-    for prefix in get_search_paths():
-        root = os.path.join(prefix, 'bin')
-        for path in os.listdir(root):
-            path = os.path.join(root, path)
+    for prefix in ament_index_python.get_packages_with_prefixes().values():
+        bindir = os.path.join(prefix, 'bin')
+        if not os.path.isdir(bindir):
+            continue
+        for path in os.listdir(bindir):
+            path = os.path.join(bindir, path)
             if os.path.isfile(path) and os.access(path, os.X_OK):
                 name = os.path.basename(path)
                 if name not in executables:
@@ -20,11 +23,22 @@ def list_all_executables():
 
 
 def index_all_packages():
-    return {
-        name: collect_package_metadata(name, prefix)
-        for name, prefix in get_packages_with_prefixes().items()
+    packages = {
+        name: collect_ros_package_metadata(name, prefix)
+        for name, prefix in
+        ament_index_python.get_packages_with_prefixes().items()
     }
+    for name, prefix in cmake_tools.get_packages_with_prefixes(
+        ament_index_python.get_search_paths()
+    ).items():
+        if name in packages:
+            # Assume unique package names across package types
+            continue
+        packages[name] = collect_cmake_package_metadata(name, prefix)
+    return packages
 
+
+SKIPPED_GROUP_DEPENDENCIES = ('rmw_implementation_packages',)
 
 
 def build_dependency_graph(packages, include=None, exclude=None):
@@ -34,12 +48,26 @@ def build_dependency_graph(packages, include=None, exclude=None):
     if exclude:
         package_set -= exclude
 
+    groups = {}
+    for name, metadata in packages.items():
+        if 'groups' not in metadata:
+            continue
+        for group_name in metadata['groups']:
+            if group_name not in groups:
+                groups[group_name] = []
+            groups[group_name].append(name)
+
     dependency_graph = {}
     while package_set:
         name = package_set.pop()
         metadata = packages[name]
-        dependencies = set(metadata['build_dependencies'])
-        dependencies.update(metadata['run_dependencies'])
+        dependencies = set(metadata.get('build_dependencies', []))
+        dependencies.update(metadata.get('run_dependencies', []))
+        if 'group_dependencies' in metadata:
+            for group_name in metadata['group_dependencies']:
+                if group_name in SKIPPED_GROUP_DEPENDENCIES:
+                    continue
+                dependencies.update(groups[group_name])
         if exclude:
             dependencies -= exclude
         # Ignore system, non-ROS dependencies
@@ -55,3 +83,22 @@ def build_dependency_graph(packages, include=None, exclude=None):
     packages = {name: packages[name] for name in dependency_graph}
 
     return packages, dependency_graph
+
+
+def load_distribution(sandbox, include=None, exclude=None):
+    packages, dependency_graph = build_dependency_graph(
+        index_all_packages(), include, exclude)
+    executables = list_all_executables()
+    return {
+        'packages': packages,
+        'dependency_graph': dependency_graph,
+        'executables': executables,
+        'paths': {
+            'ament_prefix': [
+                sandbox(path, external=True) for path in
+                ament_index_python.get_search_paths()],
+            'library_load': [
+                sandbox(path, external=True) for path in
+                os.environ['LD_LIBRARY_PATH'].split(os.path.pathsep)],
+        }
+    }

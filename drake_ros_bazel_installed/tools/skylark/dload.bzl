@@ -40,38 +40,15 @@ def unique(input_list):
 def merge_runtime_environment_changes(base, head):
     """
     Merges runtime environment head changes into base.
-
-    Merging runtime environment actions other than 'path-prepend' is not
-    allowed as results would silently vary depending on build order.
     """
     for envvar, head_action in head.items():
-        if envvar not in base:
-            base[envvar] = head_action
-            continue
-
-        base_action = base[envvar]
-
-        base_action_type = base_action[0]
-        head_action_type = head_action[0]
-
-        if "replace" in base_action_type or "replace" in head_action_type:
-            tpl = "Got '{}' and '{}' actions, results depend on build order"
-            fail(msg = tpl.format(base_action_type, head_action_type))
-
-        if base_action_type != head_action_type or \
-           base_action_type != "path-prepend":
-            tpl = "Expected 'path-prepend' actions, got '{}' and '{}'"
-            fail(msg = tpl.format(base_action_type, head_action_type))
-
-        merged_action_type = base_action_type
-
-        base_action_args = base_action[1:]
-        head_action_args = head_action[1:]
-        merged_action_args = unique(base_action_args + head_action_args)
-
-        base[envvar] = [merged_action_type] + merged_action_args
+        if envvar in base:
+            base_action = base[envvar]
+            tpl = "Got '{}' and '{}' actions on {}, "
+            tpl += "results will depend on dependency order"
+            fail(msg = tpl.format(base_action[0], head_action[0], envvar))
+        base[envvar] = head_action
     return base
-
 
 def merge_runtime_info(base_info, head_info):
     """
@@ -91,28 +68,6 @@ def collect_runtime_info(targets):
             continue
         merge_runtime_info(runtime_info, target[RuntimeInfo])
     return runtime_info
-
-def get_runtime_environment_changes(runtime_info):
-    """
-    Returns changes to be applied to the runtime environment as
-    an (envvars, actions) tuple.
-    """
-    actions = []
-    for action in runtime_info.env_changes.values():
-        action_type = action[0]
-        if action_type == "path-prepend":
-            action_args = action[1:]
-            common_action_args = []
-            important_action_args = []
-            for path in action_args:
-                if path.endswith("!"):
-                    important_action_args.append(path[:-1])
-                else:
-                    common_action_args.append(path)
-            action_args = unique(important_action_args + common_action_args)
-            action = [action_type] + action_args
-        actions.append(action)
-    return list(runtime_info.env_changes.keys()), actions
 
 def normpath(path):
     """
@@ -142,6 +97,7 @@ def get_dload_shim_attributes():
         ),
         "data": attr.label_list(allow_files = True),
         "deps": attr.label_list(),
+        "env": attr.string_list_dict(),
     }
 
 def do_dload_shim(ctx, template, to_list):
@@ -166,12 +122,16 @@ def do_dload_shim(ctx, template, to_list):
     """
     executable_file = ctx.executable.target
 
-    runtime_info = merge_runtime_info(
-        collect_runtime_info(ctx.attr.data),
-        collect_runtime_info(ctx.attr.deps)
-    )
+    runtime_info = RuntimeInfo(env_changes = {
+        MAGIC_VARIABLES.get(name, default=name):
+        parse_runtime_environment_action(ctx, action)
+        for name, action in ctx.attr.env.items()
+    })
+    merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.data))
+    merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.deps))
 
-    envvars, actions = get_runtime_environment_changes(runtime_info)
+    envvars = runtime_info.env_changes.keys()
+    actions = runtime_info.env_changes.values()
 
     shim_content = template.format(
         # Deal with usage in external workspaces' BUILD.bazel files
@@ -238,7 +198,7 @@ def get_dload_aware_target_attributes():
         "base": attr.label(mandatory = True),
         "data": attr.label_list(allow_files = True),
         "deps": attr.label_list(),
-        "runenv": attr.string_list_dict(),
+        "env": attr.string_list_dict(),
     }
 
 def do_dload_aware_target(ctx):
@@ -264,7 +224,7 @@ def do_dload_aware_target(ctx):
     runtime_info = RuntimeInfo(env_changes = {
         MAGIC_VARIABLES.get(name, default=name):
         parse_runtime_environment_action(ctx, action)
-        for name, action in ctx.attr.runenv.items()
+        for name, action in ctx.attr.env.items()
     })
     merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.data))
     merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.deps))

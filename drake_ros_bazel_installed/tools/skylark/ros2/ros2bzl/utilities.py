@@ -5,7 +5,10 @@ def to_starlark_string_dict(d):
     return {k: repr(v).replace("'", '"') for k, v in d.items()}
 
 def interpolate(template, config):
-    return template.format(**to_starlark_string_dict(config))
+    content = template
+    for key, value in config.items():
+        content = content.replace('@{}@'.format(key), value)
+    return content
 
 def compose(f, g):
     @functools.wraps(f)

@@ -1,5 +1,6 @@
 import os
 
+from multiprocessing.dummy import Pool
 from tempfile import TemporaryDirectory
 
 import cmake_tools
@@ -106,7 +107,7 @@ def collect_ament_cmake_package_properties(name, metadata):
     # speed
     with TemporaryDirectory(dir=os.getcwd()) as project_path:
         project_name = 'empty_using_' + name
-        cmakelists_template_path = path_to_resource('ament_cmake_CMakeLists.txt.in')
+        cmakelists_template_path = path_to_resource('cmake/ament_cmake_CMakeLists.txt.in')
         cmakelists_path = os.path.join(project_path, 'CMakeLists.txt')
         cmake_tools.configure_file(cmakelists_template_path, cmakelists_path, {
             '@NAME@': project_name, '@PACKAGE@': name
@@ -155,7 +156,7 @@ def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, 
 
     properties = dict(ament_cmake_cache[name])
     for dependency_name, dependency_metadata in dependencies.items():
-        if dependency_metadata['build_type'] != 'ament_cmake':
+        if dependency_metadata.get('build_type') != 'ament_cmake':
             continue
         if dependency_name not in ament_cmake_cache:
             ament_cmake_cache[dependency_name] = \
@@ -189,3 +190,18 @@ def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, 
         # Do not deduplicate link directories in case we're dealing with merge installs.
 
     return properties
+
+
+def precache_ament_cmake_properties(packages, jobs=None):
+    ament_cmake_packages = {
+        name: metadata
+        for name, metadata in packages.items()
+        if metadata.get('build_type') == 'ament_cmake'
+    }
+    with Pool(jobs) as pool:
+         return dict(zip(
+            ament_cmake_packages.keys(), pool.starmap(
+                collect_ament_cmake_package_properties,
+                ament_cmake_packages.items()
+            )
+        ))

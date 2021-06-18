@@ -48,8 +48,8 @@ def collect_ament_python_package_direct_properties(name, metadata, dependencies,
         ament_cmake_cache = cache['ament_cmake']
         for dependency_name, dependency_metadata in dependencies.items():
             dependency_libraries = []
-            if 'cc' in dependency_metadata['langs']:
-                if dependency_metadata['build_type'] == 'ament_cmake':
+            if 'cc' in dependency_metadata.get('langs', []):
+                if dependency_metadata.get('build_type') == 'ament_cmake':
                     if dependency_name not in ament_cmake_cache:
                         ament_cmake_cache[dependency_name] = \
                             collect_ament_cmake_package_properties(
@@ -59,7 +59,7 @@ def collect_ament_python_package_direct_properties(name, metadata, dependencies,
                     dependency_libraries.extend(
                         dependency_properties['link_libraries']
                     )
-            if 'py' in dependency_metadata['langs']:
+            if 'py' in dependency_metadata.get('langs', []):
                 if dependency_name not in ament_python_cache:
                     ament_python_cache[dependency_name] = \
                         collect_ament_python_package_properties(

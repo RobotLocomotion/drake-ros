@@ -3,18 +3,7 @@ import os
 from ros2bzl.resources import load_resource
 from ros2bzl.scrapping.system import find_library_path
 
-def load_paths_for_libraries(libraries, sandbox):
-    if not libraries:
-        return []
-    libraries_directories = sorted(set(
-        sandbox(os.path.dirname(lib), external=True) for lib in libraries
-    ))
-    load_paths = [libraries_directories[0]]
-    for directory in libraries_directories[1:]:
-        if directory.startswith(load_paths[-1]):
-            continue
-        load_paths.append(directory)
-    return load_paths
+from ros2bzl.utilities import to_starlark_string_dict
 
 
 def label_name(name, metadata):
@@ -46,18 +35,27 @@ meta_py_name, meta_py_label = labels_with(suffix='_transitively_py')
 
 
 def configure_package_share_filegroup(name, metadata, sandbox):
-    return load_resource('package_share_filegroup.bzl.tpl'), {
-        'name': share_name(name, metadata),
-        'share_directories': [
-            sandbox(metadata['share_directory']),
-            sandbox(metadata['ament_index_directory']),
-        ]
-    }
+    target_name = share_name(name, metadata)
+    shared_directories = [sandbox(metadata['share_directory'])]
+    if 'ament_index_directory' in metadata:
+        shared_directories.append(sandbox(metadata['ament_index_directory']))
+    return (
+        target_name,
+        load_resource('bazel/snippets/package_share_filegroup.bazel.tpl'),
+        to_starlark_string_dict({
+            'name': target_name, 'share_directories': shared_directories
+        })
+    )
+
 
 def configure_package_interfaces_filegroup(name, metadata, sandbox):
-    return load_resource('package_interfaces_filegroup.bzl.tpl'), {
-        'name': name, 'share_directory': sandbox(metadata['share_directory'])
-    }
+    return (
+        name,
+        load_resource('bazel/snippets/package_interfaces_filegroup.bazel.tpl'),
+        to_starlark_string_dict({
+            'name': name, 'share_directory': sandbox(metadata['share_directory'])
+        })
+    )
 
 
 def configure_package_cc_library(name, metadata, properties, dependencies, extras, sandbox):
@@ -84,29 +82,19 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
     deps = [
         cc_label(dependency_name, dependency_metadata)
         for dependency_name, dependency_metadata in dependencies.items()
-        if 'cc' in dependency_metadata['langs']
+        if 'cc' in dependency_metadata.get('langs', [])
     ]
 
-    runenv = {'AMENT_PREFIX_PATH': [
-        'path-prepend', sandbox(metadata['prefix'], external=True)
-    ]}
-    if 'rmw_implementation_packages' in metadata['groups']:
-        runenv['RMW_IMPLEMENTATION'] = ['replace', name]
-
     data = []
-    data.append(share_label(name, metadata))
+    if 'share_directory' in metadata:
+        data.append(share_label(name, metadata))
     # Add in plugins, if any
     if 'plugin_libraries' in metadata:
         data.extend(
             sandbox(find_library_path(library))
             for library in metadata['plugin_libraries']
         )
-    # Prepare runfiles and load paths to support dynamic loading
-    load_paths = load_paths_for_libraries(
-        properties['link_libraries'], sandbox
-    )
-    if load_paths:
-        runenv['${LOAD_PATH}'] = ['path-prepend', *load_paths]
+    # Prepare runfiles to support dynamic loading
     data.extend(library for library in libraries if library not in data)
     if extras and 'data' in extras and target_name in extras['data']:
         data.extend(
@@ -115,7 +103,7 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
             if label_or_path not in data
         )
 
-    return load_resource('package_cc_library.bzl.tpl'), {
+    config = {
         'name': target_name,
         'srcs': libraries,
         'headers': headers,
@@ -123,22 +111,32 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
         'copts': copts,
         'defines': defines,
         'linkopts': linkopts,
-        'runenv': runenv,
         'data': data,
         'deps': deps,
     }
+
+    if 'rmw_implementation_packages' in metadata.get('groups', []):
+        template_path = 'bazel/snippets/package_cc_library_with_runtime_environ.bazel.tpl'
+        config['env'] = {'RMW_IMPLEMENTATION': ['replace', name]}
+    else:
+        template_path = 'bazel/snippets/package_cc_library.bazel.tpl'
+
+    return target_name, load_resource(template_path), to_starlark_string_dict(config)
 
 
 def configure_package_meta_py_library(name, metadata, dependencies):
     deps = []
     for dependency_name, dependency_metadata in dependencies.items():
-        if 'py' in dependency_metadata['langs']:
+        if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
-        elif 'py (transitively)' in dependency_metadata['langs']:
+        elif 'py (transitively)' in dependency_metadata.get('langs', []):
             deps.append(meta_py_label(dependency_name, dependency_metadata))
-    return load_resource('package_meta_py_library.bzl.tpl'), {
-        'name': meta_py_name(name, metadata), 'deps': deps
-    }
+    target_name = meta_py_name(name, metadata)
+    return (
+        target_name,
+        load_resource('bazel/snippets/package_meta_py_library.bazel.tpl'),
+        to_starlark_string_dict({'name': target_name, 'deps': deps})
+    )
 
 
 def configure_package_py_library(name, metadata, properties, dependencies, extras, sandbox):
@@ -149,41 +147,23 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
 
     deps = []
     for dependency_name, dependency_metadata in dependencies.items():
-        if 'py' in dependency_metadata['langs']:
+        if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
-        elif 'py (transitively)' in dependency_metadata['langs']:
+        elif 'py (transitively)' in dependency_metadata.get('langs', []):
             deps.append(meta_py_label(dependency_name, dependency_metadata))
 
-    config = {
-        'name': target_name,
-        'tops': tops,
-        'eggs': eggs,
-        'imports': imports,
-        'deps': deps
-    }
-
     data = [share_label(name, metadata)]
-    if 'cc' in metadata['langs']:
+    if 'cc' in metadata.get('langs', []):
         data.append(cc_label(name, metadata))
-
-    runenv = {'AMENT_PREFIX_PATH': [
-        'path-prepend', sandbox(metadata['prefix'], external=True)
-    ]}
-
-    if 'rmw_implementation_packages' in metadata['groups']:
-        runenv['RMW_IMPLEMENTATION'] = ['replace', name]
 
     if 'cc_extensions' in properties:
         cc_deps = [
             cc_label(dependency_name, dependency_metadata)
             for dependency_name, dependency_metadata in dependencies.items()
-            if 'cc' in dependency_metadata['langs']
+            if 'cc' in dependency_metadata.get('langs', [])
         ]
         cc_extensions = [sandbox(ext) for ext in properties['cc_extensions']]
-        # Prepare runfiles and load paths to support dynamic loading
-        load_paths = load_paths_for_libraries(properties['cc_extensions'], sandbox)
-        if load_paths:
-            runenv['${LOAD_PATH}'] = ['path-prepend', *load_paths]
+        # Prepare runfiles to support dynamic loading
         data.extend(cc_extensions)
         data.extend(cc_deps)
         # Add in plugins, if any
@@ -192,28 +172,42 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
                 sandbox(find_library_path(library))
                 for library in metadata['plugin_libraries']
             )
-        template = load_resource('package_py_library_with_cc_extensions.bzl.tpl')
-    else:
-        template = load_resource('package_py_library.bzl.tpl')
 
     if extras and 'data' in extras:
         data.extend(extras['data'].get(target_name, []))
-    config.update({'data': data, 'runenv': runenv})
 
-    return template, config
+    return (
+        target_name,
+        load_resource('bazel/snippets/package_py_library.bazel.tpl'),
+        to_starlark_string_dict({
+            'name': target_name,
+            'tops': tops,
+            'eggs': eggs,
+            'imports': imports,
+            'data': data,
+            'deps': deps
+        })
+    )
 
 
 def configure_package_alias(name, target):
-    return load_resource('package_alias.bzl.tpl'), {
-        'name': name, 'actual': ':' + target
-    }
+    return (
+        name,
+        load_resource('bazel/snippets/package_alias.bazel.tpl'),
+        to_starlark_string_dict({'name': name, 'actual': ':' + target})
+    )
 
 
 def configure_package_c_library_alias(name, metadata):
-    return load_resource('package_alias.bzl.tpl'), {
-        'name': c_name(name, metadata),
-        'actual': cc_label(name, metadata)
-    }
+    target_name = c_name(name, metadata)
+    return (
+        target_name,
+        load_resource('bazel/snippets/package_alias.bazel.tpl'),
+        to_starlark_string_dict({
+            'name': target_name,
+            'actual': cc_label(name, metadata)
+        })
+    )
 
 
 def configure_executable_imports(
@@ -223,11 +217,11 @@ def configure_executable_imports(
     common_data = []
     for dependency_name, dependency_metadata in dependencies.items():
         # TODO(hidmic): use appropriate target based on executable file type
-        if 'cc' in dependency_metadata['langs']:
+        if 'cc' in dependency_metadata.get('langs', []):
             common_data.append(cc_label(dependency_name, dependency_metadata))
-        if 'py' in dependency_metadata['langs']:
+        if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
-        elif 'py (transitively)' in dependency_metadata['langs']:
+        elif 'py (transitively)' in dependency_metadata.get('langs', []):
             common_data.append(meta_py_label(dependency_name, dependency_metadata))
 
     for executable in executables:
@@ -237,11 +231,15 @@ def configure_executable_imports(
         data = common_data
         if extras and 'data' in extras and target_name in extras['data']:
             data = data + extras['data'][target_name]
-        yield load_resource('executable_import.bzl.tpl'), {
-            'name': target_name,
-            'executable': sandbox(executable),
-            'data': data, 'deps': deps,
-        }
+        yield (
+            target_name,
+            load_resource('bazel/snippets/overlay_executable.bazel.tpl'),
+            to_starlark_string_dict({
+                'name': target_name,
+                'executable': sandbox(executable),
+                'data': data, 'deps': deps,
+            })
+        )
 
 
 def configure_package_executable_imports(
@@ -253,3 +251,44 @@ def configure_package_executable_imports(
         metadata['executables'], dependencies, sandbox,
         extras=extras, prefix=label_name(name, metadata)
     )
+
+
+def configure_prologue(repo_name):
+    return load_resource('bazel/snippets/prologue.bazel.tpl'), {
+        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
+    }
+
+
+def configure_rosidl_tools(repo_name):
+    return load_resource('bazel/rosidl_tools.bzl.tpl'), {
+        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
+    }
+
+
+def configure_cc_tools(repo_name):
+    return load_resource('bazel/cc_tools.bzl.tpl'), {
+        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
+    }
+
+
+def configure_py_tools(repo_name):
+    return load_resource('bazel/py_tools.bzl.tpl'), {
+        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
+    }
+
+
+def configure_distro(distro):
+    typesupport_groups = [
+        'rosidl_typesupport_c_packages',
+        'rosidl_typesupport_cpp_packages'
+    ]
+    return load_resource('bazel/distro.bzl.tpl'), to_starlark_string_dict({
+        'AMENT_PREFIX_PATH': distro['paths']['ament_prefix'],
+        'LOAD_PATH': distro['paths']['library_load'],  # Linux only
+        'AVAILABLE_TYPESUPPORTS': [
+            name for name, metadata in distro['packages'].items() if any(
+                group in typesupport_groups
+                for group in metadata.get('groups', [])
+            )
+        ],
+    })
