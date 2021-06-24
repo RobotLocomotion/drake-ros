@@ -1,4 +1,6 @@
 load("@ros2//:rosidl_tools.bzl", "rosidl_interfaces_group")
+load("@ros2//:cc_tools.bzl", "ros_cc_binary")
+
 
 rosidl_interfaces_group(
     name = "apps_msgs",
@@ -10,4 +12,30 @@ rosidl_interfaces_group(
         "//common:common_msgs",
         "@ros2//:builtin_interfaces",
     ],
+)
+
+ros_cc_binary(
+    name = "oracle",
+    srcs = ["oracle.cc"],
+    data = [
+        "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
+    ],
+    deps = [
+        "//common:common_msgs_cc",
+        "@ros2//:rclcpp",
+    ],
+    tags = ["requires-network"],
+)
+
+ros_cc_binary(
+    name = "inquirer",
+    srcs = ["inquirer.cc"],
+    data = [
+        "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
+    ],
+    deps = [
+        "//common:common_msgs_cc",
+        "@ros2//:rclcpp",
+    ],
+    tags = ["requires-network"],
 )
