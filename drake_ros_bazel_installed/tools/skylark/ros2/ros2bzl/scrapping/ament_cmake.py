@@ -122,11 +122,12 @@ def collect_ament_cmake_package_properties(name, metadata):
             with cmake_tools.server_mode(project_path) as cmake:
                 cmake.configure(attributes={'cacheArguments': [
                     '-DCMAKE_PREFIX_PATH="{}"'.format(cmake_prefix_path)
-                ]}, timeout=20, message_callback=print)
+                ]}, timeout=30, message_callback=print)
                 cmake.compute(timeout=20, message_callback=print)
-                codemodel = cmake.codemodel(timeout=5)
+                codemodel = cmake.codemodel(timeout=10)
         except:
             import shutil
+            shutil.rmtree('error_case', ignore_errors=True)
             shutil.copytree(project_path, 'error_case')
             raise
 

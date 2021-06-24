@@ -1,6 +1,7 @@
 load("//tools/skylark:execute.bzl", "execute_or_fail")
 
 MANIFEST = [
+    "cmake_tools/packages.py",
     "cmake_tools/server_mode.py",
     "cmake_tools/__init__.py",
 
