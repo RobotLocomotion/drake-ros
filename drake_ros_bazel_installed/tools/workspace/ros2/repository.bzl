@@ -11,7 +11,7 @@ def ros2_repository(name, overlays = []):
             "geometry_msgs",
             "visualization_msgs",
             "rosidl_default_generators",
-            "rosidl_generator_cpp",
+            "fastcdr",
             "rcpputils",
             "rcutils",
             "rclcpp",
