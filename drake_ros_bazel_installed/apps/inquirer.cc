@@ -2,8 +2,12 @@
 #include <memory>
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/client.hpp>
+#include <rclcpp_action/create_client.hpp>
 
-#include "common_msgs/msg/status.hpp"
+#include "apps_msgs/msg/status.hpp"
+#include "common_msgs/srv/query.hpp"
+#include "common_msgs/action/do.hpp"
 
 using namespace std::chrono_literals;
 
@@ -14,19 +18,102 @@ public:
   Inquirer() : Node("inquirer") {
     using namespace std::placeholders;
     status_sub_ =
-      this->create_subscription<common_msgs::msg::Status>(
+      this->create_subscription<apps_msgs::msg::Status>(
         "status", rclcpp::QoS(rclcpp::KeepLast(1)),
         std::bind(&Inquirer::on_status, this, _1));
+
+    oracle_query_client_ = this->create_client<common_msgs::srv::Query>("query");
+
+    oracle_action_client_ = rclcpp_action::create_client<common_msgs::action::Do>(this, "do");
+
+    inquire_timer_ = this->create_wall_timer(5s, std::bind(&Inquirer::inquire, this));
   }
 
 private:
-  void on_status(const common_msgs::msg::Status & msg) {
-    RCLCPP_INFO(
-      get_logger(), "(%lu) %s",
-      msg.sequence_id, msg.message.c_str());
+  using QueryClient = rclcpp::Client<common_msgs::srv::Query>;
+
+  void handle_query_response(QueryClient::SharedFuture future) const {
+    RCLCPP_INFO(this->get_logger(), "oracle said: %s", future.get()->reply.c_str());
   }
 
-  std::shared_ptr<rclcpp::Subscription<common_msgs::msg::Status>> status_sub_;
+  using ActionGoalHandle = rclcpp_action::ClientGoalHandle<common_msgs::action::Do>;
+  void handle_rite_request_response(const std::shared_ptr<ActionGoalHandle> handle) const {
+    if (!handle) {
+      RCLCPP_ERROR(this->get_logger(), "oracle rejected rite request");
+    } else {
+      RCLCPP_INFO(this->get_logger(), "oracle rite in progress");
+    }
+  }
+
+  void handle_rite_feedback(
+    std::shared_ptr<ActionGoalHandle> handle,
+    const std::shared_ptr<const ActionGoalHandle::Feedback> feedback) const
+  {
+    RCLCPP_INFO(this->get_logger(), "oracle is %s", feedback->message.c_str());
+  }
+
+  void handle_rite_result(const ActionGoalHandle::WrappedResult& result) const
+  {
+    switch (result.code) {
+      case rclcpp_action::ResultCode::SUCCEEDED:
+        RCLCPP_INFO(this->get_logger(), "oracle rite is complete");
+        break;
+      case rclcpp_action::ResultCode::ABORTED:
+        RCLCPP_ERROR(this->get_logger(),
+                     "oracle rite aborted due to %s",
+                     result.result->reason.c_str());
+        break;
+      case rclcpp_action::ResultCode::CANCELED:
+        RCLCPP_WARN(this->get_logger(), "oracle rite was cancelled");
+        break;
+      default:
+        RCLCPP_ERROR(this->get_logger(), "oracle rite outcome unknown");
+        break;
+    }
+  }
+
+  void inquire() const {
+    using namespace std::placeholders;
+
+    auto request = std::make_shared<common_msgs::srv::Query::Request>();
+    request->query = "how's it going?";
+    if (oracle_query_client_->service_is_ready()) {
+      RCLCPP_INFO(this->get_logger(), "oracle, %s", request->query.c_str());
+      oracle_query_client_->async_send_request(
+        request, std::bind(&Inquirer::handle_query_response, this, _1));
+    } else {
+      RCLCPP_WARN(this->get_logger(), "oracle not available for queries");
+    }
+
+    if (oracle_action_client_->action_server_is_ready()) {
+      rclcpp_action::Client<common_msgs::action::Do>::SendGoalOptions options;
+      options.goal_response_callback =
+        std::bind(&Inquirer::handle_rite_request_response, this, _1);
+      options.feedback_callback =
+        std::bind(&Inquirer::handle_rite_feedback, this, _1, _2);
+      options.result_callback =
+        std::bind(&Inquirer::handle_rite_result, this, _1);
+      common_msgs::action::Do::Goal goal;
+      goal.action = "rite";
+      goal.period = rclcpp::Duration::from_seconds(0.1);
+      goal.timeout = rclcpp::Duration::from_seconds(1.0);
+      oracle_action_client_->async_send_goal(goal, options);
+    } else {
+      RCLCPP_WARN(this->get_logger(), "oracle not available for actions");
+    }
+  }
+
+  void on_status(const apps_msgs::msg::Status & msg) const {
+    RCLCPP_INFO(
+      get_logger(), "%s status (%lu): %s",
+      msg.origin.c_str(), msg.status.sequence_id,
+      msg.status.message.c_str());
+  }
+
+  std::shared_ptr<rclcpp::Subscription<apps_msgs::msg::Status>> status_sub_;
+  std::shared_ptr<rclcpp::Client<common_msgs::srv::Query>> oracle_query_client_;
+  std::shared_ptr<rclcpp_action::Client<common_msgs::action::Do>> oracle_action_client_;
+  std::shared_ptr<rclcpp::TimerBase> inquire_timer_;
 };
 
 }  // namespace apps

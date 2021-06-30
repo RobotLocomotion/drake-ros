@@ -5,8 +5,7 @@ load("@ros2//:cc_tools.bzl", "ros_cc_binary")
 rosidl_interfaces_group(
     name = "apps_msgs",
     interfaces = [
-        "msg/Stats.msg",
-        "srv/QueryStats.srv",
+        "msg/Status.msg",
     ],
     deps = [
         "//common:common_msgs",
@@ -21,8 +20,10 @@ ros_cc_binary(
         "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
     ],
     deps = [
+        ":apps_msgs_cc",
         "//common:common_msgs_cc",
         "@ros2//:rclcpp",
+        "@ros2//:rclcpp_action",
     ],
     tags = ["requires-network"],
 )
@@ -34,8 +35,10 @@ ros_cc_binary(
         "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
     ],
     deps = [
+        ":apps_msgs_cc",
         "//common:common_msgs_cc",
         "@ros2//:rclcpp",
+        "@ros2//:rclcpp_action",
     ],
     tags = ["requires-network"],
 )
