@@ -689,7 +689,7 @@ def rosidl_py_support(name, interfaces, deps, **kwargs):
 
     if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORTS:
         rosidl_typesupport_fastrtps_c_library(
-            name = name + "_typesupport_fastrtps_c",
+            name = typesupport_fastrtps_c(name),
             group = name, interfaces = interfaces,
             includes = [defs(dep) for dep in deps],
             deps = [c_types_label(name)] + [c(dep) for dep in deps],
