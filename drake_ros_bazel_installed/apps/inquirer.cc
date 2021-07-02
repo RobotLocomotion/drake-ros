@@ -22,9 +22,9 @@ public:
         "status", rclcpp::QoS(rclcpp::KeepLast(1)),
         std::bind(&Inquirer::on_status, this, _1));
 
-    oracle_query_client_ = this->create_client<common_msgs::srv::Query>("query");
+    query_client_ = this->create_client<common_msgs::srv::Query>("query");
 
-    oracle_action_client_ = rclcpp_action::create_client<common_msgs::action::Do>(this, "do");
+    action_client_ = rclcpp_action::create_client<common_msgs::action::Do>(this, "do");
 
     inquire_timer_ = this->create_wall_timer(5s, std::bind(&Inquirer::inquire, this));
   }
@@ -32,7 +32,7 @@ public:
 private:
   using QueryClient = rclcpp::Client<common_msgs::srv::Query>;
 
-  void handle_query_response(QueryClient::SharedFuture future) const {
+  void handle_reply(QueryClient::SharedFuture future) const {
     RCLCPP_INFO(this->get_logger(), "oracle said: %s", future.get()->reply.c_str());
   }
 
@@ -67,7 +67,7 @@ private:
         RCLCPP_WARN(this->get_logger(), "oracle rite was cancelled");
         break;
       default:
-        RCLCPP_ERROR(this->get_logger(), "oracle rite outcome unknown");
+        RCLCPP_ERROR(this->get_logger(), "oracle rite status unknown");
         break;
     }
   }
@@ -75,17 +75,17 @@ private:
   void inquire() const {
     using namespace std::placeholders;
 
-    auto request = std::make_shared<common_msgs::srv::Query::Request>();
-    request->query = "how's it going?";
-    if (oracle_query_client_->service_is_ready()) {
+    if (query_client_->service_is_ready()) {
+      auto request = std::make_shared<common_msgs::srv::Query::Request>();
+      request->query = "how's it going?";
       RCLCPP_INFO(this->get_logger(), "oracle, %s", request->query.c_str());
-      oracle_query_client_->async_send_request(
-        request, std::bind(&Inquirer::handle_query_response, this, _1));
+      query_client_->async_send_request(
+        request, std::bind(&Inquirer::handle_reply, this, _1));
     } else {
       RCLCPP_WARN(this->get_logger(), "oracle not available for queries");
     }
 
-    if (oracle_action_client_->action_server_is_ready()) {
+    if (action_client_->action_server_is_ready()) {
       rclcpp_action::Client<common_msgs::action::Do>::SendGoalOptions options;
       options.goal_response_callback =
         std::bind(&Inquirer::handle_rite_request_response, this, _1);
@@ -97,7 +97,7 @@ private:
       goal.action = "rite";
       goal.period = rclcpp::Duration::from_seconds(0.1);
       goal.timeout = rclcpp::Duration::from_seconds(1.0);
-      oracle_action_client_->async_send_goal(goal, options);
+      action_client_->async_send_goal(goal, options);
     } else {
       RCLCPP_WARN(this->get_logger(), "oracle not available for actions");
     }
@@ -111,8 +111,8 @@ private:
   }
 
   std::shared_ptr<rclcpp::Subscription<apps_msgs::msg::Status>> status_sub_;
-  std::shared_ptr<rclcpp::Client<common_msgs::srv::Query>> oracle_query_client_;
-  std::shared_ptr<rclcpp_action::Client<common_msgs::action::Do>> oracle_action_client_;
+  std::shared_ptr<rclcpp::Client<common_msgs::srv::Query>> query_client_;
+  std::shared_ptr<rclcpp_action::Client<common_msgs::action::Do>> action_client_;
   std::shared_ptr<rclcpp::TimerBase> inquire_timer_;
 };
 

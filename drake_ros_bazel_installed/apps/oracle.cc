@@ -111,7 +111,6 @@ private:
     }
   }
 
-
   void publish_status() {
     apps_msgs::msg::Status msg;
     msg.stamp = this->get_clock()->now();

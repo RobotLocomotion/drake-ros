@@ -1,5 +1,6 @@
 load("@ros2//:rosidl_tools.bzl", "rosidl_interfaces_group")
 load("@ros2//:cc_tools.bzl", "ros_cc_binary")
+load("@ros2//:py_tools.bzl", "ros_py_binary")
 
 
 rosidl_interfaces_group(
@@ -14,7 +15,7 @@ rosidl_interfaces_group(
 )
 
 ros_cc_binary(
-    name = "oracle",
+    name = "oracle_cc",
     srcs = ["oracle.cc"],
     data = [
         "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
@@ -29,7 +30,7 @@ ros_cc_binary(
 )
 
 ros_cc_binary(
-    name = "inquirer",
+    name = "inquirer_cc",
     srcs = ["inquirer.cc"],
     data = [
         "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
@@ -39,6 +40,34 @@ ros_cc_binary(
         "//common:common_msgs_cc",
         "@ros2//:rclcpp",
         "@ros2//:rclcpp_action",
+    ],
+    tags = ["requires-network"],
+)
+
+ros_py_binary(
+    name = "oracle_py",
+    srcs = ["oracle.py"],
+    data = [
+        "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
+    ],
+    deps = [
+        ":apps_msgs_py",
+        "//common:common_msgs_py",
+        "@ros2//:rclpy",
+    ],
+    tags = ["requires-network"],
+)
+
+ros_py_binary(
+    name = "inquirer_py",
+    srcs = ["inquirer.py"],
+    data = [
+        "@ros2//:rmw_cyclonedds_cpp",  # pick RMW impl
+    ],
+    deps = [
+        ":apps_msgs_py",
+        "//common:common_msgs_py",
+        "@ros2//:rclpy",
     ],
     tags = ["requires-network"],
 )
