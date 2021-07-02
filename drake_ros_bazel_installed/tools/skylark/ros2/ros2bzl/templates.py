@@ -28,7 +28,7 @@ def labels_with(suffix):
 
 
 share_name, share_label = labels_with(suffix='_share')
-c_name, _ = labels_with(suffix='_c')
+c_name, c_label = labels_with(suffix='_c')
 cc_name, cc_label = labels_with(suffix='_cc')
 py_name, py_label = labels_with(suffix='_py')
 meta_py_name, meta_py_label = labels_with(suffix='_transitively_py')
@@ -145,48 +145,60 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
     tops = [sandbox(top_level) for _, top_level in properties['python_packages']]
     imports = [os.path.dirname(egg) for egg in eggs]
 
+    template = 'bazel/snippets/package_py_library.bazel.tpl'
+    config = {'name': target_name, 'tops': tops, 'eggs': eggs, 'imports': imports}
+
     deps = []
     for dependency_name, dependency_metadata in dependencies.items():
         if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
         elif 'py (transitively)' in dependency_metadata.get('langs', []):
             deps.append(meta_py_label(dependency_name, dependency_metadata))
+    config['deps'] = deps
 
     data = [share_label(name, metadata)]
     if 'cc' in metadata.get('langs', []):
         data.append(cc_label(name, metadata))
 
     if 'cc_extensions' in properties:
+        # Bring in C/C++ dependencies
         cc_deps = [
             cc_label(dependency_name, dependency_metadata)
             for dependency_name, dependency_metadata in dependencies.items()
             if 'cc' in dependency_metadata.get('langs', [])
         ]
-        cc_extensions = [sandbox(ext) for ext in properties['cc_extensions']]
+        # Expose C/C++ libraries if any
+        if 'cc_libraries' in properties:
+            template = 'bazel/snippets/package_py_library_with_cc_libs.bazel.tpl'
+            config.update({
+                'cc_name': c_name(target_name, metadata),
+                'cc_libs': [sandbox(lib) for lib in properties['cc_libraries']],
+                'cc_deps': cc_deps
+            })
+            data.append(c_label(target_name, metadata))
+        else:
+            data.extend(cc_deps)
         # Prepare runfiles to support dynamic loading
+        cc_extensions = [
+            sandbox(extension) for extension in properties['cc_extensions']]
         data.extend(cc_extensions)
-        data.extend(cc_deps)
-        # Add in plugins, if any
-        if 'plugin_libraries' in metadata:
-            data.extend(
-                sandbox(find_library_path(library))
-                for library in metadata['plugin_libraries']
-            )
+
+    # Add in plugins, if any
+    if 'plugin_libraries' in metadata:
+        data.extend(
+            sandbox(find_library_path(library))
+            for library in metadata['plugin_libraries']
+        )
 
     if extras and 'data' in extras:
         data.extend(extras['data'].get(target_name, []))
 
+    config['data'] = data
+
     return (
         target_name,
-        load_resource('bazel/snippets/package_py_library.bazel.tpl'),
-        to_starlark_string_dict({
-            'name': target_name,
-            'tops': tops,
-            'eggs': eggs,
-            'imports': imports,
-            'data': data,
-            'deps': deps
-        })
+        load_resource(template),
+        to_starlark_string_dict(config)
     )
 
 

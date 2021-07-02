@@ -16,6 +16,7 @@ MANIFEST = [
     "resources/bazel/snippets/package_cc_library_with_runtime_environ.bazel.tpl",
     "resources/bazel/snippets/package_meta_py_library.bazel.tpl",
     "resources/bazel/snippets/package_py_library.bazel.tpl",
+    "resources/bazel/snippets/package_py_library_with_cc_libs.bazel.tpl",
     "resources/bazel/snippets/package_share_filegroup.bazel.tpl",
     "resources/bazel/snippets/prologue.bazel.tpl",
 

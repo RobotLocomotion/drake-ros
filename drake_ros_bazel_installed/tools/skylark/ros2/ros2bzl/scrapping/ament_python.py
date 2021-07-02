@@ -1,10 +1,14 @@
 import glob
+import sysconfig
 
 from importlib.metadata import distribution
 from importlib.metadata import PackageNotFoundError
 
 from ros2bzl.scrapping.system import find_library_dependencies
 from ros2bzl.scrapping.system import is_system_library
+
+
+EXTENSION_SUFFIX = sysconfig.get_config_var('EXT_SUFFIX')
 
 
 def find_python_package(name):
@@ -17,19 +21,21 @@ def find_python_package(name):
 def collect_ament_python_package_properties(name, metadata):
     egg_path, top_level = find_python_package(name)
     properties = {'python_packages': [(egg_path, top_level)]}
-    cc_extensions = glob.glob(
-        '{}/**/*.so'.format(top_level), recursive=True
-    )
-    if cc_extensions:
-        cc_extensions_deps = set()
-        for ext in cc_extensions:
-            cc_extensions_deps.update([
-                library
-                for library in find_library_dependencies(ext)
-                if not is_system_library(library)
-            ])
-        properties['cc_extensions'] = cc_extensions
-        properties['cc_extensions'] += list(cc_extensions_deps)
+    cc_libraries = glob.glob('{}/**/*.so'.format(top_level),  recursive=True)
+    if cc_libraries:
+        cc_libraries.extend(set(
+            dep for library in cc_libraries
+            for dep in find_library_dependencies(library)
+            if not is_system_library(dep)
+        ))
+        properties['cc_extensions'] = [
+            lib for lib in cc_libraries
+            if lib.endswith(EXTENSION_SUFFIX)
+        ]
+        properties['cc_libraries'] = [
+            lib for lib in cc_libraries
+            if not lib.endswith(EXTENSION_SUFFIX)
+        ]
     return properties
 
 
@@ -44,7 +50,7 @@ def collect_ament_python_package_direct_properties(name, metadata, dependencies,
 
     properties = dict(ament_python_cache[name])
 
-    if 'cc_extensions' in properties:
+    if 'cc_libraries' in properties:
         ament_cmake_cache = cache['ament_cmake']
         for dependency_name, dependency_metadata in dependencies.items():
             dependency_libraries = []
@@ -66,12 +72,12 @@ def collect_ament_python_package_direct_properties(name, metadata, dependencies,
                             dependency_name, dependency_metadata
                         )
                 dependency_properties = ament_python_cache[dependency_name]
-                if 'cc_extensions' in dependency_properties:
+                if 'cc_libraries' in dependency_properties:
                     dependency_libraries.extend(
-                        dependency_properties['cc_extensions'])
+                        dependency_properties['cc_libraries'])
             # Remove duplicates maintaining order
-            properties['cc_extensions'] = [
-                ext for ext in properties['cc_extensions']
-                if ext not in dependency_libraries
+            properties['cc_libraries'] = [
+                lib for lib in properties['cc_libraries']
+                if lib not in dependency_libraries
             ]
     return properties
