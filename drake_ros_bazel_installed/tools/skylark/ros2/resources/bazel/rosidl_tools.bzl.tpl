@@ -210,24 +210,18 @@ def rosidl_cc_library(
         **kwargs
     )
 
-def _c_extension(name):
-    return name + "_c_extension" + PYTHON_EXTENSION_SUFFIX
+def _c_typesupport_extension(group, typesupport_name):
+    return "{}_s__{}".format(group, typesupport_name) + PYTHON_EXTENSION_SUFFIX
 
-def _c_extension_label(name):
-    return ":" + _c_extension(name)
-
-def _c_typesupport_extension(package, name):
-    return "{}__{}".format(package, name) + PYTHON_EXTENSION_SUFFIX
-
-def _c_typesupport_extension_label(package, name):
-    return ":" + _c_typesupport_extension(package, name)
+def _c_typesupport_extension_label(group, typesupport_name):
+    return ":" + _c_typesupport_extension(group, typesupport_name)
 
 def rosidl_py_library(
     name, group, interfaces, typesupports,
     includes = [], c_deps = [], py_deps = [],
     **kwargs
 ):
-    include, root = _generated_source_paths(group, "py")
+    import_, root = _generated_source_paths(group, "py")
 
     generated_c_sources = []
     generated_py_sources = []
@@ -262,39 +256,41 @@ def rosidl_py_library(
         **kwargs
     )
 
-    native.cc_binary(
-        name = _c_extension(name),
+    native.cc_library(
+        name = c(name),
         srcs = generated_c_sources,
-        linkshared = 1,
         deps = c_deps + [
-            "@python_dev//:libs",
-        ],
+            c(dep) for dep in py_deps
+        ] + ["@python_dev//:libs"],
         **kwargs
     )
 
     c_typesupport_extension_deps = c_deps + [
-        _c_extension_label(name),
+        c_label(name),
         "@REPOSITORY_ROOT@:rosidl_generator_py_cc",
         "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
         "@REPOSITORY_ROOT@:rosidl_typesupport_c_cc",
         "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
         "@python_dev//:libs",
     ]
-    py_data = [_c_extension_label(name)]
+    py_data = []
     for typesupport_name, typesupport_library in typesupports.items():
         deps = list(c_typesupport_extension_deps)
         if typesupport_library not in deps:
             deps.append(typesupport_library)
+        c_typesupport_extension = "{}/{}".format(
+            root, _c_typesupport_extension(group, typesupport_name))
         native.cc_binary(
-            name = _c_typesupport_extension(group, typesupport_name),
+            name = c_typesupport_extension,
             srcs = generated_c_sources_per_typesupport[typesupport_name],
-            deps = deps, linkshared = 1, **kwargs
+            deps = deps, linkshared = True, **kwargs
         )
-        py_data.append(_c_typesupport_extension_label(group, typesupport_name))
+        py_data.append(c_typesupport_extension)
 
     native.py_library(
         name = name,
         srcs = generated_py_sources,
+        imports = [import_],
         data = py_data,
         deps = py_deps,
         **kwargs
@@ -331,7 +327,6 @@ def rosidl_typesupport_fastrtps_cc_library(
         name = name,
         srcs = generated_cc_sources + generated_cc_headers,
         includes = [include],
-        linkshared = 1,
         deps = deps + [
             "@REPOSITORY_ROOT@:fastcdr_cc",
             "@REPOSITORY_ROOT@:rmw_cc",
@@ -339,6 +334,7 @@ def rosidl_typesupport_fastrtps_cc_library(
             "@REPOSITORY_ROOT@:rosidl_typesupport_fastrtps_cpp_cc",
             "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
         ],
+        linkshared = True,
         **kwargs
     )
 
@@ -373,7 +369,7 @@ def rosidl_typesupport_fastrtps_c_library(
         name = name,
         srcs = generated_c_sources + generated_c_headers,
         includes = [include],
-        linkshared = 1,
+        linkshared = True,
         deps = deps + [
             "@REPOSITORY_ROOT@:fastcdr_cc",
             "@REPOSITORY_ROOT@:rmw_cc",
@@ -412,12 +408,20 @@ def rosidl_typesupport_introspection_c_library(
         **kwargs
     )
 
+    native.cc_library(
+        name = name + "_hdrs",
+        hdrs = generated_c_headers,
+        linkstatic = True,
+        **kwargs
+    )
+
     native.cc_binary(
         name = name,
-        srcs = generated_c_sources + generated_c_headers,
+        srcs = generated_c_sources,
         includes = [include],
-        linkshared = 1,
+        linkshared = True,
         deps = deps + [
+            ":" + name + "_hdrs",
             "@REPOSITORY_ROOT@:rosidl_typesupport_introspection_c_cc",
         ],
         **kwargs
@@ -453,7 +457,7 @@ def rosidl_typesupport_introspection_cc_library(
         name = name,
         srcs = generated_cc_sources + generated_cc_headers,
         includes = [include],
-        linkshared = 1,
+        linkshared = True,
         deps = deps + [
             "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
             "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
@@ -492,10 +496,10 @@ def rosidl_typesupport_c_library(
 
     native.cc_binary(
         name = name,
-        srcs = generated_c_sources + generated_c_headers + [
-            ts for ts in typesupports.values()],
+        srcs = generated_c_sources + generated_c_headers,
         includes = [include],
-        linkshared = 1,
+        linkshared = True,
+        data = typesupports.values(),
         deps = deps + [
             "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
             "@REPOSITORY_ROOT@:rosidl_typesupport_c_cc",
@@ -531,10 +535,10 @@ def rosidl_typesupport_cc_library(
 
     native.cc_binary(
         name = name,
-        srcs = generated_cc_sources + [
-            ts for ts in typesupports.values()],
+        srcs = generated_cc_sources,
+        data = typesupports.values(),
         includes = [include],
-        linkshared = 1,
+        linkshared = True,
         deps = deps + [
             "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
             "@REPOSITORY_ROOT@:rosidl_runtime_cpp_cc",
@@ -622,10 +626,10 @@ def rosidl_cc_support(name, interfaces, deps, **kwargs):
     native.cc_library(
         name = cc(name),
         srcs = [
-            typesupport_cc_label(name),
+            typesupport_cc_label(name)
         ] + typesupports.values(),
         deps = [cc_types_label(name)],
-        linkstatic = 1,
+        linkstatic = True,
         **kwargs
     )
 
@@ -708,12 +712,13 @@ def rosidl_py_support(name, interfaces, deps, **kwargs):
     )
     typesupports["rosidl_typesupport_c"] = typesupport_c_label(name)
 
-    # Use C typesupport library as entrypoint
     native.cc_library(
         name = c(name),
         srcs = typesupports.values(),
-        deps = [c_types_label(name)],
-        linkstatic = 1,
+        deps = [
+            c_types_label(name)
+        ] + typesupports.values(),
+        linkstatic = True,
         **kwargs
     )
 
@@ -723,9 +728,7 @@ def rosidl_py_support(name, interfaces, deps, **kwargs):
         group = name, interfaces = interfaces,
         includes = [defs(dep) for dep in deps],
         py_deps = [py(dep) for dep in deps],
-        c_deps = [c(dep) for dep in deps] + [
-            c_types_label(name), typesupports["rosidl_typesupport_c"]
-        ],
+        c_deps = [c_label(name)] + [c(dep) for dep in deps],
         **kwargs
     )
 
