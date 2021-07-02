@@ -56,7 +56,10 @@ def ros_py_binary(
     """
     binary = "_" + name
     if not main:
-        main = name + ".py"
+        if len(srcs) == 1:
+            main = srcs[0]
+        else:
+            main = name + ".py"
     native.py_binary(
         name = binary,
         srcs = srcs,
