@@ -11,6 +11,9 @@ def parse_package_xml(path_to_package_xml):
     exec_depends = set([
         tag.text for tag in tree.findall('./exec_depend')
     ])
+    buildtool_depends = set([
+        tag.text for tag in tree.findall('./buildtool_depend')
+    ])
     build_export_depends = set([
         tag.text for tag in tree.findall('./build_export_depend')
     ])
@@ -23,7 +26,7 @@ def parse_package_xml(path_to_package_xml):
     build_type = tree.find('./export/build_type').text
 
     return dict(
-        build_dependencies=build_export_depends | depends,
+        build_dependencies=build_export_depends | depends | buildtool_depends,
         run_dependencies=exec_depends | depends,
         group_dependencies=group_depends,
         groups=member_of_groups,
