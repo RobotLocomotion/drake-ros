@@ -18,6 +18,6 @@ def ros2_repository(name, overlays = []):
             "rclpy",
             "rviz2",
             # RMW implementation
-            "rmw_fastrtps_cpp",
+            "rmw_cyclonedds_cpp",
         ]
     )
