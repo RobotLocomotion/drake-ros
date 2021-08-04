@@ -1,11 +1,6 @@
 # -*- python -*-
 # vi: set ft=python :
 
-load(
-    "//tools/skylark:dload.bzl",
-    "dload_aware_target",
-)
-
 BASE_PORT = 16384
 
 def to_bitstrings(integer, *bitsizes):
@@ -15,7 +10,7 @@ def to_bitstrings(integer, *bitsizes):
         integer = integer >> bitsize
     return reversed(bitstrings)
 
-def rmw_fastrtps_netconf(name):
+def generate_isolated_fastrtps_profile(name):
     tool = "//tools/skylark/ros2:rmw_fastrtps_profile_gen"
     label_name = "{}//{}:{}".format(
         native.repository_name(), native.package_name(), name
@@ -32,21 +27,16 @@ def rmw_fastrtps_netconf(name):
         "--use-as-default",
     ]
 
-    profile = name + "_profile"
     native.genrule(
-        name = profile,
-        outs = [profile + ".xml"],
+        name = "gen_" + name,
+        outs = [name],
         cmd = "./$(location {}) {} > $@".format(tool, " ".join(args)),
         tools = [tool],
         output_to_bindir = True,
     )
-    profile_path = "{}/{}/{}.xml".format(
-        native.repository_name(), native.package_name(), profile
+
+def use_fastrtps_profile(name):
+    path = "{}/{}/{}".format(
+        native.repository_name(), native.package_name(), name
     )
-    dload_aware_target(
-        name = name,
-        base = ":" + profile,
-        runenv = {
-            "FASTRTPS_DEFAULT_PROFILES_FILE": ["path-replace", profile_path],
-        }
-    )
+    return {"FASTRTPS_DEFAULT_PROFILES_FILE": ["path-replace", path]}

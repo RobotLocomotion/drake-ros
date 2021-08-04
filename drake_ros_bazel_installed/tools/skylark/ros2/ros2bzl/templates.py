@@ -63,8 +63,13 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
     libraries = [sandbox(library) for library in properties['link_libraries']]
     include_directories = [sandbox(include) for include in properties['include_directories']]
     local_includes = [include for include in include_directories if not os.path.isabs(include)]
-    # Assume package abides to REP-122 FHS layout
-    headers = [os.path.join(include, name) for include in local_includes]
+    headers = []
+    for include in local_includes:
+        if not include.endswith(os.path.join(name, 'include')):
+            # Assume package lives in a merged install space
+            # Assume package abides to REP-122 FHS layout
+            include = os.path.join(include, name)
+        headers.append(include)
     # Push remaining nonlocal includes through compiler options
     copts = ['-isystem ' + include for include in include_directories if os.path.isabs(include)]
     copts.extend(properties['compile_flags'])
@@ -103,6 +108,8 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
             if label_or_path not in data
         )
 
+    template_path = 'bazel/snippets/package_cc_library.bazel.tpl'
+
     config = {
         'name': target_name,
         'srcs': libraries,
@@ -114,12 +121,6 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
         'data': data,
         'deps': deps,
     }
-
-    if 'rmw_implementation_packages' in metadata.get('groups', []):
-        template_path = 'bazel/snippets/package_cc_library_with_runtime_environ.bazel.tpl'
-        config['env'] = {'RMW_IMPLEMENTATION': ['replace', name]}
-    else:
-        template_path = 'bazel/snippets/package_cc_library.bazel.tpl'
 
     return target_name, load_resource(template_path), to_starlark_string_dict(config)
 
@@ -285,6 +286,12 @@ def configure_cc_tools(repo_name):
 
 def configure_py_tools(repo_name):
     return load_resource('bazel/py_tools.bzl.tpl'), {
+        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
+    }
+
+
+def configure_common(repo_name):
+    return load_resource('bazel/common.bzl.tpl'), {
         'REPOSITORY_ROOT': '@{}//'.format(repo_name)
     }
 

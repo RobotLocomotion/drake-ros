@@ -10,9 +10,7 @@ tests.
 load(
     "//tools/skylark:dload.bzl",
     "do_dload_shim",
-    "do_dload_aware_library",
     "get_dload_shim_attributes",
-    "get_dload_aware_target_attributes",
 )
 
 DLOAD_PY_SHIM_TEMPLATE = """\
@@ -67,16 +65,4 @@ dload_py_shim = rule(
 """
 This rule() generates a Python shim that can carry runtime information.
 See do_dload_shim() documentation for further reference.
-"""
-
-def _dload_aware_py_library_impl(ctx):
-    return do_dload_aware_library(ctx, PyInfo)
-
-dload_aware_py_library = rule(
-    attrs = get_dload_aware_target_attributes(),
-    implementation = _dload_aware_py_library_impl,
-)
-"""
-This rule() decorates a py_library() rule to carry runtime information.
-See do_dload_aware_library() documentation for further reference.
 """

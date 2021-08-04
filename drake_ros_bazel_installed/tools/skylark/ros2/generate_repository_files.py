@@ -19,10 +19,10 @@ from ros2bzl.scrapping.ament_python import collect_ament_python_package_direct_p
 from ros2bzl.scrapping.ament_python import PackageNotFoundError
 
 from ros2bzl.templates import configure_cc_tools
+from ros2bzl.templates import configure_common
 from ros2bzl.templates import configure_distro
 from ros2bzl.templates import configure_executable_imports
 from ros2bzl.templates import configure_package_meta_py_library
-from ros2bzl.templates import configure_package_alias
 from ros2bzl.templates import configure_package_c_library_alias
 from ros2bzl.templates import configure_package_cc_library
 from ros2bzl.templates import configure_package_executable_imports
@@ -93,6 +93,12 @@ def generate_distro_file(packages):
         fd.write(interpolate(template, config) + '\n')
 
 
+def generate_common_file(repo_name):
+    with open('common.bzl', 'w') as fd:
+        template, config = configure_common(repo_name)
+        fd.write(interpolate(template, config) + '\n')
+
+
 def generate_cc_tools_file(repo_name):
     with open('cc_tools.bzl', 'w') as fd:
         template, config = configure_cc_tools(repo_name)
@@ -129,30 +135,25 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
                 for dependency_name in distro['dependency_graph'][name]
             }
 
-            targets = []
-
             if 'share_directory' in metadata:
                 _, template, config = \
                     configure_package_share_filegroup(name, metadata, sandbox)
                 fd.write(interpolate(template, config) + '\n')
-
+                
             if 'rosidl_interface_packages' in metadata.get('groups', []):
-                label, template, config = \
+                _, template, config = \
                     configure_package_interfaces_filegroup(name, metadata, sandbox)
                 fd.write(interpolate(template, config) + '\n')
-                targets.append(label)
+
 
             if 'cmake' in metadata.get('build_type'):
                 properties = collect_ament_cmake_package_direct_properties(
                     name, metadata, dependencies, cache
                 )
 
-                label, template, config = configure_package_cc_library(
+                _, template, config = configure_package_cc_library(
                     name, metadata, properties, dependencies, extras, sandbox
                 )
-
-                if any(properties.values()):
-                    targets.append(label)
 
                 fd.write(interpolate(template, config) + '\n')
 
@@ -184,14 +185,9 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
                 properties = {}
 
             if properties:
-                label, template, config = configure_package_py_library(
+                _, template, config = configure_package_py_library(
                     name, metadata, properties, dependencies, extras, sandbox
                 )
-                fd.write(interpolate(template, config) + '\n')
-                targets.append(label)
-
-            if len(targets) == 1 and targets[0] != name:
-                _, template, config = configure_package_alias(name, targets[0])
                 fd.write(interpolate(template, config) + '\n')
 
             if metadata.get('executables'):
@@ -227,6 +223,8 @@ def main():
 
     generate_distro_file(distro)
 
+    generate_common_file(args.repository_name)
+    
     generate_cc_tools_file(args.repository_name)
 
     generate_py_tools_file(args.repository_name)

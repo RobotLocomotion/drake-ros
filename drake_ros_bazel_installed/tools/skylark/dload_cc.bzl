@@ -9,9 +9,7 @@ tests.
 load(
     "//tools/skylark:dload.bzl",
     "do_dload_shim",
-    "do_dload_aware_library",
     "get_dload_shim_attributes",
-    "get_dload_aware_target_attributes",
 )
 
 DLOAD_CC_SHIM_TEMPLATE = """\
@@ -96,16 +94,4 @@ dload_cc_shim = rule(
 """
 This rule() generates a C++ shim that can carry runtime information.
 See do_dload_shim() documentation for further reference.
-"""
-
-def _dload_aware_cc_library_impl(ctx):
-    return do_dload_aware_library(ctx, CcInfo)
-
-dload_aware_cc_library = rule(
-    attrs = get_dload_aware_target_attributes(),
-    implementation = _dload_aware_cc_library_impl,
-)
-"""
-This rule() decorates a cc_library() rule to carry runtime information.
-See do_dload_aware_library() documentation for further reference.
 """

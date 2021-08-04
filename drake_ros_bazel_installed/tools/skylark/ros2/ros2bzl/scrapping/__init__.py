@@ -28,9 +28,7 @@ def index_all_packages():
         for name, prefix in
         ament_index_python.get_packages_with_prefixes().items()
     }
-    for name, prefix in cmake_tools.get_packages_with_prefixes(
-        ament_index_python.get_search_paths()
-    ).items():
+    for name, prefix in cmake_tools.get_packages_with_prefixes().items():
         if name in packages:
             # Assume unique package names across package types
             continue

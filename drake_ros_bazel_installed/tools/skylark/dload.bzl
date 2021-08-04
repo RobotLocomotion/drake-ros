@@ -1,33 +1,16 @@
 # -*- python -*-
 
 """
-The purpose of these macros is to support the propagation of runtime information
-that is key for proper execution from libraries to executables that depend on
-them.
+The purpose of these macros is to support configuration of the runtime 
+environment in which executables are run.
 
-The two primary macros of interest are `do_dload_shim`, which aids language
-specific shim generation, and `do_dload_aware_target`, which can decorate
-existing targets with runtime information.
+The primary macro of interest is `do_dload_shim`, which aids language
+specific shim generation.
 """
 
 MAGIC_VARIABLES = {
     "${LOAD_PATH}": "LD_LIBRARY_PATH"  # for Linux
 }
-
-RuntimeInfo = provider(fields = ['env_changes'])
-"""
-This provider carries runtime information through the build graph.
-
-Attributes
-
-    env_changes: runtime environment changes to be applied, as a mapping from
-        environment variable names to actions to be performed on them.
-        Actions are (action_type, action_args) tuples. Supported action types
-        are: 'path-prepend', 'path-replace', and 'replace'. Paths are resolved
-        relative to the runfiles directory of the downstream executable.
-        Also, see MAGIC_VARIABLES for platform-independent runtime environment
-        specification.
-"""
 
 def unique(input_list):
     """Extracts unique values from input list, while preserving their order."""
@@ -36,38 +19,6 @@ def unique(input_list):
         if item not in output_list:
             output_list.append(item)
     return output_list
-
-def merge_runtime_environment_changes(base, head):
-    """
-    Merges runtime environment head changes into base.
-    """
-    for envvar, head_action in head.items():
-        if envvar in base:
-            base_action = base[envvar]
-            tpl = "Got '{}' and '{}' actions on {}, "
-            tpl += "results will depend on dependency order"
-            fail(msg = tpl.format(base_action[0], head_action[0], envvar))
-        base[envvar] = head_action
-    return base
-
-def merge_runtime_info(base_info, head_info):
-    """
-    Merges 'head' runtime information into 'base' runtime information,
-    then returns the latter.
-    """
-    merge_runtime_environment_changes(
-        base_info.env_changes, head_info.env_changes
-    )
-    return base_info
-
-def collect_runtime_info(targets):
-    """Returns all targets' runtime information merged into one."""
-    runtime_info = RuntimeInfo(env_changes = {})
-    for target in targets:
-        if RuntimeInfo not in target:
-            continue
-        merge_runtime_info(runtime_info, target[RuntimeInfo])
-    return runtime_info
 
 def normpath(path):
     """
@@ -96,16 +47,12 @@ def get_dload_shim_attributes():
             cfg = "target",
         ),
         "data": attr.label_list(allow_files = True),
-        "deps": attr.label_list(),
-        "env": attr.string_list_dict(),
+        "env_changes": attr.string_list_dict(),
     }
 
 def do_dload_shim(ctx, template, to_list):
     """
     Implements common dload_shim rule functionality.
-
-    All runtime information is merged, and made available to the
-    executable by the shim.
 
     Args:
         ctx: context of a Bazel rule
@@ -115,23 +62,25 @@ def do_dload_shim(ctx, template, to_list):
     It expects the following attributes on ctx:
 
         target: executable target to be shimmed
-        data: executable data dependencies, may provide RuntimeInfo
-        deps: executable dependencies, may provide RuntimeInfo
+        env_changes: runtime environment changes to be applied, as a mapping from
+          environment variable names to actions to be performed on them.
+          Actions are (action_type, action_args) tuples. Supported action types
+          are: 'path-prepend', 'path-replace', and 'replace'. Paths are resolved
+          relative to the runfiles directory of the downstream executable.
+          Also, see MAGIC_VARIABLES for platform-independent runtime environment
+          specification.
 
     You may use get_dload_shim_attributes() on rule definition.
     """
     executable_file = ctx.executable.target
 
-    runtime_info = RuntimeInfo(env_changes = {
+    env_changes = {
         MAGIC_VARIABLES.get(name, default=name):
         parse_runtime_environment_action(ctx, action)
-        for name, action in ctx.attr.env.items()
-    })
-    merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.data))
-    merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.deps))
-
-    envvars = runtime_info.env_changes.keys()
-    actions = runtime_info.env_changes.values()
+        for name, action in ctx.attr.env_changes.items()
+    }
+    envvars = env_changes.keys()
+    actions = env_changes.values()
 
     shim_content = template.format(
         # Deal with usage in external workspaces' BUILD.bazel files
@@ -187,71 +136,3 @@ def parse_runtime_environment_action(ctx, action):
     else:
         fail(msg = "'{}' action is unknown".format(action_type))
     return [action_type] + action_args
-
-def get_dload_aware_target_attributes():
-    """
-    Yields attributes common to all dload_aware_target rules.
-
-    See do_dload_aware_target() documentation for further reference.
-    """
-    return {
-        "base": attr.label(mandatory = True),
-        "data": attr.label_list(allow_files = True),
-        "deps": attr.label_list(),
-        "env": attr.string_list_dict(),
-    }
-
-def do_dload_aware_target(ctx):
-    """
-    Implements common dload_aware_target rule functionality.
-
-    Any specified runtime info is augmented with that of build and runtime
-    dependencies, and then propagated along with base target runfiles
-    i.e. its DefaultInfo provider.
-
-    Args:
-        ctx: context of a Bazel rule
-
-    It expects the following attributes on ctx:
-
-      base: target to extend with runtime information
-      data: base target's data dependencies, may provide RuntimeInfo
-      deps: base target's dependencies, may provide RuntimeInfo
-      runenv: runtime environment changes for this target
-
-    You may use get_dload_aware_target_attributes() on rule definition.
-    """
-    runtime_info = RuntimeInfo(env_changes = {
-        MAGIC_VARIABLES.get(name, default=name):
-        parse_runtime_environment_action(ctx, action)
-        for name, action in ctx.attr.env.items()
-    })
-    merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.data))
-    merge_runtime_info(runtime_info, collect_runtime_info(ctx.attr.deps))
-    return [
-        # Recreate base's DefaultInfo to workaround
-        # https://github.com/bazelbuild/bazel/issues/9442
-        DefaultInfo(
-            files = ctx.attr.base[DefaultInfo].files,
-            data_runfiles = ctx.attr.base[DefaultInfo].data_runfiles,
-            default_runfiles = ctx.attr.base[DefaultInfo].default_runfiles,
-        ),
-        runtime_info
-    ]
-
-def do_dload_aware_library(ctx, kind):
-    """
-    Implements common dload_aware_library rule functionality.
-
-    It builds on top of dload_aware_target functionality, also propagating
-    library specific providers e.g. CcInfo providers for cc_library base
-    targets.
-    """
-    providers = do_dload_aware_target(ctx)
-    providers.append(ctx.attr.base[kind])
-    return providers
-
-dload_aware_target = rule(
-    attrs = get_dload_aware_target_attributes(),
-    implementation = do_dload_aware_target,
-)

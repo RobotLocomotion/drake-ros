@@ -1,4 +1,4 @@
-load("//tools/skylark:execute.bzl", "execute_or_fail")
+load("@drake_ros//tools/skylark:execute.bzl", "execute_or_fail")
 
 MANIFEST = [
     "cmake_tools/packages.py",
@@ -6,14 +6,13 @@ MANIFEST = [
     "cmake_tools/__init__.py",
 
     "resources/bazel/cc_tools.bzl.tpl",
+    "resources/bazel/common.bzl.tpl",
     "resources/bazel/distro.bzl.tpl",
     "resources/bazel/py_tools.bzl.tpl",
     "resources/bazel/rosidl_tools.bzl.tpl",
     "resources/bazel/snippets/overlay_executable.bazel.tpl",
-    "resources/bazel/snippets/package_alias.bazel.tpl",
     "resources/bazel/snippets/package_interfaces_filegroup.bazel.tpl",
     "resources/bazel/snippets/package_cc_library.bazel.tpl",
-    "resources/bazel/snippets/package_cc_library_with_runtime_environ.bazel.tpl",
     "resources/bazel/snippets/package_meta_py_library.bazel.tpl",
     "resources/bazel/snippets/package_py_library.bazel.tpl",
     "resources/bazel/snippets/package_py_library_with_cc_libs.bazel.tpl",

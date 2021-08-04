@@ -1,3 +1,4 @@
+import glob
 import os
 
 from multiprocessing.dummy import Pool
@@ -143,7 +144,16 @@ def collect_ament_cmake_package_properties(name, metadata):
         assert project_name in targets
         target = targets[project_name]
 
-        return collect_ament_cmake_shared_library_codemodel(target)
+        properties = collect_ament_cmake_shared_library_codemodel(target)
+        if 'rosidl_interface_packages' in metadata.get('groups', []):
+            # Pick up extra shared libraries in interface
+            # packages for adequate sandboxing
+            glob_pattern = os.path.join(
+                metadata['prefix'], 'lib', f'lib{name}__rosidl*.so')
+            for library in glob.glob(glob_pattern):
+                if library not in properties['link_libraries']:
+                    properties['link_libraries'].append(library)
+        return properties
 
 
 def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, cache):
