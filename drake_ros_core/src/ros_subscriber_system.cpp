@@ -67,6 +67,7 @@ RosSubscriberSystem::RosSubscriberSystem(
     std::bind(&RosSubscriberSystemPrivate::handle_message, impl_.get(), std::placeholders::_1));
 
   DeclareAbstractOutputPort(
+    topic_name,
     [serializer{impl_->serializer_.get()}]() {return serializer->create_default_value();},
     [](const drake::systems::Context<double> & context, drake::AbstractValue * output_value) {
       // Transfer message from state to output port
@@ -123,8 +124,8 @@ RosSubscriberSystem::DoCalcNextUpdateTime(
   *time = context.get_time();
   drake::systems::EventCollection<drake::systems::UnrestrictedUpdateEvent<double>> & uu_events =
     events->get_mutable_unrestricted_update_events();
-  uu_events.add_event(
-    std::make_unique<drake::systems::UnrestrictedUpdateEvent<double>>(
+  uu_events.AddEvent(
+    drake::systems::UnrestrictedUpdateEvent<double>(
       drake::systems::TriggerType::kTimed, callback));
 }
 }  // namespace drake_ros_core
