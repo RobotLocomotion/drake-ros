@@ -66,15 +66,12 @@ RosSubscriberSystem::RosSubscriberSystem(
     *impl_->serializer_->get_type_support(), topic_name, qos,
     std::bind(&RosSubscriberSystemPrivate::handle_message, impl_.get(), std::placeholders::_1));
 
-  DeclareAbstractOutputPort(
-    [serializer{impl_->serializer_.get()}]() {return serializer->create_default_value();},
-    [](const drake::systems::Context<double> & context, drake::AbstractValue * output_value) {
-      // Transfer message from state to output port
-      output_value->SetFrom(context.get_abstract_state().get_value(kStateIndexMessage));
-    });
 
   static_assert(kStateIndexMessage == 0, "");
-  DeclareAbstractState(*(impl_->serializer_->create_default_value()));
+  auto message_state_index =
+    DeclareAbstractState(*(impl_->serializer_->create_default_value()));
+
+  DeclareStateOutputPort(drake::systems::kUseDefaultName, message_state_index);
 }
 
 RosSubscriberSystem::~RosSubscriberSystem()
