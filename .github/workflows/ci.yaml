@@ -1,0 +1,17 @@
+name: drake-ros continuous integration
+on:
+  push:
+    branches:
+      - feature_ci
+  pull_request:
+    branches:
+      - main
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current code
+        uses: actions/checkout@v2
+      - name: Build drake-ros image
+        run: docker build -f tools/containers/drake_ros_core.Dockerfile  --build-arg ROS_DISTRO=rolling .

@@ -17,7 +17,7 @@ RUN curl -o drake.tar.gz https://drake-packages.csail.mit.edu/drake/nightly/drak
 
 # make root workspace
 ENV HOME=/home/${USERNAME}
-ENV WORKSPACE=${HOME}/workspace
+ENV WORKSPACE=/workspace
 RUN mkdir -p ${WORKSPACE}/src \
     && mkdir -p ${HOME}/.ros/log
 
