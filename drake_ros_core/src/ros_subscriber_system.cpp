@@ -123,8 +123,8 @@ RosSubscriberSystem::DoCalcNextUpdateTime(
   *time = context.get_time();
   drake::systems::EventCollection<drake::systems::UnrestrictedUpdateEvent<double>> & uu_events =
     events->get_mutable_unrestricted_update_events();
-  uu_events.add_event(
-    std::make_unique<drake::systems::UnrestrictedUpdateEvent<double>>(
+  uu_events.AddEvent(
+    drake::systems::UnrestrictedUpdateEvent<double>(
       drake::systems::TriggerType::kTimed, callback));
 }
 }  // namespace drake_ros_core
