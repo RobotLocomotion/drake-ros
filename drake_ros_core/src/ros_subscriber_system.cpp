@@ -67,7 +67,6 @@ RosSubscriberSystem::RosSubscriberSystem(
     std::bind(&RosSubscriberSystemPrivate::handle_message, impl_.get(), std::placeholders::_1));
 
   DeclareAbstractOutputPort(
-    topic_name,
     [serializer{impl_->serializer_.get()}]() {return serializer->create_default_value();},
     [](const drake::systems::Context<double> & context, drake::AbstractValue * output_value) {
       // Transfer message from state to output port
