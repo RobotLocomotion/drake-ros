@@ -1,8 +1,5 @@
 name: drake-ros continuous integration
 on:
-  push:
-    branches:
-      - feature_ci
   pull_request:
     branches:
       - main
@@ -13,5 +10,5 @@ jobs:
     steps:
       - name: Check out current code
         uses: actions/checkout@v2
-      - name: Build drake-ros image
+      - name: Build and Test drake_ros_core
         run: docker build -f tools/containers/drake_ros_core.Dockerfile  --build-arg ROS_DISTRO=rolling .
