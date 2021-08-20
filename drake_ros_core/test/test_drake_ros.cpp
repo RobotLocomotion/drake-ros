@@ -12,31 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
-
-#include <rclcpp/rclcpp.hpp>
-
 #include <memory>
 #include <utility>
 #include <vector>
+
+#include <gtest/gtest.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include "drake_ros_core/drake_ros.hpp"
 
 using drake_ros_core::DrakeRos;
 
-TEST(DrakeRos, default_construct)
-{
+TEST(DrakeRos, default_construct) {
   EXPECT_NO_THROW(std::make_unique<DrakeRos>());
 }
 
-TEST(DrakeRos, local_context)
-{
+TEST(DrakeRos, local_context) {
   auto context = std::make_shared<rclcpp::Context>();
   rclcpp::NodeOptions node_options;
   node_options.context(context);
 
   auto drake_ros = std::make_unique<DrakeRos>("local_ctx_node", node_options);
-  (void) drake_ros;
+  (void)drake_ros;
 
   // Should not have initialized global context
   EXPECT_FALSE(rclcpp::contexts::get_global_default_context()->is_valid());
