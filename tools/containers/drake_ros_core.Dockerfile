@@ -28,9 +28,7 @@ COPY /${PACKAGE_NAME} ${WORKSPACE}/src/${PACKAGE_NAME}
 WORKDIR ${WORKSPACE}
 
 # install src Debian dependencies
-# TODO: Determine why test-msgs package needs to be installed manually.
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y ros-${ROS_DISTRO}-test-msgs \
     && rosdep update \
     && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
     && rm -rf /var/lib/apt/lists/*
