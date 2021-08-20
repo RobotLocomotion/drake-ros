@@ -14,34 +14,25 @@
 #ifndef DRAKE_ROS_CORE__SERIALIZER_INTERFACE_HPP_
 #define DRAKE_ROS_CORE__SERIALIZER_INTERFACE_HPP_
 
+#include <memory>
+
 #include <drake/common/value.h>
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-#include <memory>
+namespace drake_ros_core {
+class SerializerInterface {
+ public:
+  virtual rclcpp::SerializedMessage serialize(
+      const drake::AbstractValue& abstract_value) const = 0;
 
-namespace drake_ros_core
-{
-class SerializerInterface
-{
-public:
-  virtual
-  rclcpp::SerializedMessage
-  serialize(const drake::AbstractValue & abstract_value) const = 0;
+  virtual bool deserialize(const rclcpp::SerializedMessage& message,
+                           drake::AbstractValue& abstract_value) const = 0;
 
-  virtual
-  bool
-  deserialize(
-    const rclcpp::SerializedMessage & message,
-    drake::AbstractValue & abstract_value) const = 0;
+  virtual std::unique_ptr<drake::AbstractValue> create_default_value()
+      const = 0;
 
-  virtual
-  std::unique_ptr<drake::AbstractValue>
-  create_default_value() const = 0;
-
-  virtual
-  const rosidl_message_type_support_t *
-  get_type_support() const = 0;
+  virtual const rosidl_message_type_support_t* get_type_support() const = 0;
 };
 }  // namespace drake_ros_core
 #endif  // DRAKE_ROS_CORE__SERIALIZER_INTERFACE_HPP_

@@ -14,86 +14,74 @@
 #ifndef DRAKE_ROS_CORE__ROS_PUBLISHER_SYSTEM_HPP_
 #define DRAKE_ROS_CORE__ROS_PUBLISHER_SYSTEM_HPP_
 
-#include <drake/systems/framework/leaf_system.h>
-#include <rmw/rmw.h>
-
-#include <rclcpp/serialized_message.hpp>
-
 #include <memory>
 #include <string>
 #include <unordered_set>
+
+#include <drake/systems/framework/leaf_system.h>
+#include <rclcpp/serialized_message.hpp>
+#include <rmw/rmw.h>
 
 #include "drake_ros_core/drake_ros_interface.hpp"
 #include "drake_ros_core/serializer.hpp"
 #include "drake_ros_core/serializer_interface.hpp"
 
-
-namespace drake_ros_core
-{
+namespace drake_ros_core {
 /// PIMPL forward declaration
 class RosPublisherSystemPrivate;
 
 /// Accepts ROS messages on an input port and publishes them to a ROS topic
-class RosPublisherSystem : public drake::systems::LeafSystem<double>
-{
-public:
+class RosPublisherSystem : public drake::systems::LeafSystem<double> {
+ public:
   /// Convenience method to make a publisher system given a ROS message type
-  template<typename MessageT>
-  static
-  std::unique_ptr<RosPublisherSystem>
-  Make(
-    const std::string & topic_name,
-    const rclcpp::QoS & qos,
-    std::shared_ptr<DrakeRosInterface> ros_interface)
-  {
-    return Make<MessageT>(
-      topic_name, qos, ros_interface,
-      {drake::systems::TriggerType::kPerStep, drake::systems::TriggerType::kForced}, 0.0);
+  template <typename MessageT>
+  static std::unique_ptr<RosPublisherSystem> Make(
+      const std::string& topic_name, const rclcpp::QoS& qos,
+      std::shared_ptr<DrakeRosInterface> ros_interface) {
+    return Make<MessageT>(topic_name, qos, ros_interface,
+                          {drake::systems::TriggerType::kPerStep,
+                           drake::systems::TriggerType::kForced},
+                          0.0);
   }
 
-  /// Convenience method to make a publisher system given a ROS message type and publish triggers
-  template<typename MessageT>
-  static
-  std::unique_ptr<RosPublisherSystem>
-  Make(
-    const std::string & topic_name,
-    const rclcpp::QoS & qos,
-    std::shared_ptr<DrakeRosInterface> ros_interface,
-    const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
-    double publish_period = 0.0)
-  {
+  /// Convenience method to make a publisher system given a ROS message type and
+  /// publish triggers
+  template <typename MessageT>
+  static std::unique_ptr<RosPublisherSystem> Make(
+      const std::string& topic_name, const rclcpp::QoS& qos,
+      std::shared_ptr<DrakeRosInterface> ros_interface,
+      const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
+      double publish_period = 0.0) {
     // Assume C++ typesupport since this is a C++ template function
-    std::unique_ptr<SerializerInterface> serializer = std::make_unique<Serializer<MessageT>>();
-    return std::make_unique<RosPublisherSystem>(
-      serializer, topic_name, qos, ros_interface, publish_triggers, publish_period);
+    std::unique_ptr<SerializerInterface> serializer =
+        std::make_unique<Serializer<MessageT>>();
+    return std::make_unique<RosPublisherSystem>(serializer, topic_name, qos,
+                                                ros_interface, publish_triggers,
+                                                publish_period);
   }
 
   RosPublisherSystem(
-    std::unique_ptr<SerializerInterface> & serializer,
-    const std::string & topic_name,
-    const rclcpp::QoS & qos,
-    std::shared_ptr<DrakeRosInterface> ros_interface,
-    const std::unordered_set<drake::systems::TriggerType> & publish_triggers,
-    double publish_period = 0.0);
+      std::unique_ptr<SerializerInterface>& serializer,
+      const std::string& topic_name, const rclcpp::QoS& qos,
+      std::shared_ptr<DrakeRosInterface> ros_interface,
+      const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
+      double publish_period = 0.0);
 
   virtual ~RosPublisherSystem();
 
   /// Convenience method to publish a C++ ROS message
-  template<typename MessageT>
-  void
-  publish(const MessageT & message)
-  {
+  template <typename MessageT>
+  void publish(const MessageT& message) {
     static const Serializer<MessageT> serializer;
     publish(serializer->serialize(message));
   }
 
   /// Publish a serialized ROS message
-  void
-  publish(const rclcpp::SerializedMessage & serialized_msg);
+  void publish(const rclcpp::SerializedMessage& serialized_msg);
 
-protected:
-  drake::systems::EventStatus
-  publish_input(const drake::systems::Context<double> & context) const;
+ protected:
+  drake::systems::EventStatus publish_input(
+      const drake::systems::Context<double>& context) const;
 
   std::unique_ptr<RosPublisherSystemPrivate> impl_;
 };

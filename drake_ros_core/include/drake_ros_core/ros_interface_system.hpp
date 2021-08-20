@@ -14,34 +14,30 @@
 #ifndef DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_
 #define DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_
 
-#include <drake/systems/framework/leaf_system.h>
-
 #include <memory>
+
+#include <drake/systems/framework/leaf_system.h>
 
 #include "drake_ros_core/drake_ros_interface.hpp"
 
-namespace drake_ros_core
-{
+namespace drake_ros_core {
 // PIMPL forward declaration
 class RosInterfaceSystemPrivate;
 
 /// System that takes care of calling spin() in Drake's systems framework
-class RosInterfaceSystem : public drake::systems::LeafSystem<double>
-{
-public:
+class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
+ public:
   explicit RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros);
   virtual ~RosInterfaceSystem();
 
   /// Return a handle for interacting with ROS
-  std::shared_ptr<DrakeRosInterface>
-  get_ros_interface() const;
+  std::shared_ptr<DrakeRosInterface> get_ros_interface() const;
 
-protected:
+ protected:
   /// Override as a place to call rclcpp::spin()
-  void DoCalcNextUpdateTime(
-    const drake::systems::Context<double> &,
-    drake::systems::CompositeEventCollection<double> *,
-    double *) const override;
+  void DoCalcNextUpdateTime(const drake::systems::Context<double>&,
+                            drake::systems::CompositeEventCollection<double>*,
+                            double*) const override;
 
   std::unique_ptr<RosInterfaceSystemPrivate> impl_;
 };

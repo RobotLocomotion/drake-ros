@@ -14,44 +14,34 @@
 #ifndef DRAKE_ROS_CORE__DRAKE_ROS_INTERFACE_HPP_
 #define DRAKE_ROS_CORE__DRAKE_ROS_INTERFACE_HPP_
 
-#include <rosidl_runtime_c/message_type_support_struct.h>
-#include <rclcpp/clock.hpp>
-#include <rclcpp/qos.hpp>
-#include <rclcpp/serialized_message.hpp>
-
 #include <functional>
 #include <memory>
 #include <string>
 
-namespace drake_ros_core
-{
+#include <rclcpp/clock.hpp>
+#include <rclcpp/qos.hpp>
+#include <rclcpp/serialized_message.hpp>
+#include <rosidl_runtime_c/message_type_support_struct.h>
+
+namespace drake_ros_core {
 // Forward declarations for non-public-API classes
 class Publisher;
 class Subscription;
 
 /// System that abstracts working with ROS
-class DrakeRosInterface
-{
-public:
-  virtual
-  std::unique_ptr<Publisher>
-  create_publisher(
-    const rosidl_message_type_support_t & ts,
-    const std::string & topic_name,
-    const rclcpp::QoS & qos) = 0;
+class DrakeRosInterface {
+ public:
+  virtual std::unique_ptr<Publisher> create_publisher(
+      const rosidl_message_type_support_t& ts, const std::string& topic_name,
+      const rclcpp::QoS& qos) = 0;
 
-  virtual
-  std::shared_ptr<Subscription>
-  create_subscription(
-    const rosidl_message_type_support_t & ts,
-    const std::string & topic_name,
-    const rclcpp::QoS & qos,
-    std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback) = 0;
+  virtual std::shared_ptr<Subscription> create_subscription(
+      const rosidl_message_type_support_t& ts, const std::string& topic_name,
+      const rclcpp::QoS& qos,
+      std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)>
+          callback) = 0;
 
-  virtual
-  void
-  spin(
-    int timeout_millis) = 0;
+  virtual void spin(int timeout_millis) = 0;
 };
 }  // namespace drake_ros_core
 #endif  // DRAKE_ROS_CORE__DRAKE_ROS_INTERFACE_HPP_
