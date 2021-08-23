@@ -11,36 +11,30 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <drake/systems/framework/abstract_values.h>
+#include "drake_ros_core/ros_subscriber_system.hpp"
 
 #include <memory>
 #include <mutex>
 #include <string>
 #include <utility>
 
-#include "drake_ros_core/ros_subscriber_system.hpp"
 #include "subscription.hpp"
+#include <drake/systems/framework/abstract_values.h>
 
-namespace drake_ros_core
-{
+namespace drake_ros_core {
 // Index in AbstractState that deserialized message is stored
 const int kStateIndexMessage = 0;
 
-class RosSubscriberSystemPrivate
-{
-public:
-  void
-  handle_message(std::shared_ptr<rclcpp::SerializedMessage> callback)
-  {
+class RosSubscriberSystemPrivate {
+ public:
+  void handle_message(std::shared_ptr<rclcpp::SerializedMessage> callback) {
     std::lock_guard<std::mutex> message_lock(mutex_);
-    // TODO(sloretz) Queue messages here? Lcm subscriber doesn't, so maybe lost messages are ok
-    // Overwrite last message
+    // TODO(sloretz) Queue messages here? Lcm subscriber doesn't, so maybe lost
+    // messages are ok Overwrite last message
     msg_ = callback;
   }
 
-  std::shared_ptr<rclcpp::SerializedMessage>
-  take_message()
-  {
+  std::shared_ptr<rclcpp::SerializedMessage> take_message() {
     std::lock_guard<std::mutex> message_lock(mutex_);
     return std::move(msg_);
   }
@@ -55,35 +49,29 @@ public:
 };
 
 RosSubscriberSystem::RosSubscriberSystem(
-  std::unique_ptr<SerializerInterface> & serializer,
-  const std::string & topic_name,
-  const rclcpp::QoS & qos,
-  std::shared_ptr<DrakeRosInterface> ros)
-: impl_(new RosSubscriberSystemPrivate())
-{
+    std::unique_ptr<SerializerInterface>& serializer,
+    const std::string& topic_name, const rclcpp::QoS& qos,
+    std::shared_ptr<DrakeRosInterface> ros)
+    : impl_(new RosSubscriberSystemPrivate()) {
   impl_->serializer_ = std::move(serializer);
   impl_->sub_ = ros->create_subscription(
-    *impl_->serializer_->get_type_support(), topic_name, qos,
-    std::bind(&RosSubscriberSystemPrivate::handle_message, impl_.get(), std::placeholders::_1));
-
+      *impl_->serializer_->get_type_support(), topic_name, qos,
+      std::bind(&RosSubscriberSystemPrivate::handle_message, impl_.get(),
+                std::placeholders::_1));
 
   static_assert(kStateIndexMessage == 0, "");
   auto message_state_index =
-    DeclareAbstractState(*(impl_->serializer_->create_default_value()));
+      DeclareAbstractState(*(impl_->serializer_->create_default_value()));
 
   DeclareStateOutputPort(drake::systems::kUseDefaultName, message_state_index);
 }
 
-RosSubscriberSystem::~RosSubscriberSystem()
-{
-}
+RosSubscriberSystem::~RosSubscriberSystem() {}
 
-void
-RosSubscriberSystem::DoCalcNextUpdateTime(
-  const drake::systems::Context<double> & context,
-  drake::systems::CompositeEventCollection<double> * events,
-  double * time) const
-{
+void RosSubscriberSystem::DoCalcNextUpdateTime(
+    const drake::systems::Context<double>& context,
+    drake::systems::CompositeEventCollection<double>* events,
+    double* time) const {
   // Vvv Copied from LcmSubscriberSystem vvv
 
   // We do not support events other than our own message timing events.
@@ -101,27 +89,31 @@ RosSubscriberSystem::DoCalcNextUpdateTime(
   // Create a unrestricted event and tie the handler to the corresponding
   // function.
   drake::systems::UnrestrictedUpdateEvent<double>::UnrestrictedUpdateCallback
-    callback = [this, serialized_message{std::move(message)}](
-    const drake::systems::Context<double> &,
-    const drake::systems::UnrestrictedUpdateEvent<double> &,
-    drake::systems::State<double> * state)
-    {
-      // Deserialize the message and store it in the abstract state on the context
-      drake::systems::AbstractValues & abstract_state = state->get_mutable_abstract_state();
-      auto & abstract_value = abstract_state.get_mutable_value(kStateIndexMessage);
-      const bool ret = impl_->serializer_->deserialize(*serialized_message, abstract_value);
-      if (ret != RMW_RET_OK) {
-        return drake::systems::EventStatus::Failed(this, "Failed to deserialize ROS message");
-      }
-      return drake::systems::EventStatus::Succeeded();
-    };
+      callback = [this, serialized_message{std::move(message)}](
+                     const drake::systems::Context<double>&,
+                     const drake::systems::UnrestrictedUpdateEvent<double>&,
+                     drake::systems::State<double>* state) {
+        // Deserialize the message and store it in the abstract state on the
+        // context
+        drake::systems::AbstractValues& abstract_state =
+            state->get_mutable_abstract_state();
+        auto& abstract_value =
+            abstract_state.get_mutable_value(kStateIndexMessage);
+        const bool ret = impl_->serializer_->deserialize(*serialized_message,
+                                                         abstract_value);
+        if (ret != RMW_RET_OK) {
+          return drake::systems::EventStatus::Failed(
+              this, "Failed to deserialize ROS message");
+        }
+        return drake::systems::EventStatus::Succeeded();
+      };
 
   // Schedule an update event at the current time.
   *time = context.get_time();
-  drake::systems::EventCollection<drake::systems::UnrestrictedUpdateEvent<double>> & uu_events =
-    events->get_mutable_unrestricted_update_events();
-  uu_events.AddEvent(
-    drake::systems::UnrestrictedUpdateEvent<double>(
+  drake::systems::EventCollection<
+      drake::systems::UnrestrictedUpdateEvent<double>>& uu_events =
+      events->get_mutable_unrestricted_update_events();
+  uu_events.AddEvent(drake::systems::UnrestrictedUpdateEvent<double>(
       drake::systems::TriggerType::kTimed, callback));
 }
 }  // namespace drake_ros_core
