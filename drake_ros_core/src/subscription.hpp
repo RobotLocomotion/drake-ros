@@ -62,6 +62,7 @@ protected:
   handle_loaned_message(
     void * loaned_message, const rclcpp::MessageInfo & message_info) override;
 
+  // TODO(hidmic): use override keyword when support for ROS Galactic is dropped
   virtual void
   handle_serialized_message(
     const std::shared_ptr<rclcpp::SerializedMessage> & message,
