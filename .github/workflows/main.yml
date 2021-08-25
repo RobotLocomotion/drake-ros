@@ -21,5 +21,4 @@ jobs:
       - name: Build and test drake_ros_core
         uses: ros-tooling/action-ros-ci@v0.2
         with:
-          package-name: drake_ros_core
           target-ros2-distro: ${{ matrix.ros_distribution }}
