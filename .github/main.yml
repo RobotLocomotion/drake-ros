@@ -1,0 +1,25 @@
+name: drake-ros continuous integration
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+jobs:
+  build_docker:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ros_distribution:
+          - galactic
+          - rolling
+    container:
+      image: robotlocomotion/drake:focal
+    steps:
+      - uses: ros-tooling/setup-ros@v0.2
+        with:
+          required-ros-distributions: ${{ matrix.ros_distribution }}
+      - name: Build and test drake_ros_core
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: drake_ros_core
+          target-ros2-distro: ${{ matrix.ros_distribution }}
