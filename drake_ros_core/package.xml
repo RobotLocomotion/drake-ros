@@ -16,8 +16,6 @@
   <depend>rosidl_runtime_c</depend>
   <depend>rosidl_typesupport_cpp</depend>
 
-  <exec_depend>rclpy</exec_depend>
-
   <test_depend>ament_cmake_clang_format</test_depend>
   <test_depend>ament_cmake_cpplint</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
