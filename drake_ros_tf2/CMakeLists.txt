@@ -16,6 +16,8 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(drake REQUIRED)
 find_package(drake_ros_core REQUIRED)
+# Must use Drake's fork of Pybind11
+find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(tf2_ros REQUIRED)
 
@@ -62,6 +64,28 @@ install(
   DESTINATION include
 )
 
+###
+# Python bindings
+###
+pybind11_add_module(py_drake_ros_tf2 SHARED
+  src/python_bindings/module_drake_ros_tf2.cpp
+)
+set_target_properties(py_drake_ros_tf2 PROPERTIES OUTPUT_NAME "drake_ros_tf2")
+target_link_libraries(py_drake_ros_tf2 PRIVATE drake_ros_tf2)
+target_include_directories(py_drake_ros_tf2
+  PRIVATE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
+)
+
+# Sets PYTHON_INSTALL_DIR
+_ament_cmake_python_get_python_install_dir()
+
+install(
+  TARGETS py_drake_ros_tf2
+  DESTINATION "${PYTHON_INSTALL_DIR}"
+)
+### End Python bindings
+
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   find_package(ament_cmake_cpplint REQUIRED)
@@ -70,6 +94,7 @@ if(BUILD_TESTING)
   ament_cpplint()
 
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_pytest REQUIRED)
   find_package(test_msgs REQUIRED)
 
   ament_add_gtest(test_tf_broadcaster test/test_tf_broadcaster.cc)
