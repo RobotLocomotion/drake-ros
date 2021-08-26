@@ -89,9 +89,11 @@ install(
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_pycodestyle REQUIRED)
 
   ament_clang_format(CONFIG_FILE .clang-format)
   ament_cpplint()
+  ament_pycodestyle(--config pycodestyle.ini)
 
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
