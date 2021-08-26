@@ -14,6 +14,8 @@ find_package(geometry_msgs REQUIRED)
 find_package(drake REQUIRED)
 find_package(drake_ros_core REQUIRED)
 find_package(drake_ros_tf2 REQUIRED)
+# Must use Drake's fork of Pybind11
+find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
@@ -61,6 +63,28 @@ install(
   DIRECTORY include/
   DESTINATION include
 )
+
+###
+# Python bindings
+###
+pybind11_add_module(py_drake_ros_viz SHARED
+  src/python_bindings/module_drake_ros_viz.cpp
+)
+set_target_properties(py_drake_ros_viz PROPERTIES OUTPUT_NAME "drake_ros_viz")
+target_link_libraries(py_drake_ros_viz PRIVATE drake_ros_viz)
+target_include_directories(py_drake_ros_viz
+  PRIVATE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
+)
+
+# Sets PYTHON_INSTALL_DIR
+_ament_cmake_python_get_python_install_dir()
+
+install(
+  TARGETS py_drake_ros_viz
+  DESTINATION "${PYTHON_INSTALL_DIR}"
+)
+### End Python bindings
 
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
