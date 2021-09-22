@@ -19,35 +19,41 @@ import sys
 
 from bazel_tools.tools.python.runfiles import runfiles
 
-r = runfiles.Create()
-# NOTE(hidmic): unlike its C++ equivalent, Python runfiles'
-# builtin tools will only look for runfiles in the manifest
-# if there is a manifest
-runfiles_dir = r.EnvVars()['RUNFILES_DIR']
 
-def rlocation(path):
-    return r.Rlocation(path) or os.path.join(runfiles_dir, path)
+def main(argv):
+    r = runfiles.Create()
+    # NOTE(hidmic): unlike its C++ equivalent, Python runfiles'
+    # builtin tools will only look for runfiles in the manifest
+    # if there is a manifest
+    runfiles_dir = r.EnvVars()['RUNFILES_DIR']
 
-for name, action in zip({names}, {actions}):  # noqa
-    action_type, action_args = action[0], action[1:]
-    if action_type == 'replace':
-        assert len(action_args) == 1
-        value = action_args[0]
-    elif action_type == 'path-replace':
-        assert len(action_args) == 1
-        value = rlocation(action_args[0])
-    elif action_type == 'path-prepend':
-        assert len(action_args) > 0
-        value = ':'.join([rlocation(path) for path in action_args])
-        if name in os.environ:
-            value += ':' + os.environ[name]
-    else:
-        assert False  # should never get here
-    os.environ[name] = value
+    def rlocation(path):
+        return r.Rlocation(path) or os.path.join(runfiles_dir, path)
 
-executable_path = r.Rlocation('{executable_path}')  # noqa
-argv = [executable_path] + sys.argv[1:]
-os.execv(executable_path, argv)
+    for name, action in zip({names}, {actions}):  # noqa
+        action_type, action_args = action[0], action[1:]
+        if action_type == 'replace':
+            assert len(action_args) == 1
+            value = action_args[0]
+        elif action_type == 'path-replace':
+            assert len(action_args) == 1
+            value = rlocation(action_args[0])
+        elif action_type == 'path-prepend':
+            assert len(action_args) > 0
+            value = ':'.join([rlocation(path) for path in action_args])
+            if name in os.environ:
+                value += ':' + os.environ[name]
+        else:
+            assert False  # should never get here
+        os.environ[name] = value
+
+    executable_path = r.Rlocation('{executable_path}')  # noqa
+    argv = [executable_path] + argv[1:]
+    os.execv(executable_path, argv)
+
+
+if __name__ == '__main__':
+    main(sys.argv)
 """
 
 def _to_py_list(collection):
