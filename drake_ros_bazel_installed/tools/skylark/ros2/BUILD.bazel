@@ -1,12 +1,8 @@
 # -*- mode: python -*-
 # vi: set ft=python :
 
-load("//tools/lint:lint.bzl", "add_lint_tests")
-
 py_binary(
     name = "rmw_fastrtps_profile_gen",
     srcs = ["rmw_fastrtps_profile_gen.py"],
     visibility = ["//visibility:public"],
 )
-
-add_lint_tests()
