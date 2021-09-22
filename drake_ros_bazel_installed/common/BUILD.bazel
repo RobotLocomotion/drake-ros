@@ -1,3 +1,6 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
 load("@ros2//:rosidl_tools.bzl", "rosidl_interfaces_group")
 
 rosidl_interfaces_group(
