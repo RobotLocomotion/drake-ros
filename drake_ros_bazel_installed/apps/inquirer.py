@@ -5,6 +5,7 @@ import rclpy
 import rclpy.action
 import rclpy.duration
 import rclpy.node
+import rclpy.qos
 
 import apps_msgs.msg
 import common_msgs.action
@@ -16,7 +17,8 @@ class Inquirer(rclpy.node.Node):
     def __init__(self):
         super().__init__('inquirer')
         self._status_sub = self.create_subscription(
-            apps_msgs.msg.Status, 'status', self._on_status, 1)
+            apps_msgs.msg.Status, 'status', self._on_status,
+            rclpy.qos.QoSProfile(depth=1))
         self._query_client = self.create_client(common_msgs.srv.Query, 'query')
         self._action_client = rclpy.action.ActionClient(
             self, common_msgs.action.Do, 'do')

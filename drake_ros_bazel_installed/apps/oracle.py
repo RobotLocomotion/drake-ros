@@ -6,6 +6,7 @@ import rclpy
 import rclpy.action
 import rclpy.duration
 import rclpy.node
+import rclpy.qos
 
 import apps_msgs.msg
 import common_msgs.action
@@ -18,7 +19,8 @@ class Oracle(rclpy.node.Node):
         super().__init__('oracle')
         self._sequence_id = 0
         self._status_pub = self.create_publisher(
-            apps_msgs.msg.Status, 'status', 1)
+            apps_msgs.msg.Status, 'status',
+            rclpy.qos.QoSProfile(depth=1))
         self._query_server = self.create_service(
             common_msgs.srv.Query, 'query', self._handle_query)
         self._action_server = rclpy.action.ActionServer(
