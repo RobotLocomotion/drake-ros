@@ -8,6 +8,7 @@ for ws in @WORKSPACES@; do
 done
 
 # Setup environment
+export CMAKE_PREFIX_PATH="@CMAKE_PREFIX_PATH@:$CMAKE_PREFIX_PATH"
 export PYTHONPATH="@REPOSITORY_DIR@:$PYTHONPATH"
 export PATH="@REPOSITORY_DIR@:$PATH"
 

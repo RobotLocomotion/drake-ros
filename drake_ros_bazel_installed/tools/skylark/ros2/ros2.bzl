@@ -50,6 +50,7 @@ def _impl(repo_ctx):
             "@ID@": _uuid(repo_ctx),
             "@REPOSITORY_DIR@": str(repo_ctx.path(".")),
             "@WORKSPACES@": " ".join(repo_ctx.attr.workspaces),
+            "@CMAKE_PREFIX_PATH@": ":".join(repo_ctx.attr.workspaces),
         },
         executable = True
     )
