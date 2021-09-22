@@ -12,7 +12,7 @@ MAGIC_VARIABLES = {
     "${LOAD_PATH}": "LD_LIBRARY_PATH"  # for Linux
 }
 
-def unique(input_list):
+def _unique(input_list):
     """Extracts unique values from input list, while preserving their order."""
     output_list = []
     for item in input_list:
@@ -20,7 +20,7 @@ def unique(input_list):
             output_list.append(item)
     return output_list
 
-def normpath(path):
+def _normpath(path):
     """
     Normalizes a path by removing redundant separators and up-level references.
 
@@ -76,7 +76,7 @@ def do_dload_shim(ctx, template, to_list):
 
     env_changes = {
         MAGIC_VARIABLES.get(name, default=name):
-        parse_runtime_environment_action(ctx, action)
+        _parse_runtime_environment_action(ctx, action)
         for name, action in ctx.attr.env_changes.items()
     }
     envvars = env_changes.keys()
@@ -84,7 +84,7 @@ def do_dload_shim(ctx, template, to_list):
 
     shim_content = template.format(
         # Deal with usage in external workspaces' BUILD.bazel files
-        executable_path=normpath("{}/{}".format(
+        executable_path=_normpath("{}/{}".format(
             ctx.workspace_name, executable_file.short_path
         )),
         names=to_list([repr(name) for name in envvars]),
@@ -101,20 +101,20 @@ def do_dload_shim(ctx, template, to_list):
         data_runfiles = ctx.runfiles(files = [shim]),
     )]
 
-def resolve_runfile_path(ctx, path):
+def _resolve_runfile_path(ctx, path):
     """
     Resolves a package relative path into an (expected) runfiles directory
     relative path.
 
     All `$(rootpath...)` templates in the given path, if any, will be expanded.
     """
-    path = normpath(ctx.expand_location(path))
+    path = _normpath(ctx.expand_location(path))
     path = path.lstrip("@")
     if path.startswith("/"):
         path = ctx.workspace_name + path
     return path
 
-def parse_runtime_environment_action(ctx, action):
+def _parse_runtime_environment_action(ctx, action):
     """
     Parses a runtime environment action, validating types and resolving paths.
     """
@@ -123,16 +123,16 @@ def parse_runtime_environment_action(ctx, action):
         if len(action_args) == 0:
             tpl = "'{}' action requires at least one argument"
             fail(msg = tpl.format(action_type))
-        action_args = unique([
-            resolve_runfile_path(ctx, path[:-1]) + "!" if path.endswith("!")
-            else resolve_runfile_path(ctx, path) for path in action_args
+        action_args = _unique([
+            _resolve_runfile_path(ctx, path[:-1]) + "!" if path.endswith("!")
+            else _resolve_runfile_path(ctx, path) for path in action_args
         ])
     elif action_type in ("path-replace", "replace"):
         if len(action_args) != 1:
             tpl = "'{}' action requires exactly one argument"
             fail(msg = tpl.format(action_type))
         if action_type.startswith("path"):
-            action_args = [resolve_runfile_path(ctx, action_args[0])]
+            action_args = [_resolve_runfile_path(ctx, action_args[0])]
     else:
         fail(msg = "'{}' action is unknown".format(action_type))
     return [action_type] + action_args

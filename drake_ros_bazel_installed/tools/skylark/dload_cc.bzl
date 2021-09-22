@@ -79,12 +79,12 @@ int main(int argc, const char * argv[]) {{
 }}
 """
 
-def to_cc_list(collection):
+def _to_cc_list(collection):
     """Turn collection into a C++ aggregate initializer expression."""
     return "{" + ", ".join(collection) + "}"
 
 def _dload_cc_shim_impl(ctx):
-    return do_dload_shim(ctx, DLOAD_CC_SHIM_TEMPLATE, to_cc_list)
+    return do_dload_shim(ctx, DLOAD_CC_SHIM_TEMPLATE, _to_cc_list)
 
 dload_cc_shim = rule(
     attrs = get_dload_shim_attributes(),

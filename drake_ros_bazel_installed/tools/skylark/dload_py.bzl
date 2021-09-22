@@ -50,12 +50,12 @@ argv = [executable_path] + sys.argv[1:]
 os.execv(executable_path, argv)
 """
 
-def to_py_list(collection):
+def _to_py_list(collection):
     """Turn collection into a Python list expression."""
     return "[" + ", ".join(collection) + "]"
 
 def _dload_py_shim_impl(ctx):
-    return do_dload_shim(ctx, DLOAD_PY_SHIM_TEMPLATE, to_py_list)
+    return do_dload_shim(ctx, DLOAD_PY_SHIM_TEMPLATE, _to_py_list)
 
 dload_py_shim = rule(
     attrs = get_dload_shim_attributes(),
