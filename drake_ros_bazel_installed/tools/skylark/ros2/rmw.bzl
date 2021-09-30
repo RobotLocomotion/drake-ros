@@ -34,9 +34,3 @@ def generate_isolated_fastrtps_profile(name):
         tools = [tool],
         output_to_bindir = True,
     )
-
-def use_fastrtps_profile(name):
-    path = "{}/{}/{}".format(
-        native.repository_name(), native.package_name(), name
-    )
-    return {"FASTRTPS_DEFAULT_PROFILES_FILE": ["path-replace", path]}

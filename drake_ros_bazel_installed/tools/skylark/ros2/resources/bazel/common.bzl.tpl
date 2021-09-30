@@ -1,10 +1,5 @@
 # -*- python -*-
 
-load(
-    "@drake_ros//tools/skylark/ros2:rmw.bzl",
-    "use_fastrtps_profile",
-)
-
 def incorporate_rmw_implementation(kwargs, env_changes, rmw_implementation):
     target = "@REPOSITORY_ROOT@:%s_cc" % rmw_implementation
     kwargs["data"] = kwargs.get("data", []) + [target]
@@ -16,6 +11,10 @@ def incorporate_rmw_implementation(kwargs, env_changes, rmw_implementation):
 
 def incorporate_fastrtps_profile(kwargs, env_changes, profile_name):        
     kwargs["data"] = kwargs.get("data", []) + [profile_name]
+    profile_path = "{}/{}/{}".format(
+        native.repository_name(), native.package_name(), profile_name)
     env_changes = dict(env_changes)
-    env_changes.update(use_fastrtps_profile(profile_name))
+    env_changes.update({
+        "FASTRTPS_DEFAULT_PROFILES_FILE": ["path-replace", profile_path]
+    })
     return kwargs, env_changes
