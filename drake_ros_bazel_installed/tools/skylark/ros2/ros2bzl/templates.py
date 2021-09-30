@@ -61,8 +61,11 @@ def configure_package_interfaces_filegroup(name, metadata, sandbox):
 def configure_package_cc_library(name, metadata, properties, dependencies, extras, sandbox):
     target_name = cc_name(name, metadata)
     libraries = [sandbox(library) for library in properties['link_libraries']]
-    include_directories = [sandbox(include) for include in properties['include_directories']]
-    local_includes = [include for include in include_directories if not os.path.isabs(include)]
+    include_directories = [
+        sandbox(include) for include in properties['include_directories']]
+    local_includes = [
+        include for include in include_directories
+        if not os.path.isabs(include)]
     headers = []
     for include in local_includes:
         if not include.endswith(os.path.join(name, 'include')):
@@ -71,7 +74,10 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
             include = os.path.join(include, name)
         headers.append(include)
     # Push remaining nonlocal includes through compiler options
-    copts = ['-isystem ' + include for include in include_directories if os.path.isabs(include)]
+    copts = [
+        '-isystem ' + include
+        for include in include_directories
+        if os.path.isabs(include)]
     copts.extend(properties['compile_flags'])
     defines = properties['defines']
 
@@ -143,11 +149,17 @@ def configure_package_meta_py_library(name, metadata, dependencies):
 def configure_package_py_library(name, metadata, properties, dependencies, extras, sandbox):
     target_name = py_name(name, metadata)
     eggs = [sandbox(egg_path) for egg_path, _ in properties['python_packages']]
-    tops = [sandbox(top_level) for _, top_level in properties['python_packages']]
+    tops = [
+        sandbox(top_level) for _, top_level in properties['python_packages']]
     imports = [os.path.dirname(egg) for egg in eggs]
 
     template = 'bazel/snippets/package_py_library.bazel.tpl'
-    config = {'name': target_name, 'tops': tops, 'eggs': eggs, 'imports': imports}
+    config = {
+        'name': target_name,
+        'tops': tops,
+        'eggs': eggs,
+        'imports': imports
+    }
 
     deps = []
     for dependency_name, dependency_metadata in dependencies.items():
@@ -235,7 +247,8 @@ def configure_executable_imports(
         if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
         elif 'py (transitively)' in dependency_metadata.get('langs', []):
-            common_data.append(meta_py_label(dependency_name, dependency_metadata))
+            common_data.append(meta_py_label(
+                dependency_name, dependency_metadata))
 
     for executable in executables:
         target_name = os.path.basename(executable)

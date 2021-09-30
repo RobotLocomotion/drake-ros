@@ -65,18 +65,18 @@ def main():
     builder.start('rtps')
     if args.metatraffic_multicast_locators or \
        args.metatraffic_unicast_locators:
-            builder.start('builtin')
-            if args.metatraffic_multicast_locators:
-                builder.start('metatrafficMulticastLocatorList')
-                for locator in args.metatraffic_multicast_locators:
-                    build_udpv4_locator(builder, locator)
-                builder.end('metatrafficMulticastLocatorList')
-            if args.metatraffic_unicast_locators:
-                builder.start('metatrafficUnicastLocatorList')
-                for locator in args.metatraffic_unicast_locators:
-                    build_udpv4_locator(builder, locator)
-                builder.end('metatrafficUnicastLocatorList')
-            builder.end('builtin')
+        builder.start('builtin')
+        if args.metatraffic_multicast_locators:
+            builder.start('metatrafficMulticastLocatorList')
+            for locator in args.metatraffic_multicast_locators:
+                build_udpv4_locator(builder, locator)
+            builder.end('metatrafficMulticastLocatorList')
+        if args.metatraffic_unicast_locators:
+            builder.start('metatrafficUnicastLocatorList')
+            for locator in args.metatraffic_unicast_locators:
+                build_udpv4_locator(builder, locator)
+            builder.end('metatrafficUnicastLocatorList')
+        builder.end('builtin')
     if args.unicast_locators:
         builder.start('defaultUnicastLocatorList')
         for locator in args.unicast_locators:

@@ -1,5 +1,6 @@
 import os
 
+
 def configure(name, mapping):
     def sandbox(path, external=False):
         path = os.path.normpath(path)

@@ -108,7 +108,8 @@ def collect_ament_cmake_package_properties(name, metadata):
     # speed
     with TemporaryDirectory(dir=os.getcwd()) as project_path:
         project_name = 'empty_using_' + name
-        cmakelists_template_path = path_to_resource('cmake/ament_cmake_CMakeLists.txt.in')
+        cmakelists_template_path = path_to_resource(
+            'cmake/ament_cmake_CMakeLists.txt.in')
         cmakelists_path = os.path.join(project_path, 'CMakeLists.txt')
         cmake_tools.configure_file(cmakelists_template_path, cmakelists_path, {
             '@NAME@': project_name, '@PACKAGE@': name
@@ -172,8 +173,7 @@ def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, 
         if dependency_name not in ament_cmake_cache:
             ament_cmake_cache[dependency_name] = \
                 collect_ament_cmake_package_properties(
-                    dependency_name, dependency_metadata
-                )
+                    dependency_name, dependency_metadata)
         dependency_properties = ament_cmake_cache[dependency_name]
 
         # Remove duplicates maintaining order.
@@ -196,7 +196,8 @@ def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, 
         properties['include_directories'] = [
             directory for directory in properties['include_directories']
             if directory not in dependency_properties['include_directories']
-            or os.path.exists(os.path.join(directory, name))  # leverage REP-122
+            # leverage REP-122
+            or os.path.exists(os.path.join(directory, name))
         ]
         # Do not deduplicate link directories in case we're dealing with merge installs.
 
@@ -210,7 +211,7 @@ def precache_ament_cmake_properties(packages, jobs=None):
         if metadata.get('build_type') == 'ament_cmake'
     }
     with Pool(jobs) as pool:
-         return dict(zip(
+        return dict(zip(
             ament_cmake_packages.keys(), pool.starmap(
                 collect_ament_cmake_package_properties,
                 ament_cmake_packages.items()

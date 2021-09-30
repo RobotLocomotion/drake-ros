@@ -5,6 +5,7 @@ import sys
 
 DEFAULT_INCLUDE_DIRECTORIES = ['/usr/include', '/usr/local/include']
 
+
 def is_system_include(include_path):
     include_path = os.path.realpath(include_path)
     return any(include_path.startswith(path) for path in DEFAULT_INCLUDE_DIRECTORIES)

@@ -59,8 +59,7 @@ def collect_ament_python_package_direct_properties(name, metadata, dependencies,
                     if dependency_name not in ament_cmake_cache:
                         ament_cmake_cache[dependency_name] = \
                             collect_ament_cmake_package_properties(
-                                dependency_name, dependency_metadata
-                            )
+                                dependency_name, dependency_metadata)
                     dependency_properties = ament_cmake_cache[dependency_name]
                     dependency_libraries.extend(
                         dependency_properties['link_libraries']
@@ -69,8 +68,7 @@ def collect_ament_python_package_direct_properties(name, metadata, dependencies,
                 if dependency_name not in ament_python_cache:
                     ament_python_cache[dependency_name] = \
                         collect_ament_python_package_properties(
-                            dependency_name, dependency_metadata
-                        )
+                            dependency_name, dependency_metadata)
                 dependency_properties = ament_python_cache[dependency_name]
                 if 'cc_libraries' in dependency_properties:
                     dependency_libraries.extend(

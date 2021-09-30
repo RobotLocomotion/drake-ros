@@ -5,6 +5,7 @@ import subprocess
 from .server_mode import server_mode
 from .packages import get_packages_with_prefixes
 
+
 def configure_file(src, dest, subs):
     with open(src, 'r') as f:
         text = f.read()

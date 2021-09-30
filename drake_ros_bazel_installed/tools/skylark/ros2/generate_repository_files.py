@@ -12,10 +12,13 @@ import toposort
 sys.path.insert(0, os.path.dirname(__file__))  # noqa
 
 from ros2bzl.scrapping import load_distribution
-from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_properties
-from ros2bzl.scrapping.ament_cmake import collect_ament_cmake_package_direct_properties
+from ros2bzl.scrapping.ament_cmake \
+    import collect_ament_cmake_package_properties
+from ros2bzl.scrapping.ament_cmake \
+    import collect_ament_cmake_package_direct_properties
 from ros2bzl.scrapping.ament_cmake import precache_ament_cmake_properties
-from ros2bzl.scrapping.ament_python import collect_ament_python_package_direct_properties
+from ros2bzl.scrapping.ament_python \
+    import collect_ament_python_package_direct_properties
 from ros2bzl.scrapping.ament_python import PackageNotFoundError
 
 from ros2bzl.templates import configure_cc_tools
@@ -139,12 +142,12 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
                 _, template, config = \
                     configure_package_share_filegroup(name, metadata, sandbox)
                 fd.write(interpolate(template, config) + '\n')
-                
+
             if 'rosidl_interface_packages' in metadata.get('groups', []):
                 _, template, config = \
-                    configure_package_interfaces_filegroup(name, metadata, sandbox)
+                    configure_package_interfaces_filegroup(
+                        name, metadata, sandbox)
                 fd.write(interpolate(template, config) + '\n')
-
 
             if 'cmake' in metadata.get('build_type'):
                 properties = collect_ament_cmake_package_direct_properties(
@@ -175,11 +178,13 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
                     metadata['langs'] = set()
                 metadata['langs'].add('py')
             except PackageNotFoundError:
-                if any('py' in metadata.get('langs', []) for metadata in dependencies.values()):
+                if any('py' in metadata.get('langs', [])
+                       for metadata in dependencies.values()
+                       ):
                     metadata['langs'].add('py (transitively)')
                     # Dependencies still need to be propagated.
-                    _, template, config = \
-                        configure_package_meta_py_library(name, metadata, dependencies)
+                    _, template, config = configure_package_meta_py_library(
+                        name, metadata, dependencies)
                     fd.write(interpolate(template, config) + '\n')
 
                 properties = {}
@@ -224,7 +229,7 @@ def main():
     generate_distro_file(distro)
 
     generate_common_file(args.repository_name)
-    
+
     generate_cc_tools_file(args.repository_name)
 
     generate_py_tools_file(args.repository_name)
