@@ -1,3 +1,3 @@
 builtin_interfaces/Time stamp
-common_msgs/Status status
+drake_ros_common_msgs/Status status
 string origin

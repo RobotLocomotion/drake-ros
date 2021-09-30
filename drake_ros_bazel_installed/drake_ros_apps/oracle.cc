@@ -8,13 +8,13 @@
 #include <rclcpp_action/create_server.hpp>
 #include <rclcpp_action/server.hpp>
 
-#include "apps_msgs/msg/status.hpp"
-#include "common_msgs/action/do.hpp"
-#include "common_msgs/srv/query.hpp"
+#include "drake_ros_apps_msgs/msg/status.hpp"
+#include "drake_ros_common_msgs/action/do.hpp"
+#include "drake_ros_common_msgs/srv/query.hpp"
 
 using namespace std::chrono_literals;
 
-namespace apps {
+namespace drake_ros_apps {
 
 class Oracle : public rclcpp::Node {
 public:
@@ -22,13 +22,13 @@ public:
   {
     using namespace std::placeholders;
 
-    status_pub_ = this->create_publisher<apps_msgs::msg::Status>(
+    status_pub_ = this->create_publisher<drake_ros_apps_msgs::msg::Status>(
       "status", rclcpp::QoS(rclcpp::KeepLast(1)));
 
-    query_server_ = this->create_service<common_msgs::srv::Query>(
+    query_server_ = this->create_service<drake_ros_common_msgs::srv::Query>(
       "query", std::bind(&Oracle::handle_query, this, _1, _2));
 
-    action_server_ = rclcpp_action::create_server<common_msgs::action::Do>(
+    action_server_ = rclcpp_action::create_server<drake_ros_common_msgs::action::Do>(
         this, "do", std::bind(&Oracle::handle_action_goal, this, _1, _2),
         std::bind(&Oracle::handle_cancelled_action, this, _1),
         std::bind(&Oracle::handle_accepted_action, this, _1));
@@ -42,7 +42,7 @@ private:
   rclcpp_action::GoalResponse
   handle_action_goal(
     const rclcpp_action::GoalUUID &,
-    const std::shared_ptr<const common_msgs::action::Do::Goal> goal)
+    const std::shared_ptr<const drake_ros_common_msgs::action::Do::Goal> goal)
   {
     if (goal->action != "rite")
     {
@@ -52,7 +52,7 @@ private:
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   }
 
-  using GoalHandle = rclcpp_action::ServerGoalHandle<common_msgs::action::Do>;
+  using GoalHandle = rclcpp_action::ServerGoalHandle<drake_ros_common_msgs::action::Do>;
 
   rclcpp_action::CancelResponse handle_cancelled_action(const std::shared_ptr<GoalHandle>)
   {
@@ -71,7 +71,7 @@ private:
   {
     if (handle->is_canceling())
     {
-      auto result = std::make_shared<common_msgs::action::Do::Result>();
+      auto result = std::make_shared<drake_ros_common_msgs::action::Do::Result>();
       handle->canceled(result);
       action_loop_->cancel();
       return;
@@ -80,7 +80,7 @@ private:
     auto current_time = this->get_clock()->now();
     if (current_time - action_start_time_ > handle->get_goal()->timeout)
     {
-      auto result = std::make_shared<common_msgs::action::Do::Result>();
+      auto result = std::make_shared<drake_ros_common_msgs::action::Do::Result>();
       result->reason = "timeout";
       handle->abort(result);
       action_loop_->cancel();
@@ -89,20 +89,20 @@ private:
 
     if (is_rite_complete_(gen_))
     {
-      auto result = std::make_shared<common_msgs::action::Do::Result>();
+      auto result = std::make_shared<drake_ros_common_msgs::action::Do::Result>();
       handle->succeed(result);
       action_loop_->cancel();
       return;
     }
 
-    auto feedback = std::make_shared<common_msgs::action::Do::Feedback>();
+    auto feedback = std::make_shared<drake_ros_common_msgs::action::Do::Feedback>();
     feedback->message = "chanting";
     handle->publish_feedback(feedback);
   }
 
   void handle_query(
-    const std::shared_ptr<common_msgs::srv::Query::Request> request,
-    std::shared_ptr<common_msgs::srv::Query::Response> response) const
+    const std::shared_ptr<drake_ros_common_msgs::srv::Query::Request> request,
+    std::shared_ptr<drake_ros_common_msgs::srv::Query::Response> response) const
   {
     if (request->query == "how's it going?") {
       response->reply = "all good!";
@@ -112,7 +112,7 @@ private:
   }
 
   void publish_status() {
-    apps_msgs::msg::Status msg;
+    drake_ros_apps_msgs::msg::Status msg;
     msg.stamp = this->get_clock()->now();
     msg.status.sequence_id = sequence_id_++;
     msg.status.message = "OK";
@@ -128,17 +128,17 @@ private:
   rclcpp::Time action_start_time_;
   std::shared_ptr<rclcpp::TimerBase> action_loop_;
   std::shared_ptr<rclcpp::TimerBase> status_timer_;
-  std::shared_ptr<rclcpp::Publisher<apps_msgs::msg::Status>> status_pub_;
-  std::shared_ptr<rclcpp::Service<common_msgs::srv::Query>> query_server_;
-  std::shared_ptr<rclcpp_action::Server<common_msgs::action::Do>> action_server_;
+  std::shared_ptr<rclcpp::Publisher<drake_ros_apps_msgs::msg::Status>> status_pub_;
+  std::shared_ptr<rclcpp::Service<drake_ros_common_msgs::srv::Query>> query_server_;
+  std::shared_ptr<rclcpp_action::Server<drake_ros_common_msgs::action::Do>> action_server_;
 };
 
-}  // namespace apps
+}  // namespace drake_ros_apps
 
 int main(int argc, char ** argv) {
   rclcpp::init(argc, argv);
 
-  rclcpp::spin(std::make_shared<apps::Oracle>());
+  rclcpp::spin(std::make_shared<drake_ros_apps::Oracle>());
 
   rclcpp::shutdown();
 }

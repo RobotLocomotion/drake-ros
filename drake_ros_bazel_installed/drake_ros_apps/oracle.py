@@ -8,9 +8,9 @@ import rclpy.duration
 import rclpy.node
 import rclpy.qos
 
-import apps_msgs.msg
-import common_msgs.action
-import common_msgs.srv
+import drake_ros_apps_msgs.msg
+import drake_ros_common_msgs.action
+import drake_ros_common_msgs.srv
 
 
 class Oracle(rclpy.node.Node):
@@ -19,12 +19,12 @@ class Oracle(rclpy.node.Node):
         super().__init__('oracle')
         self._sequence_id = 0
         self._status_pub = self.create_publisher(
-            apps_msgs.msg.Status, 'status',
+            drake_ros_apps_msgs.msg.Status, 'status',
             rclpy.qos.QoSProfile(depth=1))
         self._query_server = self.create_service(
-            common_msgs.srv.Query, 'query', self._handle_query)
+            drake_ros_common_msgs.srv.Query, 'query', self._handle_query)
         self._action_server = rclpy.action.ActionServer(
-            self, common_msgs.action.Do, 'do',
+            self, drake_ros_common_msgs.action.Do, 'do',
             execute_callback=self._handle_rite_action,
             goal_callback=self._handle_action_request,
             cancel_callback=self._handle_cancelled_action,
@@ -42,7 +42,7 @@ class Oracle(rclpy.node.Node):
         return rclpy.action.CancelResponse.ACCEPT
 
     def _handle_rite_action(self, handle):
-        result = common_msgs.action.Do.Result()
+        result = drake_ros_common_msgs.action.Do.Result()
         timeout = rclpy.duration.Duration.from_msg(
             handle.request.timeout)
         period = rclpy.duration.Duration.from_msg(
@@ -62,7 +62,7 @@ class Oracle(rclpy.node.Node):
             if bool(random.getrandbits(1)):
                 handle.succeed()
                 break
-            feedback = common_msgs.action.Do.Feedback()
+            feedback = drake_ros_common_msgs.action.Do.Feedback()
             feedback.message = 'chanting'
             handle.publish_feedback(feedback)
             rate.sleep()
@@ -76,7 +76,7 @@ class Oracle(rclpy.node.Node):
         return response
 
     def _publish_status(self):
-        msg = apps_msgs.msg.Status()
+        msg = drake_ros_apps_msgs.msg.Status()
         msg.status.sequence_id = self._sequence_id
         self._sequence_id = self._sequence_id + 1
         msg.status.message = 'OK'

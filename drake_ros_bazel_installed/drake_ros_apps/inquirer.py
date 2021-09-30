@@ -7,9 +7,9 @@ import rclpy.duration
 import rclpy.node
 import rclpy.qos
 
-import apps_msgs.msg
-import common_msgs.action
-import common_msgs.srv
+import drake_ros_apps_msgs.msg
+import drake_ros_common_msgs.action
+import drake_ros_common_msgs.srv
 
 
 class Inquirer(rclpy.node.Node):
@@ -17,11 +17,12 @@ class Inquirer(rclpy.node.Node):
     def __init__(self):
         super().__init__('inquirer')
         self._status_sub = self.create_subscription(
-            apps_msgs.msg.Status, 'status', self._on_status,
+            drake_ros_apps_msgs.msg.Status, 'status', self._on_status,
             rclpy.qos.QoSProfile(depth=1))
-        self._query_client = self.create_client(common_msgs.srv.Query, 'query')
+        self._query_client = self.create_client(
+            drake_ros_common_msgs.srv.Query, 'query')
         self._action_client = rclpy.action.ActionClient(
-            self, common_msgs.action.Do, 'do')
+            self, drake_ros_common_msgs.action.Do, 'do')
         self._inquire_timer = self.create_timer(5.0, self.inquire)
 
     def _on_status(self, msg):
@@ -59,7 +60,7 @@ class Inquirer(rclpy.node.Node):
 
     def inquire(self):
         if self._query_client.service_is_ready():
-            request = common_msgs.srv.Query.Request()
+            request = drake_ros_common_msgs.srv.Query.Request()
             request.query = "how's it going?"
             self.get_logger().info('oracle, ' + request.query)
             future = self._query_client.call_async(request)
@@ -67,7 +68,7 @@ class Inquirer(rclpy.node.Node):
         else:
             self.get_logger().warning('oracle not available for queries')
         if self._action_client.server_is_ready():
-            goal = common_msgs.action.Do.Goal()
+            goal = drake_ros_common_msgs.action.Do.Goal()
             goal.action = 'rite'
             goal.period = rclpy.duration.Duration(seconds=0.1).to_msg()
             goal.timeout = rclpy.duration.Duration(seconds=1.0).to_msg()

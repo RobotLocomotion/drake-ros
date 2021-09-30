@@ -1,4 +1,4 @@
-## Demo apps
+## Demo `drake_ros` apps
 
 This package exercises `rosidl` interface generation and usage in C++ and Python, with cross-package interface dependencies.
 
