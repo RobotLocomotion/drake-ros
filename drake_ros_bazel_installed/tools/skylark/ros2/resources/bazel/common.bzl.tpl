@@ -13,7 +13,7 @@ def incorporate_fastrtps_profile(kwargs, env_changes, profile_name):
     kwargs["data"] = kwargs.get("data", []) + [profile_name]
     profile_path = "{}/{}".format(native.package_name(), profile_name)
     if native.repository_name() != "@":
-        repository_name = native.repository_name().lstrip("Q")
+        repository_name = native.repository_name().lstrip("@")
         profile_path = "{}/{}".format(repository_name, profile_path)
     env_changes = dict(env_changes)
     env_changes.update({
@@ -25,7 +25,7 @@ def incorporate_cyclonedds_profile(kwargs, env_changes, profile_name):
     kwargs["data"] = kwargs.get("data", []) + [profile_name]
     profile_path = "{}/{}".format(native.package_name(), profile_name)
     if native.repository_name() != "@":
-        repository_name = native.repository_name().lstrip("Q")
+        repository_name = native.repository_name().lstrip("@")
         profile_path = "{}/{}".format(repository_name, profile_path)
     profile_uri = "file://$PWD/" + profile_path
     env_changes = dict(env_changes)
