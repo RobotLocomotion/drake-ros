@@ -45,6 +45,8 @@ def main(argv):
                 value += ':' + os.environ[name]
         else:
             assert False  # should never get here
+        if '$PWD' in value:
+            value = value.replace('$PWD', os.getcwd())
         os.environ[name] = value
 
     executable_path = r.Rlocation('{executable_path}')  # noqa

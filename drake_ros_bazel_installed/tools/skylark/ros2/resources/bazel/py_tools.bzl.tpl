@@ -6,8 +6,9 @@ load(
 )
 load(
     "@REPOSITORY_ROOT@:common.bzl",
+    "incorporate_cyclonedds_profile",
+    "incorporate_fastrtps_profile",
     "incorporate_rmw_implementation",
-    "incorporate_fastrtps_profile"
 )
 load(
     "@drake_ros//tools/skylark:dload_py.bzl",
@@ -19,6 +20,7 @@ load(
 )
 load(
     "@drake_ros//tools/skylark/ros2:rmw.bzl",
+    "generate_isolated_cyclonedds_profile",
     "generate_isolated_fastrtps_profile",
 )
 
@@ -86,15 +88,22 @@ def ros_py_binary(name, rmw_implementation = None, **kwargs):
                 binary_kwargs, binary_env_changes,
                 rmw_implementation = rmw_implementation
             )
-        if "fastrtps" in rmw_implementation:
-            if "block-network" in binary_kwargs.get("tags", []):
+        if "block-network" in kwargs.get("tags", []):
+            if "fastrtps" in rmw_implementation:
                 profile_name = name + ".fastrtps_profile.xml"
                 generate_isolated_fastrtps_profile(profile_name)
                 binary_kwargs, binary_env_changes = \
                     incorporate_fastrtps_profile(
                         binary_kwargs, binary_env_changes, profile_name
                     )
-    
+            if "cyclonedds" in rmw_implementation:
+                profile_name = name + ".cyclonedds_profile.xml"
+                generate_isolated_cyclonedds_profile(profile_name)
+                binary_kwargs, binary_env_changes = \
+                    incorporate_cyclonedds_profile(
+                        binary_kwargs, binary_env_changes, profile_name
+                    )
+
     native.py_binary(
         name = binary_name,
         **binary_kwargs
@@ -139,12 +148,19 @@ def ros_py_test(name, rmw_implementation = None, **kwargs):
                 test_kwargs, test_env_changes,
                 rmw_implementation = rmw_implementation,
             )
-        if "fastrtps" in rmw_implementation:
-            if "block-network" in test_kwargs.get("tags", []):
+        if "block-network" in kwargs.get("tags", []):
+            if "fastrtps" in rmw_implementation:
                 profile_name = name + ".fastrtps_profile.xml"
                 generate_isolated_fastrtps_profile(profile_name)
                 test_kwargs, test_env_changes = \
                     incorporate_fastrtps_profile(
+                        test_kwargs, test_env_changes, profile_name
+                    )
+            if "cyclonedds" in rmw_implementation:
+                profile_name = name + ".cyclonedds_profile.xml"
+                generate_isolated_cyclonedds_profile(profile_name)
+                test_kwargs, test_env_changes = \
+                    incorporate_cyclonedds_profile(
                         test_kwargs, test_env_changes, profile_name
                     )
 
