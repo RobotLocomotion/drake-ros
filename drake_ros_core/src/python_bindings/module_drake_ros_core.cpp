@@ -27,7 +27,6 @@
 
 namespace py = pybind11;
 
-using drake::systems::Diagram;
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
 
