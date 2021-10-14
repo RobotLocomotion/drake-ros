@@ -7,17 +7,14 @@ def ros2_repository(name, overlays = []):
         name = name,
         workspaces = ['/opt/ros/{}'.format(ROS2_DIST)],
         include_packages = [
-            "std_msgs",
-            "geometry_msgs",
-            "visualization_msgs",
+            "action_msgs",
+            "builtin_interfaces",
             "rosidl_default_generators",
-            "fastcdr",
-            "rcpputils",
-            "rcutils",
+            "rclcpp_action",
             "rclcpp",
             "rclpy",
-            "rviz2",
-            # RMW implementation
+            # RMW implementations
             "rmw_cyclonedds_cpp",
+            "rmw_fastrtps_cpp",
         ]
     )
