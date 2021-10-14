@@ -28,8 +28,18 @@ def ros_cc_binary(
     name, rmw_implementation = None, cc_binary_rule = native.cc_binary, **kwargs
 ):
     """
-    Builds a C/C++ binary, injecting the runtime environment
-    specific to this ROS overlay.
+    Builds a C/C++ binary and wraps it with a shim that will inject the minimal
+    runtime environment necessary for execution when depending on targets from
+    this ROS 2 local repository.
+
+    Equivalent to the cc_binary() rule, which this rule decorates.
+
+    Args:
+        name: C/C++ binary target name
+        rmw_implementation: optional RMW implementation to run against
+        cc_binary_rule: optional cc_binary() rule override
+
+    Additional keyword arguments are forwarded to the `cc_binary_rule`.
     """
     if kwargs.get("linkshared", False):
         native.cc_binary(name = name, **kwargs)
@@ -87,10 +97,18 @@ def ros_cc_test(
     name, rmw_implementation = None, cc_test_rule = native.cc_test, **kwargs
 ):
     """
-    Builds a C/C++ test, injecting the runtime environment
-    specific to this ROS overlay.
+    Builds a C/C++ test and wraps it with a shim that will inject the minimal
+    runtime environment necessary for execution when depending on targets from
+    this ROS 2 local repository.
 
-    Equivalent to the cc_test() rule.
+    Equivalent to the cc_test() rule, which this rule decorates.
+
+    Args:
+        name: C/C++ test target name
+        rmw_implementation: optional RMW implementation to run against
+        cc_test_rule: optional cc_test() rule override
+
+    Additional keyword arguments are forwarded to the `cc_test_rule`.
     """
     test_name = "_" + name
     test_env_changes = dict(RUNTIME_ENVIRONMENT)

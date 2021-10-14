@@ -28,13 +28,19 @@ def ros_py_import(
     name, executable, rmw_implementation = None, py_binary_rule = native.py_binary, **kwargs
 ):
     """
-    Imports an executable, injecting the runtime environment
-    specific to this ROS overlay.
-
-    Args:
-        executable: executable file
+    Imports an existing, potentially pre-built executable by wrapping it with a shim that
+    will inject the minimal runtime environment necessary for execution when depending on
+    this ROS 2 local repository.
 
     Akin to the cc_import() rule.
+
+    Args:
+        name: imported executable target name
+        executable: path to an executable file
+        rmw_implementation: optional RMW implementation to run against
+        py_binary_rule: optional py_binary() rule override
+
+    Additional keyword arguments are forwarded to the `py_binary_rule`.
     """
 
     env_changes = dict(RUNTIME_ENVIRONMENT)
@@ -76,8 +82,18 @@ def ros_py_binary(
     name, rmw_implementation = None, py_binary_rule = native.py_binary, **kwargs
 ):
     """
-    Builds a Python binary, injecting the runtime environment
-    specific to this ROS overlay.
+    Builds a Python binary and wraps it with a shim that will inject the minimal
+    runtime environment necessary for execution when depending on targets from
+    this ROS 2 local repository.
+
+    Equivalent to the py_binary() rule, which this rule decorates.
+
+    Args:
+        name: Python binary target name
+        rmw_implementation: optional RMW implementation to run against
+        py_binary_rule: optional py_binary() rule override
+
+    Additional keyword arguments are forwarded to the `py_binary_rule`.
     """
 
     binary_name = "_" + name
@@ -138,10 +154,18 @@ def ros_py_test(
     name, rmw_implementation = None, py_test_rule = native.py_test, **kwargs
 ):
     """
-    Builds a Python test, injecting the runtime environment
-    specific to this ROS overlay.
+    Builds a Python test and wraps it with a shim that will inject the minimal
+    runtime environment necessary for execution when depending on targets from
+    this ROS 2 local repository.
 
-    Equivalent to the py_test() rule.
+    Equivalent to the py_test() rule, which this rule decorates.
+
+    Args:
+        name: Python test target name
+        rmw_implementation: optional RMW implementation to run against
+        py_test_rule: optional py_test() rule override
+
+    Additional keyword arguments are forwarded to the `py_test_rule`.
     """
     test_name = "_" + name
     test_kwargs = dict(kwargs)

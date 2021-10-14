@@ -4,12 +4,18 @@ load("@REPOSITORY_ROOT@:distro.bzl", "AVAILABLE_TYPESUPPORT_LIST")
 load("@python_dev//:version.bzl", "PYTHON_EXTENSION_SUFFIX")
 
 def _as_idl_tuple(file):
+    """
+    Returns IDL tuple for a file as expected by `rosidl` commands.
+    """
     path, parent, base = file.path.rsplit("/", 2)
     if parent not in ("msg", "srv", "action"):
         fail("Interface parent folder must be one of: 'msg', 'srv', 'action'")
     return "{}:{}/{}".format(path, parent, base)
 
 def _as_include_flag(file):
+    """
+    Returns path to file as an include flag for `rosidl` commands.
+    """
     return "-I" + file.path.rsplit("/", 3)[0]
 
 def _rosidl_generate_genrule_impl(ctx):
@@ -26,7 +32,7 @@ def _rosidl_generate_genrule_impl(ctx):
     for typesupport in ctx.attr.typesupports:
         args.add("--type-support", typesupport)
     args.add_all(ctx.files.includes, map_each=_as_include_flag, uniquify=True)
-    args.add(ctx.attr.package)
+    args.add(ctx.attr.group)
     args.add_all(ctx.files.interfaces, map_each=_as_idl_tuple)
     inputs, input_manifests = ctx.resolve_tools(tools = [ctx.attr._tool])
     inputs = inputs.to_list() + ctx.files.interfaces + ctx.files.includes
@@ -42,7 +48,7 @@ rosidl_generate_genrule = rule(
         generated_sources = attr.output_list(mandatory = True),
         types = attr.string_list(mandatory = False),
         typesupports = attr.string_list(mandatory = False),
-        package = attr.string(mandatory = True),
+        group = attr.string(mandatory = True),
         interfaces = attr.label_list(
             mandatory = True, allow_files = True
         ),
@@ -56,6 +62,20 @@ rosidl_generate_genrule = rule(
     implementation = _rosidl_generate_genrule_impl,
     output_to_genfiles = True,
 )
+"""
+Generates ROS 2 interface type representation and/or type support sources.
+
+Args:
+    generated_sources: expected sources after generation.
+    types: list of type representations to generate (e.g. cpp, py).
+    typesupports: list of type supports to generate (e.g. typesupport_cpp).
+    group: interface group name (i.e. ROS 2 package name).
+    interfaces: interface definition files, both files and filegroups are allowed.
+    includes: optional interface definition includes, both files and filegroups are allowed.
+    output_dir: optional output subdirectory.
+
+See `rosidl generate` CLI for further reference.
+"""
 
 def _rosidl_translate_genrule_impl(ctx):
     args = ctx.actions.args()
@@ -70,7 +90,7 @@ def _rosidl_translate_genrule_impl(ctx):
     if ctx.attr.input_format:
         args.add("--input-format", ctx.attr.input_format)
     args.add_all(ctx.files.includes, map_each=_as_include_flag, uniquify=True)
-    args.add(ctx.attr.package)
+    args.add(ctx.attr.group)
     args.add_all(ctx.files.interfaces, map_each=_as_idl_tuple)
     inputs, input_manifests = ctx.resolve_tools(tools = [ctx.attr._tool])
     inputs = inputs.to_list() + ctx.files.interfaces + ctx.files.includes
@@ -86,7 +106,7 @@ rosidl_translate_genrule = rule(
         translated_interfaces = attr.output_list(mandatory = True),
         output_format = attr.string(mandatory = True),
         input_format = attr.string(mandatory = False),
-        package = attr.string(mandatory = True),
+        group = attr.string(mandatory = True),
         interfaces = attr.label_list(
             mandatory = True, allow_files = True
         ),
@@ -100,9 +120,26 @@ rosidl_translate_genrule = rule(
     implementation = _rosidl_translate_genrule_impl,
     output_to_genfiles = True,
 )
+"""
+Translates ROS 2 interface definition files.
 
-def _extract_interface_parts(path):
-    parent, _, base = path.rpartition("/")
+Args:
+    translated_interfaces: execpted interface definition files after translation.
+    output_format: output format to translate interface definition files to.
+    input_format: optional input format, deduced from file extensions by default.
+    group: interface group name (i.e. ROS 2 package name).
+    interfaces: interface definition files, both files and filegroups are allowed.
+    includes: optional interface definition includes, both files and filegroups are allowed.
+    output_dir: optional output subdirectory.
+
+See `rosidl translate` CLI for further reference.
+"""
+
+def _deduce_source_parts(interface_path):
+    """
+    Deduces source subdirectory and basename for a given path to an interface definition file.
+    """
+    parent, _, base = interface_path.rpartition("/")
     basename, _, ext = base.rpartition(".")
     basename = basename[0].lower() + "".join([
         "_" + char.lower() if char.isupper() else char
@@ -111,6 +148,19 @@ def _extract_interface_parts(path):
     return parent, basename
 
 def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
+    """
+    Generates ROS 2 interfaces .idl definitions.
+
+    This rule standardizes all interface definitions' format to IDL.
+
+    Args:
+        name: filegroup target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files, both files and filegroups are allowed
+        includes: optional interface definition includes, both files and filegroups are allowed
+
+    Additional keyword arguments are those common to all rules.
+    """
     translated_interfaces = []
     for ifc in interfaces:
         base, _, ext = ifc.rpartition(".")
@@ -119,28 +169,44 @@ def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
         name = name,
         output_format = "idl",
         translated_interfaces = translated_interfaces,
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         **kwargs
     )
 
-def _generated_source_paths(group, kind):
-    base = "{}/{}".format(group, kind)
-    root = "{}/{}".format(base, group)
-    return base, root
+def _deduce_source_paths(group, kind):
+    """
+    Deduces include and root paths for generated sources of a given group and kind.
+    """
+    include = "{}/{}".format(group, kind)
+    root = "{}/{}".format(include, group)
+    return include, root
 
 def rosidl_c_library(
     name, group, interfaces, includes = [], deps = [],
     cc_library_rule = native.cc_library, **kwargs
 ):
-    include, root = _generated_source_paths(group, "c")
+    """
+    Generates and builds C ROS 2 interfaces.
+
+    Args:
+        name: C library target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files, only files are allowed
+        includes: optional interface definition includes, both files and filegroups are allowed.
+        deps: optional library dependencies.
+        cc_library_rule: optional cc_library() rule override.
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "c")
 
     generated_c_sources = []
     visibility_header = "msg/rosidl_generator_c__visibility_control.h"
     generated_c_headers = ["{}/{}".format(root, visibility_header)]
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         generated_c_headers.append("{}/{}/{}.h".format(root, parent, basename))
         generated_c_headers.append("{}/{}/detail/{}__functions.h".format(root, parent, basename))
         generated_c_headers.append("{}/{}/detail/{}__struct.h".format(root, parent, basename))
@@ -152,7 +218,7 @@ def rosidl_c_library(
         name = name + "_gen",
         generated_sources = generated_sources,
         types = ["c"],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -178,11 +244,24 @@ def rosidl_cc_library(
     name, group, interfaces, includes = [], deps = [],
     cc_library_rule = native.cc_library, **kwargs
 ):
-    include, root = _generated_source_paths(group, "cpp")
+    """
+    Generates and builds C++ ROS 2 interfaces.
+
+    Args:
+        name: C++ library target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files.
+        includes: optional interface definition includes.
+        deps: optional library dependencies.
+        cc_library_rule: optional cc_library() rule override.
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "cpp")
 
     generated_cc_headers = []
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         generated_cc_headers.append("{}/{}/{}.hpp".format(root, parent, basename))
         generated_cc_headers.append("{}/{}/detail/{}__builder.hpp".format(root, parent, basename))
         generated_cc_headers.append("{}/{}/detail/{}__struct.hpp".format(root, parent, basename))
@@ -192,7 +271,7 @@ def rosidl_cc_library(
         name = name + "_gen",
         generated_sources = generated_cc_headers,
         types = ["cpp"],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -223,12 +302,31 @@ def rosidl_py_library(
     py_library_rule = native.py_library,
     **kwargs
 ):
-    import_, root = _generated_source_paths(group, "py")
+    """
+    Generates and builds Python ROS 2 interfaces, including any C extensions.
+
+    Args:
+        name: Python library target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files.
+        typesupports: a mapping of available, vendor-specific
+            C typesupport libraries, from typesupport name to
+            library target label.
+        includes: optional interface definition includes.
+        c_deps: optional Python C extension dependencies.
+        py_deps: optional Python dependencies.
+        cc_binary_rule: optional cc_binary() rule override.
+        cc_library_rule: optional cc_library() rule override.
+        py_library_rule: optional py_library() rule override.
+
+    Additional keyword arguments are those common to all rules.
+    """
+    import_, root = _deduce_source_paths(group, "py")
 
     generated_c_sources = []
     generated_py_sources = []
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         py_source = "{}/{}/__init__.py".format(root, parent)
         if py_source not in generated_py_sources:
             generated_py_sources.append(py_source)
@@ -251,7 +349,7 @@ def rosidl_py_library(
             "py[typesupport_implementations:[{}]]"
             .format(",".join(typesupports))
         ],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -303,13 +401,27 @@ def rosidl_typesupport_fastrtps_cc_library(
     cc_binary_rule = native.cc_binary, cc_library_rule = native.cc_library,
     **kwargs
 ):
-    include, root = _generated_source_paths(group, "typesupport/fastrtps_cpp")
+    """
+    Generates and builds FastRTPS C++ typesupport for ROS 2 interfaces.
+
+    Args:
+        name: FastRTPS C++ typesupport library target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files.
+        includes: optional interface definition includes.
+        deps: optional library dependencies.
+        cc_binary_rule: optional cc_binary() rule override.
+        cc_library_rule: optional cc_library() rule override.
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "typesupport/fastrtps_cpp")
 
     generated_cc_sources = []
     visibility_header = "msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h"
     generated_cc_headers = ["{}/{}".format(root, visibility_header)]
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         template = "{}/{}/detail/dds_fastrtps/{}__type_support.cpp"
         generated_cc_sources.append(template.format(root, parent, basename))
         template = "{}/{}/detail/{}__rosidl_typesupport_fastrtps_cpp.hpp"
@@ -320,7 +432,7 @@ def rosidl_typesupport_fastrtps_cc_library(
         name = name + "_gen",
         generated_sources = generated_sources,
         typesupports = ["fastrtps_cpp"],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -355,13 +467,27 @@ def rosidl_typesupport_fastrtps_c_library(
     cc_binary_rule = native.cc_binary, cc_library_rule = native.cc_library,
     **kwargs
 ):
-    include, root = _generated_source_paths(group, "typesupport/fastrtps_c")
+    """
+    Generates and builds FastRTPS C typesupport for ROS 2 interfaces.
+
+    Args:
+        name: FastRTPS C typesupport library target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files.
+        includes: optional interface definition includes.
+        deps: optional library dependencies.
+        cc_binary_rule: optional cc_binary() rule override.
+        cc_library_rule: optional cc_library() rule override.
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "typesupport/fastrtps_c")
 
     generated_c_sources = []
     visibility_header = "msg/rosidl_typesupport_fastrtps_c__visibility_control.h"
     generated_c_headers = ["{}/{}".format(root, visibility_header)]
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         template = "{}/{}/detail/{}__type_support_c.cpp"
         generated_c_sources.append(template.format(root, parent, basename))
         template = "{}/{}/detail/{}__rosidl_typesupport_fastrtps_c.h"
@@ -372,7 +498,7 @@ def rosidl_typesupport_fastrtps_c_library(
         name = name + "_gen",
         generated_sources = generated_sources,
         typesupports = ["fastrtps_c"],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -408,13 +534,27 @@ def rosidl_typesupport_introspection_c_library(
     cc_binary_rule = native.cc_binary, cc_library_rule = native.cc_library,
     **kwargs
 ):
-    include, root = _generated_source_paths(group, "typesupport/introspection_c")
+    """
+    Generates and builds C introspection typesupport for ROS 2 interfaces.
+
+    Args:
+        name: C introspection typesupport library target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files.
+        includes: optional interface definition includes.
+        deps: optional library dependencies.
+        cc_binary_rule: optional cc_binary() rule override.
+        cc_library_rule: optional cc_library() rule override.
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "typesupport/introspection_c")
 
     generated_c_sources = []
     visibility_header = "msg/rosidl_typesupport_introspection_c__visibility_control.h"
     generated_c_headers = ["{}/{}".format(root, visibility_header)]
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         generated_c_sources.append(
             "{}/{}/detail/{}__type_support.c".format(root, parent, basename))
         template = "{}/{}/detail/{}__rosidl_typesupport_introspection_c.h"
@@ -425,7 +565,7 @@ def rosidl_typesupport_introspection_c_library(
         name = name + "_gen",
         generated_sources = generated_sources,
         typesupports = ["introspection_c"],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -456,12 +596,26 @@ def rosidl_typesupport_introspection_cc_library(
     cc_binary_rule = native.cc_binary, cc_library_rule = native.cc_library,
     **kwargs
 ):
-    include, root = _generated_source_paths(group, "typesupport/introspection_cpp")
+    """
+    Generates and builds C++ introspection typesupport for ROS 2 interfaces.
+
+    Args:
+        name: C++ introspection typesupport library target name.
+        group: interface group name (i.e. ROS 2 package name).
+        interfaces: interface definition files.
+        includes: optional interface definition includes.
+        deps: optional library dependencies.
+        cc_binary_rule: optional cc_binary() rule override.
+        cc_library_rule: optional cc_library() rule override.
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "typesupport/introspection_cpp")
 
     generated_cc_sources = []
     generated_cc_headers = []
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         generated_cc_sources.append(
             "{}/{}/detail/{}__type_support.cpp".format(root, parent, basename))
         template = "{}/{}/detail/{}__rosidl_typesupport_introspection_cpp.hpp"
@@ -472,7 +626,7 @@ def rosidl_typesupport_introspection_cc_library(
         name = name + "_gen",
         generated_sources = generated_sources,
         typesupports = ["introspection_cpp"],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -505,13 +659,29 @@ def rosidl_typesupport_c_library(
     name, group, interfaces, typesupports, includes = [],
     deps = [], cc_binary_rule = native.cc_binary, **kwargs
 ):
-    include, root = _generated_source_paths(group, "typesupport/c")
+    """
+    Generates and builds ROS 2 interfaces' C typesupport.
+
+    Args:
+        name: C typesupport library target name
+        group: interface group name (i.e. ROS 2 package name)
+        interfaces: interface definition files
+        typesupports: a mapping of available, vendor-specific
+            C typesupport libraries, from typesupport name to
+            library target label.
+        includes: optional interface definition includes
+        deps: optional library dependencies
+        cc_binary_rule: optional cc_binary() rule override
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "typesupport/c")
 
     generated_c_sources = []
     visibility_header = "msg/rosidl_typesupport_c__visibility_control.h"
     generated_c_headers = ["{}/{}".format(root, visibility_header)]
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         generated_c_sources.append(
             "{}/{}/{}__type_support.cpp".format(root, parent, basename))
     generated_sources = generated_c_sources + generated_c_headers
@@ -523,7 +693,7 @@ def rosidl_typesupport_c_library(
             "c[typesupport_implementations:[{}]]"
             .format(",".join(typesupports))
         ],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -548,11 +718,27 @@ def rosidl_typesupport_cc_library(
     name, group, interfaces, typesupports, includes = [],
     deps = [], cc_binary_rule = native.cc_binary, **kwargs
 ):
-    include, root = _generated_source_paths(group, "typesupport/cpp")
+    """
+    Generates and builds ROS 2 interfaces' C++ typesupport.
+
+    Args:
+        name: C++ typesupport library target name
+        group: interface group name (i.e. ROS 2 package name)
+        interfaces: interface definition files
+        typesupports: a mapping of available, vendor-specific
+            C++ typesupport libraries, from typesupport name to
+            library target label.
+        includes: optional interface definition includes
+        deps: optional library dependencies
+        cc_binary_rule: optional cc_binary() rule override
+
+    Additional keyword arguments are those common to all rules.
+    """
+    include, root = _deduce_source_paths(group, "typesupport/cpp")
 
     generated_cc_sources = []
     for ifc in interfaces:
-        parent, basename = _extract_interface_parts(ifc)
+        parent, basename = _deduce_source_parts(ifc)
         generated_cc_sources.append(
             "{}/{}/{}__type_support.cpp".format(root, parent, basename))
 
@@ -563,7 +749,7 @@ def rosidl_typesupport_cc_library(
             "cpp[typesupport_implementations:[{}]]"
             .format(",".join(typesupports))
         ],
-        package = group,
+        group = group,
         interfaces = interfaces,
         includes = includes,
         output_dir = root,
@@ -624,6 +810,23 @@ def rosidl_cc_support(
     cc_library_rule = native.cc_library,
     **kwargs
 ):
+    """
+    Generates and builds C++ ROS 2 interfaces.
+
+    To depend on C++ interfaces, use the `<name>_cc` target.
+
+    Args:
+        name: interface group name, used as prefix for target names
+        interfaces: interface definition files
+        deps: optional interface group dependencies
+        group: optional interface group name override, useful when
+            target name cannot be forced to match the intended package
+            name for these interfaces
+        cc_binary_rule: optional cc_binary() rule override
+        cc_library_rule: optional cc_library() rule override
+
+    Additional keyword arguments are those common to all rules.
+    """
     rosidl_cc_library(
         name = cc_types(name),
         group = group or name,
@@ -728,6 +931,24 @@ def rosidl_py_support(
     py_library_rule = native.py_library,
     **kwargs
 ):
+    """
+    Generates and builds Python ROS 2 interfaces.
+
+    To depend on Python interfaces, use the `<name>_py` target.
+
+    Args:
+        name: interface group name, used as prefix for target names
+        interfaces: interface definition files
+        deps: optional interface group dependencies
+        group: optional interface group name override, useful when
+            target name cannot be forced to match the intended package
+            name for these interfaces
+        cc_binary_rule: optional cc_binary() rule override
+        cc_library_rule: optional cc_library() rule override
+        py_library_rule: optional py_library() rule override
+
+    Additional keyword arguments are those common to all rules.
+    """
     rosidl_c_library(
         name = c_types(name),
         group = group or name,
@@ -805,12 +1026,31 @@ def rosidl_py_support(
     )
 
 def rosidl_interfaces_group(
-    name, interfaces, deps, group = None,
+    name, interfaces, deps = [], group = None,
     cc_binary_rule = native.cc_binary,
     cc_library_rule = native.cc_library,
     py_library_rule = native.py_library,
     **kwargs
 ):
+    """
+    Generates and builds C++ and Python ROS 2 interfaces.
+
+    To depend on C++ interfaces, use the `<name>_cc` target.
+    To depend on Python interfaces, use the `<name>_py` target.
+
+    Args:
+        name: interface group name, used as prefix for target names
+        interfaces: interface definition files
+        deps: optional interface group dependencies
+        group: optional interface group name override, useful when
+            target name cannot be forced to match the intended package
+            name for these interfaces
+        cc_binary_rule: optional cc_binary() rule override
+        cc_library_rule: optional cc_library() rule override
+        py_library_rule: optional py_library() rule override
+
+    Additional keyword arguments are those common to all rules.
+    """
     rosidl_definitions_filegroup(
         name = defs(name),
         group = group or name,
