@@ -1,9 +1,8 @@
 # -*- python -*-
 
 """
-The purpose of these macros is to support the propagation of runtime information
-that is key for proper execution from C/C++ libraries to C/C++ binaries and
-tests.
+The purpose of these rules is to support the propagation of runtime information
+that is necessary for the execution of C/C++ binaries and tests that require it.
 """
 
 load(
@@ -12,7 +11,7 @@ load(
     "get_dload_shim_attributes",
 )
 
-DLOAD_CC_SHIM_TEMPLATE = """\
+_DLOAD_CC_SHIM_TEMPLATE = """\
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,7 +90,7 @@ def _to_cc_list(collection):
     return "{" + ", ".join(collection) + "}"
 
 def _dload_cc_shim_impl(ctx):
-    return do_dload_shim(ctx, DLOAD_CC_SHIM_TEMPLATE, _to_cc_list)
+    return do_dload_shim(ctx, _DLOAD_CC_SHIM_TEMPLATE, _to_cc_list)
 
 dload_cc_shim = rule(
     attrs = get_dload_shim_attributes(),
@@ -99,6 +98,10 @@ dload_cc_shim = rule(
     output_to_genfiles = True,
 )
 """
-This rule() generates a C++ shim that can carry runtime information.
+Generates a C++ shim that can inject runtime environment information for
+C/C++ binaries that have such requirements. Using a C++ shim for C++ binaries
+simplifies UX during debugging sessions, as fork-follow behavior in common
+debuggers like gdb and lldb makes it transparent.
+
 See do_dload_shim() documentation for further reference.
 """

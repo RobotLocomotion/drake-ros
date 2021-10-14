@@ -38,7 +38,12 @@ def _normpath(path):
     return "/".join(normalized_path_parts)
 
 def get_dload_shim_attributes():
-    """Yields attributes common to all dload_shim-based rules."""
+    """
+    Yields attributes common to all dload_shim-based rules.
+
+    This macro aids rule declaration and as such it is not meant
+    to be used in any other context (like a BUILD.bazel file).
+    """
     return {
         "target": attr.label(
             mandatory = True,
@@ -46,13 +51,15 @@ def get_dload_shim_attributes():
             executable = True,
             cfg = "target",
         ),
-        "data": attr.label_list(allow_files = True),
         "env_changes": attr.string_list_dict(),
     }
 
 def do_dload_shim(ctx, template, to_list):
     """
     Implements common dload_shim rule functionality.
+
+    This macro is a parametrized rule implementation and as such it is not meant
+    to be used in any other context (like a BUILD.bazel file).
 
     Args:
         ctx: context of a Bazel rule

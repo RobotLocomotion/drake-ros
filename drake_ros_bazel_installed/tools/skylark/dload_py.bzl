@@ -2,9 +2,8 @@
 # vi: set ft=python :
 
 """
-The purpose of these macros is to support the propagation of runtime information
-that is key for proper execution from Python libraries to Python binaries and
-tests.
+The purpose of these rules is to support the propagation of runtime information
+that is necessary for the execution of Python binaries and tests that require it.
 """
 
 load(
@@ -13,7 +12,7 @@ load(
     "get_dload_shim_attributes",
 )
 
-DLOAD_PY_SHIM_TEMPLATE = """\
+_DLOAD_PY_SHIM_TEMPLATE = """\
 import os
 import sys
 
@@ -63,7 +62,7 @@ def _to_py_list(collection):
     return "[" + ", ".join(collection) + "]"
 
 def _dload_py_shim_impl(ctx):
-    return do_dload_shim(ctx, DLOAD_PY_SHIM_TEMPLATE, _to_py_list)
+    return do_dload_shim(ctx, _DLOAD_PY_SHIM_TEMPLATE, _to_py_list)
 
 dload_py_shim = rule(
     attrs = get_dload_shim_attributes(),
@@ -71,6 +70,9 @@ dload_py_shim = rule(
     implementation = _dload_py_shim_impl,
 )
 """
-This rule() generates a Python shim that can carry runtime information.
+Generates a Python shim that can inject runtime environment information for
+Python binaries that have such requirements. Using a Python shim for Python
+binaries enables downstream usage of the latter through transitive dependencies.
+
 See do_dload_shim() documentation for further reference.
 """
