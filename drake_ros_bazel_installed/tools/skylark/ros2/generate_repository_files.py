@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 
+"""
+Scrap ROS 2 workspaces and expose its artifacts through a Bazel local repository.
+
+
+This script generates:
+
+- a BUILD.bazel file, with targets for all C/C++ libraries, Python libraries, executables, and share
+  data files found in each scrapped ROS 2 package
+- a ros_cc.bzl file, with rules for C/C++ binaries and tests that depend on ROS 2 C/C++ libraries
+- a ros_py.bzl file, with rules for Python binaries and tests that depend on ROS 2 Python libraries
+- a rosidl.bzl file, with rules for C++ and Python ROS 2 message generation including typesupports
+- a distro.bzl file, with ROS 2 metadata as constants
+"""
+
 import argparse
 import collections
 import os
@@ -9,6 +23,10 @@ import xml.etree.ElementTree as ET
 
 import toposort
 
+# NOTE: this script is typically invoked from the `ros2_local_repository()`
+# repository rule. As repository rules are executed in Bazel's loading phase,
+# `py_library()` cannot be relied on to make modules such as `ros2bzl` and
+# `cmake_tools` reachable through PYTHONPATH. Thus, we force it here.
 sys.path.insert(0, os.path.dirname(__file__))  # noqa
 
 from ros2bzl.scrapping import load_distribution
@@ -44,29 +62,36 @@ from ros2bzl.utilities import interpolate
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument(
         'repository_name', help='Bazel repository name'
     )
     parser.add_argument(
-        '-s', '--sandbox', action='append', default=[],
-        help='Path mappings for sandboxing, in "outer:inner" format'
+        '-s', '--sandbox', action='append',
+        metavar='OUTER_PATH:INNER_PATH', default=[],
+        help='Path mappings for sandboxing'
     )
     parser.add_argument(
-        '-i', '--include-package', action='append', dest='include_packages', default=[],
+        '-i', '--include-package', action='append',
+        dest='include_packages', metavar='PACKAGE_NAME', default=[],
         help='Packages to be included (plus their dependencies)'
     )
     parser.add_argument(
-        '-e', '--exclude-package', action='append', dest='exclude_packages',
-        default=[], help='Packages to be explicitly excluded'
+        '-e', '--exclude-package', action='append',
+        dest='exclude_packages', metavar='PACKAGE_NAME', default=[],
+        help='Packages to be explicitly excluded'
     )
     parser.add_argument(
-        '-x', '--extras', action='append', default=[],
-        help=('Additional dependencies for generated targets,'
-              ' in "label.attribute+=label_or_string" format')
+        '-x', '--extras', metavar='LABEL.ATTR+=(LABEL|STRING)',
+        action='append', default=[],
+        help=('Additional dependencies for generated targets')
     )
     parser.add_argument(
-        '-j', '--jobs', type=int, default=None, help='Number of jobs to use'
+        '-j', '--jobs', metavar='N', type=int, default=None,
+        help='Number of jobs to use to scrap packages'
     )
     args = parser.parse_args()
 
