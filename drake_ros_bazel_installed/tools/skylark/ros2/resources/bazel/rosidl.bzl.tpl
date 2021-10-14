@@ -1,6 +1,6 @@
 # -*- python -*-
 
-load("@REPOSITORY_ROOT@:distro.bzl", "AVAILABLE_TYPESUPPORTS")
+load("@REPOSITORY_ROOT@:distro.bzl", "AVAILABLE_TYPESUPPORT_LIST")
 load("@python_dev//:version.bzl", "PYTHON_EXTENSION_SUFFIX")
 
 def _as_idl_tuple(file):
@@ -636,7 +636,7 @@ def rosidl_cc_support(
 
     typesupports = {}
 
-    if "rosidl_typesupport_introspection_cpp" in AVAILABLE_TYPESUPPORTS:
+    if "rosidl_typesupport_introspection_cpp" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_introspection_cc_library(
             name = typesupport_introspection_cc(name),
             group = group or name,
@@ -650,7 +650,7 @@ def rosidl_cc_support(
         typesupports["rosidl_typesupport_introspection_cpp"] = \
             typesupport_introspection_cc_label(name)
 
-    if "rosidl_typesupport_fastrtps_cpp" in AVAILABLE_TYPESUPPORTS:
+    if "rosidl_typesupport_fastrtps_cpp" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_fastrtps_cc_library(
             name = typesupport_fastrtps_cc(name),
             group = group or name,
@@ -740,7 +740,7 @@ def rosidl_py_support(
 
     typesupports = {}
 
-    if "rosidl_typesupport_introspection_c" in AVAILABLE_TYPESUPPORTS:
+    if "rosidl_typesupport_introspection_c" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_introspection_c_library(
             name = typesupport_introspection_c(name),
             group = group or name,
@@ -754,7 +754,7 @@ def rosidl_py_support(
         typesupports["rosidl_typesupport_introspection_c"] = \
             typesupport_introspection_c_label(name)
 
-    if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORTS:
+    if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_fastrtps_c_library(
             name = typesupport_fastrtps_c(name),
             group = group or name,

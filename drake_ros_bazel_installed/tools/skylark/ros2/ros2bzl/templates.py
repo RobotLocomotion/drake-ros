@@ -317,7 +317,7 @@ def configure_distro(distro):
     return load_resource('bazel/distro.bzl.tpl'), to_starlark_string_dict({
         'AMENT_PREFIX_PATH': distro['paths']['ament_prefix'],
         'LOAD_PATH': distro['paths']['library_load'],  # Linux only
-        'AVAILABLE_TYPESUPPORTS': [
+        'AVAILABLE_TYPESUPPORT_LIST': [
             name for name, metadata in distro['packages'].items() if any(
                 group in typesupport_groups
                 for group in metadata.get('groups', [])
