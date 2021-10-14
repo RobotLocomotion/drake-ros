@@ -286,19 +286,19 @@ def configure_prologue(repo_name):
 
 
 def configure_rosidl_tools(repo_name):
-    return load_resource('bazel/rosidl_tools.bzl.tpl'), {
+    return load_resource('bazel/rosidl.bzl.tpl'), {
         'REPOSITORY_ROOT': '@{}//'.format(repo_name)
     }
 
 
 def configure_cc_tools(repo_name):
-    return load_resource('bazel/cc_tools.bzl.tpl'), {
+    return load_resource('bazel/ros_cc.bzl.tpl'), {
         'REPOSITORY_ROOT': '@{}//'.format(repo_name)
     }
 
 
 def configure_py_tools(repo_name):
-    return load_resource('bazel/py_tools.bzl.tpl'), {
+    return load_resource('bazel/ros_py.bzl.tpl'), {
         'REPOSITORY_ROOT': '@{}//'.format(repo_name)
     }
 

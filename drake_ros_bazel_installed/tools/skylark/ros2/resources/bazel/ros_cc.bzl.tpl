@@ -24,7 +24,6 @@ load(
     "generate_isolated_fastrtps_profile",
 )
 
-
 def ros_cc_binary(name, rmw_implementation = None, **kwargs):
     """
     Builds a C/C++ binary, injecting the runtime environment

@@ -1,10 +1,9 @@
 # -*- mode: python -*-
 # vi: set ft=python :
 
-load("@ros2//:rosidl_tools.bzl", "rosidl_interfaces_group")
-load("@ros2//:cc_tools.bzl", "ros_cc_binary")
-load("@ros2//:py_tools.bzl", "ros_py_binary")
-
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 
 rosidl_interfaces_group(
     name = "drake_ros_apps_msgs",

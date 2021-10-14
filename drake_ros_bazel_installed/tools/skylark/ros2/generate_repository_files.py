@@ -128,19 +128,19 @@ def generate_common_file(repo_name):
 
 
 def generate_cc_tools_file(repo_name):
-    with open('cc_tools.bzl', 'w') as fd:
+    with open('ros_cc.bzl', 'w') as fd:
         template, config = configure_cc_tools(repo_name)
         fd.write(interpolate(template, config) + '\n')
 
 
 def generate_py_tools_file(repo_name):
-    with open('py_tools.bzl', 'w') as fd:
+    with open('ros_py.bzl', 'w') as fd:
         template, config = configure_py_tools(repo_name)
         fd.write(interpolate(template, config) + '\n')
 
 
 def generate_rosidl_tools_file(repo_name):
-    with open('rosidl_tools.bzl', 'w') as fd:
+    with open('rosidl.bzl', 'w') as fd:
         template, config = configure_rosidl_tools(repo_name)
         fd.write(interpolate(template, config) + '\n')
 
