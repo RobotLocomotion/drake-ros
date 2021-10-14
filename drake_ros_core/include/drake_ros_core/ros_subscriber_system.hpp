@@ -36,7 +36,7 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
   template <typename MessageT>
   static std::unique_ptr<RosSubscriberSystem> Make(
       const std::string& topic_name, const rclcpp::QoS& qos,
-      std::shared_ptr<DrakeRosInterface> ros_interface) {
+      DrakeRosInterface* ros_interface) {
     // Assume C++ typesupport since this is a C++ template function
     std::unique_ptr<SerializerInterface> serializer =
         std::make_unique<Serializer<MessageT>>();
@@ -46,7 +46,7 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
 
   RosSubscriberSystem(std::unique_ptr<SerializerInterface>& serializer,
                       const std::string& topic_name, const rclcpp::QoS& qos,
-                      std::shared_ptr<DrakeRosInterface> ros_interface);
+                      DrakeRosInterface* ros_interface);
 
   virtual ~RosSubscriberSystem();
 

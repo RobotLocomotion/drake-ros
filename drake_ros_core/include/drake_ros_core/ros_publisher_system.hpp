@@ -37,7 +37,7 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
   template <typename MessageT>
   static std::unique_ptr<RosPublisherSystem> Make(
       const std::string& topic_name, const rclcpp::QoS& qos,
-      std::shared_ptr<DrakeRosInterface> ros_interface) {
+      DrakeRosInterface* ros_interface) {
     return Make<MessageT>(topic_name, qos, ros_interface,
                           {drake::systems::TriggerType::kPerStep,
                            drake::systems::TriggerType::kForced},
@@ -49,7 +49,7 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
   template <typename MessageT>
   static std::unique_ptr<RosPublisherSystem> Make(
       const std::string& topic_name, const rclcpp::QoS& qos,
-      std::shared_ptr<DrakeRosInterface> ros_interface,
+      DrakeRosInterface* ros_interface,
       const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
       double publish_period = 0.0) {
     // Assume C++ typesupport since this is a C++ template function
@@ -63,7 +63,7 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
   RosPublisherSystem(
       std::unique_ptr<SerializerInterface>& serializer,
       const std::string& topic_name, const rclcpp::QoS& qos,
-      std::shared_ptr<DrakeRosInterface> ros_interface,
+      DrakeRosInterface* ros_interface,
       const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
       double publish_period = 0.0);
 

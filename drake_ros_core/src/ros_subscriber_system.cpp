@@ -51,7 +51,7 @@ class RosSubscriberSystemPrivate {
 RosSubscriberSystem::RosSubscriberSystem(
     std::unique_ptr<SerializerInterface>& serializer,
     const std::string& topic_name, const rclcpp::QoS& qos,
-    std::shared_ptr<DrakeRosInterface> ros)
+    DrakeRosInterface* ros)
     : impl_(new RosSubscriberSystemPrivate()) {
   impl_->serializer_ = std::move(serializer);
   impl_->sub_ = ros->create_subscription(

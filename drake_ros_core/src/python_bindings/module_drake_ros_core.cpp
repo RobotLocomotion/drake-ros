@@ -44,22 +44,20 @@ PYBIND11_MODULE(drake_ros_core, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
 
-  // Use std::shared_ptr holder so pybind11 doesn't try to delete interfaces
-  // returned from get_ros_interface
-  py::class_<DrakeRosInterface, std::shared_ptr<DrakeRosInterface>>(
-      m, "DrakeRosInterface");
+  py::class_<DrakeRosInterface>(m, "DrakeRosInterface");
 
   py::class_<RosInterfaceSystem, LeafSystem<double>>(m, "RosInterfaceSystem")
       .def(py::init([]() {
         return std::make_unique<RosInterfaceSystem>(
             std::make_unique<DrakeRos>());
       }))
-      .def("get_ros_interface", &RosInterfaceSystem::get_ros_interface);
+      .def("get_ros_interface", &RosInterfaceSystem::get_ros_interface,
+           py::return_value_policy::reference_internal);
 
   py::class_<RosPublisherSystem, LeafSystem<double>>(m, "RosPublisherSystem")
       .def(py::init([](pybind11::object type, const char* topic_name,
                        drake_ros_core::QoS qos,
-                       std::shared_ptr<DrakeRosInterface> ros_interface) {
+                       DrakeRosInterface* ros_interface) {
         std::unique_ptr<SerializerInterface> serializer =
             std::make_unique<PySerializer>(type);
         return std::make_unique<RosPublisherSystem>(
@@ -68,22 +66,22 @@ PYBIND11_MODULE(drake_ros_core, m) {
                                             TriggerType::kForced},
             0.0);
       }))
-      .def(py::init([](pybind11::object type, const char* topic_name,
-                       drake_ros_core::QoS qos,
-                       std::shared_ptr<DrakeRosInterface> ros_interface,
-                       std::unordered_set<TriggerType> publish_triggers,
-                       double publish_period) {
-        std::unique_ptr<SerializerInterface> serializer =
-            std::make_unique<PySerializer>(type);
-        return std::make_unique<RosPublisherSystem>(
-            serializer, topic_name, qos, ros_interface, publish_triggers,
-            publish_period);
-      }));
+      .def(
+          py::init([](pybind11::object type, const char* topic_name,
+                      drake_ros_core::QoS qos, DrakeRosInterface* ros_interface,
+                      std::unordered_set<TriggerType> publish_triggers,
+                      double publish_period) {
+            std::unique_ptr<SerializerInterface> serializer =
+                std::make_unique<PySerializer>(type);
+            return std::make_unique<RosPublisherSystem>(
+                serializer, topic_name, qos, ros_interface, publish_triggers,
+                publish_period);
+          }));
 
   py::class_<RosSubscriberSystem, LeafSystem<double>>(m, "RosSubscriberSystem")
       .def(py::init([](pybind11::object type, const char* topic_name,
                        drake_ros_core::QoS qos,
-                       std::shared_ptr<DrakeRosInterface> ros_interface) {
+                       DrakeRosInterface* ros_interface) {
         std::unique_ptr<SerializerInterface> serializer =
             std::make_unique<PySerializer>(type);
         return std::make_unique<RosSubscriberSystem>(serializer, topic_name,

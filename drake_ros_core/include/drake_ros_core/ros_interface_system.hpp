@@ -31,7 +31,7 @@ class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
   virtual ~RosInterfaceSystem();
 
   /// Return a handle for interacting with ROS
-  std::shared_ptr<DrakeRosInterface> get_ros_interface() const;
+  DrakeRosInterface* get_ros_interface() const;
 
  protected:
   /// Override as a place to call rclcpp::spin()

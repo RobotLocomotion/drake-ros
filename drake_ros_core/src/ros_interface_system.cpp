@@ -21,7 +21,7 @@
 namespace drake_ros_core {
 class RosInterfaceSystemPrivate {
  public:
-  std::shared_ptr<DrakeRosInterface> ros_;
+  std::unique_ptr<DrakeRosInterface> ros_;
 };
 
 RosInterfaceSystem::RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros)
@@ -32,9 +32,8 @@ RosInterfaceSystem::RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros)
 RosInterfaceSystem::~RosInterfaceSystem() {}
 
 /// Return a handle for interacting with ROS
-std::shared_ptr<DrakeRosInterface> RosInterfaceSystem::get_ros_interface()
-    const {
-  return impl_->ros_;
+DrakeRosInterface* RosInterfaceSystem::get_ros_interface() const {
+  return impl_->ros_.get();
 }
 
 /// Override as a place to call rclcpp::spin()
