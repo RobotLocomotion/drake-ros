@@ -1,21 +1,19 @@
 # -*- python -*-
 
-DEFAULT_COMMON_KWARGS = {
-    "compatible_with": [],
-    "deprecation": None,
-    "exec_compatible_with": [],
-    "exec_properties": {},
-    "features": [],
-    "restricted_to": None,
-    "tags": [],
-    "target_compatible_with": [],
-    "testonly": False,
-    "toolchains": [],
-    "visibility": []
-}
+_COMMON_KWARGS = [
+    "compatible_with",
+    "deprecation",
+    "exec_compatible_with",
+    "exec_properties",
+    "features",
+    "restricted_to",
+    "tags",
+    "target_compatible_with",
+    "testonly",
+    "toolchains",
+    "visibility",
+]
 
 def keep_common(kwargs):
-    return {
-        key: kwargs.get(key, value)
-        for key, value in DEFAULT_COMMON_KWARGS.items()
-    }
+    """Fetch keyword arguments common to all rules from `kwargs`."""
+    return {key: value for key, value in kwargs.items() if key in _COMMON_KWARGS}
