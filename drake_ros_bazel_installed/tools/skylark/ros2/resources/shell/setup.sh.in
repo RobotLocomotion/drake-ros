@@ -1,7 +1,5 @@
 #! /bin/sh
 
-# Run @ID@
-
 # Source all workspaces
 for ws in @WORKSPACES@; do
     . $ws/setup.sh

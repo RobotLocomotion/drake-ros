@@ -1,3 +1,5 @@
+# -*- python -*-
+
 load("@drake_ros//tools/skylark:execute.bzl", "execute_or_fail")
 
 MANIFEST = [
@@ -36,10 +38,6 @@ MANIFEST = [
 def _label(relpath):
     return Label("//tools/skylark/ros2:" + relpath)
 
-def _uuid(repo_ctx):
-    cmd = [repo_ctx.which("python3"), "-c", "import uuid; print(uuid.uuid1())"]
-    return execute_or_fail(repo_ctx, cmd, quiet=True).stdout
-
 def _impl(repo_ctx):
     for relpath in MANIFEST:
         repo_ctx.symlink(_label(relpath), relpath)
@@ -47,7 +45,6 @@ def _impl(repo_ctx):
     repo_ctx.template(
         "setup.sh", _label("resources/shell/setup.sh.in"),
         substitutions = {
-            "@ID@": _uuid(repo_ctx),
             "@REPOSITORY_DIR@": str(repo_ctx.path(".")),
             "@WORKSPACES@": " ".join(repo_ctx.attr.workspaces),
             "@CMAKE_PREFIX_PATH@": ":".join(repo_ctx.attr.workspaces),
@@ -72,33 +69,24 @@ def _impl(repo_ctx):
     cmd.append(repo_ctx.name)
     execute_or_fail(repo_ctx, cmd, quiet=True)
 
-"""
-Extracts relevant properties from CMake and Python stuff for ROS 2 install
-trees (see https://www.ros.org/reps/rep-0122.html). Assumes `ament_cmake`
-for C++ packages and generic Python packages.
-"""
-
-# NOTE(hidmic): `ament_cmake` is not using modern CMake targets as of Dashing,
-# and as of Foxy not all packages are bound to. Stick to non-standard dependency
-# recollection.
-
-# TODO(eric): How to handle licenses?
 ros2_local_repository = repository_rule(
     attrs = dict(
-        # Workspaces
-        # - FHS install trees (incl. ABI compatible overlays).
         workspaces = attr.string_list(mandatory = True),
-        # Explicit set of packages to include, with its
-        # recursive dependencies. Default to all.
         include_packages = attr.string_list(),
-        # Set of packages to exclude. Default to none.
         exclude_packages = attr.string_list(),
-        # Extra data dependencies for targets
         extra_data = attr.string_list_dict(),
-        # Maximum CMake jobs to use during configuration
         jobs = attr.int(default=0),
     ),
     local = False,
-    configure = True,
     implementation = _impl,
 )
+"""
+Scraps ROS 2 workspaces and exposes its artifacts as a Bazel local repository.
+
+Args:
+    workspaces: paths to ROS 2 workspace install trees. Each workspace specified overlays the previous one.
+    include_packages: optional set of packages to include, with its recursive dependencies. Defaults to all.
+    exclude_packages: optional set of packages to exclude, with precedence over included files. Defaults to none.
+    extra_data: optional extra data dependencies for given targets
+    jobs: number of CMake jobs to use during package configuration and scrapping. Defaults to using all cores.
+"""

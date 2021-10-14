@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Scrap ROS 2 workspaces and expose its artifacts through a Bazel local repository.
-
+Scraps ROS 2 workspaces and exposes their artifacts through a Bazel local repository.
 
 This script generates:
 
@@ -91,7 +90,7 @@ def parse_arguments():
     )
     parser.add_argument(
         '-j', '--jobs', metavar='N', type=int, default=None,
-        help='Number of jobs to use to scrap packages'
+        help='Number of CMake jobs to use during package configuration and scrapping'
     )
     args = parser.parse_args()
 
