@@ -24,7 +24,9 @@ load(
     "generate_isolated_fastrtps_profile",
 )
 
-def ros_py_import(name, executable, rmw_implementation = None, **kwargs):
+def ros_py_import(
+    name, executable, rmw_implementation = None, py_binary_rule = native.py_binary, **kwargs
+):
     """
     Imports an executable, injecting the runtime environment
     specific to this ROS overlay.
@@ -68,9 +70,11 @@ def ros_py_import(name, executable, rmw_implementation = None, **kwargs):
         deps = kwargs.get("deps", []) + [
             "@bazel_tools//tools/python/runfiles"]
     )
-    native.py_binary(name = name, **kwargs)
+    py_binary_rule(name = name, **kwargs)
 
-def ros_py_binary(name, rmw_implementation = None, **kwargs):
+def ros_py_binary(
+    name, rmw_implementation = None, py_binary_rule = native.py_binary, **kwargs
+):
     """
     Builds a Python binary, injecting the runtime environment
     specific to this ROS overlay.
@@ -104,7 +108,7 @@ def ros_py_binary(name, rmw_implementation = None, **kwargs):
                         binary_kwargs, binary_env_changes, profile_name
                     )
 
-    native.py_binary(
+    py_binary_rule(
         name = binary_name,
         **binary_kwargs
     )
@@ -128,9 +132,11 @@ def ros_py_binary(name, rmw_implementation = None, **kwargs):
         ],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
-    native.py_binary(name = name, **kwargs)
+    py_binary_rule(name = name, **kwargs)
 
-def ros_py_test(name, rmw_implementation = None, **kwargs):
+def ros_py_test(
+    name, rmw_implementation = None, py_test_rule = native.py_test, **kwargs
+):
     """
     Builds a Python test, injecting the runtime environment
     specific to this ROS overlay.
@@ -164,7 +170,7 @@ def ros_py_test(name, rmw_implementation = None, **kwargs):
                         test_kwargs, test_env_changes, profile_name
                     )
 
-    native.py_test(
+    py_test_rule(
         name = test_name,
         **test_kwargs
     )
@@ -186,4 +192,4 @@ def ros_py_test(name, rmw_implementation = None, **kwargs):
         deps = ["@bazel_tools//tools/python/runfiles"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
-    native.py_test(name = name, **kwargs)
+    py_test_rule(name = name, **kwargs)

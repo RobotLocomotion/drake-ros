@@ -24,7 +24,9 @@ load(
     "generate_isolated_fastrtps_profile",
 )
 
-def ros_cc_binary(name, rmw_implementation = None, **kwargs):
+def ros_cc_binary(
+    name, rmw_implementation = None, cc_binary_rule = native.cc_binary, **kwargs
+):
     """
     Builds a C/C++ binary, injecting the runtime environment
     specific to this ROS overlay.
@@ -59,7 +61,7 @@ def ros_cc_binary(name, rmw_implementation = None, **kwargs):
                         binary_kwargs, binary_env_changes, profile_name
                     )
 
-    native.cc_binary(
+    cc_binary_rule(
         name = binary_name,
         **binary_kwargs
     )
@@ -79,9 +81,11 @@ def ros_cc_binary(name, rmw_implementation = None, **kwargs):
         deps = ["@bazel_tools//tools/cpp/runfiles"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
-    native.cc_binary(name = name, **kwargs)
-    
-def ros_cc_test(name, rmw_implementation = None, **kwargs):
+    cc_binary_rule(name = name, **kwargs)
+
+def ros_cc_test(
+    name, rmw_implementation = None, cc_test_rule = native.cc_test, **kwargs
+):
     """
     Builds a C/C++ test, injecting the runtime environment
     specific to this ROS overlay.
@@ -113,7 +117,7 @@ def ros_cc_test(name, rmw_implementation = None, **kwargs):
                         test_kwargs, test_env_changes, profile_name
                     )
 
-    native.cc_test(
+    cc_test_rule(
         name = test_name,
         **test_kwargs
     )
@@ -134,4 +138,4 @@ def ros_cc_test(name, rmw_implementation = None, **kwargs):
         deps = ["@bazel_tools//tools/cpp/runfiles"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
-    native.cc_test(name = name, **kwargs)
+    cc_test_rule(name = name, **kwargs)
