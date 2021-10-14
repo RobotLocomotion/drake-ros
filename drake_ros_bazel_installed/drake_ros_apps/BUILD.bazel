@@ -67,3 +67,29 @@ ros_py_binary(
     rmw_implementation = "rmw_cyclonedds_cpp",
     tags = ["requires-network"],
 )
+
+sh_test(
+    name = "gdb_oracle_cc_test",
+    srcs = ["test/exec.sh"],
+    args = [
+        "gdb",
+        "-x", "$(location :test/oracle_cc.gdb)", "--args",
+        "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
+    ],
+    data = ["test/oracle_cc.gdb", ":oracle_cc"],
+    tags = ["manual"],
+    size = "small",
+)
+
+sh_test(
+    name = "lldb_oracle_cc_test",
+    srcs = ["test/exec.sh"],
+    args = [
+        "lldb",
+        "-s", "$(location :test/oracle_cc.lldb)", "--",
+        "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
+    ],
+    data = ["test/oracle_cc.lldb", ":oracle_cc"],
+    tags = ["manual"],
+    size = "small",
+)
