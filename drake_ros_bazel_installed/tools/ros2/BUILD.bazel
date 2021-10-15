@@ -1,0 +1,89 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+package(default_visibility = ["//visibility:public"])
+
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+
+py_library(
+    name = "rmw_isolation_py",
+    srcs = ["rmw_isolation.py"],
+    deps = ["@ros2//:rclpy_py"],
+)
+
+ros_py_binary(
+    name = "isolated_rmw_env",
+    srcs = ["isolated_rmw_env.py"],
+    main = "isolated_rmw_env.py",
+    deps = [":rmw_isolation_py"],
+)
+
+cc_library(
+    name = "rmw_isolation_cc",
+    srcs = ["rmw_isolation.cc"],
+    hdrs = ["rmw_isolation.h"],
+    data = [":isolated_rmw_env"],
+    deps = [
+        "@bazel_tools//tools/cpp/runfiles",
+        "@ros2//:rclcpp_cc",
+    ],
+)
+
+ros_py_binary(
+    name = "talker_py",
+    srcs = ["test/talker.py"],
+    main = "test/talker.py",
+    deps = [
+        "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py"
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
+)
+
+ros_py_binary(
+    name = "isolated_listener_py",
+    srcs = ["test/isolated_listener.py"],
+    main = "test/isolated_listener.py",
+    deps = [
+        "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py",
+        ":rmw_isolation_py",
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
+)
+
+sh_test(
+    name = "rmw_isolation_py_test",
+    srcs = ["test/rmw_isolation_test.sh"],
+    args = [
+        "$(location :talker_py)",
+        "$(location :isolated_listener_py)",
+    ],
+    data = [":talker_py", ":isolated_listener_py"],
+    tags = ["manual"],
+    size = "small",
+)
+
+ros_cc_binary(
+    name = "isolated_listener_cc",
+    srcs = ["test/isolated_listener.cc"],
+    deps = [
+        "@ros2//:rclcpp_cc",
+        "@ros2//:std_msgs_cc",
+        ":rmw_isolation_cc",
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
+)
+
+sh_test(
+    name = "rmw_isolation_cc_test",
+    srcs = ["test/rmw_isolation_test.sh"],
+    args = [
+        "$(location :talker_py)",
+        "$(location :isolated_listener_cc)",
+    ],
+    data = [":talker_py", ":isolated_listener_cc"],
+    tags = ["manual"],
+    size = "small",
+)

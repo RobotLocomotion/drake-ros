@@ -6,8 +6,6 @@ load(
 )
 load(
     "@REPOSITORY_ROOT@:common.bzl",
-    "incorporate_cyclonedds_profile",
-    "incorporate_fastrtps_profile",
     "incorporate_rmw_implementation",
 )
 load(
@@ -17,11 +15,6 @@ load(
 load(
     "@drake_ros//tools/skylark:kwargs.bzl",
     "keep_common"
-)
-load(
-    "@drake_ros//tools/skylark/ros2:rmw.bzl",
-    "generate_isolated_cyclonedds_profile",
-    "generate_isolated_fastrtps_profile",
 )
 
 def ros_py_import(
@@ -50,14 +43,6 @@ def ros_py_import(
                 kwargs, env_changes,
                 rmw_implementation = rmw_implementation
             )
-        if "fastrtps" in rmw_implementation:
-            if "block-network" in kwargs.get("tags", []):
-                profile_name = name + ".fastrtps_profile.xml"
-                generate_isolated_fastrtps_profile(profile_name)
-                kwargs, env_changes = \
-                    incorporate_fastrtps_profile(
-                        kwargs, env_changes, profile_name
-                    )
 
     shim_name = name + "_shim.py"
     shim_kwargs = keep_common(kwargs)
@@ -108,21 +93,6 @@ def ros_py_binary(
                 binary_kwargs, binary_env_changes,
                 rmw_implementation = rmw_implementation
             )
-        if "block-network" in kwargs.get("tags", []):
-            if "fastrtps" in rmw_implementation:
-                profile_name = name + ".fastrtps_profile.xml"
-                generate_isolated_fastrtps_profile(profile_name)
-                binary_kwargs, binary_env_changes = \
-                    incorporate_fastrtps_profile(
-                        binary_kwargs, binary_env_changes, profile_name
-                    )
-            if "cyclonedds" in rmw_implementation:
-                profile_name = name + ".cyclonedds_profile.xml"
-                generate_isolated_cyclonedds_profile(profile_name)
-                binary_kwargs, binary_env_changes = \
-                    incorporate_cyclonedds_profile(
-                        binary_kwargs, binary_env_changes, profile_name
-                    )
 
     py_binary_rule(
         name = binary_name,
@@ -178,21 +148,6 @@ def ros_py_test(
                 test_kwargs, test_env_changes,
                 rmw_implementation = rmw_implementation,
             )
-        if "block-network" in kwargs.get("tags", []):
-            if "fastrtps" in rmw_implementation:
-                profile_name = name + ".fastrtps_profile.xml"
-                generate_isolated_fastrtps_profile(profile_name)
-                test_kwargs, test_env_changes = \
-                    incorporate_fastrtps_profile(
-                        test_kwargs, test_env_changes, profile_name
-                    )
-            if "cyclonedds" in rmw_implementation:
-                profile_name = name + ".cyclonedds_profile.xml"
-                generate_isolated_cyclonedds_profile(profile_name)
-                test_kwargs, test_env_changes = \
-                    incorporate_cyclonedds_profile(
-                        test_kwargs, test_env_changes, profile_name
-                    )
 
     py_test_rule(
         name = test_name,

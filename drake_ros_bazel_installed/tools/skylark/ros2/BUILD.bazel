@@ -1,14 +1,1 @@
-# -*- mode: python -*-
-# vi: set ft=python :
-
-py_binary(
-    name = "generate_fastrtps_profile",
-    srcs = ["generate_fastrtps_profile.py"],
-    visibility = ["//visibility:public"],
-)
-
-py_binary(
-    name = "generate_cyclonedds_profile",
-    srcs = ["generate_cyclonedds_profile.py"],
-    visibility = ["//visibility:public"],
-)
+# Empty build file to mark package boundaries.
