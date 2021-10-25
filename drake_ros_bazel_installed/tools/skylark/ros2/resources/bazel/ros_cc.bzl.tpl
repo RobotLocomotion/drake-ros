@@ -89,8 +89,9 @@ def ros_cc_test(
     Additional keyword arguments are forwarded to the `cc_test_rule`.
     """
     test_name = "_" + name
+    test_kwargs = dict(kwargs)
+    test_kwargs.update(tags = ["manual"] + test_kwargs.get("tags", []))
     test_env_changes = dict(RUNTIME_ENVIRONMENT)
-    kwargs["tags"] = ["manual"] + kwargs.get("tags", [])
     if rmw_implementation:
         test_kwargs, test_env_changes = \
             incorporate_rmw_implementation(
