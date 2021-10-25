@@ -38,8 +38,6 @@ from ros2bzl.scrapping.ament_python \
     import collect_ament_python_package_direct_properties
 from ros2bzl.scrapping.ament_python import PackageNotFoundError
 
-from ros2bzl.templates import configure_cc_tools
-from ros2bzl.templates import configure_common
 from ros2bzl.templates import configure_distro
 from ros2bzl.templates import configure_executable_imports
 from ros2bzl.templates import configure_package_meta_py_library
@@ -49,9 +47,7 @@ from ros2bzl.templates import configure_package_executable_imports
 from ros2bzl.templates import configure_package_py_library
 from ros2bzl.templates import configure_package_share_filegroup
 from ros2bzl.templates import configure_package_interfaces_filegroup
-from ros2bzl.templates import configure_py_tools
 from ros2bzl.templates import configure_prologue
-from ros2bzl.templates import configure_rosidl_tools
 
 from ros2bzl.resources import load_resource
 
@@ -114,33 +110,9 @@ def parse_arguments():
     return args
 
 
-def generate_distro_file(packages):
+def generate_distro_file(repo_name, distro):
     with open('distro.bzl', 'w') as fd:
-        template, config = configure_distro(packages)
-        fd.write(interpolate(template, config) + '\n')
-
-
-def generate_common_file(repo_name):
-    with open('common.bzl', 'w') as fd:
-        template, config = configure_common(repo_name)
-        fd.write(interpolate(template, config) + '\n')
-
-
-def generate_cc_tools_file(repo_name):
-    with open('ros_cc.bzl', 'w') as fd:
-        template, config = configure_cc_tools(repo_name)
-        fd.write(interpolate(template, config) + '\n')
-
-
-def generate_py_tools_file(repo_name):
-    with open('ros_py.bzl', 'w') as fd:
-        template, config = configure_py_tools(repo_name)
-        fd.write(interpolate(template, config) + '\n')
-
-
-def generate_rosidl_tools_file(repo_name):
-    with open('rosidl.bzl', 'w') as fd:
-        template, config = configure_rosidl_tools(repo_name)
+        template, config = configure_distro(repo_name, distro)
         fd.write(interpolate(template, config) + '\n')
 
 
@@ -250,15 +222,7 @@ def main():
         args.repository_name, distro,
         cache, args.extras, args.sandbox)
 
-    generate_distro_file(distro)
-
-    generate_common_file(args.repository_name)
-
-    generate_cc_tools_file(args.repository_name)
-
-    generate_py_tools_file(args.repository_name)
-
-    generate_rosidl_tools_file(args.repository_name)
+    generate_distro_file(args.repository_name, distro)
 
 
 if __name__ == '__main__':

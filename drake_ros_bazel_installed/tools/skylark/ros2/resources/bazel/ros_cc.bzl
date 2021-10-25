@@ -1,14 +1,6 @@
 # -*- python -*-
 
 load(
-    "@REPOSITORY_ROOT@:distro.bzl",
-    "RUNTIME_ENVIRONMENT"
-)
-load(
-    "@REPOSITORY_ROOT@:common.bzl",
-    "incorporate_rmw_implementation",
-)
-load(
     "@drake_ros//tools/skylark:dload_cc.bzl",
     "dload_cc_shim"
 )
@@ -16,6 +8,14 @@ load(
     "@drake_ros//tools/skylark:kwargs.bzl",
     "keep_common",
     "remove_test_specific"
+)
+load(
+    ":common.bzl",
+    "incorporate_rmw_implementation",
+)
+load(
+    ":distro.bzl",
+    "RUNTIME_ENVIRONMENT"
 )
 
 def ros_cc_binary(

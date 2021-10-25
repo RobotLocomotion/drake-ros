@@ -2,24 +2,25 @@
 
 load("@drake_ros//tools/skylark:execute.bzl", "execute_or_fail")
 
-MANIFEST = [
+GENERATE_TOOL_RESOURCES_MANIFEST = [
     "cmake_tools/packages.py",
     "cmake_tools/server_mode.py",
     "cmake_tools/__init__.py",
 
-    "resources/bazel/common.bzl.tpl",
+    "resources/bazel/common.bzl",
+    "resources/bazel/ros_cc.bzl",
+    "resources/bazel/ros_py.bzl",
+    "resources/bazel/rosidl.bzl",
+
     "resources/bazel/distro.bzl.tpl",
-    "resources/bazel/ros_cc.bzl.tpl",
-    "resources/bazel/ros_py.bzl.tpl",
-    "resources/bazel/rosidl.bzl.tpl",
-    "resources/bazel/snippets/overlay_executable.bazel.tpl",
-    "resources/bazel/snippets/package_interfaces_filegroup.bazel.tpl",
-    "resources/bazel/snippets/package_cc_library.bazel.tpl",
-    "resources/bazel/snippets/package_meta_py_library.bazel.tpl",
-    "resources/bazel/snippets/package_py_library.bazel.tpl",
-    "resources/bazel/snippets/package_py_library_with_cc_libs.bazel.tpl",
-    "resources/bazel/snippets/package_share_filegroup.bazel.tpl",
-    "resources/bazel/snippets/prologue.bazel.tpl",
+    "resources/bazel/overlay_executable.bazel.tpl",
+    "resources/bazel/package_interfaces_filegroup.bazel.tpl",
+    "resources/bazel/package_cc_library.bazel.tpl",
+    "resources/bazel/package_meta_py_library.bazel.tpl",
+    "resources/bazel/package_py_library.bazel.tpl",
+    "resources/bazel/package_py_library_with_cc_libs.bazel.tpl",
+    "resources/bazel/package_share_filegroup.bazel.tpl",
+    "resources/bazel/prologue.bazel",
 
     "resources/cmake/ament_cmake_CMakeLists.txt.in",
 
@@ -39,7 +40,12 @@ def _label(relpath):
     return Label("//tools/skylark/ros2:" + relpath)
 
 def _impl(repo_ctx):
-    for relpath in MANIFEST:
+    repo_ctx.symlink(_label("resources/bazel/common.bzl"), "common.bzl")
+    repo_ctx.symlink(_label("resources/bazel/ros_cc.bzl"), "ros_cc.bzl")
+    repo_ctx.symlink(_label("resources/bazel/ros_py.bzl"), "ros_py.bzl")
+    repo_ctx.symlink(_label("resources/bazel/rosidl.bzl"), "rosidl.bzl")
+
+    for relpath in GENERATE_TOOL_RESOURCES_MANIFEST:
         repo_ctx.symlink(_label(relpath), relpath)
 
     repo_ctx.template(

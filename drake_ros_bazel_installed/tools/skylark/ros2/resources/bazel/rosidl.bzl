@@ -1,7 +1,11 @@
 # -*- python -*-
 
-load("@REPOSITORY_ROOT@:distro.bzl", "AVAILABLE_TYPESUPPORT_LIST")
 load("@python_dev//:version.bzl", "PYTHON_EXTENSION_SUFFIX")
+load(
+    ":distro.bzl",
+    "AVAILABLE_TYPESUPPORT_LIST",
+    "REPOSITORY_ROOT"
+)
 
 def _as_idl_tuple(file):
     """
@@ -55,7 +59,7 @@ rosidl_generate_genrule = rule(
         includes = attr.label_list(mandatory = False),
         output_dir = attr.string(mandatory = False),
         _tool = attr.label(
-            default = "@REPOSITORY_ROOT@:rosidl",
+            default = REPOSITORY_ROOT + ":rosidl",
             executable = True, cfg = "exec"
         )
     ),
@@ -113,7 +117,7 @@ rosidl_translate_genrule = rule(
         includes = attr.label_list(mandatory = False),
         output_dir = attr.string(mandatory = False),
         _tool = attr.label(
-            default = "@REPOSITORY_ROOT@:rosidl",
+            default = REPOSITORY_ROOT + ":rosidl",
             executable = True, cfg = "exec"
         )
     ),
@@ -226,9 +230,9 @@ def rosidl_c_library(
     )
 
     deps = deps + [
-        "@REPOSITORY_ROOT@:rcutils_cc",
-        "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
-        "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
+        REPOSITORY_ROOT + ":rcutils_cc",
+        REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
+        REPOSITORY_ROOT + ":rosidl_typesupport_interface_cc",
     ]
 
     cc_library_rule(
@@ -283,7 +287,7 @@ def rosidl_cc_library(
         hdrs = generated_cc_headers,
         includes = [include],
         deps = deps + [
-            "@REPOSITORY_ROOT@:rosidl_runtime_cpp_cc"
+            REPOSITORY_ROOT + ":rosidl_runtime_cpp_cc"
         ],
         **kwargs
     )
@@ -367,10 +371,10 @@ def rosidl_py_library(
 
     c_typesupport_extension_deps = c_deps + [
         c_label(name),
-        "@REPOSITORY_ROOT@:rosidl_generator_py_cc",
-        "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
-        "@REPOSITORY_ROOT@:rosidl_typesupport_c_cc",
-        "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
+        REPOSITORY_ROOT + ":rosidl_generator_py_cc",
+        REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
+        REPOSITORY_ROOT + ":rosidl_typesupport_c_cc",
+        REPOSITORY_ROOT + ":rosidl_typesupport_interface_cc",
         "@python_dev//:libs",
     ]
     py_data = []
@@ -452,11 +456,11 @@ def rosidl_typesupport_fastrtps_cc_library(
         srcs = generated_cc_sources,
         deps = deps + [
             ":" + name + "_hdrs",
-            "@REPOSITORY_ROOT@:fastcdr_cc",
-            "@REPOSITORY_ROOT@:rmw_cc",
-            "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_fastrtps_cpp_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
+            REPOSITORY_ROOT + ":fastcdr_cc",
+            REPOSITORY_ROOT + ":rmw_cc",
+            REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_fastrtps_cpp_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_interface_cc",
         ],
         linkshared = True,
         **kwargs
@@ -519,12 +523,12 @@ def rosidl_typesupport_fastrtps_c_library(
         linkshared = True,
         deps = deps + [
             ":" + name + "_hdrs",
-            "@REPOSITORY_ROOT@:fastcdr_cc",
-            "@REPOSITORY_ROOT@:rmw_cc",
-            "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_fastrtps_c_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_fastrtps_cpp_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
+            REPOSITORY_ROOT + ":fastcdr_cc",
+            REPOSITORY_ROOT + ":rmw_cc",
+            REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_fastrtps_c_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_fastrtps_cpp_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_interface_cc",
         ],
         **kwargs
     )
@@ -586,7 +590,7 @@ def rosidl_typesupport_introspection_c_library(
         linkshared = True,
         deps = deps + [
             ":" + name + "_hdrs",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_introspection_c_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_introspection_c_cc",
         ],
         **kwargs
     )
@@ -647,10 +651,10 @@ def rosidl_typesupport_introspection_cc_library(
         linkshared = True,
         deps = deps + [
             ":" + name + "_hdrs",
-            "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
-            "@REPOSITORY_ROOT@:rosidl_runtime_cpp_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_introspection_cpp_cc",
+            REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
+            REPOSITORY_ROOT + ":rosidl_runtime_cpp_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_interface_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_introspection_cpp_cc",
         ],
         **kwargs
     )
@@ -707,9 +711,9 @@ def rosidl_typesupport_c_library(
         linkshared = True,
         data = typesupports.values(),
         deps = deps + [label + "_hdrs" for label in typesupports.values()] + [
-            "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_c_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
+            REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_c_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_interface_cc",
         ],
         **kwargs
     )
@@ -763,10 +767,10 @@ def rosidl_typesupport_cc_library(
         includes = [include],
         linkshared = True,
         deps = deps + [label + "_hdrs" for label in typesupports.values()] + [
-            "@REPOSITORY_ROOT@:rosidl_runtime_c_cc",
-            "@REPOSITORY_ROOT@:rosidl_runtime_cpp_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_cpp_cc",
-            "@REPOSITORY_ROOT@:rosidl_typesupport_interface_cc",
+            REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
+            REPOSITORY_ROOT + ":rosidl_runtime_cpp_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_cpp_cc",
+            REPOSITORY_ROOT + ":rosidl_typesupport_interface_cc",
         ],
         **kwargs
     )

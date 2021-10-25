@@ -41,7 +41,7 @@ def configure_package_share_filegroup(name, metadata, sandbox):
         shared_directories.append(sandbox(metadata['ament_index_directory']))
     return (
         target_name,
-        load_resource('bazel/snippets/package_share_filegroup.bazel.tpl'),
+        load_resource('bazel/package_share_filegroup.bazel.tpl'),
         to_starlark_string_dict({
             'name': target_name, 'share_directories': shared_directories
         })
@@ -51,7 +51,7 @@ def configure_package_share_filegroup(name, metadata, sandbox):
 def configure_package_interfaces_filegroup(name, metadata, sandbox):
     return (
         name,
-        load_resource('bazel/snippets/package_interfaces_filegroup.bazel.tpl'),
+        load_resource('bazel/package_interfaces_filegroup.bazel.tpl'),
         to_starlark_string_dict({
             'name': name, 'share_directory': sandbox(metadata['share_directory'])
         })
@@ -114,7 +114,7 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
             if label_or_path not in data
         )
 
-    template_path = 'bazel/snippets/package_cc_library.bazel.tpl'
+    template_path = 'bazel/package_cc_library.bazel.tpl'
 
     config = {
         'name': target_name,
@@ -141,7 +141,7 @@ def configure_package_meta_py_library(name, metadata, dependencies):
     target_name = meta_py_name(name, metadata)
     return (
         target_name,
-        load_resource('bazel/snippets/package_meta_py_library.bazel.tpl'),
+        load_resource('bazel/package_meta_py_library.bazel.tpl'),
         to_starlark_string_dict({'name': target_name, 'deps': deps})
     )
 
@@ -153,7 +153,7 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
         sandbox(top_level) for _, top_level in properties['python_packages']]
     imports = [os.path.dirname(egg) for egg in eggs]
 
-    template = 'bazel/snippets/package_py_library.bazel.tpl'
+    template = 'bazel/package_py_library.bazel.tpl'
     config = {
         'name': target_name,
         'tops': tops,
@@ -182,7 +182,7 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
         ]
         # Expose C/C++ libraries if any
         if 'cc_libraries' in properties:
-            template = 'bazel/snippets/package_py_library_with_cc_libs.bazel.tpl'
+            template = 'bazel/package_py_library_with_cc_libs.bazel.tpl'
             config.update({
                 'cc_name': c_name(target_name, metadata),
                 'cc_libs': [sandbox(lib) for lib in properties['cc_libraries']],
@@ -218,7 +218,7 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
 def configure_package_alias(name, target):
     return (
         name,
-        load_resource('bazel/snippets/package_alias.bazel.tpl'),
+        load_resource('bazel/package_alias.bazel.tpl'),
         to_starlark_string_dict({'name': name, 'actual': ':' + target})
     )
 
@@ -227,7 +227,7 @@ def configure_package_c_library_alias(name, metadata):
     target_name = c_name(name, metadata)
     return (
         target_name,
-        load_resource('bazel/snippets/package_alias.bazel.tpl'),
+        load_resource('bazel/package_alias.bazel.tpl'),
         to_starlark_string_dict({
             'name': target_name,
             'actual': cc_label(name, metadata)
@@ -259,7 +259,7 @@ def configure_executable_imports(
             data = data + extras['data'][target_name]
         yield (
             target_name,
-            load_resource('bazel/snippets/overlay_executable.bazel.tpl'),
+            load_resource('bazel/overlay_executable.bazel.tpl'),
             to_starlark_string_dict({
                 'name': target_name,
                 'executable': sandbox(executable),
@@ -280,36 +280,10 @@ def configure_package_executable_imports(
 
 
 def configure_prologue(repo_name):
-    return load_resource('bazel/snippets/prologue.bazel.tpl'), {
-        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
-    }
+    return load_resource('bazel/prologue.bazel'), {}
 
 
-def configure_rosidl_tools(repo_name):
-    return load_resource('bazel/rosidl.bzl.tpl'), {
-        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
-    }
-
-
-def configure_cc_tools(repo_name):
-    return load_resource('bazel/ros_cc.bzl.tpl'), {
-        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
-    }
-
-
-def configure_py_tools(repo_name):
-    return load_resource('bazel/ros_py.bzl.tpl'), {
-        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
-    }
-
-
-def configure_common(repo_name):
-    return load_resource('bazel/common.bzl.tpl'), {
-        'REPOSITORY_ROOT': '@{}//'.format(repo_name)
-    }
-
-
-def configure_distro(distro):
+def configure_distro(repo_name, distro):
     typesupport_groups = [
         'rosidl_typesupport_c_packages',
         'rosidl_typesupport_cpp_packages'
@@ -323,4 +297,5 @@ def configure_distro(distro):
                 for group in metadata.get('groups', [])
             )
         ],
+        'REPOSITORY_ROOT': '@{}//'.format(repo_name),
     })
