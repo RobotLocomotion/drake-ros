@@ -17,3 +17,16 @@ _COMMON_KWARGS = [
 def keep_common(kwargs):
     """Fetch keyword arguments common to all rules from `kwargs`."""
     return {key: value for key, value in kwargs.items() if key in _COMMON_KWARGS}
+
+_TEST_KWARGS = [
+    "env_inherit",
+    "flaky",
+    "local",
+    "shard_count",
+    "size",
+    "timeout",
+]
+
+def remove_test_specific(kwargs):
+    """Filter keyword arguments specific to test rules from `kwargs`."""
+    return {key: value for key, value in kwargs.items() if key not in _TEST_KWARGS}

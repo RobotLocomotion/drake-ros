@@ -14,7 +14,8 @@ load(
 )
 load(
     "@drake_ros//tools/skylark:kwargs.bzl",
-    "keep_common"
+    "keep_common",
+    "remove_test_specific"
 )
 
 def ros_py_import(
@@ -121,7 +122,9 @@ def ros_py_binary(
     py_binary_rule(name = name, **kwargs)
 
 def ros_py_test(
-    name, rmw_implementation = None, py_test_rule = native.py_test, **kwargs
+    name, rmw_implementation = None,
+    py_binary_rule = native.py_binary,
+    py_test_rule = native.py_test, **kwargs
 ):
     """
     Builds a Python test and wraps it with a shim that will inject the minimal
@@ -133,41 +136,42 @@ def ros_py_test(
     Args:
         name: Python test target name
         rmw_implementation: optional RMW implementation to run against
+        py_binary_rule: optional py_binary() rule override
         py_test_rule: optional py_test() rule override
 
-    Additional keyword arguments are forwarded to the `py_test_rule`.
+    Additional keyword arguments are forwarded to the `py_test_rule` and to the
+    `py_binary_rule` (minus the test specific ones).
     """
-    test_name = "_" + name
-    test_kwargs = dict(kwargs)
-    test_kwargs.update(
-        tags = ["manual"] + test_kwargs.get("tags", []))
-    test_env_changes = dict(RUNTIME_ENVIRONMENT)
+    binary_name = "_" + name
+    binary_kwargs = remove_test_specific(kwargs)
+    binary_kwargs.update(testonly = True)
+    binary_env_changes = dict(RUNTIME_ENVIRONMENT)
     if rmw_implementation:
-        test_kwargs, test_env_changes = \
+        binary_kwargs, binary_env_changes = \
             incorporate_rmw_implementation(
-                test_kwargs, test_env_changes,
+                binary_kwargs, binary_env_changes,
                 rmw_implementation = rmw_implementation,
             )
 
-    py_test_rule(
-        name = test_name,
-        **test_kwargs
+    py_binary_rule(
+        name = binary_name,
+        **binary_kwargs
     )
 
-    shim_name = test_name + "_shim.py"
+    shim_name = binary_name + "_shim.py"
     shim_kwargs = keep_common(kwargs)
     shim_kwargs.update(testonly = True)
     dload_py_shim(
         name = shim_name,
-        target = ":" + test_name,
-        env_changes = test_env_changes,
+        target = ":" + binary_name,
+        env_changes = binary_env_changes,
         **shim_kwargs
     )
 
     kwargs.update(
         srcs = [shim_name],
         main = shim_name,
-        data = [":" + test_name],
+        data = [":" + binary_name],
         deps = ["@bazel_tools//tools/python/runfiles"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
