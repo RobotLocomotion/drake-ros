@@ -2,18 +2,21 @@
 
 set -eux pipefail
 
+apt update && apt install -y apt-transport-https curl gnupg lsb-release
+
 # Install Bazel
-apt install -y apt-transport-https curl gnupg
 curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
 mv bazel.gpg /etc/apt/trusted.gpg.d/
-echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list
+echo "deb [arch=$(dpkg --print-architecture)] https://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list
 apt update && apt install bazel
 
-# Install CPython development libraries
-apt install -y python3-dev
-
 # Install ROS 2 Rolling
-apt install -y ros-rolling-ros-base ros-rolling-rmw-fastrtps-cpp ros-rolling-rmw-cyclonedds-cpp
+curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list
+apt update && apt install ros-rolling-ros-base ros-rolling-rmw-fastrtps-cpp ros-rolling-rmw-cyclonedds-cpp
+
+# Install Python dependencies
+apt install python3-toposort python3-dev
 
 # Install debuggers
-apt install -y gdb lldb
+apt install gdb lldb
