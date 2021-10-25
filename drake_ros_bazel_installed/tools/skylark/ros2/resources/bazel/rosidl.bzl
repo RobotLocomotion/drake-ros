@@ -38,12 +38,13 @@ def _rosidl_generate_genrule_impl(ctx):
     args.add_all(ctx.files.includes, map_each=_as_include_flag, uniquify=True)
     args.add(ctx.attr.group)
     args.add_all(ctx.files.interfaces, map_each=_as_idl_tuple)
-    inputs, input_manifests = ctx.resolve_tools(tools = [ctx.attr._tool])
-    inputs = inputs.to_list() + ctx.files.interfaces + ctx.files.includes
-    ctx.actions.run(
-        executable = ctx.executable._tool,
+    inputs = ctx.files.interfaces + ctx.files.includes
+    ctx.actions.run_shell(
+        tools = [ctx.executable._tool],
         arguments = [args], inputs = inputs,
-        input_manifests = input_manifests,
+        command = "{} $@ > /dev/null".format(
+            ctx.executable._tool.path
+        ),
         outputs = ctx.outputs.generated_sources,
     )
 
@@ -96,12 +97,13 @@ def _rosidl_translate_genrule_impl(ctx):
     args.add_all(ctx.files.includes, map_each=_as_include_flag, uniquify=True)
     args.add(ctx.attr.group)
     args.add_all(ctx.files.interfaces, map_each=_as_idl_tuple)
-    inputs, input_manifests = ctx.resolve_tools(tools = [ctx.attr._tool])
-    inputs = inputs.to_list() + ctx.files.interfaces + ctx.files.includes
-    ctx.actions.run(
-        executable = ctx.executable._tool,
+    inputs = ctx.files.interfaces + ctx.files.includes
+    ctx.actions.run_shell(
+        tools = [ctx.executable._tool],
         arguments = [args], inputs = inputs,
-        input_manifests = input_manifests,
+        command = "{} $@ > /dev/null".format(
+            ctx.executable._tool.path
+        ),
         outputs = ctx.outputs.translated_interfaces
     )
 
