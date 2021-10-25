@@ -73,7 +73,7 @@ sh_test(
     srcs = ["test/exec.sh"],
     args = [
         "gdb",
-        "-x", "$(location :test/oracle_cc.gdb)", "--args",
+        "-x", "$(location :test/oracle_cc.gdb)", "--batch", "--args",
         "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
     ],
     data = ["test/oracle_cc.gdb", ":oracle_cc"],
@@ -86,7 +86,7 @@ sh_test(
     srcs = ["test/exec.sh"],
     args = [
         "lldb",
-        "-s", "$(location :test/oracle_cc.lldb)", "--",
+        "-s", "$(location :test/oracle_cc.lldb)", "--batch", "--",
         "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
     ],
     data = ["test/oracle_cc.lldb", ":oracle_cc"],
