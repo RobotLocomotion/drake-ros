@@ -61,7 +61,6 @@ sh_test(
         "$(location :isolated_listener_py)",
     ],
     data = [":talker_py", ":isolated_listener_py"],
-    tags = ["manual"],
     size = "small",
 )
 
@@ -84,6 +83,5 @@ sh_test(
         "$(location :isolated_listener_cc)",
     ],
     data = [":talker_py", ":isolated_listener_cc"],
-    tags = ["manual"],
     size = "small",
 )
