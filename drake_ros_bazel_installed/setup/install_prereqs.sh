@@ -2,7 +2,7 @@
 
 set -eux pipefail
 
-apt update && apt install -y apt-transport-https curl gnupg lsb-release
+apt update && apt install -y apt-transport-https curl gnupg lsb-release cmake build-essential
 
 # Install Bazel
 curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
