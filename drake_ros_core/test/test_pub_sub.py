@@ -31,7 +31,7 @@ from test_msgs.msg import BasicTypes
 def test_nominal_case():
     builder = DiagramBuilder()
 
-    sys_ros_interface = builder.AddSystem(RosInterfaceSystem())
+    ros_interface_system = builder.AddSystem(RosInterfaceSystem())
 
     qos = QoSProfile(
         depth=10,
@@ -39,13 +39,15 @@ def test_nominal_case():
         reliability=ReliabilityPolicy.RELIABLE,
         durability=DurabilityPolicy.TRANSIENT_LOCAL)
 
-    sys_pub = builder.AddSystem(RosPublisherSystem(
-        BasicTypes, 'out_py', qos, sys_ros_interface.get_ros_interface()))
+    ros_publisher_system = builder.AddSystem(RosPublisherSystem(
+        BasicTypes, 'out_py', qos, ros_interface_system.get_ros_interface()))
 
-    sys_sub = builder.AddSystem(RosSubscriberSystem(
-        BasicTypes, 'in_py', qos, sys_ros_interface.get_ros_interface()))
+    ros_subscriber_system = builder.AddSystem(RosSubscriberSystem(
+        BasicTypes, 'in_py', qos, ros_interface_system.get_ros_interface()))
 
-    builder.Connect(sys_sub.get_output_port(0), sys_pub.get_input_port(0))
+    builder.Connect(
+        ros_subscriber_system.get_output_port(0),
+        ros_publisher_system.get_input_port(0))
     diagram = builder.Build()
     simulator = Simulator(diagram)
     simulator_context = simulator.get_mutable_context()
