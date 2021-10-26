@@ -16,7 +16,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 apt update && apt install ros-rolling-ros-base ros-rolling-rmw-fastrtps-cpp ros-rolling-rmw-cyclonedds-cpp
 
 # Install Python dependencies
-apt install python3-toposort python3-dev
+apt install python3 python3-toposort python3-dev python-is-python3
 
 # Install debuggers
 apt install gdb lldb
