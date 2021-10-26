@@ -1,15 +1,5 @@
 workspace(name = "drake_ros")
 
-new_local_repository(
-    name = "drake_repository",
-    path = "/opt/drake",
-    build_file_content = "#",
-)
-
-load("@drake_repository//:share/drake/repo.bzl", "drake_repository")
-
-drake_repository(name = "drake")
-
 load("//tools/workspace/python:repository.bzl", "python_repository")
 
 python_repository(name = "python_dev")
