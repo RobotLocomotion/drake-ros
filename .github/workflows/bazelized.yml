@@ -23,7 +23,7 @@ jobs:
           key: bazel
       - name: Install prerequisites
         run: |
-          yes | sudo ./setup/install_prereqs.sh
+          yes | ./setup/install_prereqs.sh
       - name: Build Bazel workspace
         run: |
           bazel build //...
