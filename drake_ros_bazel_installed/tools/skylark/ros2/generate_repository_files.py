@@ -7,9 +7,6 @@ This script generates:
 
 - a BUILD.bazel file, with targets for all C/C++ libraries, Python libraries, executables, and share
   data files found in each scrapped ROS 2 package
-- a ros_cc.bzl file, with rules for C/C++ binaries and tests that depend on ROS 2 C/C++ libraries
-- a ros_py.bzl file, with rules for Python binaries and tests that depend on ROS 2 Python libraries
-- a rosidl.bzl file, with rules for C++ and Python ROS 2 message generation including typesupports
 - a distro.bzl file, with ROS 2 metadata as constants
 """
 

@@ -1,4 +1,5 @@
 # -*- python -*-
+# vi: set ft=python :
 
 package(default_visibility = ["//visibility:public"])
 

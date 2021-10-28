@@ -4,7 +4,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 
-#include "tools/ros2/rmw_isolation.h"
+#include "rmw_isolation/rmw_isolation.h"
 
 using std::placeholders::_1;
 

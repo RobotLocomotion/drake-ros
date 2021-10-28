@@ -10,7 +10,7 @@
 #include <rmw/rmw.h>
 
 #include "tools/cpp/runfiles/runfiles.h"
-#include "tools/ros2/rmw_isolation.h"
+#include "rmw_isolation/rmw_isolation.h"
 
 using bazel::tools::cpp::runfiles::Runfiles;
 
@@ -28,11 +28,8 @@ void isolate_rmw_by_path(const std::string& argv0, const std::string& path)
   if (!runfiles) {
     throw std::runtime_error(error);
   }
-  // NOTE(hidmic): no way around hard-coding this. Bazel's $(rootpath)
-  // won't prepend the workspace name (drake_ros in this case). Maybe
-  // relocate to an external repository?
   std::string isolated_env_rmw_location =
-      runfiles->Rlocation("drake_ros/tools/ros2/isolated_rmw_env");
+      runfiles->Rlocation("$ISOLATED_RMW_ENV_PATH");
   std::string env_file_path{"isolated_rmw.env"};
   std::stringstream sstr;
   sstr << isolated_env_rmw_location << " --scratch-directory " << path

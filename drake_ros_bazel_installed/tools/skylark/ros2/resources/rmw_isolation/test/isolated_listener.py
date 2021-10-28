@@ -27,7 +27,7 @@ class IsolatedListener(rclpy.node.Node):
 
 if __name__ == '__main__':
     if 'TEST_TMPDIR' in os.environ:
-        from drake_ros.tools.ros2.rmw_isolation import isolate_rmw_by_path
+        from rmw_isolation import isolate_rmw_by_path
         isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
 
     rclpy.init()

@@ -109,7 +109,7 @@ def collect_ament_cmake_package_properties(name, metadata):
     with TemporaryDirectory(dir=os.getcwd()) as project_path:
         project_name = 'empty_using_' + name
         cmakelists_template_path = path_to_resource(
-            'cmake/ament_cmake_CMakeLists.txt.in')
+            'templates/ament_cmake_CMakeLists.txt.in')
         cmakelists_path = os.path.join(project_path, 'CMakeLists.txt')
         cmake_tools.configure_file(cmakelists_template_path, cmakelists_path, {
             '@NAME@': project_name, '@PACKAGE@': name

@@ -2,27 +2,40 @@
 
 load("@drake_ros//tools/skylark:execute.bzl", "execute_or_fail")
 
+PACKAGE_MANIFEST = [
+    "common.bzl",
+    "ros_cc.bzl",
+    "ros_py.bzl",
+    "rosidl.bzl",
+
+    "rmw_isolation/BUILD.bazel",
+    "rmw_isolation/__init__.py",
+    "rmw_isolation/isolated_rmw_env.py",
+    "rmw_isolation/rmw_isolation.cc.in",
+    "rmw_isolation/rmw_isolation.h",
+    "rmw_isolation/rmw_isolation.py",
+    "rmw_isolation/test/isolated_listener.cc",
+    "rmw_isolation/test/isolated_listener.py",
+    "rmw_isolation/test/rmw_isolation_test.sh",
+    "rmw_isolation/test/talker.py",
+]
+
 GENERATE_TOOL_RESOURCES_MANIFEST = [
     "cmake_tools/packages.py",
     "cmake_tools/server_mode.py",
     "cmake_tools/__init__.py",
 
-    "resources/bazel/common.bzl",
-    "resources/bazel/ros_cc.bzl",
-    "resources/bazel/ros_py.bzl",
-    "resources/bazel/rosidl.bzl",
+    "resources/templates/distro.bzl.tpl",
+    "resources/templates/overlay_executable.bazel.tpl",
+    "resources/templates/package_interfaces_filegroup.bazel.tpl",
+    "resources/templates/package_cc_library.bazel.tpl",
+    "resources/templates/package_meta_py_library.bazel.tpl",
+    "resources/templates/package_py_library.bazel.tpl",
+    "resources/templates/package_py_library_with_cc_libs.bazel.tpl",
+    "resources/templates/package_share_filegroup.bazel.tpl",
+    "resources/templates/prologue.bazel",
 
-    "resources/bazel/distro.bzl.tpl",
-    "resources/bazel/overlay_executable.bazel.tpl",
-    "resources/bazel/package_interfaces_filegroup.bazel.tpl",
-    "resources/bazel/package_cc_library.bazel.tpl",
-    "resources/bazel/package_meta_py_library.bazel.tpl",
-    "resources/bazel/package_py_library.bazel.tpl",
-    "resources/bazel/package_py_library_with_cc_libs.bazel.tpl",
-    "resources/bazel/package_share_filegroup.bazel.tpl",
-    "resources/bazel/prologue.bazel",
-
-    "resources/cmake/ament_cmake_CMakeLists.txt.in",
+    "resources/templates/ament_cmake_CMakeLists.txt.in",
 
     "ros2bzl/utilities.py",
     "ros2bzl/sandboxing.py",
@@ -40,16 +53,14 @@ def _label(relpath):
     return Label("//tools/skylark/ros2:" + relpath)
 
 def _impl(repo_ctx):
-    repo_ctx.symlink(_label("resources/bazel/common.bzl"), "common.bzl")
-    repo_ctx.symlink(_label("resources/bazel/ros_cc.bzl"), "ros_cc.bzl")
-    repo_ctx.symlink(_label("resources/bazel/ros_py.bzl"), "ros_py.bzl")
-    repo_ctx.symlink(_label("resources/bazel/rosidl.bzl"), "rosidl.bzl")
+    for relpath in PACKAGE_MANIFEST:
+        repo_ctx.symlink(_label("resources/" + relpath), relpath)
 
     for relpath in GENERATE_TOOL_RESOURCES_MANIFEST:
         repo_ctx.symlink(_label(relpath), relpath)
 
     repo_ctx.template(
-        "setup.sh", _label("resources/shell/setup.sh.in"),
+        "setup.sh", _label("resources/templates/setup.sh.in"),
         substitutions = {
             "@REPOSITORY_DIR@": str(repo_ctx.path(".")),
             "@WORKSPACES@": " ".join(repo_ctx.attr.workspaces),
