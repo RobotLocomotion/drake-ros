@@ -31,7 +31,7 @@ class PySerializer : public SerializerInterface {
   explicit PySerializer(py::object message_type) : message_type_(message_type) {
     py::dict scope;
     py::exec(
-        R"delim(
+        R"""(
 def get_typesupport(msg_type, attribute_name):
     metaclass = msg_type.__class__
     if metaclass._TYPE_SUPPORT is None:
@@ -43,7 +43,7 @@ def get_typesupport(msg_type, attribute_name):
 def make_abstract_value(some_type):
     from pydrake.common.value import AbstractValue
     return AbstractValue.Make(some_type())
-      )delim",
+      )""",
         py::globals(), scope);
 
     py_make_abstract_value_ = scope["make_abstract_value"];
@@ -157,14 +157,14 @@ def make_abstract_value(some_type):
 
  private:
   py::object message_type_;
-  rosidl_message_type_support_t* type_support_;
+  rosidl_message_type_support_t* type_support_{nullptr};
 
   py::object py_make_abstract_value_;
 
-  bool (*convert_from_py_)(PyObject*, void*);
-  PyObject* (*convert_to_py_)(void*);
-  void* (*create_ros_message_)(void);
-  void (*destroy_ros_message_)(void*);
+  bool (*convert_from_py_)(PyObject*, void*) = nullptr;
+  PyObject* (*convert_to_py_)(void*) = nullptr;
+  void* (*create_ros_message_)(void) = nullptr;
+  void (*destroy_ros_message_)(void*) = nullptr;
 };
 }  // namespace drake_ros_core
 #endif  // PYTHON_BINDINGS__PY_SERIALIZER_HPP_
