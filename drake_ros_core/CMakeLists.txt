@@ -64,24 +64,23 @@ install(
 ###
 # Python bindings
 ###
-pybind11_add_module(py_drake_ros_core SHARED
+pybind11_add_module(drake_ros_core_py SHARED
   src/python_bindings/module_drake_ros_core.cpp
 )
-set_target_properties(py_drake_ros_core PROPERTIES OUTPUT_NAME "drake_ros_core")
-target_link_libraries(py_drake_ros_core PRIVATE
+set_target_properties(drake_ros_core_py PROPERTIES OUTPUT_NAME "drake_ros_core")
+target_link_libraries(drake_ros_core_py PRIVATE
   drake_ros_core
 )
-target_include_directories(py_drake_ros_core
+target_include_directories(drake_ros_core_py
   PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
 )
 
-# Sets PYTHON_INSTALL_DIR
-_ament_cmake_python_get_python_install_dir()
+ament_get_python_install_dir(python_install_dir)
 
 install(
-  TARGETS py_drake_ros_core
-  DESTINATION "${PYTHON_INSTALL_DIR}"
+  TARGETS drake_ros_core_py
+  DESTINATION "${python_install_dir}"
 )
 ### End Python bindings
 
