@@ -18,6 +18,7 @@
 #include <unordered_set>
 #include <utility>
 
+#include "drake_ros_viz/contact_markers_system.hpp"
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake_ros_core/drake_ros.h>
 #include <drake_ros_core/ros_publisher_system.h>
@@ -31,8 +32,10 @@ namespace drake_ros_viz {
 
 class RvizVisualizer::RvizVisualizerPrivate {
  public:
+  drake::systems::InputPortIndex graph_query_port_index;
   SceneMarkersSystem* scene_visual_markers;
   SceneMarkersSystem* scene_collision_markers;
+  ContactMarkersSystem* hydroelastic_contact_markers;
   drake_ros_tf2::SceneTfBroadcasterSystem* scene_tf_broadcaster{nullptr};
 };
 
@@ -53,8 +56,8 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
   builder.Connect(impl_->scene_visual_markers->get_markers_output_port(),
                   scene_visual_markers_publisher->get_input_port());
 
-  builder.ExportInput(impl_->scene_visual_markers->get_graph_query_input_port(),
-                      "graph_query");
+  impl_->graph_query_port_index = builder.ExportInput(
+      impl_->scene_visual_markers->get_graph_query_port(), "graph_query");
 
   auto scene_collision_markers_publisher = builder.AddSystem(
       RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
@@ -82,6 +85,23 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
         impl_->scene_tf_broadcaster->get_graph_query_input_port());
   }
 
+  // Hydroelastic Contact Connections
+  auto hydroelastic_contact_markers_publisher = builder.AddSystem(
+    RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
+      "/hydroelastic_contact/mesh", rclcpp::QoS(1), ros_interface,
+      params.publish_triggers, params.publish_period));
+
+  impl_->hydroelastic_contact_markers =
+    builder.AddSystem<ContactMarkersSystem>(
+    ContactMarkersParams::Strict());
+
+  builder.ConnectInput(
+    "graph_query", impl_->hydroelastic_contact_markers->get_graph_query_port());
+
+  builder.Connect(
+    impl_->hydroelastic_contact_markers->get_markers_output_port(),
+    hydroelastic_contact_markers_publisher->get_input_port());
+
   builder.BuildInto(this);
 }
 
@@ -91,6 +111,7 @@ void RvizVisualizer::RegisterMultibodyPlant(
     const drake::multibody::MultibodyPlant<double>* plant) {
   impl_->scene_visual_markers->RegisterMultibodyPlant(plant);
   impl_->scene_collision_markers->RegisterMultibodyPlant(plant);
+  impl_->hydroelastic_contact_markers->RegisterMultibodyPlant(plant);
   if (impl_->scene_tf_broadcaster) {
     impl_->scene_tf_broadcaster->RegisterMultibodyPlant(plant);
   }
@@ -104,7 +125,7 @@ void RvizVisualizer::ComputeFrameHierarchy() {
 
 const drake::systems::InputPort<double>&
 RvizVisualizer::get_graph_query_input_port() const {
-  return get_input_port();
+  return get_input_port(impl_->graph_query_port_index);
 }
 
 }  // namespace drake_ros_viz

@@ -43,12 +43,12 @@
 
 #include <iostream>
 
-#include "drake_ros_systems/contact_markers_system.hpp"
-#include "drake_ros_systems/utilities/name_conventions.hpp"
-#include "drake_ros_systems/utilities/type_conversion.hpp"
+#include "drake_ros_viz/contact_markers_system.hpp"
+#include "drake_ros_viz/utilities/name_conventions.hpp"
+#include "drake_ros_viz/utilities/type_conversion.hpp"
 #include "lodepng/lodepng.h"
 
-namespace drake_ros_systems
+namespace drake_ros_viz
 {
 
 namespace
@@ -326,4 +326,4 @@ ContactMarkersSystem::get_markers_output_port() const
   return get_output_port(impl_->contact_markers_port_index);
 }
 
-}  // namespace drake_ros_systems
+}  // namespace drake_ros_viz
