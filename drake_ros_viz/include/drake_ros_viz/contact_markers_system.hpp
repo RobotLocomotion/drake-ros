@@ -26,7 +26,7 @@
 #include <string>
 
 
-namespace drake_ros_systems
+namespace drake_ros_viz
 {
 
 /// Set of parameters that configure a ContactMarkersSystem.
@@ -110,6 +110,6 @@ private:
   std::unique_ptr<ContactMarkersSystemPrivate> impl_;
 };
 
-}  // namespace drake_ros_systems
+}  // namespace drake_ros_viz
 
 #endif  // DRAKE_ROS_SYSTEMS__CONTACT_MARKERS_SYSTEM_HPP_

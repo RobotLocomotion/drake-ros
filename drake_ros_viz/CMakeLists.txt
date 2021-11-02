@@ -28,6 +28,8 @@ add_library(drake_ros_viz
   src/scene_markers_system.cc
   src/utilities/name_conventions.cc
   src/utilities/type_conversion.cc
+  src/contact_markers_system.cpp
+  src/lodepng/lodepng.cpp
 )
 
 target_link_libraries(drake_ros_viz PUBLIC
@@ -91,6 +93,20 @@ install(
   DESTINATION "${python_install_dir}"
 )
 ### End Python bindings
+
+add_executable(hydroelastic_collisions
+  examples/hydroelastic_collisions/hydroelastic_collisions.cpp
+)
+target_link_libraries(hydroelastic_collisions
+  drake::drake
+  drake_ros_viz
+  gflags
+)
+install(
+  TARGETS
+    hydroelastic_collisions
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
