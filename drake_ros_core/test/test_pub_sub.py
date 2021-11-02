@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_core import RosPublisherSystem
-from drake_ros_core import RosSubscriberSystem
-
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 
@@ -26,6 +22,10 @@ from rclpy.qos import QoSProfile
 from rclpy.qos import ReliabilityPolicy
 
 from test_msgs.msg import BasicTypes
+
+from drake_ros_core import RosInterfaceSystem
+from drake_ros_core import RosPublisherSystem
+from drake_ros_core import RosSubscriberSystem
 
 
 def test_nominal_case():
