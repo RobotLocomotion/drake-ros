@@ -14,8 +14,8 @@
 #include <memory>
 #include <unordered_set>
 
-#include "py_serializer.hpp"
-#include "qos_type_caster.hpp"
+#include "py_serializer_pybind.hpp"
+#include "qos_type_caster_pybind.hpp"
 #include <drake/systems/framework/leaf_system.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
