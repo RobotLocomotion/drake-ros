@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_CORE__DRAKE_ROS_HPP_
-#define DRAKE_ROS_CORE__DRAKE_ROS_HPP_
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -24,7 +23,7 @@
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
-#include "drake_ros_core/drake_ros_interface.hpp"
+#include "drake_ros_core/drake_ros_interface.h"
 
 namespace drake_ros_core {
 /// PIMPL forward declarations
@@ -57,4 +56,3 @@ class DrakeRos final : public DrakeRosInterface {
   std::unique_ptr<DrakeRosPrivate> impl_;
 };
 }  // namespace drake_ros_core
-#endif  // DRAKE_ROS_CORE__DRAKE_ROS_HPP_

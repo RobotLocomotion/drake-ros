@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_CORE__SERIALIZER_HPP_
-#define DRAKE_ROS_CORE__SERIALIZER_HPP_
+#pragma once
 
 #include <memory>
 
@@ -21,7 +20,7 @@
 #include <rmw/rmw.h>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-#include "drake_ros_core/serializer_interface.hpp"
+#include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
 template <typename MessageT>
@@ -58,4 +57,3 @@ class Serializer : public SerializerInterface {
   }
 };
 }  // namespace drake_ros_core
-#endif  // DRAKE_ROS_CORE__SERIALIZER_HPP_

@@ -14,16 +14,16 @@
 #include <memory>
 #include <unordered_set>
 
-#include "py_serializer_pybind.hpp"
-#include "qos_type_caster_pybind.hpp"
+#include "py_serializer_pybind.h"    // NOLINT(build/include)
+#include "qos_type_caster_pybind.h"  // NOLINT(build/include)
 #include <drake/systems/framework/leaf_system.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "drake_ros_core/drake_ros.hpp"
-#include "drake_ros_core/ros_interface_system.hpp"
-#include "drake_ros_core/ros_publisher_system.hpp"
-#include "drake_ros_core/ros_subscriber_system.hpp"
+#include "drake_ros_core/drake_ros.h"
+#include "drake_ros_core/ros_interface_system.h"
+#include "drake_ros_core/ros_publisher_system.h"
+#include "drake_ros_core/ros_subscriber_system.h"
 
 namespace py = pybind11;
 

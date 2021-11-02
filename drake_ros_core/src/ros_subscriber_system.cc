@@ -11,14 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "drake_ros_core/ros_subscriber_system.hpp"
+
+#include "drake_ros_core/ros_subscriber_system.h"
 
 #include <memory>
 #include <mutex>
 #include <string>
 #include <utility>
 
-#include "subscription.hpp"
+#include "subscription.h"  // NOLINT(build/include)
 #include <drake/systems/framework/abstract_values.h>
 
 namespace drake_ros_core {

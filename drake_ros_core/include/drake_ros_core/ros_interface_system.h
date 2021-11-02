@@ -11,14 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_
-#define DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_
+#pragma once
 
 #include <memory>
 
 #include <drake/systems/framework/leaf_system.h>
 
-#include "drake_ros_core/drake_ros_interface.hpp"
+#include "drake_ros_core/drake_ros_interface.h"
 
 namespace drake_ros_core {
 // PIMPL forward declaration
@@ -42,4 +41,3 @@ class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
   std::unique_ptr<RosInterfaceSystemPrivate> impl_;
 };
 }  // namespace drake_ros_core
-#endif  // DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_

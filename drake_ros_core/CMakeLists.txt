@@ -19,12 +19,12 @@ find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 
 add_library(drake_ros_core
-  src/drake_ros.cpp
-  src/publisher.cpp
-  src/ros_interface_system.cpp
-  src/ros_publisher_system.cpp
-  src/ros_subscriber_system.cpp
-  src/subscription.cpp
+  src/drake_ros.cc
+  src/publisher.cc
+  src/ros_interface_system.cc
+  src/ros_publisher_system.cc
+  src/ros_subscriber_system.cc
+  src/subscription.cc
 )
 
 target_link_libraries(drake_ros_core PUBLIC
@@ -65,7 +65,7 @@ install(
 # Python bindings
 ###
 pybind11_add_module(drake_ros_core_py SHARED
-  src/python_bindings/module_drake_ros_core.cpp
+  src/python_bindings/module_drake_ros_core.cc
 )
 set_target_properties(drake_ros_core_py PROPERTIES OUTPUT_NAME "drake_ros_core")
 target_link_libraries(drake_ros_core_py PRIVATE
@@ -97,7 +97,7 @@ if(BUILD_TESTING)
 
   ament_pycodestyle(--config pycodestyle.ini)
 
-  ament_add_gtest(test_pub_sub test/test_pub_sub.cpp)
+  ament_add_gtest(test_pub_sub test/test_pub_sub.cc)
 
   target_link_libraries(test_pub_sub
     drake::drake
@@ -107,7 +107,7 @@ if(BUILD_TESTING)
 
   ament_add_pytest_test(test_pub_sub_py test/test_pub_sub.py)
 
-  ament_add_gtest(test_drake_ros test/test_drake_ros.cpp)
+  ament_add_gtest(test_drake_ros test/test_drake_ros.cc)
   target_link_libraries(test_drake_ros
     drake_ros_core
   )

@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_CORE__ROS_PUBLISHER_SYSTEM_HPP_
-#define DRAKE_ROS_CORE__ROS_PUBLISHER_SYSTEM_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -22,9 +21,9 @@
 #include <rclcpp/serialized_message.hpp>
 #include <rmw/rmw.h>
 
-#include "drake_ros_core/drake_ros_interface.hpp"
-#include "drake_ros_core/serializer.hpp"
-#include "drake_ros_core/serializer_interface.hpp"
+#include "drake_ros_core/drake_ros_interface.h"
+#include "drake_ros_core/serializer.h"
+#include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
 /// PIMPL forward declaration
@@ -86,4 +85,3 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
   std::unique_ptr<RosPublisherSystemPrivate> impl_;
 };
 }  // namespace drake_ros_core
-#endif  // DRAKE_ROS_CORE__ROS_PUBLISHER_SYSTEM_HPP_

@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef SUBSCRIPTION_HPP_
-#define SUBSCRIPTION_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -72,4 +71,3 @@ class Subscription final : public rclcpp::SubscriptionBase {
   std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback_;
 };
 }  // namespace drake_ros_core
-#endif  // SUBSCRIPTION_HPP_

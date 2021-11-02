@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_core/ros_publisher_system.hpp"
+#include "drake_ros_core/ros_publisher_system.h"
 
 #include <memory>
 #include <string>
 #include <unordered_set>
 #include <utility>
 
-#include "publisher.hpp"
+#include "publisher.h"  // NOLINT(build/include)
 
-#include "drake_ros_core/serializer_interface.hpp"
+#include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
 class RosPublisherSystemPrivate {

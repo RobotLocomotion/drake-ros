@@ -11,27 +11,35 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef PUBLISHER_HPP_
-#define PUBLISHER_HPP_
+#pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 
-#include <rclcpp/publisher_base.hpp>
+#include <rclcpp/clock.hpp>
 #include <rclcpp/qos.hpp>
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace drake_ros_core {
-class Publisher final : public rclcpp::PublisherBase {
+// Forward declarations for non-public-API classes
+class Publisher;
+class Subscription;
+
+/// System that abstracts working with ROS
+class DrakeRosInterface {
  public:
-  Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
-            const rosidl_message_type_support_t& ts,
-            const std::string& topic_name, const rclcpp::QoS& qos);
+  virtual std::unique_ptr<Publisher> create_publisher(
+      const rosidl_message_type_support_t& ts, const std::string& topic_name,
+      const rclcpp::QoS& qos) = 0;
 
-  ~Publisher();
+  virtual std::shared_ptr<Subscription> create_subscription(
+      const rosidl_message_type_support_t& ts, const std::string& topic_name,
+      const rclcpp::QoS& qos,
+      std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)>
+          callback) = 0;
 
-  void publish(const rclcpp::SerializedMessage& serialized_msg);
+  virtual void spin(int timeout_millis) = 0;
 };
 }  // namespace drake_ros_core
-#endif  // PUBLISHER_HPP_

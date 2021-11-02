@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef PYTHON_BINDINGS__PY_SERIALIZER_HPP_
-#define PYTHON_BINDINGS__PY_SERIALIZER_HPP_
+#pragma once
 
 #include <memory>
 
@@ -20,7 +19,7 @@
 #include <pybind11/pybind11.h>
 #include <rmw/rmw.h>
 
-#include "drake_ros_core/serializer_interface.hpp"
+#include "drake_ros_core/serializer_interface.h"
 
 namespace py = pybind11;
 
@@ -167,4 +166,3 @@ def make_abstract_value(some_type):
   void (*destroy_ros_message_)(void*) = nullptr;
 };
 }  // namespace drake_ros_core
-#endif  // PYTHON_BINDINGS__PY_SERIALIZER_HPP_

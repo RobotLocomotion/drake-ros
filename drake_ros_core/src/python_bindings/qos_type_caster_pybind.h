@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef PYTHON_BINDINGS__QOS_TYPE_CASTER_HPP_
-#define PYTHON_BINDINGS__QOS_TYPE_CASTER_HPP_
+#pragma once
 
 #include <memory>
 
@@ -97,4 +96,3 @@ struct type_caster<drake_ros_core::QoS> {
 };
 }  // namespace detail
 }  // namespace pybind11
-#endif  // PYTHON_BINDINGS__QOS_TYPE_CASTER_HPP_

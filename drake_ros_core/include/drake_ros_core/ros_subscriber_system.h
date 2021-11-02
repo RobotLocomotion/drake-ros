@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_CORE__ROS_SUBSCRIBER_SYSTEM_HPP_
-#define DRAKE_ROS_CORE__ROS_SUBSCRIBER_SYSTEM_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -20,9 +19,9 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-#include "drake_ros_core/drake_ros_interface.hpp"
-#include "drake_ros_core/serializer.hpp"
-#include "drake_ros_core/serializer_interface.hpp"
+#include "drake_ros_core/drake_ros_interface.h"
+#include "drake_ros_core/serializer.h"
+#include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
 // PIMPL forward declaration
@@ -59,4 +58,3 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
   std::unique_ptr<RosSubscriberSystemPrivate> impl_;
 };
 }  // namespace drake_ros_core
-#endif  // DRAKE_ROS_CORE__ROS_SUBSCRIBER_SYSTEM_HPP_
