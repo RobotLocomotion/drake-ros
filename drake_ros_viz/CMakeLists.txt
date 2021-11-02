@@ -20,8 +20,10 @@ find_package(visualization_msgs REQUIRED)
 add_library(drake_ros_viz
   src/rviz_visualizer.cpp
   src/scene_markers_system.cpp
+  src/contact_markers_system.cpp
   src/utilities/name_conventions.cpp
   src/utilities/type_conversion.cpp
+  src/lodepng/lodepng.cpp
 )
 
 target_link_libraries(drake_ros_viz PUBLIC
@@ -60,6 +62,20 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
 install(
   DIRECTORY include/
   DESTINATION include
+)
+
+add_executable(hydroelastic_collisions
+  examples/hydroelastic_collisions/hydroelastic_collisions.cpp
+)
+target_link_libraries(hydroelastic_collisions
+  drake::drake
+  drake_ros_viz
+  gflags
+)
+install(
+  TARGETS
+    hydroelastic_collisions
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

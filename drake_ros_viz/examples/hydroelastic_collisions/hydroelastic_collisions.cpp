@@ -29,9 +29,9 @@
 #include <drake/systems/primitives/sine.h>
 */
 
-#include <drake_ros_systems/drake_ros.hpp>
-#include <drake_ros_systems/ros_interface_system.hpp>
-#include <drake_ros_systems/rviz_visualizer.hpp>
+#include <drake_ros_core/drake_ros.hpp>
+#include <drake_ros_core/ros_interface_system.hpp>
+#include <drake_ros_viz/rviz_visualizer.hpp>
 
 #include <cmath>
 #include <memory>
@@ -61,9 +61,9 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/lcm/lcm_publisher_system.h>
 
-using drake_ros_systems::DrakeRos;
-using drake_ros_systems::RosInterfaceSystem;
-using drake_ros_systems::RvizVisualizer;
+using drake_ros_core::DrakeRos;
+using drake_ros_core::RosInterfaceSystem;
+using drake_ros_viz::RvizVisualizer;
 
 namespace drake {
 namespace examples {
