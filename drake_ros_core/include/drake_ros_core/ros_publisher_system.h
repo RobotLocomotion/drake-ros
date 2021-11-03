@@ -52,15 +52,13 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
       const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
       double publish_period = 0.0) {
     // Assume C++ typesupport since this is a C++ template function
-    std::unique_ptr<SerializerInterface> serializer =
-        std::make_unique<Serializer<MessageT>>();
-    return std::make_unique<RosPublisherSystem>(serializer, topic_name, qos,
-                                                ros_interface, publish_triggers,
-                                                publish_period);
+    return std::make_unique<RosPublisherSystem>(
+        std::make_unique<Serializer<MessageT>>(), topic_name, qos,
+        ros_interface, publish_triggers, publish_period);
   }
 
   RosPublisherSystem(
-      std::unique_ptr<SerializerInterface>& serializer,
+      std::unique_ptr<SerializerInterface> serializer,
       const std::string& topic_name, const rclcpp::QoS& qos,
       DrakeRosInterface* ros_interface,
       const std::unordered_set<drake::systems::TriggerType>& publish_triggers,

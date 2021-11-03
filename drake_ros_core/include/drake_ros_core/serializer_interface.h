@@ -25,8 +25,8 @@ class SerializerInterface {
   virtual rclcpp::SerializedMessage serialize(
       const drake::AbstractValue& abstract_value) const = 0;
 
-  virtual bool deserialize(const rclcpp::SerializedMessage& message,
-                           drake::AbstractValue& abstract_value) const = 0;
+  virtual void deserialize(const rclcpp::SerializedMessage& message,
+                           drake::AbstractValue* abstract_value) const = 0;
 
   virtual std::unique_ptr<drake::AbstractValue> create_default_value()
       const = 0;

@@ -50,7 +50,7 @@ class RosSubscriberSystemPrivate {
 };
 
 RosSubscriberSystem::RosSubscriberSystem(
-    std::unique_ptr<SerializerInterface>& serializer,
+    std::unique_ptr<SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos,
     DrakeRosInterface* ros)
     : impl_(new RosSubscriberSystemPrivate()) {
@@ -100,9 +100,9 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
             state->get_mutable_abstract_state();
         auto& abstract_value =
             abstract_state.get_mutable_value(kStateIndexMessage);
-        const bool ret = impl_->serializer_->deserialize(*serialized_message,
-                                                         abstract_value);
-        if (ret != RMW_RET_OK) {
+        try {
+          impl_->serializer_->deserialize(*serialized_message, &abstract_value);
+        } catch (const std::exception&) {
           return drake::systems::EventStatus::Failed(
               this, "Failed to deserialize ROS message");
         }

@@ -39,10 +39,10 @@ def test_nominal_case():
         reliability=ReliabilityPolicy.RELIABLE,
         durability=DurabilityPolicy.TRANSIENT_LOCAL)
 
-    ros_publisher_system = builder.AddSystem(RosPublisherSystem(
+    ros_publisher_system = builder.AddSystem(RosPublisherSystem.make(
         BasicTypes, 'out_py', qos, ros_interface_system.get_ros_interface()))
 
-    ros_subscriber_system = builder.AddSystem(RosSubscriberSystem(
+    ros_subscriber_system = builder.AddSystem(RosSubscriberSystem.make(
         BasicTypes, 'in_py', qos, ros_interface_system.get_ros_interface()))
 
     builder.Connect(

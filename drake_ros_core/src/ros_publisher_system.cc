@@ -31,7 +31,7 @@ class RosPublisherSystemPrivate {
 };
 
 RosPublisherSystem::RosPublisherSystem(
-    std::unique_ptr<SerializerInterface>& serializer,
+    std::unique_ptr<SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos,
     DrakeRosInterface* ros,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
