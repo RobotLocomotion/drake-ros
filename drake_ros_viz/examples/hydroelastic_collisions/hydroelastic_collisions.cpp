@@ -91,9 +91,7 @@ using geometry::QueryObject;
 using geometry::SceneGraph;
 using geometry::SourceId;
 using geometry::Sphere;
-using geometry::SurfaceFaceIndex;
-using geometry::SurfaceMesh;
-using geometry::SurfaceVertex;
+using geometry::TriangleSurfaceMesh;
 using lcm::DrakeLcm;
 using math::RigidTransformd;
 using std::make_unique;
@@ -251,8 +249,8 @@ class ContactResultMaker final : public LeafSystem<double> {
       surface_msg.body1_name = "Id_" + to_string(surfaces[i].id_M());
       surface_msg.body2_name = "Id_" + to_string(surfaces[i].id_N());
 
-      const SurfaceMesh<double>& mesh_W = surfaces[i].mesh_W();
-      surface_msg.num_triangles = mesh_W.num_faces();
+      const TriangleSurfaceMesh<double>& mesh_W = surfaces[i].mesh_W();
+      surface_msg.num_triangles = mesh_W.num_triangles();
       surface_msg.triangles.resize(surface_msg.num_triangles);
       write_double3(mesh_W.centroid(), surface_msg.centroid_W);
       surface_msg.num_quadrature_points = surface_msg.num_triangles;
@@ -261,7 +259,7 @@ class ContactResultMaker final : public LeafSystem<double> {
 
       // Loop through each contact triangle on the contact surface.
       const auto& field = surfaces[i].e_MN();
-      for (SurfaceFaceIndex j(0); j < surface_msg.num_triangles; ++j) {
+      for (int j = 0; j < surface_msg.num_triangles; ++j) {
         lcmt_hydroelastic_contact_surface_tri_for_viz& tri_msg =
             surface_msg.triangles[j];
         lcmt_hydroelastic_quadrature_per_point_data_for_viz& quad_msg =
@@ -269,14 +267,14 @@ class ContactResultMaker final : public LeafSystem<double> {
 
         // Get the three vertices.
         const auto& face = mesh_W.element(j);
-        const SurfaceVertex<double>& vA = mesh_W.vertex(face.vertex(0));
-        const SurfaceVertex<double>& vB = mesh_W.vertex(face.vertex(1));
-        const SurfaceVertex<double>& vC = mesh_W.vertex(face.vertex(2));
+        const Vector3d& vA = mesh_W.vertex(face.vertex(0));
+        const Vector3d& vB = mesh_W.vertex(face.vertex(1));
+        const Vector3d& vC = mesh_W.vertex(face.vertex(2));
 
-        write_double3(vA.r_MV(), tri_msg.p_WA);
-        write_double3(vB.r_MV(), tri_msg.p_WB);
-        write_double3(vC.r_MV(), tri_msg.p_WC);
-        write_double3((vA.r_MV() + vB.r_MV() + vC.r_MV()) / 3.0, quad_msg.p_WQ);
+        write_double3(vA, tri_msg.p_WA);
+        write_double3(vB, tri_msg.p_WB);
+        write_double3(vC, tri_msg.p_WC);
+        write_double3((vA + vB + vC) / 3.0, quad_msg.p_WQ);
 
         tri_msg.pressure_A = field.EvaluateAtVertex(face.vertex(0));
         tri_msg.pressure_B = field.EvaluateAtVertex(face.vertex(1));
