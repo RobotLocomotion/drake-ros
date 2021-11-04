@@ -30,6 +30,7 @@ class Publisher final : public rclcpp::PublisherBase {
 
   ~Publisher();
 
+  // Using snake cased function names to not mix up Drake and ROS 2 C++ styles.
   void publish(const rclcpp::SerializedMessage& serialized_msg);
 };
 }  // namespace drake_ros_core

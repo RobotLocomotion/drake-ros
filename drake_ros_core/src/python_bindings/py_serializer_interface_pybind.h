@@ -32,23 +32,22 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
 
   PySerializerInterface() : Base() {}
 
-  const rosidl_message_type_support_t* get_type_support() const override {
+  const rosidl_message_type_support_t* GetTypeSupport() const override {
     auto overload = [&]() -> py::capsule {
-      PYBIND11_OVERLOAD_PURE(py::capsule, SerializerInterface,
-                             get_type_support);
+      PYBIND11_OVERLOAD_PURE(py::capsule, SerializerInterface, GetTypeSupport);
     };
     return static_cast<rosidl_message_type_support_t*>(overload());
   }
 
-  std::unique_ptr<drake::AbstractValue> create_default_value() const override {
+  std::unique_ptr<drake::AbstractValue> CreateDefaultValue() const override {
     PYBIND11_OVERLOAD_PURE(std::unique_ptr<drake::AbstractValue>,
-                           SerializerInterface, create_default_value);
+                           SerializerInterface, CreateDefaultValue);
   }
 
-  rclcpp::SerializedMessage serialize(
+  rclcpp::SerializedMessage Serialize(
       const drake::AbstractValue& abstract_value) const override {
     auto overload = [&]() -> py::bytes {
-      PYBIND11_OVERLOAD_PURE(py::bytes, SerializerInterface, serialize,
+      PYBIND11_OVERLOAD_PURE(py::bytes, SerializerInterface, Serialize,
                              &abstract_value);
     };
     std::string bytes = overload();
@@ -61,14 +60,14 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
     return serialized_message;
   }
 
-  void deserialize(const rclcpp::SerializedMessage& serialized_message,
+  void Deserialize(const rclcpp::SerializedMessage& serialized_message,
                    drake::AbstractValue* abstract_value) const override {
     const rcl_serialized_message_t& rcl_serialized_message =
         serialized_message.get_rcl_serialized_message();
     py::bytes serialized_message_bytes(
         reinterpret_cast<const char*>(rcl_serialized_message.buffer),
         rcl_serialized_message.buffer_length);
-    PYBIND11_OVERLOAD_PURE(void, SerializerInterface, deserialize,
+    PYBIND11_OVERLOAD_PURE(void, SerializerInterface, Deserialize,
                            serialized_message_bytes, abstract_value);
   }
 };

@@ -68,16 +68,16 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
 
   /// Convenience method to publish a C++ ROS message
   template <typename MessageT>
-  void publish(const MessageT& message) {
+  void Publish(const MessageT& message) {
     static const Serializer<MessageT> serializer;
     publish(serializer->serialize(message));
   }
 
   /// Publish a serialized ROS message
-  void publish(const rclcpp::SerializedMessage& serialized_msg);
+  void Publish(const rclcpp::SerializedMessage& serialized_msg);
 
  protected:
-  drake::systems::EventStatus publish_input(
+  drake::systems::EventStatus PublishInput(
       const drake::systems::Context<double>& context) const;
 
   std::unique_ptr<RosPublisherSystemPrivate> impl_;

@@ -30,16 +30,16 @@ class Subscription;
 /// System that abstracts working with ROS
 class DrakeRosInterface {
  public:
-  virtual std::unique_ptr<Publisher> create_publisher(
+  virtual std::unique_ptr<Publisher> CreatePublisher(
       const rosidl_message_type_support_t& ts, const std::string& topic_name,
       const rclcpp::QoS& qos) = 0;
 
-  virtual std::shared_ptr<Subscription> create_subscription(
+  virtual std::shared_ptr<Subscription> CreateSubscription(
       const rosidl_message_type_support_t& ts, const std::string& topic_name,
       const rclcpp::QoS& qos,
       std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)>
           callback) = 0;
 
-  virtual void spin(int timeout_millis) = 0;
+  virtual void Spin(int timeout_millis) = 0;
 };
 }  // namespace drake_ros_core

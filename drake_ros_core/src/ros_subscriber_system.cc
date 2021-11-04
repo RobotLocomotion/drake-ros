@@ -28,14 +28,14 @@ const int kStateIndexMessage = 0;
 
 class RosSubscriberSystemPrivate {
  public:
-  void handle_message(std::shared_ptr<rclcpp::SerializedMessage> callback) {
+  void HandleMessage(std::shared_ptr<rclcpp::SerializedMessage> callback) {
     std::lock_guard<std::mutex> message_lock(mutex_);
     // TODO(sloretz) Queue messages here? Lcm subscriber doesn't, so maybe lost
     // messages are ok Overwrite last message
     msg_ = callback;
   }
 
-  std::shared_ptr<rclcpp::SerializedMessage> take_message() {
+  std::shared_ptr<rclcpp::SerializedMessage> TakeMessage() {
     std::lock_guard<std::mutex> message_lock(mutex_);
     return std::move(msg_);
   }
@@ -55,14 +55,14 @@ RosSubscriberSystem::RosSubscriberSystem(
     DrakeRosInterface* ros)
     : impl_(new RosSubscriberSystemPrivate()) {
   impl_->serializer_ = std::move(serializer);
-  impl_->sub_ = ros->create_subscription(
-      *impl_->serializer_->get_type_support(), topic_name, qos,
-      std::bind(&RosSubscriberSystemPrivate::handle_message, impl_.get(),
+  impl_->sub_ = ros->CreateSubscription(
+      *impl_->serializer_->GetTypeSupport(), topic_name, qos,
+      std::bind(&RosSubscriberSystemPrivate::HandleMessage, impl_.get(),
                 std::placeholders::_1));
 
   static_assert(kStateIndexMessage == 0, "");
   auto message_state_index =
-      DeclareAbstractState(*(impl_->serializer_->create_default_value()));
+      DeclareAbstractState(*(impl_->serializer_->CreateDefaultValue()));
 
   DeclareStateOutputPort(drake::systems::kUseDefaultName, message_state_index);
 }
@@ -80,7 +80,7 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
   DRAKE_THROW_UNLESS(events->HasEvents() == false);
   DRAKE_THROW_UNLESS(std::isinf(*time));
 
-  std::shared_ptr<rclcpp::SerializedMessage> message = impl_->take_message();
+  std::shared_ptr<rclcpp::SerializedMessage> message = impl_->TakeMessage();
 
   // Do nothing unless we have a new message.
   if (nullptr == message.get()) {
@@ -100,7 +100,7 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
             state->get_mutable_abstract_state();
         auto& abstract_value =
             abstract_state.get_mutable_value(kStateIndexMessage);
-        impl_->serializer_->deserialize(*serialized_message, &abstract_value);
+        impl_->serializer_->Deserialize(*serialized_message, &abstract_value);
         return drake::systems::EventStatus::Succeeded();
       };
 

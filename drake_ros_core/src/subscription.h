@@ -33,6 +33,8 @@ class Subscription final : public rclcpp::SubscriptionBase {
   ~Subscription();
 
  protected:
+  // Using snake cased function names to not mix up Drake and ROS 2 C++ styles.
+
   /// Borrow a new message.
   /** \return Shared pointer to the fresh message. */
   std::shared_ptr<void> create_message() override;

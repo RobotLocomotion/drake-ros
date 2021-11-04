@@ -40,17 +40,17 @@ class DrakeRos final : public DrakeRosInterface {
 
   virtual ~DrakeRos();
 
-  std::unique_ptr<Publisher> create_publisher(
+  std::unique_ptr<Publisher> CreatePublisher(
       const rosidl_message_type_support_t& ts, const std::string& topic_name,
       const rclcpp::QoS& qos) final;
 
-  std::shared_ptr<Subscription> create_subscription(
+  std::shared_ptr<Subscription> CreateSubscription(
       const rosidl_message_type_support_t& ts, const std::string& topic_name,
       const rclcpp::QoS& qos,
       std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback)
       final;
 
-  void spin(int timeout_millis) final;
+  void Spin(int timeout_millis) final;
 
  private:
   std::unique_ptr<DrakeRosPrivate> impl_;

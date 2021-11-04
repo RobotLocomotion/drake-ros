@@ -22,15 +22,14 @@
 namespace drake_ros_core {
 class SerializerInterface {
  public:
-  virtual rclcpp::SerializedMessage serialize(
+  virtual rclcpp::SerializedMessage Serialize(
       const drake::AbstractValue& abstract_value) const = 0;
 
-  virtual void deserialize(const rclcpp::SerializedMessage& message,
+  virtual void Deserialize(const rclcpp::SerializedMessage& message,
                            drake::AbstractValue* abstract_value) const = 0;
 
-  virtual std::unique_ptr<drake::AbstractValue> create_default_value()
-      const = 0;
+  virtual std::unique_ptr<drake::AbstractValue> CreateDefaultValue() const = 0;
 
-  virtual const rosidl_message_type_support_t* get_type_support() const = 0;
+  virtual const rosidl_message_type_support_t* GetTypeSupport() const = 0;
 };
 }  // namespace drake_ros_core

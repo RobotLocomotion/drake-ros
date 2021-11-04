@@ -66,14 +66,14 @@ DrakeRos::~DrakeRos() {
   }
 }
 
-std::unique_ptr<Publisher> DrakeRos::create_publisher(
+std::unique_ptr<Publisher> DrakeRos::CreatePublisher(
     const rosidl_message_type_support_t& ts, const std::string& topic_name,
     const rclcpp::QoS& qos) {
   return std::make_unique<Publisher>(
       impl_->node_->get_node_base_interface().get(), ts, topic_name, qos);
 }
 
-std::shared_ptr<Subscription> DrakeRos::create_subscription(
+std::shared_ptr<Subscription> DrakeRos::CreateSubscription(
     const rosidl_message_type_support_t& ts, const std::string& topic_name,
     const rclcpp::QoS& qos,
     std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback) {
@@ -85,7 +85,7 @@ std::shared_ptr<Subscription> DrakeRos::create_subscription(
   return sub;
 }
 
-void DrakeRos::spin(int timeout_millis) {
+void DrakeRos::Spin(int timeout_millis) {
   impl_->executor_->spin_some(std::chrono::milliseconds(timeout_millis));
 }
 }  // namespace drake_ros_core

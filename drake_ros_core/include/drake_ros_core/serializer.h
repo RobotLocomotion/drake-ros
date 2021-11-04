@@ -26,7 +26,7 @@ namespace drake_ros_core {
 template <typename MessageT>
 class Serializer : public SerializerInterface {
  public:
-  rclcpp::SerializedMessage serialize(
+  rclcpp::SerializedMessage Serialize(
       const drake::AbstractValue& abstract_value) const override {
     rclcpp::SerializedMessage serialized_message;
     protocol_.serialize_message(&abstract_value.get_value<MessageT>(),
@@ -34,17 +34,17 @@ class Serializer : public SerializerInterface {
     return serialized_message;
   }
 
-  void deserialize(const rclcpp::SerializedMessage& serialized_message,
+  void Deserialize(const rclcpp::SerializedMessage& serialized_message,
                    drake::AbstractValue* abstract_value) const override {
     protocol_.deserialize_message(
         &serialized_message, &abstract_value->get_mutable_value<MessageT>());
   }
 
-  std::unique_ptr<drake::AbstractValue> create_default_value() const override {
+  std::unique_ptr<drake::AbstractValue> CreateDefaultValue() const override {
     return std::make_unique<drake::Value<MessageT>>(MessageT());
   }
 
-  const rosidl_message_type_support_t* get_type_support() const override {
+  const rosidl_message_type_support_t* GetTypeSupport() const override {
     return rosidl_typesupport_cpp::get_message_type_support_handle<MessageT>();
   }
 

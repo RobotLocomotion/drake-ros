@@ -21,16 +21,16 @@ class PySerializer(SerializerInterface):
         check_for_type_support(message_type)
         self._message_type = message_type
 
-    def get_type_support(self):
+    def GetTypeSupport(self):
         return self._message_type._TYPE_SUPPORT
 
-    def create_default_value(self):
+    def CreateDefaultValue(self):
         return AbstractValue.Make(self._message_type())
 
-    def serialize(self, abstract_value):
+    def Serialize(self, abstract_value):
         return serialize_message(abstract_value.get_value())
 
-    def deserialize(self, serialized_message, abstract_value):
+    def Deserialize(self, serialized_message, abstract_value):
         abstract_value.set_value(deserialize_message(
             serialized_message, self._message_type))
 
@@ -49,7 +49,7 @@ def _make_ros_publisher_system(
         publish_triggers, publish_period)
 
 
-RosPublisherSystem.make = _make_ros_publisher_system
+RosPublisherSystem.Make = _make_ros_publisher_system
 
 
 @staticmethod
@@ -61,7 +61,7 @@ def _make_ros_subscriber_system(
         topic_name, qos, ros_interface)
 
 
-RosSubscriberSystem.make = _make_ros_subscriber_system
+RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 
 __all__ = [

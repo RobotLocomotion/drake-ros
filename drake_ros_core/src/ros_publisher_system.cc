@@ -38,11 +38,11 @@ RosPublisherSystem::RosPublisherSystem(
     double publish_period)
     : impl_(new RosPublisherSystemPrivate()) {
   impl_->serializer_ = std::move(serializer);
-  impl_->pub_ = ros->create_publisher(*impl_->serializer_->get_type_support(),
-                                      topic_name, qos);
+  impl_->pub_ = ros->CreatePublisher(*impl_->serializer_->GetTypeSupport(),
+                                     topic_name, qos);
 
   DeclareAbstractInputPort("message",
-                           *(impl_->serializer_->create_default_value()));
+                           *(impl_->serializer_->CreateDefaultValue()));
 
   // vvv Mostly copied from LcmPublisherSystem vvv
   // Check that publish_triggers does not contain an unsupported trigger.
@@ -59,7 +59,7 @@ RosPublisherSystem::RosPublisherSystem(
   // system (or a Diagram containing it), a message is emitted.
   if (publish_triggers.find(drake::systems::TriggerType::kForced) !=
       publish_triggers.end()) {
-    this->DeclareForcedPublishEvent(&RosPublisherSystem::publish_input);
+    this->DeclareForcedPublishEvent(&RosPublisherSystem::PublishInput);
   }
 
   if (publish_triggers.find(drake::systems::TriggerType::kPeriodic) !=
@@ -69,7 +69,7 @@ RosPublisherSystem::RosPublisherSystem(
     }
     const double offset = 0.0;
     this->DeclarePeriodicPublishEvent(publish_period, offset,
-                                      &RosPublisherSystem::publish_input);
+                                      &RosPublisherSystem::PublishInput);
   } else if (publish_period > 0) {
     // publish_period > 0 without drake::systems::TriggerType::kPeriodic has no
     // meaning and is likely a mistake.
@@ -81,7 +81,7 @@ RosPublisherSystem::RosPublisherSystem(
     DeclarePerStepEvent(drake::systems::PublishEvent<double>(
         [this](const drake::systems::Context<double>& context,
                const drake::systems::PublishEvent<double>&) {
-          publish_input(context);
+          PublishInput(context);
         }));
   }
   // ^^^ Mostly copied from LcmPublisherSystem ^^^
@@ -89,16 +89,16 @@ RosPublisherSystem::RosPublisherSystem(
 
 RosPublisherSystem::~RosPublisherSystem() {}
 
-void RosPublisherSystem::publish(
+void RosPublisherSystem::Publish(
     const rclcpp::SerializedMessage& serialized_msg) {
   impl_->pub_->publish(serialized_msg);
 }
 
-drake::systems::EventStatus RosPublisherSystem::publish_input(
+drake::systems::EventStatus RosPublisherSystem::PublishInput(
     const drake::systems::Context<double>& context) const {
   const drake::AbstractValue& input =
       get_input_port().Eval<drake::AbstractValue>(context);
-  impl_->pub_->publish(impl_->serializer_->serialize(input));
+  impl_->pub_->publish(impl_->serializer_->Serialize(input));
   return drake::systems::EventStatus::Succeeded();
 }
 }  // namespace drake_ros_core

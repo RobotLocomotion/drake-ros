@@ -60,23 +60,23 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::class_<SerializerInterface, PySerializerInterface>(m,
                                                          "SerializerInterface")
       .def(py::init([]() { return std::make_unique<PySerializerInterface>(); }))
-      .def("create_default_value", &SerializerInterface::create_default_value)
-      .def("get_type_support",
+      .def("CreateDefaultValue", &SerializerInterface::CreateDefaultValue)
+      .def("GetTypeSupport",
            [](const SerializerInterface& self) {
-             return py::capsule(self.get_type_support());
+             return py::capsule(self.GetTypeSupport());
            })
-      .def("serialize",
+      .def("Serialize",
            [](const SerializerInterface& self,
               const drake::AbstractValue& abstract_value) {
              rclcpp::SerializedMessage serialized_message =
-                 self.serialize(abstract_value);
+                 self.Serialize(abstract_value);
              const rcl_serialized_message_t& rcl_serialized_message =
                  serialized_message.get_rcl_serialized_message();
              return py::bytes(
                  reinterpret_cast<const char*>(rcl_serialized_message.buffer),
                  rcl_serialized_message.buffer_length);
            })
-      .def("deserialize",
+      .def("Deserialize",
            [](const SerializerInterface& self, py::bytes raw_bytes,
               drake::AbstractValue* abstract_value) {
              std::string bytes = raw_bytes;
@@ -86,7 +86,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
              std::copy(bytes.data(), bytes.data() + bytes.size(),
                        rcl_serialized_message.buffer);
              rcl_serialized_message.buffer_length = bytes.size();
-             self.deserialize(serialized_message, abstract_value);
+             self.Deserialize(serialized_message, abstract_value);
            });
 
   py::class_<RosPublisherSystem, LeafSystem<double>>(m, "RosPublisherSystem")

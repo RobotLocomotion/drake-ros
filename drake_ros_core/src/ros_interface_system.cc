@@ -43,7 +43,7 @@ void RosInterfaceSystem::DoCalcNextUpdateTime(
   // Do work for at most 1ms so system doesn't get blocked if there's more work
   // than it can handle
   const int max_work_time_millis = 1;
-  impl_->ros_->spin(max_work_time_millis);
+  impl_->ros_->Spin(max_work_time_millis);
   // TODO(sloretz) Lcm system pauses time if some work was done, but ROS 2 API
   // doesn't say if any work was done. How to reconcile that?
   *time = std::numeric_limits<double>::infinity();
