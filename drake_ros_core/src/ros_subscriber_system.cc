@@ -100,12 +100,7 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
             state->get_mutable_abstract_state();
         auto& abstract_value =
             abstract_state.get_mutable_value(kStateIndexMessage);
-        try {
-          impl_->serializer_->deserialize(*serialized_message, &abstract_value);
-        } catch (const std::exception&) {
-          return drake::systems::EventStatus::Failed(
-              this, "Failed to deserialize ROS message");
-        }
+        impl_->serializer_->deserialize(*serialized_message, &abstract_value);
         return drake::systems::EventStatus::Succeeded();
       };
 
