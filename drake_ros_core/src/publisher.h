@@ -22,6 +22,9 @@
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace drake_ros_core {
+// A type-erased version of rclcpp:::Publisher<Message>.
+//
+// This class conforms to the ROS 2 C++ style for consistency.
 class Publisher final : public rclcpp::PublisherBase {
  public:
   Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
@@ -30,7 +33,6 @@ class Publisher final : public rclcpp::PublisherBase {
 
   ~Publisher();
 
-  // Using snake cased function names to not mix up Drake and ROS 2 C++ styles.
   void publish(const rclcpp::SerializedMessage& serialized_msg);
 };
 }  // namespace drake_ros_core

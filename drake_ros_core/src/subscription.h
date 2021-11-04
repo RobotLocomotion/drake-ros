@@ -22,6 +22,9 @@
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace drake_ros_core {
+// A type-erased version of rclcpp:::Subscription<Message>.
+//
+// This class conforms to the ROS 2 C++ style for consistency.
 class Subscription final : public rclcpp::SubscriptionBase {
  public:
   Subscription(
@@ -33,8 +36,6 @@ class Subscription final : public rclcpp::SubscriptionBase {
   ~Subscription();
 
  protected:
-  // Using snake cased function names to not mix up Drake and ROS 2 C++ styles.
-
   /// Borrow a new message.
   /** \return Shared pointer to the fresh message. */
   std::shared_ptr<void> create_message() override;
