@@ -33,10 +33,11 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
   PySerializerInterface() : Base() {}
 
   const rosidl_message_type_support_t* get_type_support() const override {
-    return static_cast<rosidl_message_type_support_t*>([&]() -> py::capsule {
+    auto overload = [&]() -> py::capsule {
       PYBIND11_OVERLOAD_PURE(py::capsule, SerializerInterface,
                              get_type_support);
-    }());
+    };
+    return static_cast<rosidl_message_type_support_t*>(overload());
   }
 
   std::unique_ptr<drake::AbstractValue> create_default_value() const override {
@@ -46,10 +47,11 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
 
   rclcpp::SerializedMessage serialize(
       const drake::AbstractValue& abstract_value) const override {
-    std::string bytes = [&]() -> py::bytes {
+    auto overload = [&]() -> py::bytes {
       PYBIND11_OVERLOAD_PURE(py::bytes, SerializerInterface, serialize,
                              &abstract_value);
-    }();
+    };
+    std::string bytes = overload();
     rclcpp::SerializedMessage serialized_message(bytes.size());
     rcl_serialized_message_t& rcl_serialized_message =
         serialized_message.get_rcl_serialized_message();
