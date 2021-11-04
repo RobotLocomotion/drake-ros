@@ -38,7 +38,7 @@ using drake_ros_core::RosPublisherSystem;
 using drake_ros_core::RosSubscriberSystem;
 using drake_ros_core::SerializerInterface;
 
-PYBIND11_MODULE(_drake_ros_core_pybind, m) {
+PYBIND11_MODULE(_drake_ros_core, m) {
   m.doc() = "Python bindings for drake_ros_core";
 
   py::module::import("pydrake.systems.framework");
