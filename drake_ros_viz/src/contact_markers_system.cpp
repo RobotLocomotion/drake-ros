@@ -139,16 +139,16 @@ public:
       face_msg.scale.y = 1.0;
       face_msg.scale.z = 1.0;
 
-      const drake::geometry::SurfaceMesh<double>& mesh_W = surface.mesh_W();
+      const drake::geometry::TriangleSurfaceMesh<double>& mesh_W = surface.mesh_W();
       face_msg.points.clear();
-      face_msg.points.resize(mesh_W.num_faces() * 3);
+      face_msg.points.resize(mesh_W.num_triangles() * 3);
       face_msg.colors.clear();
-      face_msg.colors.resize(mesh_W.num_faces() * 3);
+      face_msg.colors.resize(mesh_W.num_triangles() * 3);
       face_msg.uv_coordinates.clear();
-      face_msg.uv_coordinates.resize(mesh_W.num_faces() * 3);
+      face_msg.uv_coordinates.resize(mesh_W.num_triangles() * 3);
 
       Eigen::VectorXd pressures;
-      pressures.resize(mesh_W.num_faces() * 3);
+      pressures.resize(mesh_W.num_triangles() * 3);
 
       // Make lines for the edges
       visualization_msgs::msg::Marker edge_msg;
@@ -174,16 +174,16 @@ public:
       // Generate the surface markers for each mesh.
       size_t index = 0;
       const auto& field = surface.e_MN();
-      for (drake::geometry::SurfaceFaceIndex j(0); j < mesh_W.num_faces(); ++j) {
+      for (int j = 0; j < mesh_W.num_triangles(); ++j) {
         // Get the three vertices.
         const auto& face = mesh_W.element(j);
-        const drake::geometry::SurfaceVertex<double>& vA = mesh_W.vertex(face.vertex(0));
-        const drake::geometry::SurfaceVertex<double>& vB = mesh_W.vertex(face.vertex(1));
-        const drake::geometry::SurfaceVertex<double>& vC = mesh_W.vertex(face.vertex(2));
+        const Eigen::Vector3d& vA = mesh_W.vertex(face.vertex(0));
+        const Eigen::Vector3d& vB = mesh_W.vertex(face.vertex(1));
+        const Eigen::Vector3d& vC = mesh_W.vertex(face.vertex(2));
 
-        face_msg.points.at(index + 0) = tf2::toMsg(vA.r_MV());
-        face_msg.points.at(index + 1) = tf2::toMsg(vB.r_MV());
-        face_msg.points.at(index + 2) = tf2::toMsg(vC.r_MV());
+        face_msg.points.at(index + 0) = tf2::toMsg(vA);
+        face_msg.points.at(index + 1) = tf2::toMsg(vB);
+        face_msg.points.at(index + 2) = tf2::toMsg(vC);
 
         for (size_t vert_index = 0; vert_index < 3; vert_index++) {
           pressures[index + vert_index] =
@@ -191,20 +191,20 @@ public:
         }
 
         // 0->1
-        edge_msg.points.push_back(tf2::toMsg(vA.r_MV()));
-        edge_msg.points.push_back(tf2::toMsg(vB.r_MV()));
+        edge_msg.points.push_back(tf2::toMsg(vA));
+        edge_msg.points.push_back(tf2::toMsg(vB));
         // 1->2
-        edge_msg.points.push_back(tf2::toMsg(vB.r_MV()));
-        edge_msg.points.push_back(tf2::toMsg(vC.r_MV()));
+        edge_msg.points.push_back(tf2::toMsg(vB));
+        edge_msg.points.push_back(tf2::toMsg(vC));
         // 2->0
-        edge_msg.points.push_back(tf2::toMsg(vC.r_MV()));
-        edge_msg.points.push_back(tf2::toMsg(vA.r_MV()));
+        edge_msg.points.push_back(tf2::toMsg(vC));
+        edge_msg.points.push_back(tf2::toMsg(vA));
 
         index += 3;
       }
 
       // Color based on pressures.
-      for (size_t tri_index = 0; tri_index < (size_t)mesh_W.num_faces(); tri_index++) {
+      for (size_t tri_index = 0; tri_index < (size_t)mesh_W.num_triangles(); tri_index++) {
         for (size_t vert_index = 0; vert_index < 3; vert_index++) {
           size_t arr_index = (tri_index * 3) + vert_index;
           double norm_data = calc_uv(
