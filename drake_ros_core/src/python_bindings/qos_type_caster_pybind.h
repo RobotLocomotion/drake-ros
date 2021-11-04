@@ -19,7 +19,8 @@
 #include <rclcpp/qos.hpp>
 
 namespace drake_ros_core {
-// Thin wrapper that adds default constructor
+// Thin wrapper that adds a default constructor, since rclcpp::QoS deletes
+// its own and PYBIND11_TYPE_CASTER requires one.
 class QoS : public rclcpp::QoS {
  public:
   QoS() : rclcpp::QoS(1) {}
@@ -28,9 +29,8 @@ class QoS : public rclcpp::QoS {
 
 namespace pybind11 {
 namespace detail {
-// TODO(hidmic): rely on rclpy.qos.QoSProfile
-// when and if a pybind11 binding is introduced
-// upstream.
+// TODO(hidmic): rely on rclpy.qos.QoSProfile when and if a pybind11 binding
+// is introduced upstream. See https://github.com/ros2/rclpy/issues/843.
 template <>
 struct type_caster<drake_ros_core::QoS> {
  public:
