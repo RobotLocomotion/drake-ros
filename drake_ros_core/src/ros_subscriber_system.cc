@@ -42,7 +42,7 @@ class RosSubscriberSystem::Impl {
 
   std::unique_ptr<SerializerInterface> serializer_;
   // A handle to a subscription
-  std::shared_ptr<Subscription> sub_;
+  std::shared_ptr<internal::Subscription> sub_;
   // Mutex to prevent multiple threads from modifying this class
   std::mutex mutex_;
   // The last received message that has not yet been put into a context.
@@ -57,7 +57,7 @@ RosSubscriberSystem::RosSubscriberSystem(
   impl_->serializer_ = std::move(serializer);
 
   rclcpp::Node* node = ros->get_mutable_node();
-  impl_->sub_ = std::make_shared<Subscription>(
+  impl_->sub_ = std::make_shared<internal::Subscription>(
       node->get_node_base_interface().get(),
       *impl_->serializer_->GetTypeSupport(), topic_name, qos,
       std::bind(&RosSubscriberSystem::Impl::HandleMessage, impl_.get(),

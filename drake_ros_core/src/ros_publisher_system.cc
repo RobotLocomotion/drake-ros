@@ -27,7 +27,7 @@ namespace drake_ros_core {
 class RosPublisherSystem::Impl {
  public:
   std::unique_ptr<SerializerInterface> serializer_;
-  std::unique_ptr<Publisher> pub_;
+  std::unique_ptr<internal::Publisher> pub_;
 };
 
 RosPublisherSystem::RosPublisherSystem(
@@ -39,7 +39,7 @@ RosPublisherSystem::RosPublisherSystem(
     : impl_(new Impl()) {
   impl_->serializer_ = std::move(serializer);
 
-  impl_->pub_ = std::make_unique<Publisher>(
+  impl_->pub_ = std::make_unique<internal::Publisher>(
       ros->get_mutable_node()->get_node_base_interface().get(),
       *impl_->serializer_->GetTypeSupport(), topic_name, qos);
 
