@@ -14,16 +14,15 @@
 
 #include "drake_ros_core/drake_ros.h"
 
+#include <chrono>
 #include <memory>
 #include <string>
 
-#include "publisher.h"     // NOLINT(build/include)
-#include "subscription.h"  // NOLINT(build/include)
 #include <rclcpp/executors.hpp>
 #include <rclcpp/node.hpp>
 
 namespace drake_ros_core {
-class DrakeRosPrivate {
+class DrakeRos::Impl {
  public:
   bool externally_init_;
   rclcpp::Context::SharedPtr context_;
@@ -33,7 +32,7 @@ class DrakeRosPrivate {
 
 DrakeRos::DrakeRos(const std::string& node_name,
                    rclcpp::NodeOptions node_options)
-    : impl_(new DrakeRosPrivate()) {
+    : impl_(new Impl()) {
   if (!node_options.context()) {
     // Require context is constructed (NodeOptions uses Global Context by
     // default)
@@ -66,24 +65,9 @@ DrakeRos::~DrakeRos() {
   }
 }
 
-std::unique_ptr<Publisher> DrakeRos::CreatePublisher(
-    const rosidl_message_type_support_t& ts, const std::string& topic_name,
-    const rclcpp::QoS& qos) {
-  return std::make_unique<Publisher>(
-      impl_->node_->get_node_base_interface().get(), ts, topic_name, qos);
-}
+const rclcpp::Node& DrakeRos::get_node() const { return *impl_->node_; }
 
-std::shared_ptr<Subscription> DrakeRos::CreateSubscription(
-    const rosidl_message_type_support_t& ts, const std::string& topic_name,
-    const rclcpp::QoS& qos,
-    std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback) {
-  auto sub = std::make_shared<Subscription>(
-      impl_->node_->get_node_base_interface().get(), ts, topic_name, qos,
-      callback);
-  impl_->node_->get_node_topics_interface()->add_subscription(sub, nullptr);
-
-  return sub;
-}
+rclcpp::Node* DrakeRos::get_mutable_node() const { return impl_->node_.get(); }
 
 void DrakeRos::Spin(int timeout_millis) {
   impl_->executor_->spin_some(std::chrono::milliseconds(timeout_millis));

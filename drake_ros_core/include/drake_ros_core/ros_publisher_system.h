@@ -26,9 +26,6 @@
 #include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
-/// PIMPL forward declaration
-class RosPublisherSystemPrivate;
-
 /// Accepts ROS messages on an input port and publishes them to a ROS topic
 class RosPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
@@ -80,6 +77,7 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
   drake::systems::EventStatus PublishInput(
       const drake::systems::Context<double>& context) const;
 
-  std::unique_ptr<RosPublisherSystemPrivate> impl_;
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core

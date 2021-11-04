@@ -13,24 +13,15 @@
 // limitations under the License.
 #pragma once
 
-#include <functional>
 #include <memory>
 #include <string>
 
-#include <rclcpp/clock.hpp>
+#include <rclcpp/node.hpp>
 #include <rclcpp/node_options.hpp>
-#include <rclcpp/qos.hpp>
-#include <rclcpp/serialized_message.hpp>
-#include <rosidl_runtime_c/message_type_support_struct.h>
 
 #include "drake_ros_core/drake_ros_interface.h"
 
 namespace drake_ros_core {
-/// PIMPL forward declarations
-class DrakeRosPrivate;
-class Publisher;
-class Subscription;
-
 /// System that abstracts working with ROS
 class DrakeRos final : public DrakeRosInterface {
  public:
@@ -38,21 +29,16 @@ class DrakeRos final : public DrakeRosInterface {
 
   DrakeRos(const std::string& node_name, rclcpp::NodeOptions node_options);
 
-  virtual ~DrakeRos();
+  ~DrakeRos() override;
 
-  std::unique_ptr<Publisher> CreatePublisher(
-      const rosidl_message_type_support_t& ts, const std::string& topic_name,
-      const rclcpp::QoS& qos) final;
+  const rclcpp::Node& get_node() const final;
 
-  std::shared_ptr<Subscription> CreateSubscription(
-      const rosidl_message_type_support_t& ts, const std::string& topic_name,
-      const rclcpp::QoS& qos,
-      std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback)
-      final;
+  rclcpp::Node* get_mutable_node() const final;
 
   void Spin(int timeout_millis) final;
 
  private:
-  std::unique_ptr<DrakeRosPrivate> impl_;
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core

@@ -24,9 +24,6 @@
 #include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
-// PIMPL forward declaration
-class RosSubscriberSystemPrivate;
-
 /// System that subscribes to a ROS topic and makes it available on an output
 /// port
 class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
@@ -54,6 +51,8 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
                             drake::systems::CompositeEventCollection<double>*,
                             double*) const override;
 
-  std::unique_ptr<RosSubscriberSystemPrivate> impl_;
+ private:
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core

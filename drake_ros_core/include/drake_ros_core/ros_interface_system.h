@@ -20,9 +20,6 @@
 #include "drake_ros_core/drake_ros_interface.h"
 
 namespace drake_ros_core {
-// PIMPL forward declaration
-class RosInterfaceSystemPrivate;
-
 /// System that takes care of calling spin() in Drake's systems framework
 class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
  public:
@@ -38,6 +35,8 @@ class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
                             drake::systems::CompositeEventCollection<double>*,
                             double*) const override;
 
-  std::unique_ptr<RosInterfaceSystemPrivate> impl_;
+ private:
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core

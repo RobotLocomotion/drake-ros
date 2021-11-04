@@ -17,28 +17,18 @@
 #include <memory>
 #include <string>
 
-#include <rclcpp/clock.hpp>
-#include <rclcpp/qos.hpp>
-#include <rclcpp/serialized_message.hpp>
+#include <rclcpp/node.hpp>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace drake_ros_core {
-// Forward declarations for non-public-API classes
-class Publisher;
-class Subscription;
-
 /// System that abstracts working with ROS
 class DrakeRosInterface {
  public:
-  virtual std::unique_ptr<Publisher> CreatePublisher(
-      const rosidl_message_type_support_t& ts, const std::string& topic_name,
-      const rclcpp::QoS& qos) = 0;
+  virtual ~DrakeRosInterface() = default;
 
-  virtual std::shared_ptr<Subscription> CreateSubscription(
-      const rosidl_message_type_support_t& ts, const std::string& topic_name,
-      const rclcpp::QoS& qos,
-      std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)>
-          callback) = 0;
+  virtual const rclcpp::Node& get_node() const = 0;
+
+  virtual rclcpp::Node* get_mutable_node() const = 0;
 
   virtual void Spin(int timeout_millis) = 0;
 };

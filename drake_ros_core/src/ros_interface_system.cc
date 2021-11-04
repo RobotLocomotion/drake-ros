@@ -19,13 +19,13 @@
 #include <utility>
 
 namespace drake_ros_core {
-class RosInterfaceSystemPrivate {
+class RosInterfaceSystem::Impl {
  public:
   std::unique_ptr<DrakeRosInterface> ros_;
 };
 
 RosInterfaceSystem::RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros)
-    : impl_(new RosInterfaceSystemPrivate()) {
+    : impl_(new Impl()) {
   impl_->ros_ = std::move(ros);
 }
 

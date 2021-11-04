@@ -26,7 +26,7 @@ namespace drake_ros_core {
 // Index in AbstractState that deserialized message is stored
 const int kStateIndexMessage = 0;
 
-class RosSubscriberSystemPrivate {
+class RosSubscriberSystem::Impl {
  public:
   void HandleMessage(std::shared_ptr<rclcpp::SerializedMessage> callback) {
     std::lock_guard<std::mutex> message_lock(mutex_);
@@ -53,12 +53,16 @@ RosSubscriberSystem::RosSubscriberSystem(
     std::unique_ptr<SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos,
     DrakeRosInterface* ros)
-    : impl_(new RosSubscriberSystemPrivate()) {
+    : impl_(new Impl()) {
   impl_->serializer_ = std::move(serializer);
-  impl_->sub_ = ros->CreateSubscription(
+
+  rclcpp::Node* node = ros->get_mutable_node();
+  impl_->sub_ = std::make_shared<Subscription>(
+      node->get_node_base_interface().get(),
       *impl_->serializer_->GetTypeSupport(), topic_name, qos,
-      std::bind(&RosSubscriberSystemPrivate::HandleMessage, impl_.get(),
+      std::bind(&RosSubscriberSystem::Impl::HandleMessage, impl_.get(),
                 std::placeholders::_1));
+  node->get_node_topics_interface()->add_subscription(impl_->sub_, nullptr);
 
   static_assert(kStateIndexMessage == 0, "");
   auto message_state_index =
