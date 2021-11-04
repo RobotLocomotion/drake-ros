@@ -40,6 +40,9 @@ using drake_ros_core::SerializerInterface;
 
 PYBIND11_MODULE(_drake_ros_core, m) {
   m.doc() = "Python bindings for drake_ros_core";
+  // Force module name in docstrings to match
+  // that of the outer module.
+  m.attr("__name__") = "drake_ros_core";
 
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
