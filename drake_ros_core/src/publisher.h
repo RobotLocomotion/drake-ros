@@ -22,8 +22,7 @@
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace drake_ros_core {
-// A type-erased version of rclcpp:::Publisher<Message>.
-//
+/// A type-erased version of rclcpp:::Publisher<Message>.
 // This class conforms to the ROS 2 C++ style for consistency.
 class Publisher final : public rclcpp::PublisherBase {
  public:
