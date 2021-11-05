@@ -22,8 +22,7 @@
 #include <rclcpp/node.hpp>
 
 namespace drake_ros_core {
-class DrakeRos::Impl {
- public:
+struct DrakeRos::Impl {
   bool externally_init_;
   rclcpp::Context::SharedPtr context_;
   rclcpp::Node::UniquePtr node_;
@@ -70,6 +69,7 @@ const rclcpp::Node& DrakeRos::get_node() const { return *impl_->node_; }
 rclcpp::Node* DrakeRos::get_mutable_node() const { return impl_->node_.get(); }
 
 void DrakeRos::Spin(int timeout_millis) {
-  impl_->executor_->spin_some(std::chrono::milliseconds(timeout_millis));
+  impl_->executor_->spin_once(std::chrono::milliseconds(timeout_millis));
+  impl_->executor_->spin_some(std::chrono::milliseconds(0));
 }
 }  // namespace drake_ros_core

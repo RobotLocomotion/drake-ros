@@ -24,16 +24,16 @@
 #include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
-class RosPublisherSystem::Impl {
- public:
+struct RosPublisherSystem::Impl {
+  // Interface for message (de)serialization.
   std::unique_ptr<SerializerInterface> serializer_;
+  // Publisher for serialized messages.
   std::unique_ptr<internal::Publisher> pub_;
 };
 
 RosPublisherSystem::RosPublisherSystem(
     std::unique_ptr<SerializerInterface> serializer,
-    const std::string& topic_name, const rclcpp::QoS& qos,
-    DrakeRosInterface* ros,
+    const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
     double publish_period)
     : impl_(new Impl()) {

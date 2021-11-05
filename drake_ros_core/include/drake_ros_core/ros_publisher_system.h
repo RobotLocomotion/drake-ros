@@ -16,68 +16,79 @@
 #include <memory>
 #include <string>
 #include <unordered_set>
+#include <utility>
 
 #include <drake/systems/framework/leaf_system.h>
 #include <rclcpp/serialized_message.hpp>
 #include <rmw/rmw.h>
 
-#include "drake_ros_core/drake_ros_interface.h"
+#include "drake_ros_core/drake_ros.h"
 #include "drake_ros_core/serializer.h"
 #include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
-/// Accepts ROS messages on an input port and publishes them to a ROS topic
+/// A system that can publish ROS messages.
+/**
+ * It accepts ROS messages on its sole input port and publishes them to a ROS
+ * topic.
+ */
 class RosPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
-  /// Convenience method to make a publisher system given a ROS message type
-  template <typename MessageT>
-  static std::unique_ptr<RosPublisherSystem> Make(
-      const std::string& topic_name, const rclcpp::QoS& qos,
-      DrakeRosInterface* ros_interface) {
-    return Make<MessageT>(topic_name, qos, ros_interface,
-                          {drake::systems::TriggerType::kPerStep,
-                           drake::systems::TriggerType::kForced},
-                          0.0);
-  }
-
-  /// Convenience method to make a publisher system given a ROS message type and
-  /// publish triggers
-  template <typename MessageT>
-  static std::unique_ptr<RosPublisherSystem> Make(
-      const std::string& topic_name, const rclcpp::QoS& qos,
-      DrakeRosInterface* ros_interface,
-      const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
-      double publish_period = 0.0) {
+  /// Instantiates a publisher system for a given ROS message type.
+  /**
+   * See `RosPublisherSystem::RosPublisherSystem` documentation for
+   * further reference on function arguments.
+   *
+   * @tparam MessageT C++ ROS message type.
+   */
+  template <typename MessageT, typename... ArgsT>
+  static std::unique_ptr<RosPublisherSystem> Make(ArgsT&&... args) {
     // Assume C++ typesupport since this is a C++ template function
     return std::make_unique<RosPublisherSystem>(
-        std::make_unique<Serializer<MessageT>>(), topic_name, qos,
-        ros_interface, publish_triggers, publish_period);
+        std::make_unique<Serializer<MessageT>>(), std::forward<ArgsT>(args)...);
   }
 
+  /// A constructor for the ROS publisher system.
+  /**
+   * It takes a `serializer` to deal with outgoing messages.
+   *
+   * @param[in] serializer a (de)serialization interface for the
+   *   expected ROS message type.
+   * @param[in] topic_name Name of the ROS topic to publish to.
+   * @param[in] qos QoS profile for the underlying ROS pubslisher.
+   * @param[in] ros interface to a live ROS node to publish from.
+   * @param[in] publish_triggers optional set of triggers that determine
+   *   when messages will be published. By default it will publish on
+   *   every step and when forced (via Publish).
+   * @param[in] publish_period optional publishing period, in seconds.
+   *   Only applicable when periodic publishing is enabled.
+   */
   RosPublisherSystem(
       std::unique_ptr<SerializerInterface> serializer,
-      const std::string& topic_name, const rclcpp::QoS& qos,
-      DrakeRosInterface* ros_interface,
-      const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
+      const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
+      const std::unordered_set<drake::systems::TriggerType>& publish_triggers =
+          {drake::systems::TriggerType::kPerStep,
+           drake::systems::TriggerType::kForced},
       double publish_period = 0.0);
 
   virtual ~RosPublisherSystem();
 
-  /// Convenience method to publish a C++ ROS message
+  /// Publishes a C++ ROS `message`.
   template <typename MessageT>
   void Publish(const MessageT& message) {
     static const Serializer<MessageT> serializer;
-    publish(serializer->serialize(message));
+    publish(serializer.serialize(message));
   }
 
-  /// Publish a serialized ROS message
-  void Publish(const rclcpp::SerializedMessage& serialized_msg);
+  /// Publishes a serialized ROS message.
+  void Publish(const rclcpp::SerializedMessage& serialized_message);
 
  protected:
   drake::systems::EventStatus PublishInput(
       const drake::systems::Context<double>& context) const;
 
-  class Impl;
+ private:
+  struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core

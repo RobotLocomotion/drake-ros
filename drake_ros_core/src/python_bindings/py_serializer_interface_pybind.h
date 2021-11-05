@@ -25,7 +25,8 @@
 namespace py = pybind11;
 
 namespace drake_ros_core {
-// Serialize/Deserialize Python ROS types to rclcpp::SerializedMessage
+// A (de)serialization interface implementation for Python ROS messages
+// that can be overriden from Python itself.
 class PySerializerInterface : public py::wrapper<SerializerInterface> {
  public:
   using Base = py::wrapper<SerializerInterface>;

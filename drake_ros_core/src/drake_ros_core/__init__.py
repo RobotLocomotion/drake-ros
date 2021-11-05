@@ -1,6 +1,5 @@
 """Python wrapper for drake_ros_core."""
 
-from _drake_ros_core import DrakeRosInterface
 from _drake_ros_core import RosInterfaceSystem
 from _drake_ros_core import RosPublisherSystem
 from _drake_ros_core import RosSubscriberSystem
@@ -15,6 +14,9 @@ from rclpy.type_support import check_for_type_support
 
 
 class PySerializer(SerializerInterface):
+    """
+    A (de)serialization interface for Python ROS messages.
+    """
 
     def __init__(self, message_type):
         SerializerInterface.__init__(self)

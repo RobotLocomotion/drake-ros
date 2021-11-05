@@ -31,7 +31,6 @@ using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
 
 using drake_ros_core::DrakeRos;
-using drake_ros_core::DrakeRosInterface;
 using drake_ros_core::PySerializerInterface;
 using drake_ros_core::RosInterfaceSystem;
 using drake_ros_core::RosPublisherSystem;
@@ -47,7 +46,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
 
-  py::class_<DrakeRosInterface>(m, "DrakeRosInterface");
+  py::class_<DrakeRos>(m, "DrakeRos");
 
   py::class_<RosInterfaceSystem, LeafSystem<double>>(m, "RosInterfaceSystem")
       .def(py::init([]() {
@@ -92,7 +91,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::class_<RosPublisherSystem, LeafSystem<double>>(m, "RosPublisherSystem")
       .def(py::init([](std::unique_ptr<SerializerInterface> serializer,
                        const char* topic_name, drake_ros_core::QoS qos,
-                       DrakeRosInterface* ros_interface,
+                       DrakeRos* ros_interface,
                        std::unordered_set<TriggerType> publish_triggers,
                        double publish_period) {
         return std::make_unique<RosPublisherSystem>(
@@ -103,7 +102,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::class_<RosSubscriberSystem, LeafSystem<double>>(m, "RosSubscriberSystem")
       .def(py::init([](std::unique_ptr<SerializerInterface> serializer,
                        const char* topic_name, drake_ros_core::QoS qos,
-                       DrakeRosInterface* ros_interface) {
+                       DrakeRos* ros_interface) {
         return std::make_unique<RosSubscriberSystem>(
             std::move(serializer), topic_name, qos, ros_interface);
       }));

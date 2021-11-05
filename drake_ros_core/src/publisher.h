@@ -23,7 +23,7 @@
 
 namespace drake_ros_core {
 namespace internal {
-/// A type-erased version of rclcpp:::Publisher<Message>.
+// A type-erased version of rclcpp:::Publisher<Message>.
 // This class conforms to the ROS 2 C++ style for consistency.
 class Publisher final : public rclcpp::PublisherBase {
  public:

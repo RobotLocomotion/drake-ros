@@ -17,26 +17,27 @@
 
 #include <drake/systems/framework/leaf_system.h>
 
-#include "drake_ros_core/drake_ros_interface.h"
+#include "drake_ros_core/drake_ros.h"
 
 namespace drake_ros_core {
-/// System that takes care of calling spin() in Drake's systems framework
+/// A system that manages a Drake ROS interface.
 class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
  public:
-  explicit RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros);
+  /// A constructor that takes ownership of the `ros` interface.
+  explicit RosInterfaceSystem(std::unique_ptr<DrakeRos> ros);
+
   virtual ~RosInterfaceSystem();
 
-  /// Return a handle for interacting with ROS
-  DrakeRosInterface* get_ros_interface() const;
+  /// Returns a mutable reference to the underlying ROS interface.
+  DrakeRos* get_ros_interface() const;
 
  protected:
-  /// Override as a place to call rclcpp::spin()
   void DoCalcNextUpdateTime(const drake::systems::Context<double>&,
                             drake::systems::CompositeEventCollection<double>*,
                             double*) const override;
 
  private:
-  class Impl;
+  struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core

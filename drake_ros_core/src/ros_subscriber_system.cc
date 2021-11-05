@@ -23,36 +23,43 @@
 #include <drake/systems/framework/abstract_values.h>
 
 namespace drake_ros_core {
-// Index in AbstractState that deserialized message is stored
-const int kStateIndexMessage = 0;
-
-class RosSubscriberSystem::Impl {
+namespace {
+// A synchronized queue of `MessageT` messages.
+template <typename MessageT>
+class MessageQueue {
  public:
-  void HandleMessage(std::shared_ptr<rclcpp::SerializedMessage> callback) {
-    std::lock_guard<std::mutex> message_lock(mutex_);
-    // TODO(sloretz) Queue messages here? Lcm subscriber doesn't, so maybe lost
-    // messages are ok Overwrite last message
-    msg_ = callback;
+  void PutMessage(std::shared_ptr<MessageT> message) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    message_ = message;
   }
 
-  std::shared_ptr<rclcpp::SerializedMessage> TakeMessage() {
-    std::lock_guard<std::mutex> message_lock(mutex_);
-    return std::move(msg_);
+  std::shared_ptr<MessageT> TakeMessage() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return std::move(message_);
   }
 
-  std::unique_ptr<SerializerInterface> serializer_;
-  // A handle to a subscription
-  std::shared_ptr<internal::Subscription> sub_;
-  // Mutex to prevent multiple threads from modifying this class
+ private:
+  // Mutex to synchronize access to the queue.
   std::mutex mutex_;
-  // The last received message that has not yet been put into a context.
-  std::shared_ptr<rclcpp::SerializedMessage> msg_;
+  // Last received message (i.e. queue of size 1).
+  std::shared_ptr<MessageT> message_;
+};
+}  // namespace
+
+struct RosSubscriberSystem::Impl {
+  // Interface for message (de)serialization.
+  std::unique_ptr<SerializerInterface> serializer_;
+  // Subscription to serialized messages.
+  std::shared_ptr<internal::Subscription> sub_;
+  // Queue of serialized messages.
+  MessageQueue<rclcpp::SerializedMessage> queue_;
+  // AbstractState index where the message is stored.
+  drake::systems::AbstractStateIndex message_state_index_;
 };
 
 RosSubscriberSystem::RosSubscriberSystem(
     std::unique_ptr<SerializerInterface> serializer,
-    const std::string& topic_name, const rclcpp::QoS& qos,
-    DrakeRosInterface* ros)
+    const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros)
     : impl_(new Impl()) {
   impl_->serializer_ = std::move(serializer);
 
@@ -60,15 +67,15 @@ RosSubscriberSystem::RosSubscriberSystem(
   impl_->sub_ = std::make_shared<internal::Subscription>(
       node->get_node_base_interface().get(),
       *impl_->serializer_->GetTypeSupport(), topic_name, qos,
-      std::bind(&RosSubscriberSystem::Impl::HandleMessage, impl_.get(),
-                std::placeholders::_1));
+      std::bind(&MessageQueue<rclcpp::SerializedMessage>::PutMessage,
+                &impl_->queue_, std::placeholders::_1));
   node->get_node_topics_interface()->add_subscription(impl_->sub_, nullptr);
 
-  static_assert(kStateIndexMessage == 0, "");
-  auto message_state_index =
+  impl_->message_state_index_ =
       DeclareAbstractState(*(impl_->serializer_->CreateDefaultValue()));
 
-  DeclareStateOutputPort(drake::systems::kUseDefaultName, message_state_index);
+  DeclareStateOutputPort(drake::systems::kUseDefaultName,
+                         impl_->message_state_index_);
 }
 
 RosSubscriberSystem::~RosSubscriberSystem() {}
@@ -84,10 +91,11 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
   DRAKE_THROW_UNLESS(events->HasEvents() == false);
   DRAKE_THROW_UNLESS(std::isinf(*time));
 
-  std::shared_ptr<rclcpp::SerializedMessage> message = impl_->TakeMessage();
+  std::shared_ptr<rclcpp::SerializedMessage> message =
+      impl_->queue_.TakeMessage();
 
   // Do nothing unless we have a new message.
-  if (nullptr == message.get()) {
+  if (!message) {
     return;
   }
 
@@ -103,7 +111,7 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
         drake::systems::AbstractValues& abstract_state =
             state->get_mutable_abstract_state();
         auto& abstract_value =
-            abstract_state.get_mutable_value(kStateIndexMessage);
+            abstract_state.get_mutable_value(impl_->message_state_index_);
         impl_->serializer_->Deserialize(*serialized_message, &abstract_value);
         return drake::systems::EventStatus::Succeeded();
       };

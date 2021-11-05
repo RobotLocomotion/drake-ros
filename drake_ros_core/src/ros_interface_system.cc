@@ -19,33 +19,31 @@
 #include <utility>
 
 namespace drake_ros_core {
-class RosInterfaceSystem::Impl {
- public:
-  std::unique_ptr<DrakeRosInterface> ros_;
+struct RosInterfaceSystem::Impl {
+  // Interface to ROS (through a node).
+  std::unique_ptr<DrakeRos> ros_;
 };
 
-RosInterfaceSystem::RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros)
+RosInterfaceSystem::RosInterfaceSystem(std::unique_ptr<DrakeRos> ros)
     : impl_(new Impl()) {
   impl_->ros_ = std::move(ros);
 }
 
 RosInterfaceSystem::~RosInterfaceSystem() {}
 
-/// Return a handle for interacting with ROS
-DrakeRosInterface* RosInterfaceSystem::get_ros_interface() const {
+DrakeRos* RosInterfaceSystem::get_ros_interface() const {
   return impl_->ros_.get();
 }
 
-/// Override as a place to call rclcpp::spin()
 void RosInterfaceSystem::DoCalcNextUpdateTime(
     const drake::systems::Context<double>&,
     drake::systems::CompositeEventCollection<double>*, double* time) const {
-  // Do work for at most 1ms so system doesn't get blocked if there's more work
-  // than it can handle
-  const int max_work_time_millis = 1;
-  impl_->ros_->Spin(max_work_time_millis);
+  constexpr int kMaxWorkMillis = 0;  // Do not block.
+  impl_->ros_->Spin(kMaxWorkMillis);
   // TODO(sloretz) Lcm system pauses time if some work was done, but ROS 2 API
   // doesn't say if any work was done. How to reconcile that?
+  // TODO(hidmic): test for subscription latency in context time, how does the
+  // order of node spinning and message taking affects it?
   *time = std::numeric_limits<double>::infinity();
 }
 }  // namespace drake_ros_core

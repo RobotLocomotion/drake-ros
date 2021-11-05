@@ -19,26 +19,43 @@
 #include <rclcpp/node.hpp>
 #include <rclcpp/node_options.hpp>
 
-#include "drake_ros_core/drake_ros_interface.h"
-
 namespace drake_ros_core {
-/// System that abstracts working with ROS
-class DrakeRos final : public DrakeRosInterface {
+/// A Drake ROS interface that wraps a live ROS2 node.
+/**
+ * This interface manages both ROS2 node construction and scheduling.
+ */
+class DrakeRos final {
  public:
-  DrakeRos() : DrakeRos("DrakeRosSystems", rclcpp::NodeOptions{}) {}
+  /// A constructor that wraps a "drake_ros" ROS2 node with default options.
+  DrakeRos() : DrakeRos("drake_ros", rclcpp::NodeOptions{}) {}
 
+  /// A constructor that wraps a `node_name` ROS2 node with `node_options`.
+  /**
+   * See `rclcpp::Node` documentation for further reference on arguments.
+   */
   DrakeRos(const std::string& node_name, rclcpp::NodeOptions node_options);
 
-  ~DrakeRos() override;
+  ~DrakeRos();
 
-  const rclcpp::Node& get_node() const final;
+  /// Returns a constant reference to the underlying ROS2 node.
+  const rclcpp::Node& get_node() const;
 
-  rclcpp::Node* get_mutable_node() const final;
+  /// Returns a mutable reference to the underlying ROS2 node.
+  rclcpp::Node* get_mutable_node() const;
 
-  void Spin(int timeout_millis) final;
+  /// Spins the underlying ROS2 node, dispatching all available work.
+  /**
+   * @param[in] timeout_millis Timeout, in milliseconds.
+   *   If timeout is less than 0, the call will block indefinitely
+   *   until some work has been dispatched. If timeout is 0, the call
+   *   will dispatch available work without blocking. If timeout is
+   *   larger than 0, the call will wait up to the given timeout for
+   *   work to dispatch.
+   */
+  void Spin(int timeout_millis = 0);
 
  private:
-  class Impl;
+  struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core
