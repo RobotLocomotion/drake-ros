@@ -518,7 +518,7 @@ def rosidl_typesupport_fastrtps_c_library(
         linkstatic = True,
         **kwargs
     )
-    
+
     cc_binary_rule(
         name = name,
         srcs = generated_c_sources,

@@ -13,7 +13,7 @@ This project targets ROS 2 Rolling distributions on Ubuntu Focal 20.04 only.
 First, install the required dependencies:
 
 ```sh
-sudo ./setup/install_prereqs.sh 
+sudo ./setup/install_prereqs.sh
 ```
 
 To build all packages:
@@ -22,7 +22,7 @@ To build all packages:
 bazel build //...
 ```
 
-To run binaries directly: 
+To run binaries directly:
 
 ```sh
 bazel run //drake_ros_apps:oracle_cc

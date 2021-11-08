@@ -1,7 +1,7 @@
 # -*- python -*-
 
 """
-The purpose of these macros is to support configuration of the runtime 
+The purpose of these macros is to support configuration of the runtime
 environment in which executables are run.
 
 The primary macro of interest is `do_dload_shim`, which aids language
