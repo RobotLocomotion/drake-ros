@@ -46,6 +46,9 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
 
+  // TODD(hidmic): populate Python docstrings with
+  // C++ docstrings. Consider using mkdoc to keep
+  // them in sync, like pydrake does.
   py::class_<DrakeRos>(m, "DrakeRos");
 
   py::class_<RosInterfaceSystem, LeafSystem<double>>(m, "RosInterfaceSystem")
