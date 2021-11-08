@@ -27,19 +27,17 @@
 #include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
-/// A system that can publish ROS messages.
-/**
- * It accepts ROS messages on its sole input port and publishes them to a ROS
- * topic.
+/** A system that can publish ROS messages.
+ It accepts ROS messages on its sole input port and publishes them
+ to a ROS topic.
  */
 class RosPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
-  /// Instantiates a publisher system for a given ROS message type.
-  /**
-   * See `RosPublisherSystem::RosPublisherSystem` documentation for
-   * further reference on function arguments.
-   *
-   * @tparam MessageT C++ ROS message type.
+  /** Instantiates a publisher system for a given ROS message type.
+   See `RosPublisherSystem::RosPublisherSystem` documentation for
+   further reference on function arguments.
+
+   @tparam MessageT C++ ROS message type.
    */
   template <typename MessageT, typename... ArgsT>
   static std::unique_ptr<RosPublisherSystem> Make(ArgsT&&... args) {
@@ -48,20 +46,19 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
         std::make_unique<Serializer<MessageT>>(), std::forward<ArgsT>(args)...);
   }
 
-  /// A constructor for the ROS publisher system.
-  /**
-   * It takes a `serializer` to deal with outgoing messages.
-   *
-   * @param[in] serializer a (de)serialization interface for the
-   *   expected ROS message type.
-   * @param[in] topic_name Name of the ROS topic to publish to.
-   * @param[in] qos QoS profile for the underlying ROS pubslisher.
-   * @param[in] ros interface to a live ROS node to publish from.
-   * @param[in] publish_triggers optional set of triggers that determine
-   *   when messages will be published. By default it will publish on
-   *   every step and when forced (via Publish).
-   * @param[in] publish_period optional publishing period, in seconds.
-   *   Only applicable when periodic publishing is enabled.
+  /** A constructor for the ROS publisher system.
+   It takes a `serializer` to deal with outgoing messages.
+
+   @param[in] serializer a (de)serialization interface for the
+     expected ROS message type.
+   @param[in] topic_name Name of the ROS topic to publish to.
+   @param[in] qos QoS profile for the underlying ROS pubslisher.
+   @param[in] ros interface to a live ROS node to publish from.
+   @param[in] publish_triggers optional set of triggers that determine
+     when messages will be published. By default it will publish on
+     every step and when forced (via Publish).
+   @param[in] publish_period optional publishing period, in seconds.
+     Only applicable when periodic publishing is enabled.
    */
   RosPublisherSystem(
       std::unique_ptr<SerializerInterface> serializer,
@@ -71,16 +68,16 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
            drake::systems::TriggerType::kForced},
       double publish_period = 0.0);
 
-  virtual ~RosPublisherSystem();
+  ~RosPublisherSystem() override;
 
-  /// Publishes a C++ ROS `message`.
+  /** Publishes a C++ ROS `message`. */
   template <typename MessageT>
   void Publish(const MessageT& message) {
     static const Serializer<MessageT> serializer;
     publish(serializer.serialize(message));
   }
 
-  /// Publishes a serialized ROS message.
+  /** Publishes a serialized ROS message. */
   void Publish(const rclcpp::SerializedMessage& serialized_message);
 
  protected:

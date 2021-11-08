@@ -20,15 +20,15 @@
 #include "drake_ros_core/drake_ros.h"
 
 namespace drake_ros_core {
-/// A system that manages a Drake ROS interface.
+/** A system that manages a Drake ROS interface. */
 class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
  public:
-  /// A constructor that takes ownership of the `ros` interface.
+  /** A constructor that takes ownership of the `ros` interface. */
   explicit RosInterfaceSystem(std::unique_ptr<DrakeRos> ros);
 
-  virtual ~RosInterfaceSystem();
+  ~RosInterfaceSystem() override;
 
-  /// Returns a mutable reference to the underlying ROS interface.
+  /** Returns a mutable reference to the underlying ROS interface. */
   DrakeRos* get_ros_interface() const;
 
  protected:

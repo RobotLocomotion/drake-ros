@@ -20,37 +20,35 @@
 #include <rclcpp/node_options.hpp>
 
 namespace drake_ros_core {
-/// A Drake ROS interface that wraps a live ROS2 node.
-/**
- * This interface manages both ROS2 node construction and scheduling.
+
+/** A Drake ROS interface that wraps a live ROS2 node.
+ This interface manages both ROS2 node construction and scheduling.
  */
 class DrakeRos final {
  public:
-  /// A constructor that wraps a "drake_ros" ROS2 node with default options.
+  /** A constructor that wraps a "drake_ros" ROS2 node with default options. */
   DrakeRos() : DrakeRos("drake_ros", rclcpp::NodeOptions{}) {}
 
-  /// A constructor that wraps a `node_name` ROS2 node with `node_options`.
-  /**
-   * See `rclcpp::Node` documentation for further reference on arguments.
+  /** A constructor that wraps a `node_name` ROS2 node with `node_options`.
+   See `rclcpp::Node` documentation for further reference on arguments.
    */
   DrakeRos(const std::string& node_name, rclcpp::NodeOptions node_options);
 
   ~DrakeRos();
 
-  /// Returns a constant reference to the underlying ROS2 node.
+  /** Returns a constant reference to the underlying ROS2 node. */
   const rclcpp::Node& get_node() const;
 
-  /// Returns a mutable reference to the underlying ROS2 node.
+  /** Returns a mutable reference to the underlying ROS2 node. */
   rclcpp::Node* get_mutable_node() const;
 
-  /// Spins the underlying ROS2 node, dispatching all available work.
-  /**
-   * @param[in] timeout_millis Timeout, in milliseconds.
-   *   If timeout is less than 0, the call will block indefinitely
-   *   until some work has been dispatched. If timeout is 0, the call
-   *   will dispatch available work without blocking. If timeout is
-   *   larger than 0, the call will wait up to the given timeout for
-   *   work to dispatch.
+  /** Spins the underlying ROS2 node, dispatching all available work.
+   @param[in] timeout_millis Timeout, in milliseconds.
+     If timeout is less than 0, the call will block indefinitely
+     until some work has been dispatched. If timeout is 0, the call
+     will dispatch available work without blocking. If timeout is
+     larger than 0, the call will wait up to the given timeout for
+     work to dispatch.
    */
   void Spin(int timeout_millis = 0);
 
