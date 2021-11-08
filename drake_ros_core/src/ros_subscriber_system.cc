@@ -48,34 +48,34 @@ class MessageQueue {
 
 struct RosSubscriberSystem::Impl {
   // Interface for message (de)serialization.
-  std::unique_ptr<SerializerInterface> serializer_;
+  std::unique_ptr<SerializerInterface> serializer;
   // Subscription to serialized messages.
-  std::shared_ptr<internal::Subscription> sub_;
+  std::shared_ptr<internal::Subscription> sub;
   // Queue of serialized messages.
-  MessageQueue<rclcpp::SerializedMessage> queue_;
+  MessageQueue<rclcpp::SerializedMessage> queue;
   // AbstractState index where the message is stored.
-  drake::systems::AbstractStateIndex message_state_index_;
+  drake::systems::AbstractStateIndex message_state_index;
 };
 
 RosSubscriberSystem::RosSubscriberSystem(
     std::unique_ptr<SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros)
     : impl_(new Impl()) {
-  impl_->serializer_ = std::move(serializer);
+  impl_->serializer = std::move(serializer);
 
   rclcpp::Node* node = ros->get_mutable_node();
-  impl_->sub_ = std::make_shared<internal::Subscription>(
+  impl_->sub = std::make_shared<internal::Subscription>(
       node->get_node_base_interface().get(),
-      *impl_->serializer_->GetTypeSupport(), topic_name, qos,
+      *impl_->serializer->GetTypeSupport(), topic_name, qos,
       std::bind(&MessageQueue<rclcpp::SerializedMessage>::PutMessage,
-                &impl_->queue_, std::placeholders::_1));
-  node->get_node_topics_interface()->add_subscription(impl_->sub_, nullptr);
+                &impl_->queue, std::placeholders::_1));
+  node->get_node_topics_interface()->add_subscription(impl_->sub, nullptr);
 
-  impl_->message_state_index_ =
-      DeclareAbstractState(*(impl_->serializer_->CreateDefaultValue()));
+  impl_->message_state_index =
+      DeclareAbstractState(*(impl_->serializer->CreateDefaultValue()));
 
   DeclareStateOutputPort(drake::systems::kUseDefaultName,
-                         impl_->message_state_index_);
+                         impl_->message_state_index);
 }
 
 RosSubscriberSystem::~RosSubscriberSystem() {}
@@ -92,7 +92,7 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
   DRAKE_THROW_UNLESS(std::isinf(*time));
 
   std::shared_ptr<rclcpp::SerializedMessage> message =
-      impl_->queue_.TakeMessage();
+      impl_->queue.TakeMessage();
 
   // Do nothing unless we have a new message.
   if (!message) {
@@ -111,8 +111,8 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
         drake::systems::AbstractValues& abstract_state =
             state->get_mutable_abstract_state();
         auto& abstract_value =
-            abstract_state.get_mutable_value(impl_->message_state_index_);
-        impl_->serializer_->Deserialize(*serialized_message, &abstract_value);
+            abstract_state.get_mutable_value(impl_->message_state_index);
+        impl_->serializer->Deserialize(*serialized_message, &abstract_value);
         return drake::systems::EventStatus::Succeeded();
       };
 

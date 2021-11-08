@@ -26,9 +26,9 @@
 namespace drake_ros_core {
 struct RosPublisherSystem::Impl {
   // Interface for message (de)serialization.
-  std::unique_ptr<SerializerInterface> serializer_;
+  std::unique_ptr<SerializerInterface> serializer;
   // Publisher for serialized messages.
-  std::unique_ptr<internal::Publisher> pub_;
+  std::unique_ptr<internal::Publisher> pub;
 };
 
 RosPublisherSystem::RosPublisherSystem(
@@ -37,14 +37,14 @@ RosPublisherSystem::RosPublisherSystem(
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
     double publish_period)
     : impl_(new Impl()) {
-  impl_->serializer_ = std::move(serializer);
+  impl_->serializer = std::move(serializer);
 
-  impl_->pub_ = std::make_unique<internal::Publisher>(
+  impl_->pub = std::make_unique<internal::Publisher>(
       ros->get_mutable_node()->get_node_base_interface().get(),
-      *impl_->serializer_->GetTypeSupport(), topic_name, qos);
+      *impl_->serializer->GetTypeSupport(), topic_name, qos);
 
   DeclareAbstractInputPort("message",
-                           *(impl_->serializer_->CreateDefaultValue()));
+                           *(impl_->serializer->CreateDefaultValue()));
 
   // vvv Mostly copied from LcmPublisherSystem vvv
   // Check that publish_triggers does not contain an unsupported trigger.
@@ -93,14 +93,14 @@ RosPublisherSystem::~RosPublisherSystem() {}
 
 void RosPublisherSystem::Publish(
     const rclcpp::SerializedMessage& serialized_msg) {
-  impl_->pub_->publish(serialized_msg);
+  impl_->pub->publish(serialized_msg);
 }
 
 drake::systems::EventStatus RosPublisherSystem::PublishInput(
     const drake::systems::Context<double>& context) const {
   const drake::AbstractValue& input =
       get_input_port().Eval<drake::AbstractValue>(context);
-  impl_->pub_->publish(impl_->serializer_->Serialize(input));
+  impl_->pub->publish(impl_->serializer->Serialize(input));
   return drake::systems::EventStatus::Succeeded();
 }
 }  // namespace drake_ros_core
