@@ -60,23 +60,36 @@ def test_nominal_case():
     publisher = node.create_publisher(BasicTypes, 'in_py', qos)
 
     # Create subscription listening to publisher system
+    num_msgs = 5
     rx_msgs = []
-    rx_callback = (lambda msg: rx_msgs.append(msg))
+
+    def rx_callback(msg):
+        # Cope with lack of synchronization between subscriber
+        # and publisher systems by ignoring duplicate messages.
+        if not rx_msgs or rx_msgs[-1].uint64_value != msg.uint64_value:
+            rx_msgs.append(msg)
     node.create_subscription(BasicTypes, 'out_py', rx_callback, qos)
 
-    # Send messages into the drake system
-    num_msgs = 5
-    for _ in range(num_msgs):
-        publisher.publish(BasicTypes())
-
+    num_msgs_sent = 0
     timeout_sec = 5
     spins_per_sec = 10
     time_delta = 1.0 / spins_per_sec
     for _ in range(timeout_sec * spins_per_sec):
         if len(rx_msgs) >= num_msgs:
             break
+        # Cope with lack of synchronization between subscriber
+        # and publisher systems by sending one message at a time.
+        if len(rx_msgs) == num_msgs_sent:
+            # Send messages into the drake system
+            message = BasicTypes()
+            message.uint64_value = num_msgs_sent
+            publisher.publish(message)
+            num_msgs_sent = num_msgs_sent + 1
         rclpy.spin_once(node, timeout_sec=time_delta)
         simulator.AdvanceTo(simulator_context.get_time() + time_delta)
 
     # Make sure same number of messages got out
     assert num_msgs == len(rx_msgs)
+    # Make sure all messages got out and in the right order
+    for i in range(num_msgs):
+        assert rx_msgs[i].uint64_value == i
