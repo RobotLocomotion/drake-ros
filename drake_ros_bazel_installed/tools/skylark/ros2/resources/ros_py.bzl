@@ -6,8 +6,8 @@ load(
 )
 load(
     "@drake_ros//tools/skylark:kwargs.bzl",
-    "keep_common",
-    "remove_test_specific"
+    "filter_to_only_common_kwargs",
+    "remove_test_specific_kwargs"
 )
 load(
     ":common.bzl",
@@ -46,7 +46,7 @@ def ros_py_import(
             )
 
     shim_name = name + "_shim.py"
-    shim_kwargs = keep_common(kwargs)
+    shim_kwargs = filter_to_only_common_kwargs(kwargs)
     dload_py_shim(
         name = shim_name,
         target = executable,
@@ -101,7 +101,7 @@ def ros_py_binary(
     )
 
     shim_name = binary_name + "_shim.py"
-    shim_kwargs = keep_common(kwargs)
+    shim_kwargs = filter_to_only_common_kwargs(kwargs)
     dload_py_shim(
         name = shim_name,
         target = ":" + binary_name,
@@ -143,7 +143,7 @@ def ros_py_test(
     `py_binary_rule` (minus the test specific ones).
     """
     binary_name = "_" + name
-    binary_kwargs = remove_test_specific(kwargs)
+    binary_kwargs = remove_test_specific_kwargs(kwargs)
     binary_kwargs.update(testonly = True)
     binary_env_changes = dict(RUNTIME_ENVIRONMENT)
     if rmw_implementation:
@@ -159,7 +159,7 @@ def ros_py_test(
     )
 
     shim_name = binary_name + "_shim.py"
-    shim_kwargs = keep_common(kwargs)
+    shim_kwargs = filter_to_only_common_kwargs(kwargs)
     shim_kwargs.update(testonly = True)
     dload_py_shim(
         name = shim_name,

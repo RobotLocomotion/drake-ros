@@ -14,7 +14,7 @@ _COMMON_KWARGS = [
     "visibility",
 ]
 
-def keep_common(kwargs):
+def filter_to_only_common_kwargs(kwargs):
     """Fetch keyword arguments common to all rules from `kwargs`."""
     return {key: value for key, value in kwargs.items() if key in _COMMON_KWARGS}
 
@@ -27,6 +27,6 @@ _TEST_KWARGS = [
     "timeout",
 ]
 
-def remove_test_specific(kwargs):
+def remove_test_specific_kwargs(kwargs):
     """Filter keyword arguments specific to test rules from `kwargs`."""
     return {key: value for key, value in kwargs.items() if key not in _TEST_KWARGS}
