@@ -69,6 +69,9 @@ const rclcpp::Node& DrakeRos::get_node() const { return *impl_->node_; }
 rclcpp::Node* DrakeRos::get_mutable_node() const { return impl_->node_.get(); }
 
 void DrakeRos::Spin(int timeout_millis) {
+  // To match `DrakeLcm::HandleSubscriptions()`'s behavior, in the following
+  // we wait up to the given timeout to process one work item and then process
+  // all pending work items, if any, without waiting.
   impl_->executor_->spin_once(std::chrono::milliseconds(timeout_millis));
   impl_->executor_->spin_some(std::chrono::milliseconds(0));
 }
