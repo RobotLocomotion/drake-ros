@@ -77,7 +77,6 @@ sh_test(
         "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
     ],
     data = ["test/oracle_cc.gdb", ":oracle_cc"],
-    tags = ["manual"],
     size = "small",
 )
 
@@ -90,6 +89,5 @@ sh_test(
         "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
     ],
     data = ["test/oracle_cc.lldb", ":oracle_cc"],
-    tags = ["manual"],
     size = "small",
 )
