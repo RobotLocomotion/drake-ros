@@ -1,4 +1,4 @@
-name: Bazelized Continuous Integration
+name: Bazel ROS Continuous Integration
 
 on:
   pull_request:
@@ -22,13 +22,8 @@ jobs:
           path: "/home/runner/.cache/bazel"
           key: bazel
       - name: Install prerequisites
-        run: |
-          yes | ./setup/install_prereqs.sh
+        run: yes | ./setup/install_prereqs.sh
       - name: Build Bazel workspace
-        run: |
-          bazel build //...
+        run: bazel build //...
       - name: Test Bazel workspace
-        run: |
-          bazel test //drake_ros_apps:gdb_oracle_cc_test
-          bazel test //drake_ros_apps:lldb_oracle_cc_test
-          bazel test @ros2//...
+        run: bazel test //... @ros2//...
