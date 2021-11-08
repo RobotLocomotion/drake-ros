@@ -47,9 +47,9 @@ cc_library(
 )
 
 ros_py_binary(
-    name = "talker_py",
-    srcs = ["test/talker.py"],
-    main = "test/talker.py",
+    name = "isolated_talker_py",
+    srcs = ["test/isolated_talker.py"],
+    main = "test/isolated_talker.py",
     deps = [
         "//:rclpy_py",
         "//:std_msgs_py"
@@ -75,11 +75,23 @@ sh_test(
     name = "rmw_isolation_py_test",
     srcs = ["test/rmw_isolation_test.sh"],
     args = [
-        "$(location :talker_py)",
+        "$(location :isolated_talker_py)",
         "$(location :isolated_listener_py)",
     ],
-    data = [":talker_py", ":isolated_listener_py"],
+    data = [":isolated_talker_py", ":isolated_listener_py"],
+    shard_count = 10,
     size = "small",
+)
+
+ros_cc_binary(
+    name = "isolated_talker_cc",
+    srcs = ["test/isolated_talker.cc"],
+    deps = [
+        "//:rclcpp_cc",
+        "//:std_msgs_cc",
+        ":rmw_isolation_cc",
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
 )
 
 ros_cc_binary(
@@ -97,9 +109,10 @@ sh_test(
     name = "rmw_isolation_cc_test",
     srcs = ["test/rmw_isolation_test.sh"],
     args = [
-        "$(location :talker_py)",
+        "$(location :isolated_talker_cc)",
         "$(location :isolated_listener_cc)",
     ],
-    data = [":talker_py", ":isolated_listener_cc"],
+    data = [":isolated_talker_cc", ":isolated_listener_cc"],
+    shard_count = 10,
     size = "small",
 )

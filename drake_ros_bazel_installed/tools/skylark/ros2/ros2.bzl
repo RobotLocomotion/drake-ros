@@ -8,7 +8,6 @@ PACKAGE_MANIFEST = [
     "ros_py.bzl",
     "rosidl.bzl",
 
-    "rmw_isolation/BUILD.bazel",
     "rmw_isolation/__init__.py",
     "rmw_isolation/isolated_rmw_env.py",
     "rmw_isolation/rmw_isolation.cc.in",
@@ -16,8 +15,9 @@ PACKAGE_MANIFEST = [
     "rmw_isolation/rmw_isolation.py",
     "rmw_isolation/test/isolated_listener.cc",
     "rmw_isolation/test/isolated_listener.py",
+    "rmw_isolation/test/isolated_talker.cc",
+    "rmw_isolation/test/isolated_talker.py",
     "rmw_isolation/test/rmw_isolation_test.sh",
-    "rmw_isolation/test/talker.py",
 ]
 
 GENERATE_TOOL_RESOURCES_MANIFEST = [
@@ -53,6 +53,9 @@ def _label(relpath):
     return Label("//tools/skylark/ros2:" + relpath)
 
 def _impl(repo_ctx):
+    repo_ctx.symlink(
+        _label("resources/rmw_isolation/build.bazel"),
+        "rmw_isolation/BUILD.bazel")
     for relpath in PACKAGE_MANIFEST:
         repo_ctx.symlink(_label("resources/" + relpath), relpath)
 
