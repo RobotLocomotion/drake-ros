@@ -73,25 +73,39 @@ TEST(Integration, sub_to_pub) {
   // Create subscription listening to publisher system
   std::vector<std::unique_ptr<test_msgs::msg::BasicTypes>> rx_msgs;
   auto rx_callback = [&](std::unique_ptr<test_msgs::msg::BasicTypes> msg) {
-    rx_msgs.push_back(std::move(msg));
+    // Cope with lack of synchronization between subscriber
+    // and publisher systems by ignoring duplicate messages.
+    if (rx_msgs.empty() || rx_msgs.back()->uint64_value != msg->uint64_value) {
+      rx_msgs.push_back(std::move(msg));
+    }
   };
   auto subscription = node->create_subscription<test_msgs::msg::BasicTypes>(
       "out", qos, rx_callback);
 
-  // Send messages into the drake system
-  for (size_t p = 0; p < num_msgs; ++p) {
-    publisher->publish(std::make_unique<test_msgs::msg::BasicTypes>());
-  }
-
+  size_t num_msgs_sent = 0;
   const int timeout_sec = 5;
   const int spins_per_sec = 10;
   const float time_delta = 1.0f / spins_per_sec;
-  for (int i = 0; i < timeout_sec * spins_per_sec && rx_msgs.size() < num_msgs;
-       ++i) {
+  for (int i = 0; i < timeout_sec * spins_per_sec; ++i) {
+    if (rx_msgs.size() >= num_msgs) {
+      break;
+    }
+    // Cope with lack of synchronization between subscriber
+    // and publisher systems by sending one message at a time.
+    if (rx_msgs.size() == num_msgs_sent) {
+      // Send message into the drake system
+      auto message = std::make_unique<test_msgs::msg::BasicTypes>();
+      message->uint64_value = num_msgs_sent++;
+      publisher->publish(std::move(message));
+    }
     rclcpp::spin_some(node);
     simulator->AdvanceTo(simulator_context.get_time() + time_delta);
   }
 
   // Make sure same number of messages got out
   ASSERT_EQ(num_msgs, rx_msgs.size());
+  // Make sure all messages got out and in the right order
+  for (size_t p = 0; p < num_msgs; ++p) {
+    EXPECT_EQ(rx_msgs[p]->uint64_value, p);
+  }
 }
