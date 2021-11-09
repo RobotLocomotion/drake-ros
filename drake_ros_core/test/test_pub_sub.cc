@@ -22,10 +22,10 @@
 #include <rclcpp/rclcpp.hpp>
 #include <test_msgs/msg/basic_types.hpp>
 
-#include "drake_ros_core/drake_ros.hpp"
-#include "drake_ros_core/ros_interface_system.hpp"
-#include "drake_ros_core/ros_publisher_system.hpp"
-#include "drake_ros_core/ros_subscriber_system.hpp"
+#include "drake_ros_core/drake_ros.h"
+#include "drake_ros_core/ros_interface_system.h"
+#include "drake_ros_core/ros_publisher_system.h"
+#include "drake_ros_core/ros_subscriber_system.h"
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -40,16 +40,17 @@ TEST(Integration, sub_to_pub) {
   rclcpp::QoS qos{rclcpp::KeepLast(num_msgs)};
   qos.transient_local().reliable();
 
-  auto sys_ros_interface =
+  auto ros_interface_system =
       builder.AddSystem<RosInterfaceSystem>(std::make_unique<DrakeRos>());
-  auto sys_sub =
+  auto ros_subscriber_system =
       builder.AddSystem(RosSubscriberSystem::Make<test_msgs::msg::BasicTypes>(
-          "in", qos, sys_ros_interface->get_ros_interface()));
-  auto sys_pub =
+          "in", qos, ros_interface_system->get_ros_interface()));
+  auto ros_publisher_system =
       builder.AddSystem(RosPublisherSystem::Make<test_msgs::msg::BasicTypes>(
-          "out", qos, sys_ros_interface->get_ros_interface()));
+          "out", qos, ros_interface_system->get_ros_interface()));
 
-  builder.Connect(sys_sub->get_output_port(0), sys_pub->get_input_port(0));
+  builder.Connect(ros_subscriber_system->get_output_port(0),
+                  ros_publisher_system->get_input_port(0));
 
   auto diagram = builder.Build();
   auto context = diagram->CreateDefaultContext();

@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef SUBSCRIPTION_HPP_
-#define SUBSCRIPTION_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -23,6 +22,9 @@
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace drake_ros_core {
+namespace internal {
+// A type-erased version of rclcpp:::Subscription<Message>.
+// This class conforms to the ROS 2 C++ style for consistency.
 class Subscription final : public rclcpp::SubscriptionBase {
  public:
   Subscription(
@@ -34,16 +36,16 @@ class Subscription final : public rclcpp::SubscriptionBase {
   ~Subscription();
 
  protected:
-  /// Borrow a new message.
+  // Borrow a new message.
   /** \return Shared pointer to the fresh message. */
   std::shared_ptr<void> create_message() override;
 
-  /// Borrow a new serialized message
+  // Borrow a new serialized message
   /** \return Shared pointer to a rcl_message_serialized_t. */
   std::shared_ptr<rclcpp::SerializedMessage> create_serialized_message()
       override;
 
-  /// Check if we need to handle the message, and execute the callback if we do.
+  // Check if we need to handle the message, and execute the callback if we do.
   /**
    * \param[in] message Shared pointer to the message to handle.
    * \param[in] message_info Metadata associated with this message.
@@ -59,11 +61,11 @@ class Subscription final : public rclcpp::SubscriptionBase {
       const std::shared_ptr<rclcpp::SerializedMessage>& message,
       const rclcpp::MessageInfo& message_info);
 
-  /// Return the message borrowed in create_message.
+  // Return the message borrowed in create_message.
   /** \param[in] message Shared pointer to the returned message. */
   void return_message(std::shared_ptr<void>& message) override;
 
-  /// Return the message borrowed in create_serialized_message.
+  // Return the message borrowed in create_serialized_message.
   /** \param[in] message Shared pointer to the returned message. */
   void return_serialized_message(
       std::shared_ptr<rclcpp::SerializedMessage>& message) override;
@@ -71,5 +73,5 @@ class Subscription final : public rclcpp::SubscriptionBase {
  private:
   std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback_;
 };
+}  // namespace internal
 }  // namespace drake_ros_core
-#endif  // SUBSCRIPTION_HPP_

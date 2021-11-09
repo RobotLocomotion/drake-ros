@@ -12,37 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_core/ros_publisher_system.hpp"
+#include "drake_ros_core/ros_publisher_system.h"
 
 #include <memory>
 #include <string>
 #include <unordered_set>
 #include <utility>
 
-#include "publisher.hpp"
+#include "publisher.h"  // NOLINT(build/include)
 
-#include "drake_ros_core/serializer_interface.hpp"
+#include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
-class RosPublisherSystemPrivate {
- public:
-  std::unique_ptr<SerializerInterface> serializer_;
-  std::unique_ptr<Publisher> pub_;
+struct RosPublisherSystem::Impl {
+  // Interface for message (de)serialization.
+  std::unique_ptr<SerializerInterface> serializer;
+  // Publisher for serialized messages.
+  std::unique_ptr<internal::Publisher> pub;
 };
 
 RosPublisherSystem::RosPublisherSystem(
-    std::unique_ptr<SerializerInterface>& serializer,
-    const std::string& topic_name, const rclcpp::QoS& qos,
-    std::shared_ptr<DrakeRosInterface> ros,
+    std::unique_ptr<SerializerInterface> serializer,
+    const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
     double publish_period)
-    : impl_(new RosPublisherSystemPrivate()) {
-  impl_->serializer_ = std::move(serializer);
-  impl_->pub_ = ros->create_publisher(*impl_->serializer_->get_type_support(),
-                                      topic_name, qos);
+    : impl_(new Impl()) {
+  impl_->serializer = std::move(serializer);
+
+  impl_->pub = std::make_unique<internal::Publisher>(
+      ros->get_mutable_node()->get_node_base_interface().get(),
+      *impl_->serializer->GetTypeSupport(), topic_name, qos);
 
   DeclareAbstractInputPort("message",
-                           *(impl_->serializer_->create_default_value()));
+                           *(impl_->serializer->CreateDefaultValue()));
 
   // vvv Mostly copied from LcmPublisherSystem vvv
   // Check that publish_triggers does not contain an unsupported trigger.
@@ -59,7 +61,7 @@ RosPublisherSystem::RosPublisherSystem(
   // system (or a Diagram containing it), a message is emitted.
   if (publish_triggers.find(drake::systems::TriggerType::kForced) !=
       publish_triggers.end()) {
-    this->DeclareForcedPublishEvent(&RosPublisherSystem::publish_input);
+    this->DeclareForcedPublishEvent(&RosPublisherSystem::PublishInput);
   }
 
   if (publish_triggers.find(drake::systems::TriggerType::kPeriodic) !=
@@ -69,7 +71,7 @@ RosPublisherSystem::RosPublisherSystem(
     }
     const double offset = 0.0;
     this->DeclarePeriodicPublishEvent(publish_period, offset,
-                                      &RosPublisherSystem::publish_input);
+                                      &RosPublisherSystem::PublishInput);
   } else if (publish_period > 0) {
     // publish_period > 0 without drake::systems::TriggerType::kPeriodic has no
     // meaning and is likely a mistake.
@@ -81,7 +83,7 @@ RosPublisherSystem::RosPublisherSystem(
     DeclarePerStepEvent(drake::systems::PublishEvent<double>(
         [this](const drake::systems::Context<double>& context,
                const drake::systems::PublishEvent<double>&) {
-          publish_input(context);
+          PublishInput(context);
         }));
   }
   // ^^^ Mostly copied from LcmPublisherSystem ^^^
@@ -89,16 +91,16 @@ RosPublisherSystem::RosPublisherSystem(
 
 RosPublisherSystem::~RosPublisherSystem() {}
 
-void RosPublisherSystem::publish(
+void RosPublisherSystem::Publish(
     const rclcpp::SerializedMessage& serialized_msg) {
-  impl_->pub_->publish(serialized_msg);
+  impl_->pub->publish(serialized_msg);
 }
 
-drake::systems::EventStatus RosPublisherSystem::publish_input(
+drake::systems::EventStatus RosPublisherSystem::PublishInput(
     const drake::systems::Context<double>& context) const {
   const drake::AbstractValue& input =
       get_input_port().Eval<drake::AbstractValue>(context);
-  impl_->pub_->publish(impl_->serializer_->serialize(input));
+  impl_->pub->publish(impl_->serializer->Serialize(input));
   return drake::systems::EventStatus::Succeeded();
 }
 }  // namespace drake_ros_core
