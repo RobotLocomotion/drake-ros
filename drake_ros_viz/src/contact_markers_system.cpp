@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "drake_ros_viz/contact_markers_system.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+#include "drake_ros_viz/utilities/name_conventions.hpp"
+#include "drake_ros_viz/utilities/type_conversion.hpp"
+#include "lodepng/lodepng.h"
+#include <Eigen/Core>
+#include <builtin_interfaces/msg/time.hpp>
 #include <drake/common/drake_copyable.h>
 #include <drake/common/eigen_types.h>
 #include <drake/geometry/geometry_properties.h>
@@ -22,81 +36,58 @@
 #include <drake/geometry/shape_specification.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/leaf_system.h>
-
-#include <rclcpp/duration.hpp>
-#include <rclcpp/time.hpp>
-
-#include <builtin_interfaces/msg/time.hpp>
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
+#include <rclcpp/duration.hpp>
+#include <rclcpp/time.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#include <Eigen/Core>
+namespace drake_ros_viz {
 
-#include <algorithm>
-#include <cmath>
-#include <unordered_set>
-#include <utility>
-
-#include <iostream>
-
-#include "drake_ros_viz/contact_markers_system.hpp"
-#include "drake_ros_viz/utilities/name_conventions.hpp"
-#include "drake_ros_viz/utilities/type_conversion.hpp"
-#include "lodepng/lodepng.h"
-
-namespace drake_ros_viz
-{
-
-namespace
-{
+namespace {
 
 double calc_uv(double pressure, double min_pressure, double max_pressure) {
   double u = ((pressure - min_pressure) / (max_pressure - min_pressure));
   return std::clamp(u, 0.0, 1.0);
 }
 
-void create_color(double value, double & red, double & green, double & blue) {
+void create_color(double value, double& red, double& green, double& blue) {
   red = std::clamp(((value - 0.25) * 4.0), 0.0, 1.0);
   green = std::clamp(((value - 0.5) * 4.0), 0.0, 1.0);
   if (value < 0.25) {
     blue = std::clamp(value * 4.0, 0.0, 1.0);
-  }
-  else if (value > 0.75) {
+  } else if (value > 0.75) {
     blue = std::clamp((value - 0.75) * 4.0, 0.0, 1.0);
-  }
-  else {
+  } else {
     blue = std::clamp(1.0 - (value - 0.25) * 4.0, 0.0, 1.0);
   }
 }
 
-class ContactGeometryToMarkers : public drake::geometry::ShapeReifier
-{
-private:
+class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
+ private:
   const size_t TEXTURE_SIZE = 1024;
 
-  const ContactMarkersParams & params_;
-  visualization_msgs::msg::MarkerArray * marker_array_{nullptr};
+  const ContactMarkersParams& params_;
+  visualization_msgs::msg::MarkerArray* marker_array_{nullptr};
   drake::math::RigidTransform<double> X_FG_{};
   std::vector<uint8_t> texture_;
 
-public:
+ public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(ContactGeometryToMarkers)
 
-  explicit ContactGeometryToMarkers(const ContactMarkersParams & params)
-  : params_(params)
-  {
+  explicit ContactGeometryToMarkers(const ContactMarkersParams& params)
+      : params_(params) {
     std::vector<uint8_t> image(TEXTURE_SIZE * 4);
     double red, green, blue;
     for (size_t i = 0; i < TEXTURE_SIZE; i++) {
-      create_color((double) i / TEXTURE_SIZE, red, green, blue);
-      image[(i*4) + 0] = (uint8_t)(red * 255.0);
-      image[(i*4) + 1] = (uint8_t)(green * 255.0);
-      image[(i*4) + 2] = (uint8_t)(blue * 255.0);
-      image[(i*4) + 3] = (uint8_t)(255);
+      create_color(static_cast<double>(i) / TEXTURE_SIZE, red, green, blue);
+      image[(i * 4) + 0] = (uint8_t)(red * 255.0);
+      image[(i * 4) + 1] = (uint8_t)(green * 255.0);
+      image[(i * 4) + 2] = (uint8_t)(blue * 255.0);
+      image[(i * 4) + 3] = (uint8_t)(255);
     }
     lodepng::encode(texture_, image, TEXTURE_SIZE, 1);
   }
@@ -104,10 +95,10 @@ public:
   ~ContactGeometryToMarkers() override = default;
 
   void Populate(
-    const std::vector<drake::geometry::ContactSurface<double>> & surfaces,
-    const std::vector<drake::geometry::PenetrationAsPointPair<double>> & points,
-    visualization_msgs::msg::MarkerArray * marker_array)
-  {
+      const std::vector<drake::geometry::ContactSurface<double>>& surfaces,
+      const std::vector<drake::geometry::PenetrationAsPointPair<double>>&
+          points,
+      visualization_msgs::msg::MarkerArray* marker_array) {
     DRAKE_ASSERT(nullptr != marker_array);
     marker_array_ = marker_array;
 
@@ -118,7 +109,7 @@ public:
 
     // Translate Drake Contact Surface into ROS List of Triangles.
     int name_index = 0;
-    for (const drake::geometry::ContactSurface<double>& surface: surfaces) {
+    for (const drake::geometry::ContactSurface<double>& surface : surfaces) {
       visualization_msgs::msg::Marker face_msg;
       face_msg.header.frame_id = params_.origin_frame_name;
       face_msg.ns = std::to_string(name_index) + "_faces";
@@ -139,7 +130,8 @@ public:
       face_msg.scale.y = 1.0;
       face_msg.scale.z = 1.0;
 
-      const drake::geometry::TriangleSurfaceMesh<double>& mesh_W = surface.mesh_W();
+      const drake::geometry::TriangleSurfaceMesh<double>& mesh_W =
+          surface.mesh_W();
       face_msg.points.clear();
       face_msg.points.resize(mesh_W.num_triangles() * 3);
       face_msg.colors.clear();
@@ -160,7 +152,7 @@ public:
       edge_msg.ns = std::to_string(name_index++) + "_edges";
       edge_msg.id = 1;
       // Set the size of the individual markers (depends on scale)
-      //edge_msg.scale = ToScale(edge_scale * scale);
+      // edge_msg.scale = ToScale(edge_scale * scale);
       edge_msg.scale.x = 0.01;
       edge_msg.scale.y = 0.01;
       edge_msg.scale.z = 1.0;
@@ -187,7 +179,7 @@ public:
 
         for (size_t vert_index = 0; vert_index < 3; vert_index++) {
           pressures[index + vert_index] =
-            field.EvaluateAtVertex(face.vertex(vert_index));
+              field.EvaluateAtVertex(face.vertex(vert_index));
         }
 
         // 0->1
@@ -204,11 +196,12 @@ public:
       }
 
       // Color based on pressures.
-      for (size_t tri_index = 0; tri_index < (size_t)mesh_W.num_triangles(); tri_index++) {
+      for (size_t tri_index = 0; tri_index < (size_t)mesh_W.num_triangles();
+           tri_index++) {
         for (size_t vert_index = 0; vert_index < 3; vert_index++) {
           size_t arr_index = (tri_index * 3) + vert_index;
-          double norm_data = calc_uv(
-              pressures(arr_index), 0.0, pressures.maxCoeff());
+          double norm_data =
+              calc_uv(pressures(arr_index), 0.0, pressures.maxCoeff());
 
           face_msg.colors.at(arr_index).r = 1.0;
           face_msg.colors.at(arr_index).g = 1.0;
@@ -231,49 +224,43 @@ public:
 
 }  // namespace
 
-class ContactMarkersSystem::ContactMarkersSystemPrivate
-{
-public:
+class ContactMarkersSystem::ContactMarkersSystemPrivate {
+ public:
   explicit ContactMarkersSystemPrivate(ContactMarkersParams _params)
-  : params(std::move(_params))
-  {
-  }
+      : params(std::move(_params)) {}
 
   const ContactMarkersParams params;
   drake::systems::InputPortIndex graph_query_port_index;
   drake::systems::OutputPortIndex contact_markers_port_index;
-  std::unordered_set<const drake::multibody::MultibodyPlant<double> *> plants;
+  std::unordered_set<const drake::multibody::MultibodyPlant<double>*> plants;
   mutable drake::geometry::GeometryVersion version;
 };
 
 ContactMarkersSystem::ContactMarkersSystem(ContactMarkersParams params)
-: impl_(new ContactMarkersSystemPrivate(std::move(params)))
-{
+    : impl_(new ContactMarkersSystemPrivate(std::move(params))) {
   impl_->graph_query_port_index =
-    this->DeclareAbstractInputPort(
-    "graph_query", drake::Value<drake::geometry::QueryObject<double>>{}).get_index();
+      this->DeclareAbstractInputPort(
+              "graph_query",
+              drake::Value<drake::geometry::QueryObject<double>>{})
+          .get_index();
 
-  impl_->contact_markers_port_index = this->DeclareAbstractOutputPort(
-    "contact_markers", &ContactMarkersSystem::CalcContactMarkers).get_index();
+  impl_->contact_markers_port_index =
+      this->DeclareAbstractOutputPort("contact_markers",
+                                      &ContactMarkersSystem::CalcContactMarkers)
+          .get_index();
 }
 
-ContactMarkersSystem::~ContactMarkersSystem()
-{
-}
+ContactMarkersSystem::~ContactMarkersSystem() {}
 
-void
-ContactMarkersSystem::RegisterMultibodyPlant(
-  const drake::multibody::MultibodyPlant<double> * plant)
-{
+void ContactMarkersSystem::RegisterMultibodyPlant(
+    const drake::multibody::MultibodyPlant<double>* plant) {
   DRAKE_THROW_UNLESS(plant != nullptr);
   impl_->plants.insert(plant);
 }
 
-namespace
-{
+namespace {
 
-visualization_msgs::msg::Marker MakeDeleteAllMarker()
-{
+visualization_msgs::msg::Marker MakeDeleteAllMarker() {
   visualization_msgs::msg::Marker marker;
   marker.action = visualization_msgs::msg::Marker::DELETEALL;
   return marker;
@@ -281,19 +268,16 @@ visualization_msgs::msg::Marker MakeDeleteAllMarker()
 
 }  // namespace
 
-void
-ContactMarkersSystem::CalcContactMarkers(
-  const drake::systems::Context<double> & context,
-  visualization_msgs::msg::MarkerArray * output_value) const
-{
+void ContactMarkersSystem::CalcContactMarkers(
+    const drake::systems::Context<double>& context,
+    visualization_msgs::msg::MarkerArray* output_value) const {
   output_value->markers.clear();
-  output_value->markers.insert(
-    output_value->markers.begin(),
-    MakeDeleteAllMarker());
+  output_value->markers.insert(output_value->markers.begin(),
+                               MakeDeleteAllMarker());
 
   const auto& query_object =
-    get_input_port(impl_->graph_query_port_index)
-    .Eval<drake::geometry::QueryObject<double>>(context);
+      get_input_port(impl_->graph_query_port_index)
+          .Eval<drake::geometry::QueryObject<double>>(context);
 
   std::vector<drake::geometry::ContactSurface<double>> surfaces;
   std::vector<drake::geometry::PenetrationAsPointPair<double>> points;
@@ -304,25 +288,21 @@ ContactMarkersSystem::CalcContactMarkers(
     query_object.ComputeContactSurfacesWithFallback(&surfaces, &points);
   }
 
-  ContactGeometryToMarkers(impl_->params).Populate(
-    surfaces, points, output_value);
+  ContactGeometryToMarkers(impl_->params)
+      .Populate(surfaces, points, output_value);
 }
 
-const ContactMarkersParams &
-ContactMarkersSystem::params() const
-{
+const ContactMarkersParams& ContactMarkersSystem::params() const {
   return impl_->params;
 }
 
-const drake::systems::InputPort<double> &
-ContactMarkersSystem::get_graph_query_port() const
-{
+const drake::systems::InputPort<double>&
+ContactMarkersSystem::get_graph_query_port() const {
   return get_input_port(impl_->graph_query_port_index);
 }
 
-const drake::systems::OutputPort<double> &
-ContactMarkersSystem::get_markers_output_port() const
-{
+const drake::systems::OutputPort<double>&
+ContactMarkersSystem::get_markers_output_port() const {
   return get_output_port(impl_->contact_markers_port_index);
 }
 
