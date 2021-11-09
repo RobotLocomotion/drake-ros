@@ -14,30 +14,25 @@
 #ifndef DRAKE_ROS_SYSTEMS__CONTACT_MARKERS_SYSTEM_HPP_
 #define DRAKE_ROS_SYSTEMS__CONTACT_MARKERS_SYSTEM_HPP_
 
-#include <drake/geometry/geometry_roles.h>
-#include <drake/geometry/rgba.h>
-#include <drake/multibody/plant/multibody_plant.h>
-#include <drake/systems/framework/leaf_system.h>
-
-#include <visualization_msgs/msg/marker_array.hpp>
-
 #include <memory>
 #include <optional>  // NOLINT(build/include_order)
 #include <string>
 
+#include <drake/geometry/geometry_roles.h>
+#include <drake/geometry/rgba.h>
+#include <drake/multibody/plant/multibody_plant.h>
+#include <drake/systems/framework/leaf_system.h>
+#include <visualization_msgs/msg/marker_array.hpp>
 
-namespace drake_ros_viz
-{
+namespace drake_ros_viz {
 
 /// Set of parameters that configure a ContactMarkersSystem.
-struct ContactMarkersParams
-{
+struct ContactMarkersParams {
   /// Configure ContactMarkersSystem to depict strict hydroelastic collisions.
-  static ContactMarkersParams Strict() {return {};}
+  static ContactMarkersParams Strict() { return {}; }
 
   /// Configure ContactMarkersSystem to depict collisions.
-  static ContactMarkersParams NoStrict()
-  {
+  static ContactMarkersParams NoStrict() {
     ContactMarkersParams params;
     params.use_strict_hydro_ = false;
     return params;
@@ -75,9 +70,8 @@ struct ContactMarkersParams
 /// the DrakeVisualizer system does for LCM-based applications.
 /// Thus, discussions in DrakeVisualizer's documentation about geometry
 /// versioning, geometry roles, and so on are equally applicable here.
-class ContactMarkersSystem : public drake::systems::LeafSystem<double>
-{
-public:
+class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
+ public:
   explicit ContactMarkersSystem(ContactMarkersParams params = {});
   virtual ~ContactMarkersSystem();
 
@@ -86,23 +80,21 @@ public:
    * This provides the system with additional information to generate
    * semantically meaningful frame string IDs and marker namespaces.
    */
-  void
-  RegisterMultibodyPlant(
-    const drake::multibody::MultibodyPlant<double> * plant);
+  void RegisterMultibodyPlant(
+      const drake::multibody::MultibodyPlant<double>* plant);
 
-  const ContactMarkersParams & params() const;
+  const ContactMarkersParams& params() const;
 
-  const drake::systems::InputPort<double> & get_graph_query_port() const;
+  const drake::systems::InputPort<double>& get_graph_query_port() const;
 
-  const drake::systems::OutputPort<double> & get_markers_output_port() const;
+  const drake::systems::OutputPort<double>& get_markers_output_port() const;
 
-private:
+ private:
   // Inspects the SceneGraph and carries out the conversion
   // to visualization_msgs::msg::MarkerArray message unconditionally.
-  void
-  CalcContactMarkers(
-    const drake::systems::Context<double> & context,
-    visualization_msgs::msg::MarkerArray * output_value) const;
+  void CalcContactMarkers(
+      const drake::systems::Context<double>& context,
+      visualization_msgs::msg::MarkerArray* output_value) const;
 
   // PIMPL forward declaration
   class ContactMarkersSystemPrivate;
