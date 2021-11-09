@@ -29,15 +29,10 @@
 #include <drake/systems/primitives/sine.h>
 */
 
-#include <drake_ros_core/drake_ros.hpp>
-#include <drake_ros_core/ros_interface_system.hpp>
-#include <drake_ros_viz/rviz_visualizer.hpp>
-
 #include <cmath>
 #include <memory>
 #include <utility>
-
-#include <gflags/gflags.h>
+#include <vector>
 
 #include <drake/common/value.h>
 #include <drake/geometry/drake_visualizer.h>
@@ -60,6 +55,10 @@
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/lcm/lcm_publisher_system.h>
+#include <drake_ros_core/drake_ros.hpp>
+#include <drake_ros_core/ros_interface_system.hpp>
+#include <drake_ros_viz/rviz_visualizer.hpp>
+#include <gflags/gflags.h>
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -317,7 +316,7 @@ int do_main() {
   DiagramBuilder<double> builder;
 
   auto ros_interface_system =
-    builder.AddSystem<RosInterfaceSystem>(std::make_unique<DrakeRos>());
+      builder.AddSystem<RosInterfaceSystem>(std::make_unique<DrakeRos>());
 
   auto& scene_graph = *builder.AddSystem<SceneGraph<double>>();
 
@@ -369,10 +368,10 @@ int do_main() {
   scene_graph.AssignRole(source_id, can2_id, illustration_cylinder);
 
   auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
-    ros_interface_system->get_ros_interface());
+      ros_interface_system->get_ros_interface());
 
   builder.Connect(scene_graph.get_query_output_port(),
-    rviz_visualizer.get_graph_query_port());
+                  rviz_visualizer.get_graph_query_port());
 
   // Now visualize.
   DrakeLcm lcm;
@@ -394,7 +393,7 @@ int do_main() {
 
   systems::Simulator<double> simulator(*diagram);
 
-  auto & simulator_context = simulator.get_mutable_context();
+  auto& simulator_context = simulator.get_mutable_context();
 
   simulator.get_mutable_integrator().set_maximum_step_size(0.002);
   simulator.set_target_realtime_rate(FLAGS_real_time ? 1.f : 0.f);
