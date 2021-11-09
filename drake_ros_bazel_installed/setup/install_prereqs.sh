@@ -14,7 +14,7 @@ apt update && apt install bazel
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list
 apt update && apt install ros-rolling-ros-base ros-rolling-rmw-fastrtps-cpp ros-rolling-rmw-cyclonedds-cpp
-apt install --only-upgrade $(apt-cache pkgnames ros-rolling)  # NOTE(hidmic): avoid half upgrades (shouldn't the ros-rolling-ros-base install prevent that?)
+apt install --only-upgrade $(dpkg-query -f '${Package}\n' -W 'ros-rolling-*')  # NOTE(hidmic): avoid half upgrades (shouldn't the ros-rolling-ros-base install prevent that?)
 
 # Install Python dependencies
 apt install python3 python3-toposort python3-dev python-is-python3
