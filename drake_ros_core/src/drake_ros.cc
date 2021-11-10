@@ -69,6 +69,11 @@ const rclcpp::Node& DrakeRos::get_node() const { return *impl_->node; }
 rclcpp::Node* DrakeRos::get_mutable_node() const { return impl_->node.get(); }
 
 void DrakeRos::Spin(int timeout_millis) {
+  if (timeout_millis < 0) {
+    // To match `DrakeLcm::HandleSubscriptions()`'s behavior,
+    // throw if timeout is negative.
+    throw std::runtime_error("timeout cannot be negative");
+  }
   // To match `DrakeLcm::HandleSubscriptions()`'s behavior, in the following
   // we wait up to the given timeout to process one work item and then process
   // all pending work items, if any, without waiting.

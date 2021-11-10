@@ -21,34 +21,48 @@
 
 namespace drake_ros_core {
 
-/** A Drake ROS interface that wraps a live ROS2 node.
- This interface manages both ROS2 node construction and scheduling.
+/** A Drake ROS interface that wraps a live ROS node.
+
+ This interface manages both ROS node construction and scheduling
+ (using a `rclcpp::executors::SingleThreadedExecutor` instance).
+ See `rclcpp::Node` and `rclcpp::Executor` documentation for further
+ reference on expected behavior.
  */
 class DrakeRos final {
  public:
-  /** A constructor that wraps a "drake_ros" ROS2 node with default options. */
+  /** A constructor that wraps a "drake_ros" ROS node with default options. */
   DrakeRos() : DrakeRos("drake_ros", rclcpp::NodeOptions{}) {}
 
-  /** A constructor that wraps a `node_name` ROS2 node with `node_options`.
-   See `rclcpp::Node` documentation for further reference on arguments.
+  /** A constructor that wraps a `node_name` ROS node with `node_options`.
+   See `rclcpp::Node::Node` documentation for further reference on arguments.
    */
   DrakeRos(const std::string& node_name, rclcpp::NodeOptions node_options);
 
   ~DrakeRos();
 
-  /** Returns a constant reference to the underlying ROS2 node. */
+  /** Returns a constant reference to the underlying ROS node. */
   const rclcpp::Node& get_node() const;
 
-  /** Returns a mutable reference to the underlying ROS2 node. */
+  /** Returns a mutable reference to the underlying ROS node. */
   rclcpp::Node* get_mutable_node() const;
 
-  /** Spins the underlying ROS2 node, dispatching all available work.
-   @param[in] timeout_millis Timeout, in milliseconds.
-     If timeout is less than 0, the call will block indefinitely
-     until some work has been dispatched. If timeout is 0, the call
-     will dispatch available work without blocking. If timeout is
-     larger than 0, the call will wait up to the given timeout for
-     work to dispatch.
+  /** Spins the underlying ROS node, dispatching all available work if any.
+
+   In this context, work refers to subscription callbacks, timer callbacks,
+   service request and reply callbacks, etc., that are registered with the
+   underlying `rclcpp::Node` instance. Availability implies these are ready
+   to be serviced by the underlying `rclcpp::Executor` instance.
+
+   This method's behavior has been modeled after that of the
+   `drake::lcm::DrakeLcm::HandleSubscriptions()` method.
+
+   @param[in] timeout_millis Time, in milliseconds, to wait for work to
+     be made available before executing it. It has not impact whatsoever
+     when work is available already at the time of call. Negative timeout
+     values are not allowed. If timeout is 0, the call will not wait for
+     any new work. If timeout is larger than 0, the call will wait for work
+     up the given timeout.
+   @throws std::runtime_error if timeout is negative.
    */
   void Spin(int timeout_millis = 0);
 
