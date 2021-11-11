@@ -33,17 +33,26 @@ namespace drake_ros_core {
  */
 class RosPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
+  static constexpr std::initializer_list<drake::systems::TriggerType>
+      kDefaultTriggerTypes{drake::systems::TriggerType::kPerStep,
+                           drake::systems::TriggerType::kForced};
+
   /** Instantiates a publisher system for a given ROS message type.
    See `RosPublisherSystem::RosPublisherSystem` documentation for
    further reference on function arguments.
 
    @tparam MessageT C++ ROS message type.
    */
-  template <typename MessageT, typename... ArgsT>
-  static std::unique_ptr<RosPublisherSystem> Make(ArgsT&&... args) {
+  template <typename MessageT>
+  static std::unique_ptr<RosPublisherSystem> Make(
+      const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
+      const std::unordered_set<drake::systems::TriggerType>& publish_triggers =
+          kDefaultTriggerTypes,
+      double publish_period = 0.0) {
     // Assume C++ typesupport since this is a C++ template function
     return std::make_unique<RosPublisherSystem>(
-        std::make_unique<Serializer<MessageT>>(), std::forward<ArgsT>(args)...);
+        std::make_unique<Serializer<MessageT>>(), topic_name, qos, ros,
+        publish_triggers, publish_period);
   }
 
   /** A constructor for the ROS publisher system.
@@ -60,13 +69,12 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
    @param[in] publish_period optional publishing period, in seconds.
      Only applicable when periodic publishing is enabled.
    */
-  RosPublisherSystem(
-      std::unique_ptr<SerializerInterface> serializer,
-      const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
-      const std::unordered_set<drake::systems::TriggerType>& publish_triggers =
-          {drake::systems::TriggerType::kPerStep,
-           drake::systems::TriggerType::kForced},
-      double publish_period = 0.0);
+  RosPublisherSystem(std::unique_ptr<SerializerInterface> serializer,
+                     const std::string& topic_name, const rclcpp::QoS& qos,
+                     DrakeRos* ros,
+                     const std::unordered_set<drake::systems::TriggerType>&
+                         publish_triggers = kDefaultTriggerTypes,
+                     double publish_period = 0.0);
 
   ~RosPublisherSystem() override;
 
