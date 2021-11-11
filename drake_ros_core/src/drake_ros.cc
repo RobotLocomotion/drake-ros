@@ -74,6 +74,8 @@ void DrakeRos::Spin(int timeout_millis) {
     // throw if timeout is negative.
     throw std::runtime_error("timeout cannot be negative");
   }
+  // TODO(hidmic): switch to rclcpp::Executor::spin_all() when and if a zero
+  // timeout is supported. See https://github.com/ros2/rclcpp/issues/1825.
   impl_->executor->spin_some(std::chrono::milliseconds(timeout_millis));
 }
 }  // namespace drake_ros_core
