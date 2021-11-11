@@ -38,9 +38,8 @@ TEST(Integration, sub_to_pub) {
   constexpr double kPublishPeriod = 1.0;
   const auto qos = rclcpp::QoS{rclcpp::KeepLast(10)}.reliable();
 
-  auto system_ros =
-      builder.AddSystem<RosInterfaceSystem>(
-          std::make_unique<DrakeRos>("pub_to_sub"));
+  auto system_ros = builder.AddSystem<RosInterfaceSystem>(
+      std::make_unique<DrakeRos>("pub_to_sub"));
   auto system_sub_in =
       builder.AddSystem(RosSubscriberSystem::Make<test_msgs::msg::BasicTypes>(
           "in", qos, system_ros->get_ros_interface()));

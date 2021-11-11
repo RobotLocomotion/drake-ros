@@ -33,9 +33,8 @@ class DrakeRos final {
   /** A constructor that wraps a `node_name` ROS node with `node_options`.
    See `rclcpp::Node::Node` documentation for further reference on arguments.
    */
-  DrakeRos(
-      const std::string& node_name,
-      rclcpp::NodeOptions node_options = rclcpp::NodeOptions{});
+  DrakeRos(const std::string& node_name,
+           rclcpp::NodeOptions node_options = rclcpp::NodeOptions{});
 
   ~DrakeRos();
 
