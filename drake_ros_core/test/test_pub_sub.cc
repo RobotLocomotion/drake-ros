@@ -64,11 +64,11 @@ TEST(Integration, sub_to_pub) {
 
   // Don't need to rclcpp::init because DrakeRos uses global rclcpp::Context by
   // default
-  auto node = rclcpp::Node::make_shared("sub_to_pub");
+  auto direct_ros_node = rclcpp::Node::make_shared("sub_to_pub");
 
   // Create publisher talking to subscriber system.
   auto direct_pub_in =
-      node->create_publisher<test_msgs::msg::BasicTypes>("in", qos);
+      direct_ros_node->create_publisher<test_msgs::msg::BasicTypes>("in", qos);
 
   // Create subscription listening to publisher system
   std::vector<std::unique_ptr<test_msgs::msg::BasicTypes>>
@@ -77,8 +77,9 @@ TEST(Integration, sub_to_pub) {
       [&](std::unique_ptr<test_msgs::msg::BasicTypes> message) {
         rx_msgs_direct_sub_out.push_back(std::move(message));
       };
-  auto direct_sub_out = node->create_subscription<test_msgs::msg::BasicTypes>(
-      "out", qos, rx_callback_direct_sub_out);
+  auto direct_sub_out =
+      direct_ros_node->create_subscription<test_msgs::msg::BasicTypes>(
+          "out", qos, rx_callback_direct_sub_out);
 
   constexpr size_t kPubSubRounds = 5;
   for (size_t i = 1; i <= kPubSubRounds; ++i) {
@@ -90,13 +91,13 @@ TEST(Integration, sub_to_pub) {
     // Step forward to allow the message to be dispatched to the drake ros
     // subscriber system. The drake ros publisher system should not publish
     // just yet.
-    rclcpp::spin_some(node);
+    rclcpp::spin_some(direct_ros_node);
     simulator->AdvanceTo(simulator_context.get_time() + kPublishPeriod / 2.);
     ASSERT_EQ(rx_msgs_direct_sub_out.size(), rx_msgs_count_before_pubsub);
     // Step forward until it is about time the drake ros publisher publishes.
     // Allow the message to be dispatched to the direct subscription.
     simulator->AdvanceTo(simulator_context.get_time() + kPublishPeriod / 2.);
-    rclcpp::spin_some(node);
+    rclcpp::spin_some(direct_ros_node);
     const size_t rx_msgs_count_after_pubsub = rx_msgs_count_before_pubsub + 1;
     ASSERT_EQ(rx_msgs_direct_sub_out.size(), rx_msgs_count_after_pubsub);
     EXPECT_EQ(rx_msgs_direct_sub_out.back()->uint64_value, i);

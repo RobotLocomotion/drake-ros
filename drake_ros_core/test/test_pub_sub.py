@@ -60,17 +60,17 @@ def test_nominal_case():
     simulator_context = simulator.get_mutable_context()
 
     rclpy.init()
-    node = rclpy.create_node('sub_to_pub_py')
+    direct_ros_node = rclpy.create_node('sub_to_pub_py')
 
     # Create publisher talking to subscriber system.
-    direct_pub_in = node.create_publisher(BasicTypes, 'in_py', qos)
+    direct_pub_in = direct_ros_node.create_publisher(BasicTypes, 'in_py', qos)
 
     # Create subscription listening to publisher system
     rx_msgs_direct_sub_out = []
 
     def rx_callback_direct_sub_out(msg):
         rx_msgs_direct_sub_out.append(msg)
-    direct_sub_out = node.create_subscription(
+    direct_sub_out = direct_ros_node.create_subscription(
         BasicTypes, 'out_py', rx_callback_direct_sub_out, qos)
 
     pub_sub_rounds = 5
@@ -83,14 +83,14 @@ def test_nominal_case():
         # Step forward to allow the message to be dispatched to the drake ros
         # subscriber system. The drake ros publisher system should not publish
         # just yet.
-        rclpy.spin_once(node, timeout_sec=0.)
+        rclpy.spin_once(direct_ros_node, timeout_sec=0.)
         simulator.AdvanceTo(simulator_context.get_time() + publish_period / 2.)
         assert len(rx_msgs_direct_sub_out) == rx_msgs_count_before_pubsub
         # Step forward until it is about time the drake ros publisher
         # publishes. Allow the message to be dispatched to the direct
         # subscription.
         simulator.AdvanceTo(simulator_context.get_time() + publish_period / 2.)
-        rclpy.spin_once(node, timeout_sec=0.)
+        rclpy.spin_once(direct_ros_node, timeout_sec=0.)
         rx_msgs_count_after_pubsub = rx_msgs_count_before_pubsub + 1
         assert len(rx_msgs_direct_sub_out) == rx_msgs_count_after_pubsub
         assert rx_msgs_direct_sub_out[-1].uint64_value == i
