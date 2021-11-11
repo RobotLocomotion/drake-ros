@@ -39,10 +39,10 @@ DrakeRos::DrakeRos(const std::string& node_name,
   }
   impl_->context = node_options.context();
   if (impl_->context->is_valid()) {
-    // Context is being init/shutdown outside of this system
+    // Context has been init'd and will be shutdown outside of this system
     impl_->externally_init = true;
   } else {
-    // This system will init/shutdown the context
+    // This system will initialize and shutdown the context
     impl_->externally_init = false;
     impl_->context->init(0, nullptr);
   }
