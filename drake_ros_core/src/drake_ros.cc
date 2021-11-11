@@ -74,10 +74,6 @@ void DrakeRos::Spin(int timeout_millis) {
     // throw if timeout is negative.
     throw std::runtime_error("timeout cannot be negative");
   }
-  // To match `DrakeLcm::HandleSubscriptions()`'s behavior, in the following
-  // we wait up to the given timeout to process one work item and then process
-  // all pending work items, if any, without waiting.
-  impl_->executor->spin_once(std::chrono::milliseconds(timeout_millis));
-  impl_->executor->spin_some(std::chrono::milliseconds(0));
+  impl_->executor->spin_some(std::chrono::milliseconds(timeout_millis));
 }
 }  // namespace drake_ros_core

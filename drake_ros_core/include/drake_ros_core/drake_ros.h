@@ -54,14 +54,13 @@ class DrakeRos final {
    to be serviced by the underlying `rclcpp::Executor` instance.
 
    This method's behavior has been modeled after that of the
-   `drake::lcm::DrakeLcm::HandleSubscriptions()` method.
+   `drake::lcm::DrakeLcm::HandleSubscriptions()` method (to a partial extent).
 
-   @param[in] timeout_millis Time, in milliseconds, to wait for work to
-     be made available before executing it. It has not impact whatsoever
-     when work is available already at the time of call. Negative timeout
-     values are not allowed. If timeout is 0, the call will not wait for
-     any new work. If timeout is larger than 0, the call will wait for work
-     up the given timeout.
+   @param[in] timeout_millis Timeout, in milliseconds, when fetching work.
+     Negative timeout values are not allowed. If timeout is 0, the call will
+     not wait for any new work. If timeout is larger than 0, the call will
+     continue fetching work up to the given timeout or until no work is
+     available.
    @throws std::runtime_error if timeout is negative.
    */
   void Spin(int timeout_millis = 0);
