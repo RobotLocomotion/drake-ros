@@ -24,7 +24,7 @@
 using drake_ros_core::DrakeRos;
 
 TEST(DrakeRos, default_construct) {
-  EXPECT_NO_THROW(std::make_unique<DrakeRos>());
+  EXPECT_NO_THROW(std::make_unique<DrakeRos>("default_node"));
 }
 
 TEST(DrakeRos, local_context) {

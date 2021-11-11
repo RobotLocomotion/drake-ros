@@ -32,7 +32,8 @@ from drake_ros_core import RosSubscriberSystem
 def test_nominal_case():
     builder = DiagramBuilder()
 
-    system_ros = builder.AddSystem(RosInterfaceSystem())
+    system_ros = builder.AddSystem(
+        RosInterfaceSystem('pub_to_sub_py'))
 
     publish_period = 1.0
 

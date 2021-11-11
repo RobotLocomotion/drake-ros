@@ -30,13 +30,12 @@ namespace drake_ros_core {
  */
 class DrakeRos final {
  public:
-  /** A constructor that wraps a "drake_ros" ROS node with default options. */
-  DrakeRos() : DrakeRos("drake_ros", rclcpp::NodeOptions{}) {}
-
   /** A constructor that wraps a `node_name` ROS node with `node_options`.
    See `rclcpp::Node::Node` documentation for further reference on arguments.
    */
-  DrakeRos(const std::string& node_name, rclcpp::NodeOptions node_options);
+  DrakeRos(
+      const std::string& node_name,
+      rclcpp::NodeOptions node_options = rclcpp::NodeOptions{});
 
   ~DrakeRos();
 

@@ -52,9 +52,9 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::class_<DrakeRos>(m, "DrakeRos");
 
   py::class_<RosInterfaceSystem, LeafSystem<double>>(m, "RosInterfaceSystem")
-      .def(py::init([]() {
+      .def(py::init([](const std::string& node_name) {
         return std::make_unique<RosInterfaceSystem>(
-            std::make_unique<DrakeRos>());
+            std::make_unique<DrakeRos>(node_name));
       }))
       .def("get_ros_interface", &RosInterfaceSystem::get_ros_interface,
            py::return_value_policy::reference_internal);
