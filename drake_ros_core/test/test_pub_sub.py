@@ -14,6 +14,7 @@
 
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
+from pydrake.systems.framework import TriggerType
 
 import rclpy
 from rclpy.qos import DurabilityPolicy
@@ -31,65 +32,64 @@ from drake_ros_core import RosSubscriberSystem
 def test_nominal_case():
     builder = DiagramBuilder()
 
-    ros_interface_system = builder.AddSystem(RosInterfaceSystem())
+    system_ros = builder.AddSystem(RosInterfaceSystem())
+
+    publish_period = 1.0
 
     qos = QoSProfile(
         depth=10,
         history=HistoryPolicy.KEEP_LAST,
-        reliability=ReliabilityPolicy.RELIABLE,
-        durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        reliability=ReliabilityPolicy.RELIABLE)
 
-    ros_publisher_system = builder.AddSystem(RosPublisherSystem.Make(
-        BasicTypes, 'out_py', qos, ros_interface_system.get_ros_interface()))
+    system_pub_out = builder.AddSystem(RosPublisherSystem.Make(
+        BasicTypes, 'out_py', qos, system_ros.get_ros_interface(),
+        {TriggerType.kPeriodic}, publish_period))
 
-    ros_subscriber_system = builder.AddSystem(RosSubscriberSystem.Make(
-        BasicTypes, 'in_py', qos, ros_interface_system.get_ros_interface()))
+    system_sub_in = builder.AddSystem(RosSubscriberSystem.Make(
+        BasicTypes, 'in_py', qos, system_ros.get_ros_interface()))
 
     builder.Connect(
-        ros_subscriber_system.get_output_port(0),
-        ros_publisher_system.get_input_port(0))
+        system_sub_in.get_output_port(0),
+        system_pub_out.get_input_port(0))
     diagram = builder.Build()
     simulator = Simulator(diagram)
-    simulator_context = simulator.get_mutable_context()
     simulator.set_target_realtime_rate(1.0)
+    simulator.Initialize()
+
+    simulator_context = simulator.get_mutable_context()
 
     rclpy.init()
     node = rclpy.create_node('sub_to_pub_py')
 
     # Create publisher talking to subscriber system.
-    publisher = node.create_publisher(BasicTypes, 'in_py', qos)
+    direct_pub_in = node.create_publisher(BasicTypes, 'in_py', qos)
 
     # Create subscription listening to publisher system
-    num_msgs = 5
-    rx_msgs = []
+    rx_msgs_direct_sub_out = []
 
-    def rx_callback(msg):
-        # Cope with lack of synchronization between subscriber
-        # and publisher systems by ignoring duplicate messages.
-        if not rx_msgs or rx_msgs[-1].uint64_value != msg.uint64_value:
-            rx_msgs.append(msg)
-    node.create_subscription(BasicTypes, 'out_py', rx_callback, qos)
+    def rx_callback_direct_sub_out(msg):
+        rx_msgs_direct_sub_out.append(msg)
+    direct_sub_out = node.create_subscription(
+        BasicTypes, 'out_py', rx_callback_direct_sub_out, qos)
 
-    num_msgs_sent = 0
-    timeout_sec = 5
-    spins_per_sec = 10
-    time_delta = 1.0 / spins_per_sec
-    for _ in range(timeout_sec * spins_per_sec):
-        if len(rx_msgs) >= num_msgs:
-            break
-        # Cope with lack of synchronization between subscriber
-        # and publisher systems by sending one message at a time.
-        if len(rx_msgs) == num_msgs_sent:
-            # Send messages into the drake system
-            message = BasicTypes()
-            message.uint64_value = num_msgs_sent
-            publisher.publish(message)
-            num_msgs_sent = num_msgs_sent + 1
-        rclpy.spin_once(node, timeout_sec=time_delta)
-        simulator.AdvanceTo(simulator_context.get_time() + time_delta)
-
-    # Make sure same number of messages got out
-    assert num_msgs == len(rx_msgs)
-    # Make sure all messages got out and in the right order
-    for i in range(num_msgs):
-        assert rx_msgs[i].uint64_value == i
+    pub_sub_rounds = 5
+    for i in range(1, pub_sub_rounds + 1):
+        rx_msgs_count_before_pubsub = len(rx_msgs_direct_sub_out)
+        # Publish a message to the drake ros subscriber system.
+        message = BasicTypes()
+        message.uint64_value = i
+        direct_pub_in.publish(message)
+        # Step forward to allow the message to be dispatched to the drake ros
+        # subscriber system. The drake ros publisher system should not publish
+        # just yet.
+        rclpy.spin_once(node, timeout_sec=0.5)
+        simulator.AdvanceTo(simulator_context.get_time() + publish_period / 2.)
+        assert len(rx_msgs_direct_sub_out) == rx_msgs_count_before_pubsub
+        # Step forward until it is about time the drake ros publisher
+        # publishes. Allow the message to be dispatched to the direct
+        # subscription.
+        simulator.AdvanceTo(simulator_context.get_time() + publish_period / 2.)
+        rclpy.spin_once(node, timeout_sec=0.)
+        rx_msgs_count_after_pubsub = rx_msgs_count_before_pubsub + 1
+        assert len(rx_msgs_direct_sub_out) == rx_msgs_count_after_pubsub
+        assert rx_msgs_direct_sub_out[-1].uint64_value == i

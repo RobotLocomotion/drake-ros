@@ -35,22 +35,21 @@ using drake_ros_core::RosSubscriberSystem;
 TEST(Integration, sub_to_pub) {
   drake::systems::DiagramBuilder<double> builder;
 
-  const size_t num_msgs = 5;
+  constexpr double kPublishPeriod = 1.0;
+  const auto qos = rclcpp::QoS{rclcpp::KeepLast(10)}.reliable();
 
-  rclcpp::QoS qos{rclcpp::KeepLast(num_msgs)};
-  qos.transient_local().reliable();
-
-  auto ros_interface_system =
+  auto system_ros =
       builder.AddSystem<RosInterfaceSystem>(std::make_unique<DrakeRos>());
-  auto ros_subscriber_system =
+  auto system_sub_in =
       builder.AddSystem(RosSubscriberSystem::Make<test_msgs::msg::BasicTypes>(
-          "in", qos, ros_interface_system->get_ros_interface()));
-  auto ros_publisher_system =
+          "in", qos, system_ros->get_ros_interface()));
+  auto system_pub_out =
       builder.AddSystem(RosPublisherSystem::Make<test_msgs::msg::BasicTypes>(
-          "out", qos, ros_interface_system->get_ros_interface()));
+          "out", qos, system_ros->get_ros_interface(),
+          {drake::systems::TriggerType::kPeriodic}, kPublishPeriod));
 
-  builder.Connect(ros_subscriber_system->get_output_port(0),
-                  ros_publisher_system->get_input_port(0));
+  builder.Connect(system_sub_in->get_output_port(0),
+                  system_pub_out->get_input_port(0));
 
   auto diagram = builder.Build();
   auto context = diagram->CreateDefaultContext();
@@ -67,45 +66,38 @@ TEST(Integration, sub_to_pub) {
   auto node = rclcpp::Node::make_shared("sub_to_pub");
 
   // Create publisher talking to subscriber system.
-  auto publisher =
+  auto direct_pub_in =
       node->create_publisher<test_msgs::msg::BasicTypes>("in", qos);
 
   // Create subscription listening to publisher system
-  std::vector<std::unique_ptr<test_msgs::msg::BasicTypes>> rx_msgs;
-  auto rx_callback = [&](std::unique_ptr<test_msgs::msg::BasicTypes> msg) {
-    // Cope with lack of synchronization between subscriber
-    // and publisher systems by ignoring duplicate messages.
-    if (rx_msgs.empty() || rx_msgs.back()->uint64_value != msg->uint64_value) {
-      rx_msgs.push_back(std::move(msg));
-    }
-  };
-  auto subscription = node->create_subscription<test_msgs::msg::BasicTypes>(
-      "out", qos, rx_callback);
+  std::vector<std::unique_ptr<test_msgs::msg::BasicTypes>>
+      rx_msgs_direct_sub_out;
+  auto rx_callback_direct_sub_out =
+      [&](std::unique_ptr<test_msgs::msg::BasicTypes> message) {
+        rx_msgs_direct_sub_out.push_back(std::move(message));
+      };
+  auto direct_sub_out = node->create_subscription<test_msgs::msg::BasicTypes>(
+      "out", qos, rx_callback_direct_sub_out);
 
-  size_t num_msgs_sent = 0;
-  const int timeout_sec = 5;
-  const int spins_per_sec = 10;
-  const float time_delta = 1.0f / spins_per_sec;
-  for (int i = 0; i < timeout_sec * spins_per_sec; ++i) {
-    if (rx_msgs.size() >= num_msgs) {
-      break;
-    }
-    // Cope with lack of synchronization between subscriber
-    // and publisher systems by sending one message at a time.
-    if (rx_msgs.size() == num_msgs_sent) {
-      // Send message into the drake system
-      auto message = std::make_unique<test_msgs::msg::BasicTypes>();
-      message->uint64_value = num_msgs_sent++;
-      publisher->publish(std::move(message));
-    }
+  constexpr size_t kPubSubRounds = 5;
+  for (size_t i = 1; i <= kPubSubRounds; ++i) {
+    const size_t rx_msgs_count_before_pubsub = rx_msgs_direct_sub_out.size();
+    // Publish a message to the drake ros subscriber system.
+    auto message = std::make_unique<test_msgs::msg::BasicTypes>();
+    message->uint64_value = i;
+    direct_pub_in->publish(std::move(message));
+    // Step forward to allow the message to be dispatched to the drake ros
+    // subscriber system. The drake ros publisher system should not publish
+    // just yet.
     rclcpp::spin_some(node);
-    simulator->AdvanceTo(simulator_context.get_time() + time_delta);
-  }
-
-  // Make sure same number of messages got out
-  ASSERT_EQ(num_msgs, rx_msgs.size());
-  // Make sure all messages got out and in the right order
-  for (size_t p = 0; p < num_msgs; ++p) {
-    EXPECT_EQ(rx_msgs[p]->uint64_value, p);
+    simulator->AdvanceTo(simulator_context.get_time() + kPublishPeriod / 2.);
+    ASSERT_EQ(rx_msgs_direct_sub_out.size(), rx_msgs_count_before_pubsub);
+    // Step forward until it is about time the drake ros publisher publishes.
+    // Allow the message to be dispatched to the direct subscription.
+    simulator->AdvanceTo(simulator_context.get_time() + kPublishPeriod / 2.);
+    rclcpp::spin_some(node);
+    const size_t rx_msgs_count_after_pubsub = rx_msgs_count_before_pubsub + 1;
+    ASSERT_EQ(rx_msgs_direct_sub_out.size(), rx_msgs_count_after_pubsub);
+    EXPECT_EQ(rx_msgs_direct_sub_out.back()->uint64_value, i);
   }
 }
