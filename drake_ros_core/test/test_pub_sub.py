@@ -82,7 +82,7 @@ def test_nominal_case():
         # Step forward to allow the message to be dispatched to the drake ros
         # subscriber system. The drake ros publisher system should not publish
         # just yet.
-        rclpy.spin_once(node, timeout_sec=0.5)
+        rclpy.spin_once(node, timeout_sec=0.)
         simulator.AdvanceTo(simulator_context.get_time() + publish_period / 2.)
         assert len(rx_msgs_direct_sub_out) == rx_msgs_count_before_pubsub
         # Step forward until it is about time the drake ros publisher
