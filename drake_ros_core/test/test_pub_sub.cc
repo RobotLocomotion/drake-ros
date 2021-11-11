@@ -33,6 +33,8 @@ using drake_ros_core::RosPublisherSystem;
 using drake_ros_core::RosSubscriberSystem;
 
 TEST(Integration, sub_to_pub) {
+  drake_ros_core::init(0, nullptr);
+
   drake::systems::DiagramBuilder<double> builder;
 
   constexpr double kPublishPeriod = 1.0;
@@ -101,4 +103,6 @@ TEST(Integration, sub_to_pub) {
     ASSERT_EQ(rx_msgs_direct_sub_out.size(), rx_msgs_count_after_pubsub);
     EXPECT_EQ(rx_msgs_direct_sub_out.back()->uint64_value, i);
   }
+
+  drake_ros_core::shutdown();
 }

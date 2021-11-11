@@ -51,6 +51,19 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // them in sync, like pydrake does.
   py::class_<DrakeRos>(m, "DrakeRos");
 
+  m.def(
+      "init",
+      [](std::vector<std::string> args) {
+        std::vector<const char*> raw_args;
+        raw_args.reserve(args.size());
+        for (auto& arg : args) {
+          raw_args.push_back(arg.c_str());
+        }
+        drake_ros_core::init(raw_args.size(), raw_args.data());
+      },
+      py::arg("args") = std::vector<std::string>{});
+  m.def("shutdown", &drake_ros_core::shutdown);
+
   py::class_<RosInterfaceSystem, LeafSystem<double>>(m, "RosInterfaceSystem")
       .def(py::init([](const std::string& node_name) {
         return std::make_unique<RosInterfaceSystem>(

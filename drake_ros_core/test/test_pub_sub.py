@@ -24,12 +24,15 @@ from rclpy.qos import ReliabilityPolicy
 
 from test_msgs.msg import BasicTypes
 
+import drake_ros_core
 from drake_ros_core import RosInterfaceSystem
 from drake_ros_core import RosPublisherSystem
 from drake_ros_core import RosSubscriberSystem
 
 
 def test_nominal_case():
+    drake_ros_core.init()
+
     builder = DiagramBuilder()
 
     system_ros = builder.AddSystem(
@@ -94,3 +97,5 @@ def test_nominal_case():
         rx_msgs_count_after_pubsub = rx_msgs_count_before_pubsub + 1
         assert len(rx_msgs_direct_sub_out) == rx_msgs_count_after_pubsub
         assert rx_msgs_direct_sub_out[-1].uint64_value == i
+
+    drake_ros_core.shutdown()

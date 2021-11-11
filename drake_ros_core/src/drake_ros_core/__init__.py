@@ -1,9 +1,11 @@
 """Python wrapper for drake_ros_core."""
 
+from _drake_ros_core import init
 from _drake_ros_core import RosInterfaceSystem
 from _drake_ros_core import RosPublisherSystem
 from _drake_ros_core import RosSubscriberSystem
 from _drake_ros_core import SerializerInterface
+from _drake_ros_core import shutdown
 
 from pydrake.common.value import AbstractValue
 from pydrake.systems.framework import TriggerType
@@ -68,9 +70,11 @@ RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 __all__ = [
     'DrakeRosInterface',
+    'init',
     'PySerializer',
     'RosInterfaceSystem',
     'RosPublisherSystem',
     'RosSubscriberSystem',
-    'SerializerInterface'
+    'SerializerInterface',
+    'shutdown',
 ]

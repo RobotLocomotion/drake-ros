@@ -24,18 +24,19 @@
 using drake_ros_core::DrakeRos;
 
 TEST(DrakeRos, default_construct) {
+  drake_ros_core::init();
   EXPECT_NO_THROW(std::make_unique<DrakeRos>("default_node"));
+  EXPECT_TRUE(drake_ros_core::shutdown());
 }
 
 TEST(DrakeRos, local_context) {
   auto context = std::make_shared<rclcpp::Context>();
   rclcpp::NodeOptions node_options;
   node_options.context(context);
-
+  context->init(0, nullptr);
   auto drake_ros = std::make_unique<DrakeRos>("local_ctx_node", node_options);
   (void)drake_ros;
-
   // Should not have initialized global context
   EXPECT_FALSE(rclcpp::contexts::get_global_default_context()->is_valid());
-  EXPECT_TRUE(context->is_valid());
+  context->shutdown("done");
 }
