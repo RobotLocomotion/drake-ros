@@ -11,35 +11,33 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_
-#define DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_
+#pragma once
 
 #include <memory>
 
 #include <drake/systems/framework/leaf_system.h>
 
-#include "drake_ros_core/drake_ros_interface.hpp"
+#include "drake_ros_core/drake_ros.h"
 
 namespace drake_ros_core {
-// PIMPL forward declaration
-class RosInterfaceSystemPrivate;
-
-/// System that takes care of calling spin() in Drake's systems framework
+/** A system that manages a Drake ROS interface. */
 class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
  public:
-  explicit RosInterfaceSystem(std::unique_ptr<DrakeRosInterface> ros);
-  virtual ~RosInterfaceSystem();
+  /** A constructor that takes ownership of the `ros` interface. */
+  explicit RosInterfaceSystem(std::unique_ptr<DrakeRos> ros);
 
-  /// Return a handle for interacting with ROS
-  std::shared_ptr<DrakeRosInterface> get_ros_interface() const;
+  ~RosInterfaceSystem() override;
+
+  /** Returns a mutable reference to the underlying ROS interface. */
+  DrakeRos* get_ros_interface() const;
 
  protected:
-  /// Override as a place to call rclcpp::spin()
   void DoCalcNextUpdateTime(const drake::systems::Context<double>&,
                             drake::systems::CompositeEventCollection<double>*,
                             double*) const override;
 
-  std::unique_ptr<RosInterfaceSystemPrivate> impl_;
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core
-#endif  // DRAKE_ROS_CORE__ROS_INTERFACE_SYSTEM_HPP_

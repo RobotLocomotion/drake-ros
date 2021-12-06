@@ -12,17 +12,19 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
+# Must use Drake's fork of Pybind11
+find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 
 add_library(drake_ros_core
-  src/drake_ros.cpp
-  src/publisher.cpp
-  src/ros_interface_system.cpp
-  src/ros_publisher_system.cpp
-  src/ros_subscriber_system.cpp
-  src/subscription.cpp
+  src/drake_ros.cc
+  src/publisher.cc
+  src/ros_interface_system.cc
+  src/ros_publisher_system.cc
+  src/ros_subscriber_system.cc
+  src/subscription.cc
 )
 
 target_link_libraries(drake_ros_core PUBLIC
@@ -59,17 +61,44 @@ install(
   DESTINATION include
 )
 
+ament_python_install_package(
+  drake_ros_core PACKAGE_DIR src/drake_ros_core)
+
+###
+# Python bindings
+###
+pybind11_add_module(drake_ros_core_py SHARED
+  src/python_bindings/drake_ros_core.cc
+)
+target_link_libraries(drake_ros_core_py PRIVATE drake_ros_core)
+set_target_properties(drake_ros_core_py PROPERTIES OUTPUT_NAME "_drake_ros_core")
+target_include_directories(drake_ros_core_py
+  PRIVATE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
+)
+
+ament_get_python_install_dir(python_install_dir)
+
+install(
+  TARGETS drake_ros_core_py
+  DESTINATION "${python_install_dir}"
+)
+### End Python bindings
+
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   find_package(ament_cmake_cpplint REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
+  find_package(ament_cmake_pycodestyle REQUIRED)
   find_package(test_msgs REQUIRED)
 
   ament_clang_format(CONFIG_FILE .clang-format)
   ament_cpplint()
 
-  ament_add_gtest(test_pub_sub test/test_pub_sub.cpp)
+  ament_pycodestyle(--config pycodestyle.ini)
+
+  ament_add_gtest(test_pub_sub test/test_pub_sub.cc)
 
   target_link_libraries(test_pub_sub
     drake::drake
@@ -77,7 +106,9 @@ if(BUILD_TESTING)
     ${test_msgs_TARGETS}
   )
 
-  ament_add_gtest(test_drake_ros test/test_drake_ros.cpp)
+  ament_add_pytest_test(test_pub_sub_py test/test_pub_sub.py)
+
+  ament_add_gtest(test_drake_ros test/test_drake_ros.cc)
   target_link_libraries(test_drake_ros
     drake_ros_core
   )

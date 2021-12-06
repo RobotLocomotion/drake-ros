@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "publisher.hpp"
+#include "publisher.h"  // NOLINT(build/include)
 
 #include <string>
 
 namespace drake_ros_core {
+namespace internal {
+namespace {
 // Copied from rosbag2_transport rosbag2_get_publisher_options
 rcl_publisher_options_t publisher_options(const rclcpp::QoS& qos) {
   auto options = rcl_publisher_get_default_options();
   options.qos = qos.get_rmw_qos_profile();
   return options;
 }
+}  // namespace
 
 Publisher::Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
                      const rosidl_message_type_support_t& type_support,
@@ -44,4 +47,5 @@ void Publisher::publish(const rclcpp::SerializedMessage& serialized_msg) {
         return_code, "failed to publish serialized message");
   }
 }
+}  // namespace internal
 }  // namespace drake_ros_core

@@ -11,18 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "subscription.hpp"
+
+#include "subscription.h"  // NOLINT(build/include)
 
 #include <memory>
 #include <string>
 
 namespace drake_ros_core {
+namespace internal {
+namespace {
 // Copied from rosbag2_transport rosbag2_get_subscription_options
 rcl_subscription_options_t subscription_options(const rclcpp::QoS& qos) {
   auto options = rcl_subscription_get_default_options();
   options.qos = qos.get_rmw_qos_profile();
   return options;
 }
+}  // namespace
 
 Subscription::Subscription(
     rclcpp::node_interfaces::NodeBaseInterface* node_base,
@@ -77,4 +81,5 @@ void Subscription::return_serialized_message(
     std::shared_ptr<rclcpp::SerializedMessage>& message) {
   message.reset();
 }
+}  // namespace internal
 }  // namespace drake_ros_core

@@ -11,28 +11,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_CORE__SERIALIZER_INTERFACE_HPP_
-#define DRAKE_ROS_CORE__SERIALIZER_INTERFACE_HPP_
+#pragma once
 
 #include <memory>
+#include <string>
 
-#include <drake/common/value.h>
+#include <rclcpp/publisher_base.hpp>
+#include <rclcpp/qos.hpp>
 #include <rclcpp/serialized_message.hpp>
-#include <rosidl_typesupport_cpp/message_type_support.hpp>
+#include <rosidl_runtime_c/message_type_support_struct.h>
 
 namespace drake_ros_core {
-class SerializerInterface {
+namespace internal {
+// A type-erased version of rclcpp:::Publisher<Message>.
+// This class conforms to the ROS 2 C++ style for consistency.
+class Publisher final : public rclcpp::PublisherBase {
  public:
-  virtual rclcpp::SerializedMessage serialize(
-      const drake::AbstractValue& abstract_value) const = 0;
+  Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
+            const rosidl_message_type_support_t& ts,
+            const std::string& topic_name, const rclcpp::QoS& qos);
 
-  virtual bool deserialize(const rclcpp::SerializedMessage& message,
-                           drake::AbstractValue& abstract_value) const = 0;
+  ~Publisher();
 
-  virtual std::unique_ptr<drake::AbstractValue> create_default_value()
-      const = 0;
-
-  virtual const rosidl_message_type_support_t* get_type_support() const = 0;
+  void publish(const rclcpp::SerializedMessage& serialized_msg);
 };
+}  // namespace internal
 }  // namespace drake_ros_core
-#endif  // DRAKE_ROS_CORE__SERIALIZER_INTERFACE_HPP_
