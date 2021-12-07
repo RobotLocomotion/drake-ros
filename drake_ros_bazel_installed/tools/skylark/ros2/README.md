@@ -56,7 +56,7 @@ the artifacts it generates, the following targets may be found at the root
   .action, and .idl files) in the `<package_prefix>/share` directory.
 - A `<package_name>_c` C/C++ library for C libraries. Typically an alias of the
   `<package>_cc` target if C and C++ libraries cannot be told apart.
-- A `<package_name>_transitively_py` Python library if the package has does not
+- A `<package_name>_transitive_py` Python library if the package has does not
   install any Python libraries but it depends on (and it is a dependency of)
   packages that do. This helps maintain the dependency graph (as Python library
   targets can only depend on other Python library targets).

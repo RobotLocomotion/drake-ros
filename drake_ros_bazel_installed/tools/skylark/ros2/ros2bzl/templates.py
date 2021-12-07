@@ -31,7 +31,7 @@ share_name, share_label = labels_with(suffix='_share')
 c_name, c_label = labels_with(suffix='_c')
 cc_name, cc_label = labels_with(suffix='_cc')
 py_name, py_label = labels_with(suffix='_py')
-meta_py_name, meta_py_label = labels_with(suffix='_transitively_py')
+meta_py_name, meta_py_label = labels_with(suffix='_transitive_py')
 
 
 def configure_package_share_filegroup(name, metadata, sandbox):
@@ -136,7 +136,7 @@ def configure_package_meta_py_library(name, metadata, dependencies):
     for dependency_name, dependency_metadata in dependencies.items():
         if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
-        elif 'py (transitively)' in dependency_metadata.get('langs', []):
+        elif 'py (transitive)' in dependency_metadata.get('langs', []):
             deps.append(meta_py_label(dependency_name, dependency_metadata))
     target_name = meta_py_name(name, metadata)
     return (
@@ -165,7 +165,7 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
     for dependency_name, dependency_metadata in dependencies.items():
         if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
-        elif 'py (transitively)' in dependency_metadata.get('langs', []):
+        elif 'py (transitive)' in dependency_metadata.get('langs', []):
             deps.append(meta_py_label(dependency_name, dependency_metadata))
     config['deps'] = deps
 
@@ -246,7 +246,7 @@ def configure_executable_imports(
             common_data.append(cc_label(dependency_name, dependency_metadata))
         if 'py' in dependency_metadata.get('langs', []):
             deps.append(py_label(dependency_name, dependency_metadata))
-        elif 'py (transitively)' in dependency_metadata.get('langs', []):
+        elif 'py (transitive)' in dependency_metadata.get('langs', []):
             common_data.append(meta_py_label(
                 dependency_name, dependency_metadata))
 

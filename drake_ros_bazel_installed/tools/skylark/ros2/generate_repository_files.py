@@ -174,7 +174,7 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
                 if any('py' in metadata.get('langs', [])
                        for metadata in dependencies.values()
                        ):
-                    metadata['langs'].add('py (transitively)')
+                    metadata['langs'].add('py (transitive)')
                     # Dependencies still need to be propagated.
                     _, template, config = configure_package_meta_py_library(
                         name, metadata, dependencies)
