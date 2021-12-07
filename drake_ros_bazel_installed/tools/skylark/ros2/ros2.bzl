@@ -101,12 +101,12 @@ ros2_local_repository = repository_rule(
     implementation = _impl,
 )
 """
-Scraps ROS 2 workspaces and exposes its artifacts as a Bazel local repository.
+Scrapes ROS 2 workspaces and exposes its artifacts as a Bazel local repository.
 
 Args:
     workspaces: paths to ROS 2 workspace install trees. Each workspace specified overlays the previous one.
     include_packages: optional set of packages to include, with its recursive dependencies. Defaults to all.
-    exclude_packages: optional set of packages to exclude, with precedence over included files. Defaults to none.
+    exclude_packages: optional set of packages to exclude, with precedence over included packages. Defaults to none.
     extra_data: optional extra data dependencies for given targets
     jobs: number of CMake jobs to use during package configuration and scrapping. Defaults to using all cores.
 """

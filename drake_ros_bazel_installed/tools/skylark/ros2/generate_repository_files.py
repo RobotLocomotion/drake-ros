@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Scraps ROS 2 workspaces and exposes their artifacts through a Bazel local repository.
+Scrapes ROS 2 workspaces and exposes their artifacts through a Bazel local repository.
 
 This script generates:
 
