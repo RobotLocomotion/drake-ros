@@ -54,7 +54,7 @@ def _label(relpath):
 
 def _impl(repo_ctx):
     repo_ctx.symlink(
-        _label("resources/rmw_isolation/build.bazel"),
+        _label("resources/rmw_isolation/package.BUILD.bazel"),
         "rmw_isolation/BUILD.bazel")
     for relpath in PACKAGE_MANIFEST:
         repo_ctx.symlink(_label("resources/" + relpath), relpath)
