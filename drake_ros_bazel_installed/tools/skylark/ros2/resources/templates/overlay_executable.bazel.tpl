@@ -1,4 +1,4 @@
-ros_py_import(
+ros_import_binary(
     name = @name@,
     executable = @executable@,
     data = @data@,

@@ -5,4 +5,4 @@ package(default_visibility = ["//visibility:public"])
 
 load(":common.bzl", "interfaces_filegroup")
 load(":common.bzl", "share_filegroup")
-load(":ros_py.bzl", "ros_py_import")
+load(":ros_py.bzl", "ros_import_binary")

@@ -18,13 +18,14 @@ load(
     "RUNTIME_ENVIRONMENT"
 )
 
-def ros_py_import(
+def ros_import_binary(
     name, executable, rmw_implementation = None, py_binary_rule = native.py_binary, **kwargs
 ):
     """
-    Imports an existing, potentially pre-built executable by wrapping it with a shim that
-    will inject the minimal runtime environment necessary for execution when depending on
-    this ROS 2 local repository.
+    Imports an existing executable by wrapping it with a Python shim that will inject the
+    minimal runtime environment necessary for execution when depending on this ROS 2 local
+    repository. Imported executables need not be Python -- binary executables will work the
+    same.
 
     Akin to the cc_import() rule.
 
