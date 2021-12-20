@@ -98,7 +98,7 @@ def parse_arguments():
         extras[attribute_name][target_name].append(rhs)
     args.extras = extras
 
-    args.sandbox = sandboxing.configure(
+    args.sandbox = sandboxing.make_symlink_forest_mapping(
         name=args.repository_name, mapping=dict(
             entry.partition(':')[0::2] for entry in args.sandbox
         )
