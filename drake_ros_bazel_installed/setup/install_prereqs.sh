@@ -2,13 +2,58 @@
 
 set -eux pipefail
 
-apt update && apt install -y apt-transport-https curl gnupg lsb-release cmake build-essential gettext-base
+apt update && apt install apt-transport-https curl gnupg lsb-release cmake build-essential gettext-base coreutils
 
-# Install Bazel
-curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
-mv bazel.gpg /etc/apt/trusted.gpg.d/
-echo "deb [arch=$(dpkg --print-architecture)] https://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list
-apt update && apt install bazel
+# Install Bazel (derived from setup/ubuntu/source_distribution/install_prereqs.sh at
+# https://github.com/RobotLocomotion/drake/tree/e91e62f524788081a8fd231129b64ff80607c1dd)
+function dpkg_install_from_curl() {
+  package="$1"
+  version="$2"
+  url="$3"
+  checksum="$4"
+
+  installed_version=$(dpkg-query --showformat='${Version}\n' --show "${package}" 2>/dev/null || true)
+  if [[ "${installed_version}" != "" ]]; then
+      # Skip the install if we're already at the exact version.
+      if [[ "${installed_version}" == "${version}" ]]; then
+          echo "${package} is already at the desired version ${version}"
+          return
+      fi
+
+      # If installing our desired version would be a downgrade or an upgrade, ask the user first.
+      echo "This system has ${package} version ${installed_version} installed."
+      action="upgrade"  # Assume an upgrade
+      if dpkg --compare-versions "${installed_version}" gt "${version}"; then
+          action="downgrade"  # Switch to a downgrade
+      fi
+      echo "Drake ROS intends to ${action} to version ${version}, the supported version."
+      read -r -p "Do you want to ${action}? [Y/n] " reply
+      if [[ ! "${reply}" =~ ^([yY][eE][sS]|[yY])*$ ]]; then
+          echo "Skipping ${package} ${version} installation."
+          return
+      fi
+  fi
+  # Download and verify.
+  tmpdeb="/tmp/${package}_${version}-amd64.deb"
+  curl -sSL "${url}" -o "${tmpdeb}"
+  if echo "${checksum} ${tmpdeb}" | sha256sum -c -; then
+    echo  # Blank line between checkout output and dpkg output.
+  else
+    echo "ERROR: The ${package} deb does NOT have the expected SHA256. Not installing." >&2
+    exit 2
+  fi
+
+  # Install.
+  dpkg -i "${tmpdeb}"
+  rm "${tmpdeb}"
+}
+
+apt install g++ unzip zlib1g-dev
+
+dpkg_install_from_curl \
+  bazel 4.2.1 \
+  https://releases.bazel.build/4.2.1/release/bazel_4.2.1-linux-x86_64.deb \
+  67447658b8313316295cd98323dfda2a27683456a237f7a3226b68c9c6c81b3a
 
 # Install ROS 2 Rolling
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
