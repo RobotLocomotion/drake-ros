@@ -80,6 +80,8 @@ int main(int argc, const char * argv[]) {{
   }}
   other_argv[argc] = NULL;
   int ret = execv(other_argv[0], other_argv);
+  // What follows applies if and only if execv() itself fails
+  // (e.g. can't find the binary) and returns control
   std::cout << "ERROR: " << strerror(errno) << std::endl;
   return ret;
 }}
