@@ -9,13 +9,21 @@ A single repository rule, `ros2_local_repository()`, is the sole entrypoint.
 This rule heavily relies on two Python packages:
 
 - The `cmake_tools` Python package, which provides an idiomatic API to collect
-  a CMake project's exported configuration.
+  a CMake project's exported configuration (see Note 1).
 - The `ros2bzl` Python package, which provides tools to crawl a ROS 2 workspace
   install space, collects CMake packages' exported configuration, collect Python
   packages' egg metadata, symlink relevant directories and files, and generates
   a root BUILD.bazel file that recreates the dependency graph in the workspace.
   This package constitutes the backbone of the `generate_repository_files.py`
   Python binary which `ros2_local_repository()` invokes.
+
+**Note 1**
+: [`rules_foreign_cc`](https://github.com/bazelbuild/rules_foreign_cc) tooling
+  was initially considered but later discarded, as it serves a fundamentally
+  different purpose. This infrastructure does **not** build CMake projects
+  within Bazel (like `rules_foreign_cc` does), it exposes the artifacts and
+  build configuration of pre-installed CMake projects for Bazel packages to
+  depend on.
 
 ### Repository layout
 
