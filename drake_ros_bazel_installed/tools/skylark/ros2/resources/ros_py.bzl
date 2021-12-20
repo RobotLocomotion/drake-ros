@@ -83,7 +83,7 @@ def ros_py_binary(
     Additional keyword arguments are forwarded to the `py_binary_rule`.
     """
 
-    binary_name = "_" + name
+    binary_name = "_" + name + "_shimmed"
     binary_kwargs = dict(kwargs)
     if "main" not in binary_kwargs:
         binary_kwargs["main"] = name + ".py"
@@ -101,7 +101,7 @@ def ros_py_binary(
         **binary_kwargs
     )
 
-    shim_name = binary_name + "_shim.py"
+    shim_name = "_" + name + "_shim.py"
     shim_kwargs = filter_to_only_common_kwargs(kwargs)
     dload_py_shim(
         name = shim_name,
@@ -143,7 +143,7 @@ def ros_py_test(
     Additional keyword arguments are forwarded to the `py_test_rule` and to the
     `py_binary_rule` (minus the test specific ones).
     """
-    binary_name = "_" + name
+    binary_name = "_" + name + "_shimmed"
     binary_kwargs = remove_test_specific_kwargs(kwargs)
     binary_kwargs.update(testonly = True)
     binary_env_changes = dict(RUNTIME_ENVIRONMENT)
@@ -159,7 +159,7 @@ def ros_py_test(
         **binary_kwargs
     )
 
-    shim_name = binary_name + "_shim.py"
+    shim_name = "_" + name + "_shim.py"
     shim_kwargs = filter_to_only_common_kwargs(kwargs)
     shim_kwargs.update(testonly = True)
     dload_py_shim(
