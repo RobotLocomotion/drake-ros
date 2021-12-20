@@ -46,7 +46,7 @@ def ros_import_binary(
                 rmw_implementation = rmw_implementation
             )
 
-    shim_name = name + "_shim.py"
+    shim_name = "_" + name + "_shim.py"
     shim_kwargs = filter_to_only_common_kwargs(kwargs)
     dload_py_shim(
         name = shim_name,

@@ -42,11 +42,11 @@ GENERATE_TOOL_RESOURCES_MANIFEST = [
     "ros2bzl/resources.py",
     "ros2bzl/templates.py",
     "ros2bzl/__init__.py",
-    "ros2bzl/scrapping/system.py",
-    "ros2bzl/scrapping/metadata.py",
-    "ros2bzl/scrapping/ament_python.py",
-    "ros2bzl/scrapping/ament_cmake.py",
-    "ros2bzl/scrapping/__init__.py",
+    "ros2bzl/scraping/system.py",
+    "ros2bzl/scraping/metadata.py",
+    "ros2bzl/scraping/ament_python.py",
+    "ros2bzl/scraping/ament_cmake.py",
+    "ros2bzl/scraping/__init__.py",
 ]
 
 def _label(relpath):

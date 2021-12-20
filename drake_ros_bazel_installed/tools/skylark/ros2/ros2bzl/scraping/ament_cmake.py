@@ -79,7 +79,7 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
         ])
         # Fail on any /usr/local include directories
         local_include_directories = [
-            path for path in include_directores
+            path for path in include_directories
             if path.startswith('/usr/local')]
         if local_include_directories:
             raise RuntimeError(

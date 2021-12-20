@@ -184,11 +184,11 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
         if 'cc_libraries' in properties:
             template = 'templates/package_py_library_with_cc_libs.bazel.tpl'
             config.update({
-                'cc_name': c_name(target_name, metadata),
+                'cc_name': c_name("_" + target_name, metadata),
                 'cc_libs': [sandbox(lib) for lib in properties['cc_libraries']],
                 'cc_deps': cc_deps
             })
-            data.append(c_label(target_name, metadata))
+            data.append(c_label("_" + target_name, metadata))
         else:
             data.extend(cc_deps)
         # Prepare runfiles to support dynamic loading
