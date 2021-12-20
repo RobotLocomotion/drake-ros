@@ -25,15 +25,15 @@ import toposort
 # `cmake_tools` reachable through PYTHONPATH. Thus, we force it here.
 sys.path.insert(0, os.path.dirname(__file__))  # noqa
 
-from ros2bzl.scrapping import load_distribution
-from ros2bzl.scrapping.ament_cmake \
+from ros2bzl.scraping import load_distribution
+from ros2bzl.scraping.ament_cmake \
     import collect_ament_cmake_package_properties
-from ros2bzl.scrapping.ament_cmake \
+from ros2bzl.scraping.ament_cmake \
     import collect_ament_cmake_package_direct_properties
-from ros2bzl.scrapping.ament_cmake import precache_ament_cmake_properties
-from ros2bzl.scrapping.ament_python \
+from ros2bzl.scraping.ament_cmake import precache_ament_cmake_properties
+from ros2bzl.scraping.ament_python \
     import collect_ament_python_package_direct_properties
-from ros2bzl.scrapping.ament_python import PackageNotFoundError
+from ros2bzl.scraping.ament_python import PackageNotFoundError
 
 from ros2bzl.templates import configure_distro
 from ros2bzl.templates import configure_executable_imports
@@ -83,7 +83,7 @@ def parse_arguments():
     )
     parser.add_argument(
         '-j', '--jobs', metavar='N', type=int, default=None,
-        help='Number of CMake jobs to use during package configuration and scrapping'
+        help='Number of CMake jobs to use during package configuration and scraping'
     )
     args = parser.parse_args()
 

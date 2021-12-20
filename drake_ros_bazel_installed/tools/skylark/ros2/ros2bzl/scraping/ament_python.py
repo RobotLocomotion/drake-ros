@@ -4,8 +4,8 @@ import sysconfig
 from importlib.metadata import distribution
 from importlib.metadata import PackageNotFoundError
 
-from ros2bzl.scrapping.system import find_library_dependencies
-from ros2bzl.scrapping.system import is_system_library
+from ros2bzl.scraping.system import find_library_dependencies
+from ros2bzl.scraping.system import is_system_library
 
 
 EXTENSION_SUFFIX = sysconfig.get_config_var('EXT_SUFFIX')

@@ -3,8 +3,8 @@ import os
 import ament_index_python
 import cmake_tools
 
-from ros2bzl.scrapping.metadata import collect_cmake_package_metadata
-from ros2bzl.scrapping.metadata import collect_ros_package_metadata
+from ros2bzl.scraping.metadata import collect_cmake_package_metadata
+from ros2bzl.scraping.metadata import collect_ros_package_metadata
 
 
 def list_all_executables():

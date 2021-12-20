@@ -1,7 +1,7 @@
 import os
 
 from ros2bzl.resources import load_resource
-from ros2bzl.scrapping.system import find_library_path
+from ros2bzl.scraping.system import find_library_path
 
 from ros2bzl.utilities import to_starlark_string_dict
 

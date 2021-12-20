@@ -8,10 +8,10 @@ import cmake_tools
 
 from ros2bzl.resources import path_to_resource
 
-from ros2bzl.scrapping.system import find_library_path
-from ros2bzl.scrapping.system import find_library_dependencies
-from ros2bzl.scrapping.system import is_system_include
-from ros2bzl.scrapping.system import is_system_library
+from ros2bzl.scraping.system import find_library_path
+from ros2bzl.scraping.system import find_library_dependencies
+from ros2bzl.scraping.system import is_system_include
+from ros2bzl.scraping.system import is_system_library
 
 
 def collect_ament_cmake_shared_library_codemodel(codemodel):
