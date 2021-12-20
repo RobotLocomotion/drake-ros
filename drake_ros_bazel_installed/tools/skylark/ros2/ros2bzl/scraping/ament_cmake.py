@@ -58,6 +58,14 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
                 library for library in library_plus_dependencies
                 if library not in link_libraries and not is_system_library(library)
             ])
+        # Fail on any /usr/local libraries
+        local_link_libraries = [
+            path for path in link_libraries
+            if path.startswith('/usr/local')]
+        if local_link_libraries:
+            raise RuntimeError(
+                'Found libraries under /usr/local: ' +
+                ', '.join(local_link_libraries))
 
     file_groups = codemodel['fileGroups']
     assert len(file_groups) == 1
@@ -69,6 +77,14 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
             entry['path'] for entry in file_group['includePath']
             if not is_system_include(entry['path'])
         ])
+        # Fail on any /usr/local include directories
+        local_include_directories = [
+            path for path in include_directores
+            if path.startswith('/usr/local')]
+        if local_include_directories:
+            raise RuntimeError(
+                'Found include directories under /usr/local: ' +
+                ', '.join(local_include_directories))
 
     defines = []
     if 'defines' in file_group:
