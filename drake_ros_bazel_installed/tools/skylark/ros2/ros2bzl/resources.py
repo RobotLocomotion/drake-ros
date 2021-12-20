@@ -10,7 +10,6 @@ PATH_TO_RESOURCES = os.path.realpath(
 )
 
 
-@functools.lru_cache(maxsize=None)
 def path_to_resource(name):
     return os.path.join(PATH_TO_RESOURCES, name)
 
