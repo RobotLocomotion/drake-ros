@@ -30,10 +30,14 @@ def main():
     uuid = os.environ.get('TEST_TMPDIR', 'none')
     try:
         rclpy.spin(IsolatedTalker(uuid))
-    except KeyboardInterrupt:
+    except rclpy.executors.ExternalShutdownException:
         pass
-    finally:
+    except KeyboardInterrupt:
         rclpy.shutdown()
+    except Exception:
+        rclpy.shutdown()
+        raise
+
 
 
 if __name__ == '__main__':

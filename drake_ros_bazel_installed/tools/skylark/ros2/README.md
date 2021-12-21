@@ -107,6 +107,11 @@ The `rmw_isolation` subpackage provides C++ and Python `isolate_rmw_by_path`
 APIs to enforce RMW network isolation. To that end, a unique path must be
 provided (such as Bazel's `$TEST_TMPDIR`).
 
+**DISCLAIMER**
+: Isolation relies on `rmw`-specific configuration. Support is available for 
+  Tier 1 `rmw` implementations only. Collision rates are below 1% but not null.
+  Use with care.
+
 #### Metadata
 
 The `distro.bzl` file bears relevant ROS 2 workspace metadata for rules, tools,

@@ -42,10 +42,13 @@ def main():
     try:
         executor = rclpy.executors.SingleThreadedExecutor()
         rclpy.spin(IsolatedListener(uuid), executor)
-    finally:
-        # NOTE(hidmic): try_shutdown raises AttributeError
-        # Need https://github.com/ros2/rclpy/pull/812
-        pass  # rclpy.try_shutdown()
+    except rclpy.executors.ExternalShutdownException:
+        pass
+    except KeyboardInterrupt:
+        rclpy.shutdown()
+    except Exception:
+        rclpy.shutdown()
+        raise
 
 
 if __name__ == '__main__':

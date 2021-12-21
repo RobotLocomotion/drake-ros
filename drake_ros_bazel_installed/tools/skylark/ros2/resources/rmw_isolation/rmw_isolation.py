@@ -11,8 +11,8 @@ import rclpy
 PARTICIPANT_ID_GAIN = 2
 MAX_PARTICIPANTS_PER_PROCESS = 10
 
-# 2 multicast ports + 2 unicast ports per participant
-DISCOVERY_PORTS_INTERVAL = MAX_PARTICIPANTS_PER_PROCESS * PARTICIPANT_ID_GAIN + 2
+MULTICAST_PORTS_INTERVAL = 2
+UNICAST_PORTS_INTERVAL = MAX_PARTICIPANTS_PER_PROCESS * PARTICIPANT_ID_GAIN
 
 def generate_isolated_rmw_fastrtps_cpp_env(unique_identifier, scratch_directory):
     """
@@ -70,19 +70,23 @@ def generate_isolated_rmw_fastrtps_cpp_env(unique_identifier, scratch_directory)
     builder.start('participantIDGain')
     builder.data(str(PARTICIPANT_ID_GAIN))
     builder.end('participantIDGain')
-    discovery_ports_offset = (
-        int(digest[3]) * DISCOVERY_PORTS_INTERVAL)
+    unicast_ports_offset = (
+        ((digest[3] << 8) + digest[4]) % 2**10  # Use 10 bits
+    ) * UNICAST_PORTS_INTERVAL
+    multicast_ports_offset = (
+        ((digest[5] << 8) + digest[6]) % 2**14  # Use 14 bits
+    ) * MULTICAST_PORTS_INTERVAL
     builder.start('offsetd0')
-    builder.data(str(discovery_ports_offset))
+    builder.data(str(multicast_ports_offset))
     builder.end('offsetd0')
     builder.start('offsetd1')
-    builder.data(str(discovery_ports_offset + 2))
+    builder.data(str(unicast_ports_offset))
     builder.end('offsetd1')
     builder.start('offsetd2')
-    builder.data(str(discovery_ports_offset + 1))
+    builder.data(str(multicast_ports_offset + 1))
     builder.end('offsetd2')
     builder.start('offsetd3')
-    builder.data(str(discovery_ports_offset + 3))
+    builder.data(str(unicast_ports_offset + 1))
     builder.end('offsetd3')
     builder.end('port')
     builder.start('userTransports')
@@ -139,8 +143,29 @@ def generate_isolated_rmw_cyclonedds_cpp_env(unique_identifier, scratch_director
     builder.end('ParticipantIndex')
     builder.start('Ports')
     builder.start('DomainGain')
-    builder.data('225')  # ensure all 256 domain IDs are valid
+    builder.data('0')  # ignore domain IDs
     builder.end('DomainGain')
+    builder.start('ParticipantGain')
+    builder.data(str(PARTICIPANT_ID_GAIN))
+    builder.end('ParticipantGain')
+    unicast_ports_offset = (
+        ((digest[3] << 8) + digest[4]) % 2**10  # Use 10 bits
+    ) * UNICAST_PORTS_INTERVAL
+    multicast_ports_offset = (
+        ((digest[5] << 8) + digest[6]) % 2**14  # Use 14 bits
+    ) * MULTICAST_PORTS_INTERVAL
+    builder.start('MulticastMetaOffset')
+    builder.data(str(multicast_ports_offset))
+    builder.end('MulticastMetaOffset')
+    builder.start('UnicastMetaOffset')
+    builder.data(str(unicast_ports_offset))
+    builder.end('UnicastMetaOffset')
+    builder.start('MulticastDataOffset')
+    builder.data(str(multicast_ports_offset + 1))
+    builder.end('MulticastDataOffset')
+    builder.start('UnicastDataOffset')
+    builder.data(str(unicast_ports_offset + 1))
+    builder.end('UnicastDataOffset')
     builder.end('Ports')
     builder.end('Discovery')
     builder.end('Domain')
@@ -152,9 +177,7 @@ def generate_isolated_rmw_cyclonedds_cpp_env(unique_identifier, scratch_director
     configuration_path = pathlib.Path(scratch_directory) / 'cyclonedds_configuration.xml'
     with configuration_path.open('wb') as f:
         f.write(pretty_xml)
-    return {
-        'CYCLONEDDS_URI': f'file://{configuration_path.resolve()}',
-        'ROS_DOMAIN_ID': str(int(digest[3]))}
+    return {'CYCLONEDDS_URI': f'file://{configuration_path.resolve()}', 'ROS_DOMAIN_ID': '0'}
 
 _RMW_ISOLATION_FUNCTIONS = {
     'rmw_fastrtps_cpp': generate_isolated_rmw_fastrtps_cpp_env,

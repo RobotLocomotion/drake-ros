@@ -27,7 +27,7 @@ class IsolatedListener : public rclcpp::Node
     {
       if (msg->data != uuid_) {
         throw std::runtime_error(
-            "I heard '" + msg->data + "' yet" +
+            "I heard '" + msg->data + "' yet " +
             "I was expecting '" + uuid_ + "'!");
       }
       ++expected_messages_count_;

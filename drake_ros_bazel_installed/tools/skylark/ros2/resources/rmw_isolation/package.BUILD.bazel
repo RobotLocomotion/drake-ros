@@ -72,8 +72,8 @@ sh_test(
         "$(location :isolated_listener_py)",
     ],
     data = [":isolated_talker_py", ":isolated_listener_py"],
-    shard_count = 10,
     size = "small",
+    flaky = True,
 )
 
 ros_cc_binary(
@@ -106,6 +106,6 @@ sh_test(
         "$(location :isolated_listener_cc)",
     ],
     data = [":isolated_talker_cc", ":isolated_listener_cc"],
-    shard_count = 10,
     size = "small",
+    flaky = True,
 )
