@@ -9,8 +9,8 @@ PACKAGE_MANIFEST = [
     "rosidl.bzl",
 
     "rmw_isolation/__init__.py",
-    "rmw_isolation/isolated_rmw_env.py",
-    "rmw_isolation/rmw_isolation.cc.in",
+    "rmw_isolation/generate_isolated_rmw_env.py",
+    "rmw_isolation/rmw_isolation.cc",
     "rmw_isolation/rmw_isolation.h",
     "rmw_isolation/rmw_isolation.py",
     "rmw_isolation/test/isolated_listener.cc",

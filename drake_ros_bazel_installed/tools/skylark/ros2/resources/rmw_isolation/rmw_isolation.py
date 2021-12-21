@@ -14,7 +14,7 @@ MAX_PARTICIPANTS_PER_PROCESS = 10
 # 2 multicast ports + 2 unicast ports per participant
 DISCOVERY_PORTS_INTERVAL = MAX_PARTICIPANTS_PER_PROCESS * PARTICIPANT_ID_GAIN + 2
 
-def isolated_rmw_fastrtps_cpp_env(unique_identifier, scratch_directory=None):
+def generate_isolated_rmw_fastrtps_cpp_env(unique_identifier, scratch_directory):
     """
     Generates an environment that forces rmw_fastrtps_cpp network traffic isolation.
 
@@ -24,8 +24,7 @@ def isolated_rmw_fastrtps_cpp_env(unique_identifier, scratch_directory=None):
     see https://fast-dds.docs.eprosima.com/en/latest/fastdds/transport/listening_locators.html.
 
     :param unique_identifier: unique arbitrary string to be used as a basis for isolation.
-    :param scratch_directory: optional directory for generated files.
-        If not provided, a temporary directory will be created.
+    :param scratch_directory: output directory for generated files.
     :returns: a dictionary of environment variables.
     """
     profile_name = unique_identifier
@@ -101,14 +100,12 @@ def isolated_rmw_fastrtps_cpp_env(unique_identifier, scratch_directory=None):
     inline_xml = ET.tostring(tree, encoding='utf-8')
     dom = minidom.parseString(inline_xml)
     pretty_xml = dom.toprettyxml(indent=' ' * 4, encoding='utf-8')
-    if scratch_directory is None:
-        scratch_directory = tempfile.mkdtemp()
     profiles_path = pathlib.Path(scratch_directory) / 'fastrtps_profiles.xml'
     with profiles_path.open('wb') as f:
         f.write(pretty_xml)
-    return {'FASTRTPS_DEFAULT_PROFILES_FILE': str(profiles_path), 'ROS_DOMAIN_ID': '0'}
+    return {'FASTRTPS_DEFAULT_PROFILES_FILE': str(profiles_path.resolve()), 'ROS_DOMAIN_ID': '0'}
 
-def isolated_rmw_cyclonedds_cpp_env(unique_identifier, scratch_directory=None):
+def generate_isolated_rmw_cyclonedds_cpp_env(unique_identifier, scratch_directory):
     """
     Generates an environment that forces rmw_cyclonedds_cpp network traffic isolation.
 
@@ -118,8 +115,7 @@ def isolated_rmw_cyclonedds_cpp_env(unique_identifier, scratch_directory=None):
     https://github.com/eclipse-cyclonedds/cyclonedds/blob/master/docs/manual/config.rst.
 
     :param unique_identifier: unique arbitrary string to be used as a basis for isolation.
-    :param scratch_directory: optional directory for generated files.
-        If not provided, a temporary directory will be created.
+    :param scratch_directory: output directory for generated files.
     :returns: a dictionary of environment variables.
     """
     digest = hashlib.sha256(unique_identifier.encode('utf8')).digest()
@@ -153,8 +149,6 @@ def isolated_rmw_cyclonedds_cpp_env(unique_identifier, scratch_directory=None):
     inline_xml = ET.tostring(tree, encoding='utf-8')
     dom = minidom.parseString(inline_xml)
     pretty_xml = dom.toprettyxml(indent=' ' * 4, encoding='utf-8')
-    if scratch_directory is None:
-        scratch_directory = tempfile.mkdtemp()
     configuration_path = pathlib.Path(scratch_directory) / 'cyclonedds_configuration.xml'
     with configuration_path.open('wb') as f:
         f.write(pretty_xml)
@@ -162,7 +156,12 @@ def isolated_rmw_cyclonedds_cpp_env(unique_identifier, scratch_directory=None):
         'CYCLONEDDS_URI': f'file://{configuration_path.resolve()}',
         'ROS_DOMAIN_ID': str(int(digest[3]))}
 
-def isolated_rmw_env(unique_identifier, rmw_implementation=None, scratch_directory=None):
+_RMW_ISOLATION_FUNCTIONS = {
+    'rmw_fastrtps_cpp': generate_isolated_rmw_fastrtps_cpp_env,
+    'rmw_cyclonedds_cpp': generate_isolated_rmw_cyclonedds_cpp_env
+}
+
+def generate_isolated_rmw_env(unique_identifier, rmw_implementation=None, scratch_directory=None):
     """
     Generates an environment that forces rmw implementation network traffic isolation.
 
@@ -178,10 +177,11 @@ def isolated_rmw_env(unique_identifier, rmw_implementation=None, scratch_directo
     """
     if rmw_implementation is None:
         rmw_implementation = rclpy.get_rmw_implementation_identifier()
-    target_function_name = f'isolated_{rmw_implementation}_env'
-    if target_function_name not in globals():
-        raise ValueError(f'cannot isolate unknown {rmw_implementation} implementation')
-    return globals()[target_function_name](
+    if scratch_directory is None:
+        scratch_directory = tempfile.mkdtemp()
+    if rmw_implementation not in _RMW_ISOLATION_FUNCTIONS:
+        raise ValueError(f"cannot isolate unknown '{rmw_implementation}' implementation")
+    return _RMW_ISOLATION_FUNCTIONS[rmw_implementation](
         unique_identifier, scratch_directory=scratch_directory)
 
 def isolate_rmw_by_path(path):
@@ -196,4 +196,5 @@ def isolate_rmw_by_path(path):
     """
     if rclpy.ok():
         raise RuntimeError('middleware already initialized, too late for isolation')
-    os.environ.update(isolated_rmw_env(str(path), scratch_directory=path))
+    os.environ.update(generate_isolated_rmw_env(
+        str(path), scratch_directory=tempfile.mkdtemp(dir=str(path))))

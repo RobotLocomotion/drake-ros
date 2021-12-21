@@ -19,7 +19,8 @@ class IsolatedTalker(rclpy.node.Node):
         msg.data = self._uuid
         self._publisher.publish(msg)
 
-if __name__ == '__main__':
+
+def main():
     if 'TEST_TMPDIR' in os.environ:
         from rmw_isolation import isolate_rmw_by_path
         isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
@@ -33,3 +34,7 @@ if __name__ == '__main__':
         pass
     finally:
         rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

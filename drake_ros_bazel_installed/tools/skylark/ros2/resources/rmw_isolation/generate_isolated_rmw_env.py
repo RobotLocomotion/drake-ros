@@ -3,16 +3,20 @@
 """
 Generates a runtime environment for RMW isolation.
 
-Environment variables are written in the NAME=VALUE format,
-one per line, suitable for e.g. the `env` command and the
-`putenv` API.
+Environment variables are written in the NAME=VALUE format, one per line,
+suitable for e.g. the `env` command and the `setenv` API.
+
+This script may be used to achieve isolation in a shell environment.
+For a C++ (resp. Python) API to easily leverage isolation from within
+C++ (resp. Python) executables, see the `rmw_isolation_cc`
+(resp. `rmw_isolation_py`) libray.
 """
 
 import argparse
 import pathlib
 import sys
 
-from rmw_isolation import isolated_rmw_env
+from rmw_isolation import generate_isolated_rmw_env
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
@@ -36,7 +40,7 @@ def main(argv=None):
         help=('Unique arbitrary identifier for isolation. '
               'Defaults to current working directory.'))
     args = parser.parse_args(argv)
-    for key, value in isolated_rmw_env(
+    for key, value in generate_isolated_rmw_env(
         args.unique_identifier,
         rmw_implementation=args.rmw_implementation,
         scratch_directory=args.scratch_directory

@@ -31,7 +31,8 @@ class IsolatedListener(rclpy.node.Node):
             f"I did not hear '{elf._uuid}' even once!"
         rclpy.shutdown()
 
-if __name__ == '__main__':
+
+def main():
     if 'TEST_TMPDIR' in os.environ:
         from rmw_isolation import isolate_rmw_by_path
         isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
@@ -45,3 +46,7 @@ if __name__ == '__main__':
         # NOTE(hidmic): try_shutdown raises AttributeError
         # Need https://github.com/ros2/rclpy/pull/812
         pass  # rclpy.try_shutdown()
+
+
+if __name__ == '__main__':
+    main()

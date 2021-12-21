@@ -17,29 +17,22 @@ py_library(
 )
 
 ros_py_binary(
-    name = "isolated_rmw_env",
-    srcs = ["isolated_rmw_env.py"],
-    main = "isolated_rmw_env.py",
+    name = "generate_isolated_rmw_env",
+    srcs = ["generate_isolated_rmw_env.py"],
+    main = "generate_isolated_rmw_env.py",
     deps = [":module_py"],
     legacy_create_init = False,
-)
-
-genrule(
-    name = "rmw_isolation_cc_gen",
-    srcs = ["rmw_isolation.cc.in"],
-    outs = ["rmw_isolation.cc"],
-    cmd = (
-        "ISOLATED_RMW_ENV_PATH={}/rmw_isolation/isolated_rmw_env ".format(
-            repository_name().strip("@") or "."
-        ) + "envsubst < $< > $@"
-    ),
 )
 
 cc_library(
     name = "rmw_isolation_cc",
     srcs = ["rmw_isolation.cc"],
     hdrs = ["rmw_isolation.h"],
-    data = [":isolated_rmw_env"],
+    data = [":generate_isolated_rmw_env"],
+    local_defines = [
+        "RMW_ISOLATION_ROOTPATH={}/rmw_isolation".format(
+            repository_name().strip("@") or ".")
+    ],
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
         "//:rclcpp_cc",
