@@ -73,7 +73,8 @@ sh_test(
     ],
     data = [":isolated_talker_py", ":isolated_listener_py"],
     size = "small",
-    flaky = True,
+    flaky = True,  # because collision rates are non-zero
+    # See ROS2 Skylark tooling README.md for further reference.
 )
 
 ros_cc_binary(
@@ -107,5 +108,6 @@ sh_test(
     ],
     data = [":isolated_talker_cc", ":isolated_listener_cc"],
     size = "small",
-    flaky = True,
+    flaky = True,  # because collision rates are non-zero,
+    # See ROS2 Skylark tooling README.md for further reference.
 )
