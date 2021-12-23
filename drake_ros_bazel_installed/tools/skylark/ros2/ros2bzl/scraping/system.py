@@ -8,6 +8,9 @@ import re
 import subprocess
 import sys
 
+
+# Standard include files' search paths for compilers in Linux systems.
+# Useful to detect system includes in package exported configuration.
 DEFAULT_INCLUDE_DIRECTORIES = ['/usr/include', '/usr/local/include']
 
 
@@ -20,6 +23,8 @@ def is_system_include(include_path):
     return any(include_path.startswith(path) for path in DEFAULT_INCLUDE_DIRECTORIES)
 
 
+# Standard library files' search paths for linkers in Linux systems.
+# Useful to detect system libraries in package exported configuration.
 DEFAULT_LINK_DIRECTORIES = ['/lib', '/usr/lib', '/usr/local/lib']
 
 
