@@ -64,30 +64,30 @@ the artifacts it generates, the following targets may be found at the root
   .action, and .idl files) in the `<package_prefix>/share` directory.
 - A `<package_name>_c` C/C++ library for C libraries. Typically an alias of the
   `<package>_cc` target if C and C++ libraries cannot be told apart.
-- A `<package_name>_transitive_py` Python library if the package has does not
+- A `<package_name>_transitive_py` Python library if the package does not
   install any Python libraries but it depends on (and it is a dependency of)
   packages that do. This helps maintain the dependency graph (as Python library
   targets can only depend on other Python library targets).
 - A `<package_name>_<executable_name>` Python binary for each executable
   installed at the package-level (i.e. under `lib/<package_name>`, where
   `ros2 run` can find them).
-- A `<executable_name>` Python binary for each executable installed under the
-  `<package_prefix>/bin` directory (and thus accessible via `$PATH` when
-  sourcing the workspace install space).
+- A `<executable_name>` Python binary for each executable (binary or not)
+  installed under the `<package_prefix>/bin` directory (and thus accessible
+  via `$PATH` when sourcing the workspace install space).
 
 #### Rules
 
 To build C++ binaries and tests that depend on ROS 2, `ros_cc_binary` and
 `ros_cc_test` rules are available in the `ros_cc.bzl` file. These rules,
 equivalent to the native `cc_binary` and `cc_test` rules, ensure these binaries
-run in a environment that is tightly coupled with the underlying ROS 2 workspace
-install space.
+run in an environment that is tightly coupled with the underlying ROS 2
+workspace install space.
 
 To build Python binaries and tests that depend on ROS 2, `ros_py_binary` and
 `ros_pytest` rules are available in the `ros_py.bzl` file. These rules,
 equivalent to the native `py_binary` and `py_test` rules, ensure these binaries
-run in a environment that is tightly coupled with the underlying ROS 2 workspace
-install space.
+run in an environment that is tightly coupled with the underlying ROS 2
+workspace install space.
 
 To generate and build ROS 2 interfaces, a `rosidl_interfaces_group` rule is
 available in the `rosidl.bzl` file. This rule generates C++ and Python code
@@ -96,7 +96,7 @@ available in the ROS 2 workspace install space: code generators, interface
 definition translators, runtime dependencies, etc. Several targets are created,
 following strict naming conventions (e.g. C++ and Python interface libraries
 carry `_cc` and `_py` suffixes, respectively), though finer-grained control over
-what is generated and built can be achieved through via other rules available in
+what is generated and built can be achieved through other rules available in
 the same file. By default, these naming conventions allow downstream
 `rosidl_interfaces_group` rules to depend on upstream `rosidl_interface_group`
 rules.
@@ -108,7 +108,7 @@ APIs to enforce RMW network isolation. To that end, a unique path must be
 provided (such as Bazel's `$TEST_TMPDIR`).
 
 **DISCLAIMER**
-: Isolation relies on `rmw`-specific configuration. Support is available for 
+: Isolation relies on `rmw`-specific configuration. Support is available for
   Tier 1 `rmw` implementations only. Collision rates are below 1% but not null.
   Use with care.
 
