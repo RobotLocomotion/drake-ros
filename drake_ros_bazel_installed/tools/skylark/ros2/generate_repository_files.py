@@ -126,9 +126,16 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
         for name in toposort.toposort_flatten(distro['dependency_graph']):
             metadata = distro['packages'][name]
 
-            dependencies = {
+            # Avoid linking non-direct dependencies (e.g. group dependencies)
+            direct_dependency_names = \
+                distro['dependency_graph'][name].intersection(
+                    metadata.get('build_export_dependencies', set()).union(
+                        metadata.get('run_dependencies', set())
+                    )
+                )
+            direct_dependencies = {
                 dependency_name: distro['packages'][dependency_name]
-                for dependency_name in distro['dependency_graph'][name]
+                for dependency_name in direct_dependency_names
             }
 
             if 'share_directory' in metadata:
@@ -144,11 +151,11 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
 
             if 'cmake' in metadata.get('build_type'):
                 properties = collect_ament_cmake_package_direct_properties(
-                    name, metadata, dependencies, cache
+                    name, metadata, direct_dependencies, cache
                 )
 
                 _, template, config = configure_package_cc_library(
-                    name, metadata, properties, dependencies, extras, sandbox
+                    name, metadata, properties, direct_dependencies, extras, sandbox
                 )
 
                 fd.write(interpolate(template, config) + '\n')
@@ -164,7 +171,7 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
             # but to look for it.
             try:
                 properties = collect_ament_python_package_direct_properties(
-                    name, metadata, dependencies, cache
+                    name, metadata, direct_dependencies, cache
                 )
                 # Add 'py' as language if not there.
                 if 'langs' not in metadata:
@@ -172,26 +179,26 @@ def generate_build_file(repo_name, distro, cache, extras, sandbox):
                 metadata['langs'].add('py')
             except PackageNotFoundError:
                 if any('py' in metadata.get('langs', [])
-                       for metadata in dependencies.values()
+                       for metadata in direct_dependencies.values()
                        ):
                     metadata['langs'].add('py (transitive)')
                     # Dependencies still need to be propagated.
                     _, template, config = configure_package_meta_py_library(
-                        name, metadata, dependencies)
+                        name, metadata, direct_dependencies)
                     fd.write(interpolate(template, config) + '\n')
 
                 properties = {}
 
             if properties:
                 _, template, config = configure_package_py_library(
-                    name, metadata, properties, dependencies, extras, sandbox
+                    name, metadata, properties, direct_dependencies, extras, sandbox
                 )
                 fd.write(interpolate(template, config) + '\n')
 
             if metadata.get('executables'):
-                dependencies.update(rmw_implementation_packages)
+                direct_dependencies.update(rmw_implementation_packages)
                 for _, template, config in configure_package_executable_imports(
-                    name, metadata, dependencies, sandbox, extras=extras
+                    name, metadata, direct_dependencies, sandbox, extras=extras
                 ):
                     fd.write(interpolate(template, config) + '\n')
 

@@ -36,9 +36,6 @@ def index_all_packages():
     return packages
 
 
-SKIPPED_GROUP_DEPENDENCIES = ('rmw_implementation_packages',)
-
-
 def build_dependency_graph(packages, include=None, exclude=None):
     package_set = set(packages)
     if include:
@@ -51,20 +48,17 @@ def build_dependency_graph(packages, include=None, exclude=None):
         if 'groups' not in metadata:
             continue
         for group_name in metadata['groups']:
-            if group_name not in groups:
-                groups[group_name] = []
+            groups.setdefault(group_name, [])
             groups[group_name].append(name)
 
     dependency_graph = {}
     while package_set:
         name = package_set.pop()
         metadata = packages[name]
-        dependencies = set(metadata.get('build_dependencies', []))
+        dependencies = set(metadata.get('build_export_dependencies', []))
         dependencies.update(metadata.get('run_dependencies', []))
         if 'group_dependencies' in metadata:
             for group_name in metadata['group_dependencies']:
-                if group_name in SKIPPED_GROUP_DEPENDENCIES:
-                    continue
                 dependencies.update(groups[group_name])
         if exclude:
             dependencies -= exclude
