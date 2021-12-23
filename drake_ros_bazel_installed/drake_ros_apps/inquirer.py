@@ -78,6 +78,7 @@ class Inquirer(rclpy.node.Node):
         else:
             self.get_logger().warning('oracle not available for actions')
 
+
 def main():
     rclpy.init()
 

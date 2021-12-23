@@ -55,7 +55,7 @@ class CMakeClient:
             assert message['type'] == 'hello'
             self.__supported_protocol_versions = \
                 message['supportedProtocolVersions']
-        except:
+        except Exception:
             self.__socket.close()
             raise
 

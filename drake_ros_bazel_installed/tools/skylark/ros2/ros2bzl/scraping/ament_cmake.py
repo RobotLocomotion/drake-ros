@@ -54,18 +54,20 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
                 find_library_dependencies(library)
             )
             # Remove duplicates maintaining order.
-            link_libraries.extend([
-                library for library in library_plus_dependencies
-                if library not in link_libraries and not is_system_library(library)
-            ])
+            for library in library_plus_dependencies:
+                if library in link_libraries:
+                    continue
+                if is_system_library(library):
+                    continue
+                link_libraries.append(library)
         # Fail on any /usr/local libraries
         local_link_libraries = [
             path for path in link_libraries
             if path.startswith('/usr/local')]
         if local_link_libraries:
-            raise RuntimeError(
-                'Found libraries under /usr/local: ' +
-                ', '.join(local_link_libraries))
+            error_message = 'Found libraries under /usr/local: '
+            error_message += ', '.join(local_link_libraries)
+            raise RuntimeError(error_message)
 
     file_groups = codemodel['fileGroups']
     assert len(file_groups) == 1
@@ -82,9 +84,9 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
             path for path in include_directories
             if path.startswith('/usr/local')]
         if local_include_directories:
-            raise RuntimeError(
-                'Found include directories under /usr/local: ' +
-                ', '.join(local_include_directories))
+            error_message = 'Found include directories under /usr/local: '
+            error_message += ', '.join(local_include_directories)
+            raise RuntimeError(error_message)
 
     defines = []
     if 'defines' in file_group:
@@ -143,7 +145,7 @@ def collect_ament_cmake_package_properties(name, metadata):
                 ]}, timeout=30, message_callback=print)
                 cmake.compute(timeout=20, message_callback=print)
                 codemodel = cmake.codemodel(timeout=10)
-        except:
+        except Exception:
             import shutil
             shutil.rmtree('error_case', ignore_errors=True)
             shutil.copytree(project_path, 'error_case')
@@ -173,7 +175,9 @@ def collect_ament_cmake_package_properties(name, metadata):
         return properties
 
 
-def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, cache):
+def collect_ament_cmake_package_direct_properties(
+    name, metadata, dependencies, cache
+):
     if 'ament_cmake' not in cache:
         cache['ament_cmake'] = {}
     ament_cmake_cache = cache['ament_cmake']
@@ -209,13 +213,16 @@ def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, 
             library for library in properties['link_libraries']
             if library not in dependency_properties['link_libraries']
         ]
-        properties['include_directories'] = [
-            directory for directory in properties['include_directories']
-            if directory not in dependency_properties['include_directories']
-            # leverage REP-122
-            or os.path.exists(os.path.join(directory, name))
-        ]
-        # Do not deduplicate link directories in case we're dealing with merge installs.
+        deduplicated_include_directories = []
+        for directory in properties['include_directories']:
+            if directory in dependency_properties['include_directories']:
+                # We may be dealing with a merge install.
+                # Try leverage REP-122.
+                if not os.path.exists(os.path.join(directory, name)):
+                    continue
+            deduplicated_include_directories.append(directory)
+        # Do not deduplicate link directories in case we're dealing with
+        # merge installs.
 
     return properties
 

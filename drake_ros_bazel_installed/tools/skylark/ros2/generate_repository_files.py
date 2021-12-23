@@ -14,7 +14,6 @@ import argparse
 import collections
 import os
 import sys
-
 import xml.etree.ElementTree as ET
 
 import toposort
@@ -25,11 +24,15 @@ import toposort
 # `cmake_tools` reachable through PYTHONPATH. Thus, we force it here.
 sys.path.insert(0, os.path.dirname(__file__))  # noqa
 
+from ros2bzl.resources import load_resource
+
+import ros2bzl.sandboxing as sandboxing
+
 from ros2bzl.scraping import load_distribution
 from ros2bzl.scraping.ament_cmake \
-    import collect_ament_cmake_package_properties
-from ros2bzl.scraping.ament_cmake \
     import collect_ament_cmake_package_direct_properties
+from ros2bzl.scraping.ament_cmake \
+    import collect_ament_cmake_package_properties
 from ros2bzl.scraping.ament_cmake import precache_ament_cmake_properties
 from ros2bzl.scraping.ament_python \
     import collect_ament_python_package_direct_properties
@@ -37,18 +40,14 @@ from ros2bzl.scraping.ament_python import PackageNotFoundError
 
 from ros2bzl.templates import configure_distro
 from ros2bzl.templates import configure_executable_imports
-from ros2bzl.templates import configure_package_meta_py_library
 from ros2bzl.templates import configure_package_c_library_alias
 from ros2bzl.templates import configure_package_cc_library
 from ros2bzl.templates import configure_package_executable_imports
+from ros2bzl.templates import configure_package_interfaces_filegroup
+from ros2bzl.templates import configure_package_meta_py_library
 from ros2bzl.templates import configure_package_py_library
 from ros2bzl.templates import configure_package_share_filegroup
-from ros2bzl.templates import configure_package_interfaces_filegroup
 from ros2bzl.templates import configure_prologue
-
-from ros2bzl.resources import load_resource
-
-import ros2bzl.sandboxing as sandboxing
 
 from ros2bzl.utilities import interpolate
 

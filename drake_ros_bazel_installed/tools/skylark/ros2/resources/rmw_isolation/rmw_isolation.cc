@@ -10,9 +10,10 @@
 #include <string>
 #include <system_error>
 
-#include "tools/cpp/runfiles/runfiles.h"
 #include <rclcpp/rclcpp.hpp>
 #include <rmw/rmw.h>
+
+#include "tools/cpp/runfiles/runfiles.h"
 
 #define LITERAL_STRINGIFY(x) #x
 #define STRINGIFY(x) LITERAL_STRINGIFY(x)
@@ -101,7 +102,7 @@ void isolate_rmw_by_path(const std::string& argv0, const std::string& path) {
   size_t length = 0;
   auto buffer = make_scoped_instance<char*>(nullptr, free);
   while (getline(&buffer.get(), &length, command_stream.get()) != -1) {
-    char* bufferp = buffer.get(); // let strsep() mutate bufferp but not buffer
+    char* bufferp = buffer.get();  // let strsep() mutate bufferp but not buffer
     const std::string line{strsep(&bufferp, "\r\n")};  // drop trailing newline
     const size_t separator_index = line.find("=");
     const std::string name = line.substr(0, separator_index);

@@ -2,8 +2,8 @@ import os
 import shutil
 import subprocess
 
-from .server_mode import server_mode
 from .packages import get_packages_with_prefixes
+from .server_mode import server_mode
 
 
 def configure_file(src, dest, subs):

@@ -20,7 +20,9 @@ def is_system_include(include_path):
     i.e. known to compilers.
     """
     include_path = os.path.realpath(include_path)
-    return any(include_path.startswith(path) for path in DEFAULT_INCLUDE_DIRECTORIES)
+    return any(
+        include_path.startswith(path)
+        for path in DEFAULT_INCLUDE_DIRECTORIES)
 
 
 # Standard library files' search paths for linkers in Linux systems.
@@ -34,7 +36,9 @@ def is_system_library(library_path):
     i.e. known to linkers.
     """
     library_path = os.path.realpath(library_path)
-    return any(library_path.startswith(path) for path in DEFAULT_LINK_DIRECTORIES)
+    return any(
+        library_path.startswith(path)
+        for path in DEFAULT_LINK_DIRECTORIES)
 
 
 LD_LIBRARY_PATHS = [

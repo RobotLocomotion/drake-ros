@@ -1,8 +1,7 @@
 import glob
-import sysconfig
-
 from importlib.metadata import distribution
 from importlib.metadata import PackageNotFoundError
+import sysconfig
 
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_library
@@ -39,7 +38,9 @@ def collect_ament_python_package_properties(name, metadata):
     return properties
 
 
-def collect_ament_python_package_direct_properties(name, metadata, dependencies, cache):
+def collect_ament_python_package_direct_properties(
+    name, metadata, dependencies, cache
+):
     if 'ament_python' not in cache:
         cache['ament_python'] = {}
     ament_python_cache = cache['ament_python']

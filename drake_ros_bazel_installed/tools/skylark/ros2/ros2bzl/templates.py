@@ -53,12 +53,15 @@ def configure_package_interfaces_filegroup(name, metadata, sandbox):
         name,
         load_resource('templates/package_interfaces_filegroup.bazel.tpl'),
         to_starlark_string_dict({
-            'name': name, 'share_directory': sandbox(metadata['share_directory'])
+            'name': name,
+            'share_directory': sandbox(metadata['share_directory'])
         })
     )
 
 
-def configure_package_cc_library(name, metadata, properties, dependencies, extras, sandbox):
+def configure_package_cc_library(
+    name, metadata, properties, dependencies, extras, sandbox
+):
     target_name = cc_name(name, metadata)
     libraries = [sandbox(library) for library in properties['link_libraries']]
     include_directories = [
@@ -128,7 +131,9 @@ def configure_package_cc_library(name, metadata, properties, dependencies, extra
         'deps': deps,
     }
 
-    return target_name, load_resource(template_path), to_starlark_string_dict(config)
+    return (
+        target_name, load_resource(template_path),
+        to_starlark_string_dict(config))
 
 
 def configure_package_meta_py_library(name, metadata, dependencies):
@@ -146,7 +151,9 @@ def configure_package_meta_py_library(name, metadata, dependencies):
     )
 
 
-def configure_package_py_library(name, metadata, properties, dependencies, extras, sandbox):
+def configure_package_py_library(
+    name, metadata, properties, dependencies, extras, sandbox
+):
     target_name = py_name(name, metadata)
     eggs = [sandbox(egg_path) for egg_path, _ in properties['python_packages']]
     tops = [
@@ -185,7 +192,8 @@ def configure_package_py_library(name, metadata, properties, dependencies, extra
             template = 'templates/package_py_library_with_cc_libs.bazel.tpl'
             config.update({
                 'cc_name': c_name("_" + target_name, metadata),
-                'cc_libs': [sandbox(lib) for lib in properties['cc_libraries']],
+                'cc_libs': [
+                    sandbox(lib) for lib in properties['cc_libraries']],
                 'cc_deps': cc_deps
             })
             data.append(c_label("_" + target_name, metadata))

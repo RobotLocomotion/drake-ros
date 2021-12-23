@@ -18,6 +18,7 @@ import sys
 
 from rmw_isolation import generate_isolated_rmw_env
 
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -27,7 +28,8 @@ def main(argv=None):
         type=argparse.FileType('w'), default=sys.stdout,
         help='Path to output file. Defaults to stdout.')
     parser.add_argument(
-        '-s', '--scratch-directory', metavar='PATH', default=pathlib.Path.cwd(),
+        '-s', '--scratch-directory', metavar='PATH',
+        default=pathlib.Path.cwd(),
         help=('Path to scratch directory for generated files, if any. '
               'Defaults to the current working directory.'))
     parser.add_argument(
@@ -46,6 +48,7 @@ def main(argv=None):
         scratch_directory=args.scratch_directory
     ).items():
         args.output.write(f'{key}={value}\n')
+
 
 if __name__ == '__main__':
     main()
