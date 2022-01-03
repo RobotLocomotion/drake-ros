@@ -14,7 +14,9 @@ from ros2bzl.scraping.system import is_system_include
 from ros2bzl.scraping.system import is_system_library
 
 
-def collect_ament_cmake_shared_library_codemodel(codemodel):
+def collect_ament_cmake_shared_library_codemodel(
+    codemodel, additional_libraries
+):
     assert codemodel['type'] == 'SHARED_LIBRARY'
 
     link_flags = []
@@ -34,6 +36,11 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
                 link_flags.append(item)
                 continue
             libraries.append(item)
+        for library in additional_libraries:
+            if library in libraries:
+                continue
+            libraries.append(library)
+        local_link_libraries = []
         for library in libraries:
             if not os.path.isabs(library):
                 if library.startswith('-l'):
@@ -58,12 +65,11 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
                 if library in link_libraries:
                     continue
                 if is_system_library(library):
+                    if library.startswith('/usr/local'):
+                        local_link_libraries.append(library)
                     continue
                 link_libraries.append(library)
         # Fail on any /usr/local libraries
-        local_link_libraries = [
-            path for path in link_libraries
-            if path.startswith('/usr/local')]
         if local_link_libraries:
             error_message = 'Found libraries under /usr/local: '
             error_message += ', '.join(local_link_libraries)
@@ -75,14 +81,15 @@ def collect_ament_cmake_shared_library_codemodel(codemodel):
 
     include_directories = []
     if 'includePath' in file_group:
-        include_directories.extend([
-            entry['path'] for entry in file_group['includePath']
-            if not is_system_include(entry['path'])
-        ])
+        local_include_directories = []
+        for entry in file_group['includePath']:
+            path = entry['path']
+            if is_system_include(path):
+                if path.startswith('/usr/local'):
+                    local_include_directories.append(path)
+                continue
+            include_directories.append(path)
         # Fail on any /usr/local include directories
-        local_include_directories = [
-            path for path in include_directories
-            if path.startswith('/usr/local')]
         if local_include_directories:
             error_message = 'Found include directories under /usr/local: '
             error_message += ', '.join(local_include_directories)
@@ -163,15 +170,16 @@ def collect_ament_cmake_package_properties(name, metadata):
         assert project_name in targets
         target = targets[project_name]
 
-        properties = collect_ament_cmake_shared_library_codemodel(target)
+        additional_libraries = []
         if 'rosidl_interface_packages' in metadata.get('groups', []):
-            # Pick up extra shared libraries in interface
-            # packages for adequate sandboxing
+            # Pick up extra shared libraries in interface packages for
+            # proper sandboxing
             glob_pattern = os.path.join(
                 metadata['prefix'], 'lib', f'lib{name}__rosidl*.so')
-            for library in glob.glob(glob_pattern):
-                if library not in properties['link_libraries']:
-                    properties['link_libraries'].append(library)
+            additional_libraries.extend(glob.glob(glob_pattern))
+        properties = collect_ament_cmake_shared_library_codemodel(
+            target, additional_libraries
+        )
         return properties
 
 

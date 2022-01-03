@@ -115,11 +115,7 @@ def _resolve_runfile_path(ctx, path):
 
     All `$(rootpath...)` templates in the given path, if any, will be expanded.
     """
-    path = _normpath(ctx.expand_location(path))
-    path = path.lstrip("@")
-    if path.startswith("/"):
-        path = ctx.workspace_name + path
-    return path
+    return _normpath(ctx.expand_location(path))
 
 def _parse_runtime_environment_action(ctx, action):
     """

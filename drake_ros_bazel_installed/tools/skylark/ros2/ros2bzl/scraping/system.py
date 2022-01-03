@@ -32,7 +32,7 @@ DEFAULT_LINK_DIRECTORIES = ['/lib', '/usr/lib', '/usr/local/lib']
 
 def is_system_library(library_path):
     """
-    Checks whether `include_path` is in a system library directory
+    Checks whether `library_path` is in a system library directory
     i.e. known to linkers.
     """
     library_path = os.path.realpath(library_path)
