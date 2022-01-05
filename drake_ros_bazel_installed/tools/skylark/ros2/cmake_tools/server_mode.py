@@ -19,100 +19,100 @@ class CMakeServer:
     def __init__(self, address=None):
         if not address:
             address = tempfile.mktemp()
-        self.__address = address
+        self._address = address
         cmd = ['cmake', '-E', 'server', '--experimental']
-        cmd.append('--pipe=' + self.__address)
-        self.__process = subprocess.Popen(cmd)
-        while not os.path.exists(self.__address):
-            if self.__process.poll() is not None:
+        cmd.append('--pipe=' + self._address)
+        self._process = subprocess.Popen(cmd)
+        while not os.path.exists(self._address):
+            if self._process.poll() is not None:
                 break
             time.sleep(1)
 
     @property
     def address(self):
-        return self.__address
+        return self._address
 
     def shutdown(self, timeout=None):
-        self.__process.send_signal(signal.SIGINT)
+        self._process.send_signal(signal.SIGINT)
         try:
-            self.__process.wait(timeout)
+            self._process.wait(timeout)
         except subprocess.TimeoutExpired:
-            self.__process.kill()
+            self._process.kill()
 
 
 class CMakeClient:
 
     def __init__(self, address):
-        self.__socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self._socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
-            self.__socket.connect(address)
-            self.__selector = selectors.DefaultSelector()
-            self.__selector.register(self.__socket, selectors.EVENT_READ)
-            self.__unpack_buffer = ''
+            self._socket.connect(address)
+            self._selector = selectors.DefaultSelector()
+            self._selector.register(self._socket, selectors.EVENT_READ)
+            self._unpack_buffer = ''
 
-            message = next(self.__receive(timeout=5), None)
+            message = next(self._receive(timeout=5), None)
             assert message
             assert message['type'] == 'hello'
-            self.__supported_protocol_versions = \
+            self._supported_protocol_versions = \
                 message['supportedProtocolVersions']
         except Exception:
-            self.__socket.close()
+            self._socket.close()
             raise
 
     @property
     def supported_protocol_versions(self):
-        return self.__supported_protocol_versions
+        return self._supported_protocol_versions
 
     def shutdown(self):
-        self.__socket.close()
+        self._socket.close()
 
-    def __pack(self, payload):
+    def _pack(self, payload):
         return '\n'.join([
             CMakeServer.START_MAGIC_STRING,
             json.dumps(payload),
             CMakeServer.END_MAGIC_STRING
         ]) + '\n'
 
-    def __unpack(self, partial):
-        self.__unpack_buffer += partial
-        while self.__unpack_buffer:
+    def _unpack(self, partial):
+        self._unpack_buffer += partial
+        while self._unpack_buffer:
             packet_start_index = \
-                self.__unpack_buffer.find(CMakeServer.START_MAGIC_STRING)
+                self._unpack_buffer.find(CMakeServer.START_MAGIC_STRING)
             if packet_start_index < 0:
                 break
             payload_start_index = \
                 packet_start_index + len(CMakeServer.START_MAGIC_STRING)
-            payload_end_index = self.__unpack_buffer.find(
+            payload_end_index = self._unpack_buffer.find(
                 CMakeServer.END_MAGIC_STRING, payload_start_index
             )
             if payload_end_index < 0:
                 break
             payload = json.loads(
-                self.__unpack_buffer[payload_start_index:payload_end_index]
+                self._unpack_buffer[payload_start_index:payload_end_index]
             )
             packet_end_index = \
                 payload_end_index + len(CMakeServer.END_MAGIC_STRING)
-            self.__unpack_buffer = self.__unpack_buffer[packet_end_index:]
+            self._unpack_buffer = self._unpack_buffer[packet_end_index:]
 
             assert type(payload) is dict
             assert 'type' in payload
             yield payload
 
-    def __send(self, payload):
-        packet = self.__pack(payload).encode('utf-8')
-        written = self.__socket.send(packet)
+    def _send(self, payload):
+        packet = self._pack(payload).encode('utf-8')
+        written = self._socket.send(packet)
         return len(packet) == written
 
-    def __receive(self, timeout=None):
+    def _receive(self, timeout=None):
         if timeout is not None:
             deadline = time.time() + timeout
         while True:
-            events = self.__selector.select(timeout)
+            events = self._selector.select(timeout)
             for key, mask in events:
-                assert key.fileobj is self.__socket
+                assert key.fileobj is self._socket
                 assert mask & selectors.EVENT_READ
-                partial = self.__socket.recv(4096)
-                yield from self.__unpack(partial.decode('utf-8'))
+                partial = self._socket.recv(4096)
+                yield from self._unpack(partial.decode('utf-8'))
             if timeout is not None:
                 current_time = time.time()
                 if current_time >= deadline:
@@ -126,8 +126,8 @@ class CMakeClient:
         progress_callback=None,
         **kwargs
     ):
-        assert self.__send(request)
-        for response in self.__receive(**kwargs):
+        assert self._send(request)
+        for response in self._receive(**kwargs):
             if response['type'] == 'signal':
                 # Ignore signal responses
                 continue
@@ -154,7 +154,7 @@ class CMakeClient:
             'Timeout waiting for reply to {!r} request'.format(request)
         )
 
-    def __request_method(self, type_, attributes=None, **kwargs):
+    def _request_method(self, type_, attributes=None, **kwargs):
         request = {'type': type_}
         if attributes:
             request.update(attributes)
@@ -166,7 +166,7 @@ class CMakeClient:
         }
 
     def __getattr__(self, name):
-        return functools.partial(self.__request_method, name)
+        return functools.partial(self._request_method, name)
 
 
 @contextlib.contextmanager
