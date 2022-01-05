@@ -42,6 +42,15 @@ def main():
     try:
         executor = rclpy.executors.SingleThreadedExecutor()
         rclpy.spin(IsolatedListener(uuid), executor)
+    # TODO(hidmic): simplify `except` blocks as follows:
+    #
+    #   except KeyboardInterrupt:
+    #      pass
+    #   finally:
+    #      rclpy.try_shutdown()
+    #
+    # when rclpy 3.2.0 is rolled out (or any rclpy version
+    # including https://github.com/ros2/rclpy/pull/868 is).
     except rclpy.executors.ExternalShutdownException:
         pass
     except KeyboardInterrupt:
