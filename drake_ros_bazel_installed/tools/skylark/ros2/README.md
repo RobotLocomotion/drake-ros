@@ -71,9 +71,11 @@ the artifacts it generates, the following targets may be found at the root
 - A `<package_name>_<executable_name>` Python binary for each executable
   installed at the package-level (i.e. under `lib/<package_name>`, where
   `ros2 run` can find them).
-- A `<executable_name>` Python binary for each executable (binary or not)
-  installed under the `<package_prefix>/bin` directory (and thus accessible
-  via `$PATH` when sourcing the workspace install space).
+- An `<executable_name>` Python binary wrapper for each executable of *any*
+  kind (Python, shell script, compiled binary, etc.) installed under the
+  `<package_prefix>/bin` directory (and thus accessible via `$PATH` when
+  sourcing the workspace install space). These executables are exposed as
+  Python binaries for simplicty.
 
 #### Rules
 
