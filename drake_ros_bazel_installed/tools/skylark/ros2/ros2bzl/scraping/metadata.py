@@ -75,6 +75,20 @@ def collect_cmake_package_metadata(name, prefix):
 
 
 def collect_ros_package_metadata(name, prefix):
+    """
+    Collects ROS package metadata.
+
+    Metadata includes package `prefix`, `share_directory`,
+    `ament_index_directory`, `build_type`, `build_export_dependencies`,
+    `run_dependencies`, `group_dependencies`, `groups`, `plugin_libraries`,
+    `executables`, and `langs` (i.e expected code languages).
+
+    This function supports both symlink and merged install workspaces.
+
+    :param name: ROS package name
+    :param prefix: ROS package install prefix
+    :returns: metadata as a dictionary
+    """
     share_directory = os.path.join(prefix, 'share', name)
     ament_index_directory = os.path.join(prefix, 'share', 'ament_index')
 
