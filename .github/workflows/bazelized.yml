@@ -1,0 +1,29 @@
+name: Bazel ROS Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+defaults:
+  run:
+    working-directory: drake_ros_bazel_installed
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    container:
+      image: ros:rolling-ros-base-focal
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: bazel
+      - name: Install prerequisites
+        run: yes | ./setup/install_prereqs.sh
+      - name: Build Bazel workspace
+        run: bazel build //...
+      - name: Test Bazel workspace
+        run: bazel test //... @ros2//...

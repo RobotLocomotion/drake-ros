@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# Source all workspaces
+for ws in @WORKSPACES@; do
+    . $ws/setup.sh
+done
+
+# Setup environment
+export CMAKE_PREFIX_PATH="@CMAKE_PREFIX_PATH@:$CMAKE_PREFIX_PATH"
+export PYTHONPATH="@REPOSITORY_DIR@:$PYTHONPATH"
+export PATH="@REPOSITORY_DIR@:$PATH"
+
+exec $@

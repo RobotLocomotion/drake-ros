@@ -1,0 +1,9 @@
+workspace(name = "drake_ros")
+
+load("//tools/workspace/python:repository.bzl", "python_repository")
+
+python_repository(name = "python_dev")
+
+load("//tools/workspace/ros2:repository.bzl", "ros2_repository")
+
+ros2_repository(name = "ros2")
