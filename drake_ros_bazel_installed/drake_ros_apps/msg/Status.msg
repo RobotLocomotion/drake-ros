@@ -1,3 +1,0 @@
-builtin_interfaces/Time stamp
-drake_ros_common_msgs/Status status
-string origin

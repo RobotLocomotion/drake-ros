@@ -8,7 +8,7 @@ on:
 
 defaults:
   run:
-    working-directory: drake_ros_bazel_installed
+    working-directory: ros_bazel_installed
 
 jobs:
   build_and_test:
