@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "drake_ros_tf2/utilities/name_conventions.h"
+#include "internal_name_conventions.h"
 
 #include <sstream>
 #include <string>
@@ -20,20 +21,6 @@
 
 namespace drake_ros_tf2 {
 namespace utilities {
-
-namespace {
-
-std::string ReplaceAllOccurrences(std::string string, const std::string& target,
-                                  const std::string& replacement) {
-  std::string::size_type n = 0;
-  while ((n = string.find(target, n)) != std::string::npos) {
-    string.replace(n, target.size(), replacement);
-    n += replacement.size();
-  }
-  return string;
-}
-
-}  // namespace
 
 std::string GetTfFrameName(
     const drake::geometry::SceneGraphInspector<double>& inspector,
@@ -47,24 +34,12 @@ std::string GetTfFrameName(
     if (!body) {
       continue;
     }
-    const std::string& model_instance_name =
-        plant->GetModelInstanceName(body->model_instance());
-    ss << model_instance_name << "/";
-    const std::string& body_name = body->name();
-    if (body_name.empty()) {
-      ss << "unnamed_body_" << body->index();
-    } else {
-      ss << ReplaceAllOccurrences(body_name, "::", "/");
-    }
-    return ss.str();
+
+    return CalcTfFrameName(plant->GetModelInstanceName(body->model_instance()),
+                           body->name(), body->index(), frame_id.get_value());
   }
-  const std::string& frame_name = inspector.GetName(frame_id);
-  if (frame_name.empty()) {
-    ss << "unnamed_frame_" << frame_id;
-  } else {
-    ss << ReplaceAllOccurrences(frame_name, "::", "/");
-  }
-  return ss.str();
+
+  return CalcTfFrameName(inspector.GetName(frame_id), frame_id.get_value());
 }
 
 std::string GetTfFrameName(
