@@ -68,8 +68,6 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
           context);
   const drake::geometry::SceneGraphInspector<double>& inspector =
       query_object.inspector();
-  // TODO(hidmic): publish frame transforms w.r.t. to their parent frame
-  //               instead of the world frame when an API is made available.
   if (inspector.num_frames() > 1) {
     output_value->transforms.clear();
     output_value->transforms.reserve(inspector.num_frames() - 1);
@@ -77,16 +75,18 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
     geometry_msgs::msg::TransformStamped transform;
     transform.header.stamp =
         rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
-    transform.header.frame_id = inspector.GetName(inspector.world_frame_id());
     for (const drake::geometry::FrameId& frame_id :
          inspector.GetAllFrameIds()) {
       if (frame_id == inspector.world_frame_id()) {
         continue;
       }
+
+      transform.header.frame_id = utilities::GetTfFrameName(
+          inspector, impl_->plants, inspector.GetParentFrame(frame_id));
       transform.child_frame_id =
           utilities::GetTfFrameName(inspector, impl_->plants, frame_id);
       transform.transform =
-          utilities::ToTransformMsg(query_object.GetPoseInWorld(frame_id));
+          utilities::ToTransformMsg(query_object.GetPoseInParent(frame_id));
       output_value->transforms.push_back(transform);
     }
   }
