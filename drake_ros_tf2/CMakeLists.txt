@@ -86,6 +86,12 @@ if(BUILD_TESTING)
     drake_ros_tf2
     drake::drake
   )
+
+  ament_add_gtest(test_name_conventions test/test_name_conventions.cc)
+  target_link_libraries(test_name_conventions
+    drake_ros_tf2
+    drake::drake
+  )
 endif()
 
 ament_package()
