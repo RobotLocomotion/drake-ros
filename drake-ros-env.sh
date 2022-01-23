@@ -1,0 +1,6 @@
+ROS_DISTRO=rolling
+DRAKE_INSTALL_DIR=/path/to/installed/drake
+source /opt/ros/$ROS_DISTRO/setup.bash
+export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$DRAKE_INSTALL_DIR/lib/cmake/drake:$AMENT_PREFIX_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DRAKE_INSTALL_DIR/lib
+export PYTHONPATH=$PYTHONPATH:$DRAKE_INSTALL_DIR/lib/python3.8/site-packages
