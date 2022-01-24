@@ -16,12 +16,13 @@
 
 #include <unordered_set>
 
-#include "drake_ros_tf2/utilities/name_conventions.h"
-#include "drake_ros_tf2/utilities/type_conversion.h"
 #include <drake/geometry/query_object.h>
 #include <drake/geometry/scene_graph_inspector.h>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
+
+#include "drake_ros_tf2/utilities/name_conventions.h"
+#include "drake_ros_tf2/utilities/type_conversion.h"
 
 namespace drake_ros_tf2 {
 class SceneTfSystem::Impl {

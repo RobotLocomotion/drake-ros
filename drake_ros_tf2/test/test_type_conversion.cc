@@ -14,8 +14,9 @@
 
 #include <cmath>
 
-#include "drake_ros_tf2/utilities/type_conversion.h"
 #include <gtest/gtest.h>
+
+#include "drake_ros_tf2/utilities/type_conversion.h"
 
 TEST(TypeConversion, ToTransformMsg) {
   const drake::Vector3<double> translation{3., 2., 1.};
