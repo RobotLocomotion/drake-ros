@@ -1,3 +1,7 @@
+"""
+Provides a Python API to CMake's server mode.
+"""
+
 import os
 import shutil
 import subprocess
