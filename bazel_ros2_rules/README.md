@@ -4,7 +4,7 @@ This project provides rules to build and run against a ROS 2 distribution from B
 
 ## Features
 
-- Automatic ROS 2 overlay scraping
+- Automatic ROS 2 overlay scraping, `symlink` or `merge`-installed
 - ROS 2 aware C++/Python binaries (e.g. `dload` capable)
 - ROS 2 interface generation within Bazel
 
@@ -14,7 +14,7 @@ These rules require ROS 2 Rolling distributions on Ubuntu Focal 20.04 and onward
 
 ## Usage
 
-1. Add `bazel_ros2_rules` to your WORKSPACE (e.g. via `http_archive()`). 
+1. Add `bazel_ros2_rules` to your WORKSPACE (e.g. via `http_archive()`).
 
 1. Add `bazel_ros2_rules` dependencies to you WORKSPACE:
 
@@ -28,7 +28,7 @@ bazel_ros2_rules_dependencies()
 ```starlark
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
 ros2_local_repository(
-    name = "ros2", 
+    name = "ros2",
     workspace = ["/opt/ros/<distro>"],
 )
 ```
