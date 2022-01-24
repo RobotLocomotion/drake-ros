@@ -18,6 +18,7 @@
 
 namespace drake_ros_tf2 {
 namespace utilities {
+namespace internal {
 
 std::string ReplaceAllOccurrences(std::string string, const std::string& target,
                                   const std::string& replacement) {
@@ -70,5 +71,6 @@ std::string CalcTfFrameName(const std::string& frame_name,
   return ss.str();
 }
 
+}  // namespace internal
 }  // namespace utilities
 }  // namespace drake_ros_tf2
