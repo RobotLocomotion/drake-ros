@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "drake_ros_tf2/utilities/name_conventions.h"
-#include "internal_name_conventions.h"
+#include "utilities/internal_name_conventions.h"
 
 #include <sstream>
 #include <string>
@@ -35,11 +35,13 @@ std::string GetTfFrameName(
       continue;
     }
 
-    return CalcTfFrameName(plant->GetModelInstanceName(body->model_instance()),
-                           body->name(), body->index(), frame_id.get_value());
+    return internal::CalcTfFrameName(
+        plant->GetModelInstanceName(body->model_instance()), body->name(),
+        body->index(), frame_id.get_value());
   }
 
-  return CalcTfFrameName(inspector.GetName(frame_id), frame_id.get_value());
+  return internal::CalcTfFrameName(inspector.GetName(frame_id),
+                                   frame_id.get_value());
 }
 
 std::string GetTfFrameName(
