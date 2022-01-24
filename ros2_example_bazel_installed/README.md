@@ -1,6 +1,6 @@
 # Bazel Project with ROS 2 as a Precompiled External
 
-This project builds C++ and Python examples against a system-installed 
+This project builds C++ and Python examples against a system-installed
 ROS 2 Rolling binary distribution within a Bazel workspace.
 
 For an introduction to Bazel, refer to [Getting Started with Bazel](https://docs.bazel.build/versions/master/getting-started.html).
