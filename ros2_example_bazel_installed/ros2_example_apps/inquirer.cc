@@ -5,45 +5,43 @@
 #include <rclcpp_action/client.hpp>
 #include <rclcpp_action/create_client.hpp>
 
-#include "ros_apps_msgs/msg/status.hpp"
-#include "ros_common_msgs/action/do.hpp"
-#include "ros_common_msgs/srv/query.hpp"
+#include "ros2_example_apps_msgs/msg/status.hpp"
+#include "ros2_example_common_msgs/action/do.hpp"
+#include "ros2_example_common_msgs/srv/query.hpp"
 
 using namespace std::chrono_literals;
 
-namespace ros_apps {
+namespace ros2_example_apps {
 
 class Inquirer : public rclcpp::Node {
+  using Status = ros2_example_apps_msgs::msg::Status;
+  using Query = ros2_example_common_msgs::srv::Query;
+  using Do = ros2_example_common_msgs::action::Do;
+
  public:
   Inquirer() : Node("inquirer") {
     using namespace std::placeholders;
-    status_sub_ = this->create_subscription<ros_apps_msgs::msg::Status>(
+    status_sub_ = this->create_subscription<Status>(
         "status", rclcpp::QoS(rclcpp::KeepLast(1)),
         std::bind(&Inquirer::on_status, this, _1));
 
-    query_client_ =
-        this->create_client<ros_common_msgs::srv::Query>("query");
+    query_client_ = this->create_client<Query>("query");
 
-    action_client_ =
-        rclcpp_action::create_client<ros_common_msgs::action::Do>(this,
-                                                                        "do");
+    action_client_ = rclcpp_action::create_client<Do>(this, "do");
 
     inquire_timer_ =
         this->create_wall_timer(5s, std::bind(&Inquirer::inquire, this));
   }
 
  private:
-  using QueryClient = rclcpp::Client<ros_common_msgs::srv::Query>;
-
-  void handle_reply(QueryClient::SharedFuture future) const {
+  void handle_reply(rclcpp::Client<Query>::SharedFuture future) const {
     RCLCPP_INFO(this->get_logger(), "oracle said: %s",
                 future.get()->reply.c_str());
   }
 
-  using ActionGoalHandle =
-      rclcpp_action::ClientGoalHandle<ros_common_msgs::action::Do>;
+  using DoGoalHandle = rclcpp_action::ClientGoalHandle<Do>;
   void handle_rite_request_response(
-      const std::shared_ptr<ActionGoalHandle> handle) const {
+      const std::shared_ptr<DoGoalHandle> handle) const {
     if (!handle) {
       RCLCPP_ERROR(this->get_logger(), "oracle rejected rite request");
     } else {
@@ -52,12 +50,12 @@ class Inquirer : public rclcpp::Node {
   }
 
   void handle_rite_feedback(
-      std::shared_ptr<ActionGoalHandle> handle,
-      const std::shared_ptr<const ActionGoalHandle::Feedback> feedback) const {
+      std::shared_ptr<DoGoalHandle> handle,
+      const std::shared_ptr<const DoGoalHandle::Feedback> feedback) const {
     RCLCPP_INFO(this->get_logger(), "oracle is %s", feedback->message.c_str());
   }
 
-  void handle_rite_result(const ActionGoalHandle::WrappedResult& result) const {
+  void handle_rite_result(const DoGoalHandle::WrappedResult& result) const {
     switch (result.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
         RCLCPP_INFO(this->get_logger(), "oracle rite is complete");
@@ -79,8 +77,7 @@ class Inquirer : public rclcpp::Node {
     using namespace std::placeholders;
 
     if (query_client_->service_is_ready()) {
-      auto request =
-          std::make_shared<ros_common_msgs::srv::Query::Request>();
+      auto request = std::make_shared<Query::Request>();
       request->query = "how's it going?";
       RCLCPP_INFO(this->get_logger(), "oracle, %s", request->query.c_str());
       query_client_->async_send_request(
@@ -90,15 +87,14 @@ class Inquirer : public rclcpp::Node {
     }
 
     if (action_client_->action_server_is_ready()) {
-      rclcpp_action::Client<ros_common_msgs::action::Do>::SendGoalOptions
-          options;
+      rclcpp_action::Client<Do>::SendGoalOptions options;
       options.goal_response_callback =
           std::bind(&Inquirer::handle_rite_request_response, this, _1);
       options.feedback_callback =
           std::bind(&Inquirer::handle_rite_feedback, this, _1, _2);
       options.result_callback =
           std::bind(&Inquirer::handle_rite_result, this, _1);
-      ros_common_msgs::action::Do::Goal goal;
+      Do::Goal goal;
       goal.action = "rite";
       goal.period = rclcpp::Duration::from_seconds(0.1);
       goal.timeout = rclcpp::Duration::from_seconds(1.0);
@@ -108,26 +104,23 @@ class Inquirer : public rclcpp::Node {
     }
   }
 
-  void on_status(const ros_apps_msgs::msg::Status& msg) const {
+  void on_status(const Status& msg) const {
     RCLCPP_INFO(get_logger(), "%s status (%lu): %s", msg.origin.c_str(),
                 msg.status.sequence_id, msg.status.message.c_str());
   }
 
-  std::shared_ptr<rclcpp::Subscription<ros_apps_msgs::msg::Status>>
-      status_sub_;
-  std::shared_ptr<rclcpp::Client<ros_common_msgs::srv::Query>>
-      query_client_;
-  std::shared_ptr<rclcpp_action::Client<ros_common_msgs::action::Do>>
-      action_client_;
+  std::shared_ptr<rclcpp::Subscription<Status>> status_sub_;
+  std::shared_ptr<rclcpp::Client<Query>> query_client_;
+  std::shared_ptr<rclcpp_action::Client<Do>> action_client_;
   std::shared_ptr<rclcpp::TimerBase> inquire_timer_;
 };
 
-}  // namespace ros_apps
+}  // namespace ros2_example_apps
 
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  rclcpp::spin(std::make_shared<ros_apps::Inquirer>());
+  rclcpp::spin(std::make_shared<ros2_example_apps::Inquirer>());
 
   rclcpp::shutdown();
 }

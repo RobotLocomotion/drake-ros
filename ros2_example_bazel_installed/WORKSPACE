@@ -1,4 +1,4 @@
-workspace(name = "ros_bazel_installed")
+workspace(name = "ros2_example_bazel_installed")
 
 local_repository(
     name = "bazel_ros2_rules",

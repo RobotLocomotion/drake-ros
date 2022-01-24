@@ -8,9 +8,9 @@ import rclpy.duration
 import rclpy.node
 import rclpy.qos
 
-import ros_apps_msgs.msg
-import ros_common_msgs.action
-import ros_common_msgs.srv
+import ros2_example_apps_msgs.msg
+import ros2_example_common_msgs.action
+import ros2_example_common_msgs.srv
 
 
 class Oracle(rclpy.node.Node):
@@ -19,12 +19,12 @@ class Oracle(rclpy.node.Node):
         super().__init__('oracle')
         self._sequence_id = 0
         self._status_pub = self.create_publisher(
-            ros_apps_msgs.msg.Status, 'status',
+            ros2_example_apps_msgs.msg.Status, 'status',
             rclpy.qos.QoSProfile(depth=1))
         self._query_server = self.create_service(
-            ros_common_msgs.srv.Query, 'query', self._handle_query)
+            ros2_example_common_msgs.srv.Query, 'query', self._handle_query)
         self._action_server = rclpy.action.ActionServer(
-            self, ros_common_msgs.action.Do, 'do',
+            self, ros2_example_common_msgs.action.Do, 'do',
             execute_callback=self._handle_rite_action,
             goal_callback=self._handle_action_request,
             cancel_callback=self._handle_cancelled_action,
@@ -42,7 +42,7 @@ class Oracle(rclpy.node.Node):
         return rclpy.action.CancelResponse.ACCEPT
 
     def _handle_rite_action(self, handle):
-        result = ros_common_msgs.action.Do.Result()
+        result = ros2_example_common_msgs.action.Do.Result()
         timeout = rclpy.duration.Duration.from_msg(
             handle.request.timeout)
         period = rclpy.duration.Duration.from_msg(
@@ -62,7 +62,7 @@ class Oracle(rclpy.node.Node):
             if bool(random.getrandbits(1)):
                 handle.succeed()
                 break
-            feedback = ros_common_msgs.action.Do.Feedback()
+            feedback = ros2_example_common_msgs.action.Do.Feedback()
             feedback.message = 'chanting'
             handle.publish_feedback(feedback)
             rate.sleep()
@@ -76,7 +76,7 @@ class Oracle(rclpy.node.Node):
         return response
 
     def _publish_status(self):
-        msg = ros_apps_msgs.msg.Status()
+        msg = ros2_example_apps_msgs.msg.Status()
         msg.status.sequence_id = self._sequence_id
         self._sequence_id = self._sequence_id + 1
         msg.status.message = 'OK'

@@ -25,11 +25,11 @@ bazel build //...
 To run examples binaries directly:
 
 ```sh
-bazel run //ros_apps:oracle_cc
+bazel run //ros2_example_apps:oracle_cc
 ```
 
 ```sh
-bazel run //ros_apps:inquirer_py
+bazel run //ros2_example_apps:inquirer_py
 ```
 
 You may also run tests:

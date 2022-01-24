@@ -1,4 +1,4 @@
-## Common `drake_ros` interfaces
+## Example ROS 2 interfaces
 
 This package exercises `rosidl` interface generation in C++ and Python.
 

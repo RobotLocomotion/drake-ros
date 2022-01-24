@@ -8,7 +8,7 @@ on:
 
 defaults:
   run:
-    working-directory: ros_bazel_installed
+    working-directory: ros2_example_bazel_installed
 
 jobs:
   build_and_test:

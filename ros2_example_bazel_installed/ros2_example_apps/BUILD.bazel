@@ -6,12 +6,12 @@ load("@ros2//:ros_py.bzl", "ros_py_binary")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 
 rosidl_interfaces_group(
-    name = "ros_apps_msgs",
+    name = "ros2_example_apps_msgs",
     interfaces = [
         "msg/Status.msg",
     ],
     deps = [
-        "//ros_common:ros_common_msgs",
+        "//ros2_example_common:ros2_example_common_msgs",
         "@ros2//:builtin_interfaces",
     ],
 )
@@ -20,8 +20,8 @@ ros_cc_binary(
     name = "oracle_cc",
     srcs = ["oracle.cc"],
     deps = [
-        ":ros_apps_msgs_cc",
-        "//ros_common:ros_common_msgs_cc",
+        ":ros2_example_apps_msgs_cc",
+        "//ros2_example_common:ros2_example_common_msgs_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:rclcpp_action_cc",
     ],
@@ -33,8 +33,8 @@ ros_cc_binary(
     name = "inquirer_cc",
     srcs = ["inquirer.cc"],
     deps = [
-        ":ros_apps_msgs_cc",
-        "//ros_common:ros_common_msgs_cc",
+        ":ros2_example_apps_msgs_cc",
+        "//ros2_example_common:ros2_example_common_msgs_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:rclcpp_action_cc",
     ],
@@ -47,8 +47,8 @@ ros_py_binary(
     srcs = ["oracle.py"],
     main = "oracle.py",
     deps = [
-        ":ros_apps_msgs_py",
-        "//ros_common:ros_common_msgs_py",
+        ":ros2_example_apps_msgs_py",
+        "//ros2_example_common:ros2_example_common_msgs_py",
         "@ros2//:rclpy_py",
     ],
     rmw_implementation = "rmw_cyclonedds_cpp",
@@ -60,8 +60,8 @@ ros_py_binary(
     srcs = ["inquirer.py"],
     main = "inquirer.py",
     deps = [
-        ":ros_apps_msgs_py",
-        "//ros_common:ros_common_msgs_py",
+        ":ros2_example_apps_msgs_py",
+        "//ros2_example_common:ros2_example_common_msgs_py",
         "@ros2//:rclpy_py",
     ],
     rmw_implementation = "rmw_cyclonedds_cpp",
