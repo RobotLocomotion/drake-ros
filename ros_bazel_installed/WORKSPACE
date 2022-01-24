@@ -5,8 +5,8 @@ local_repository(
     path = "../bazel_ros2_rules",
 )
 
-load("@bazel_ros2_rules//deps:defs.bzl", "bazel_ros2_rules_dependencies")
-bazel_ros2_rules_dependencies()
+load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
+add_bazel_ros2_rules_dependencies()
 
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
 

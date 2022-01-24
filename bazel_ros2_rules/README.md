@@ -19,8 +19,8 @@ These rules require ROS 2 Rolling distributions on Ubuntu Focal 20.04 and onward
 1. Add `bazel_ros2_rules` dependencies to you WORKSPACE:
 
 ```starlark
-load("@bazel_ros2_rules//deps:defs.bzl", "bazel_ros2_rules_dependencies")
-bazel_ros2_rules_dependencies()
+load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
+add_bazel_ros2_rules_dependencies()
 ```
 
 1. Bind a local ROS 2 workspace underlay in your WORKSPACE:
