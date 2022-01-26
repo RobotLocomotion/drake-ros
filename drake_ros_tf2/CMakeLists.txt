@@ -92,10 +92,6 @@ if(BUILD_TESTING)
     drake_ros_tf2
     drake::drake
   )
-  target_include_directories(drake_ros_tf2
-    PRIVATE
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-  )
 endif()
 
 ament_package()
