@@ -45,7 +45,9 @@ class SceneTfSystem : public drake::systems::LeafSystem<double> {
    This provides the system with additional information
    to generate semantically meaningful frame string IDs.
 
-   @param[in] plant multibody plant instance to be registered.
+   @param[in] plant multibody plant instance to be registered. Registered
+   multibody plants must outlive this SceneTfSystem instance since it will store
+   the pointer for the remainder of its life.
    @pre `plant` is associated with the same SceneGraph
    whose query output port this system connects to.
   */

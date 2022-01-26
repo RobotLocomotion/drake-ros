@@ -79,7 +79,8 @@ TEST(SceneTfBroadcasting, NominalCase) {
 
   auto scene_tf_broadcaster = builder.AddSystem<SceneTfBroadcasterSystem>(
       system_ros->get_ros_interface(),
-      SceneTfBroadcasterParams{{drake::systems::TriggerType::kForced}, 0.});
+      SceneTfBroadcasterParams{
+          {drake::systems::TriggerType::kForced}, 0., "/tf"});
 
   builder.Connect(scene_graph->get_query_output_port(),
                   scene_tf_broadcaster->GetInputPort("graph_query"));

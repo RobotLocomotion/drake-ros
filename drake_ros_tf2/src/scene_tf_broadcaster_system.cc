@@ -42,8 +42,8 @@ SceneTfBroadcasterSystem::SceneTfBroadcasterSystem(
   using drake_ros_core::RosPublisherSystem;
   auto scene_tf_publisher =
       builder.AddSystem(RosPublisherSystem::Make<tf2_msgs::msg::TFMessage>(
-          "/tf", tf2_ros::DynamicBroadcasterQoS(), ros, params.publish_triggers,
-          params.publish_period));
+          params.tf_topic_name, tf2_ros::DynamicBroadcasterQoS(), ros,
+          params.publish_triggers, params.publish_period));
 
   builder.Connect(impl_->scene_tf->get_scene_tf_output_port(),
                   scene_tf_publisher->get_input_port());

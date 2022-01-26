@@ -14,6 +14,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <unordered_set>
 
 #include <drake/multibody/plant/multibody_plant.h>
@@ -31,6 +32,9 @@ struct SceneTfBroadcasterParams {
 
   /** Period for periodic tf broadcasting. */
   double publish_period{0.0};
+
+  /** Topic name to be used by the broadcaster. */
+  std::string tf_topic_name{"/tf"};
 };
 
 /** System for tf2 transform broadcasting.

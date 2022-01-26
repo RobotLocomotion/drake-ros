@@ -14,7 +14,6 @@
 #pragma once
 
 #include <drake/math/rigid_transform.h>
-#include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/transform.hpp>
 
 namespace drake_ros_tf2 {
