@@ -11,10 +11,10 @@ To build it:
 
 1. [Install ROS Rolling](https://index.ros.org/doc/ros2/Installation/Rolling/)
 1. Source your ROS installation `. /opt/ros/rolling/setup.bash`
-1. [Download April-ish 2021 Drake binary](https://drake.mit.edu/from_binary.html)
-1. Extract the Drake binary installation, install it's prerequisites, and [use this Python virutalenv trick](https://drake.mit.edu/python_bindings.html#inside-virtualenv).
-1. Activate the drake virtual environment
-1. Build it using Colcon, or using CMake directly
+1. [Download Drake binary](https://drake.mit.edu/from_binary.html), nightly or any stable releases after 14 Jan 2022.
+1. [Use this Python virtualenv trick](https://drake.mit.edu/from_binary.html), under "Use as a Python Library", to extract the Drake binary installation, install its prerequisites.
+1. Activate the Drake virtual environment.
+1. Build it using Colcon, or using CMake directly.
 
     **Colcon**
     1. Make a workspace `mkdir -p ./ws/src`
