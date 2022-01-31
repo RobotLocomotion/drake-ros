@@ -10,7 +10,7 @@ add_bazel_ros2_rules_dependencies()
 
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
 
-ROS2_DIST = "rolling"
+ROS2_DIST = "rolling-focal"
 ros2_local_repository(
     name = "ros2",
     workspaces = ["/opt/ros/{}".format(ROS2_DIST)],
