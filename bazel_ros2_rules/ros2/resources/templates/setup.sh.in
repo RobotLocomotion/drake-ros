@@ -2,8 +2,10 @@
 
 # Source all workspaces
 for ws in @WORKSPACES@; do
+    COLCON_CURRENT_PREFIX=$ws
     . $ws/setup.sh
 done
+unset COLCON_CURRENT_PREFIX
 
 # Setup environment
 export CMAKE_PREFIX_PATH="@CMAKE_PREFIX_PATH@:$CMAKE_PREFIX_PATH"
