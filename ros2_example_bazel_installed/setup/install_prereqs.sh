@@ -62,8 +62,10 @@ mkdir -p /opt/ros/rolling-focal
 tar xf /tmp/ros2-rolling-linux-focal-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/rolling-focal
 sed -i 's|COLCON_CURRENT_PREFIX="/opt/ros/rolling"||g' /opt/ros/rolling-focal/setup.sh  # Fix wrong chained prefix, if any
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list
-
+ROS2_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
+if ! grep "${ROS2_APT_SOURCE}" /etc/apt/sources.list.d/ros2.list; then
+  echo ${ROS2_APT_SOURCE} | tee /etc/apt/sources.list.d/ros2.list
+fi
 # Install ROS 2 Rolling dependencies
 apt update && apt install python3-rosdep
 [ -d /etc/ros/rosdep ] || rosdep init
