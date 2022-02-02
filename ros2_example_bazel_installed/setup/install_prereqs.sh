@@ -56,6 +56,10 @@ dpkg_install_from_curl \
   67447658b8313316295cd98323dfda2a27683456a237f7a3226b68c9c6c81b3a
 
 # Install ROS 2 Rolling tarball
+## This installation step always reinstalls as both traceability and
+## persistence for ROS 2 Rolling on Focal tarballs are still in the works.
+## As this procedure is carried out primarily on CI, we can afford degraded
+## UX for the time being.
 rm -rf /opt/ros/rolling-focal /tmp/ros2-rolling-linux-focal-amd64-ci.tar.bz2
 (cd /tmp && curl -sSL -O http://repo.ros2.org/ci_archives/rolling-on-focal/ros2-rolling-linux-focal-amd64-ci.tar.bz2)
 mkdir -p /opt/ros/rolling-focal
