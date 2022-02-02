@@ -77,7 +77,7 @@ rosdep update
 ## The list of rosdep keys that are skipped below has been taken verbatim from ROS 2 Rolling binary install docs
 ## (https://docs.ros.org/en/rolling/Installation/Ubuntu-Install-Binary.html#installing-the-missing-dependencies).
 ## This is necessary because:
-## - Some non-ROS packages don't always installing their package manifests
+## - Some non-ROS packages don't always install their package manifests
 ##   (cyclonedds, fastcdr, fastrtps, urdfdom_headers)
 ## - Group dependencies aren't supported everywhere and are hard-coded in
 ##   some packages (rti-connext-dds-5.3.1)
