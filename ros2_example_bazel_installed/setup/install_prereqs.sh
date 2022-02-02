@@ -72,7 +72,7 @@ if ! grep "${ROS2_APT_SOURCE}" /etc/apt/sources.list.d/ros2.list; then
 fi
 # Install ROS 2 Rolling dependencies
 apt update && apt install python3-rosdep libssl-dev
-[ -d /etc/ros/rosdep ] || rosdep init
+[[ -d /etc/ros/rosdep ]] || rosdep init
 rosdep update
 rosdep install --from-paths /opt/ros/rolling-focal --ignore-src -y \
   --skip-keys "cyclonedds fastcdr fastrtps rti-connext-dds-5.3.1 urdfdom_headers"
