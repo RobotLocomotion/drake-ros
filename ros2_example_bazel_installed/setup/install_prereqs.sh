@@ -74,6 +74,13 @@ fi
 apt update && apt install python3-rosdep libssl-dev
 [[ -d /etc/ros/rosdep ]] || rosdep init
 rosdep update
+## The list of rosdep keys that are skipped below has been taken verbatim from ROS 2 Rolling binary install docs
+## (https://docs.ros.org/en/rolling/Installation/Ubuntu-Install-Binary.html#installing-the-missing-dependencies).
+## This is necessary because:
+## - Some non-ROS packages don't always installing their package manifests
+##   (cyclonedds, fastcdr, fastrtps, urdfdom_headers)
+## - Group dependencies aren't supported everywhere and are hard-coded in
+##   some packages (rti-connext-dds-5.3.1)
 rosdep install --from-paths /opt/ros/rolling-focal --ignore-src -y \
   --skip-keys "cyclonedds fastcdr fastrtps rti-connext-dds-5.3.1 urdfdom_headers"
 
