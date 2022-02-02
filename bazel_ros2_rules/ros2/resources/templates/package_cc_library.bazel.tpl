@@ -1,7 +1,7 @@
 cc_library(
     name = @name@,
     srcs = @srcs@,
-    hdrs = glob(["{}/**/*.*".format(x) for x in @headers@]),
+    hdrs = glob(["{}/**/*.h*".format(x) for x in @headers@]),
     includes = @includes@,
     copts = @copts@,
     defines = @defines@,

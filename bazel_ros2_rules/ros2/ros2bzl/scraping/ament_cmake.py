@@ -229,6 +229,7 @@ def collect_ament_cmake_package_direct_properties(
                 if not os.path.exists(os.path.join(directory, name)):
                     continue
             deduplicated_include_directories.append(directory)
+        properties['include_directories'] = deduplicated_include_directories
         # Do not deduplicate link directories in case we're dealing with
         # merge installs.
 

@@ -55,11 +55,34 @@ dpkg_install_from_curl \
   https://releases.bazel.build/4.2.1/release/bazel_4.2.1-linux-x86_64.deb \
   67447658b8313316295cd98323dfda2a27683456a237f7a3226b68c9c6c81b3a
 
-# Install ROS 2 Rolling
+# Install ROS 2 Rolling tarball
+## This installation step always reinstalls as both traceability and
+## persistence for ROS 2 Rolling on Focal tarballs are still in the works.
+## As this procedure is carried out primarily on CI, we can afford degraded
+## UX for the time being.
+rm -rf /opt/ros/rolling-focal /tmp/ros2-rolling-linux-focal-amd64-ci.tar.bz2
+(cd /tmp && curl -sSL -O http://repo.ros2.org/ci_archives/rolling-on-focal/ros2-rolling-linux-focal-amd64-ci.tar.bz2)
+mkdir -p /opt/ros/rolling-focal
+tar xf /tmp/ros2-rolling-linux-focal-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/rolling-focal
+sed -i 's|COLCON_CURRENT_PREFIX="/opt/ros/rolling"||g' /opt/ros/rolling-focal/setup.sh  # Fix wrong chained prefix, if any
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list
-apt update && apt install ros-rolling-ros-base ros-rolling-rmw-fastrtps-cpp ros-rolling-rmw-cyclonedds-cpp
-apt install --only-upgrade $(dpkg-query -f '${Package}\n' -W 'ros-rolling-*')  # NOTE(hidmic): avoid half upgrades (shouldn't the ros-rolling-ros-base install prevent that?)
+ROS2_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
+if ! grep "${ROS2_APT_SOURCE}" /etc/apt/sources.list.d/ros2.list; then
+  echo ${ROS2_APT_SOURCE} | tee /etc/apt/sources.list.d/ros2.list
+fi
+# Install ROS 2 Rolling dependencies
+apt update && apt install python3-rosdep libssl-dev
+[[ -d /etc/ros/rosdep ]] || rosdep init
+rosdep update
+## The list of rosdep keys that are skipped below has been taken verbatim from ROS 2 Rolling binary install docs
+## (https://docs.ros.org/en/rolling/Installation/Ubuntu-Install-Binary.html#installing-the-missing-dependencies).
+## This is necessary because:
+## - Some non-ROS packages don't always install their package manifests
+##   (cyclonedds, fastcdr, fastrtps, urdfdom_headers)
+## - Group dependencies aren't supported everywhere and are hard-coded in
+##   some packages (rti-connext-dds-5.3.1)
+rosdep install --from-paths /opt/ros/rolling-focal --ignore-src -y \
+  --skip-keys "cyclonedds fastcdr fastrtps rti-connext-dds-5.3.1 urdfdom_headers"
 
 # Install Python dependencies
 apt install python3 python3-toposort python3-dev python-is-python3
