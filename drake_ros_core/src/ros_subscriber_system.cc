@@ -19,7 +19,7 @@
 #include <string>
 #include <utility>
 
-#include "subscription.h"  // NOLINT(build/include)
+#include "subscription.h"
 #include <drake/systems/framework/abstract_values.h>
 
 namespace drake_ros_core {
