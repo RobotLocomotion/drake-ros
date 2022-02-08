@@ -15,6 +15,7 @@
 import math
 import numpy as np
 
+import drake_ros_core
 from drake_ros_core import RosInterfaceSystem
 from drake_ros_tf2 import SceneTfBroadcasterSystem
 from drake_ros_tf2 import SceneTfBroadcasterParams
@@ -26,6 +27,7 @@ from pydrake.math import RotationMatrix
 from pydrake.geometry import FramePoseVector
 from pydrake.geometry import GeometryFrame
 from pydrake.geometry import SceneGraph
+
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantValueSource
@@ -36,9 +38,12 @@ import tf2_ros
 
 
 def test_nominal_case():
+    drake_ros_core.init()
+
     builder = DiagramBuilder()
 
-    sys_ros_interface = builder.AddSystem(RosInterfaceSystem())
+    sys_ros_interface = builder.AddSystem(
+        RosInterfaceSystem('test_tf_broadcaster_py'))
 
     scene_graph = builder.AddSystem(SceneGraph())
     source_id = scene_graph.RegisterSource('test_source')

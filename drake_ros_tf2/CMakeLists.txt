@@ -68,7 +68,7 @@ install(
 # Python bindings
 ###
 pybind11_add_module(py_drake_ros_tf2 SHARED
-  src/python_bindings/module_drake_ros_tf2.cpp
+  src/python_bindings/drake_ros_tf2.cc
 )
 set_target_properties(py_drake_ros_tf2 PROPERTIES OUTPUT_NAME "drake_ros_tf2")
 target_link_libraries(py_drake_ros_tf2 PRIVATE drake_ros_tf2)
@@ -107,6 +107,8 @@ if(BUILD_TESTING)
     tf2_ros::tf2_ros
     ${geometry_msgs_TARGETS}
   )
+
+  ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py)
 
   ament_add_gtest(test_type_conversion test/test_type_conversion.cc)
   target_link_libraries(test_type_conversion
