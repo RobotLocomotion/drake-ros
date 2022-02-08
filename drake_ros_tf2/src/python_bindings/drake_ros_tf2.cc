@@ -13,19 +13,19 @@
 // limitations under the License.
 #include <memory>
 
-#include "drake_ros_tf2/scene_tf_broadcaster_system.hpp"
+#include "drake_ros_core/drake_ros.h"
 #include <drake/systems/framework/diagram.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "drake_ros_core/ros_interface_system.hpp"
+#include "drake_ros_tf2/scene_tf_broadcaster_system.h"
 
 namespace py = pybind11;
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
 
-using drake_ros_core::DrakeRosInterface;
+using drake_ros_core::DrakeRos;
 using drake_ros_tf2::SceneTfBroadcasterParams;
 using drake_ros_tf2::SceneTfBroadcasterSystem;
 
@@ -49,13 +49,12 @@ PYBIND11_MODULE(drake_ros_tf2, m) {
       .def_readwrite("publish_triggers",
                      &SceneTfBroadcasterParams::publish_triggers)
       .def_readwrite("publish_period",
-                     &SceneTfBroadcasterParams::publish_period);
+                     &SceneTfBroadcasterParams::publish_period)
+      .def_readwrite("tf_topic_name", &SceneTfBroadcasterParams::tf_topic_name);
 
   py::class_<SceneTfBroadcasterSystem, Diagram<double>>(
       m, "SceneTfBroadcasterSystem")
-      .def(py::init<std::shared_ptr<DrakeRosInterface>,
-                    SceneTfBroadcasterParams>(),
-           py::arg("ros_interface"),
+      .def(py::init<DrakeRos*, SceneTfBroadcasterParams>(), py::arg("ros"),
            py::arg("params") = SceneTfBroadcasterParams{})
       .def("RegisterMultibodyPlant",
            &SceneTfBroadcasterSystem::RegisterMultibodyPlant)
