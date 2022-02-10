@@ -1,1 +1,16 @@
-# Empty build file to mark package root.
+# -*- python -*-
+
+load("//tools:cmd_test.bzl", "cmd_test")
+
+cmd_test(
+    name = "lint_rosdeps",
+    cmd = [
+        "diff", "-u",
+        "setup/prereq-rosdep-keys.txt",
+        "$(location @ros2//:system-rosdep-keys.txt)",
+    ],
+    data = [
+        "@ros2//:system-rosdep-keys.txt", 
+	    "setup/prereq-rosdep-keys.txt",
+    ],
+)
