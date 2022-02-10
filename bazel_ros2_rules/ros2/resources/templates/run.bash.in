@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Source all workspaces
+for workspace in @WORKSPACES@; do
+    COLCON_CURRENT_PREFIX=${workspace}
+    . ${workspace}/setup.sh
+    # Ensure CMake prefix path is set for non
+    # ROS packages in workspaces to be found
+    CMAKE_PREFIX_PATH="${workspace}:${CMAKE_PREFIX_PATH}"
+done
+unset COLCON_CURRENT_PREFIX
+export CMAKE_PREFIX_PATH
+
+exec $@
