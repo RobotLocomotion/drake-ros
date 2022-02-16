@@ -97,9 +97,12 @@ def test_nominal_case():
 
     context.SetTime(time.nanoseconds / 1e9)
     diagram.Publish(context)
-    rclpy.spin_once(node)
 
-    assert buffer_.can_transform('world', 'odom', time)
+    future = buffer_.wait_for_transform_async('world', 'odom', time)
+    rclpy.spin_until_future_complete(node, future, timeout_sec=2)
+
+    assert future.done()
+    assert future.result()
     world_to_odom = buffer_.lookup_transform('world', 'odom', time)
     assert world_to_odom.header.stamp.sec == stamp.sec
     assert world_to_odom.header.stamp.nanosec == stamp.nanosec

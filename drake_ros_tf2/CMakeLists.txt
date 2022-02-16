@@ -78,11 +78,11 @@ target_include_directories(py_drake_ros_tf2
 )
 
 # Sets PYTHON_INSTALL_DIR
-_ament_cmake_python_get_python_install_dir()
+ament_get_python_install_dir(python_install_dir)
 
 install(
   TARGETS py_drake_ros_tf2
-  DESTINATION "${PYTHON_INSTALL_DIR}"
+  DESTINATION "${python_install_dir}"
 )
 ### End Python bindings
 
