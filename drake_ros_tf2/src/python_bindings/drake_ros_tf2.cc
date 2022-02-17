@@ -37,15 +37,19 @@ PYBIND11_MODULE(drake_ros_tf2, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
 
+  const SceneTfBroadcasterParams default_params{};
   py::class_<SceneTfBroadcasterParams>(m, "SceneTfBroadcasterParams")
-      .def(py::init([](py::kwargs kwargs) {
-        SceneTfBroadcasterParams obj{};
-        py::object pyobj = py::cast(&obj, py::return_value_policy::reference);
-        for (auto& item : kwargs) {
-          py::setattr(pyobj, item.first, item.second);
-        }
-        return obj;
-      }))
+      .def(
+          py::init([](const std::unordered_set<drake::systems::TriggerType>&
+                          publish_triggers,
+                      double publish_period, const std::string& tf_topic_name) {
+            return SceneTfBroadcasterParams{publish_triggers, publish_period,
+                                            tf_topic_name};
+          }),
+          py::kw_only(),
+          py::arg("publish_triggers") = default_params.publish_triggers,
+          py::arg("publish_period") = default_params.publish_period,
+          py::arg("tf_topic_name") = default_params.tf_topic_name)
       .def_readwrite("publish_triggers",
                      &SceneTfBroadcasterParams::publish_triggers)
       .def_readwrite("publish_period",
