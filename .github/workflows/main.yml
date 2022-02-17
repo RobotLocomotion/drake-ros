@@ -9,22 +9,39 @@ on:
       - main
       - develop
 jobs:
-  build_docker:
+  test_against_galactic:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ros_distribution:
-          - galactic
-          - rolling
     container:
       image: robotlocomotion/drake:focal
     steps:
       - uses: ros-tooling/setup-ros@v0.2
         with:
-          required-ros-distributions: ${{ matrix.ros_distribution }}
+          required-ros-distributions: galactic
       - name: Cope with Python 2 pollution
         run: apt-get update && apt-get install -y python-is-python3
       - name: Build and test all packages
         uses: ros-tooling/action-ros-ci@v0.2
         with:
-          target-ros2-distro: ${{ matrix.ros_distribution }}
+          target-ros2-distro: galactic
+  test_against_rolling:
+    runs-on: ubuntu-latest
+    container:
+      image: robotlocomotion/drake:focal
+    steps:
+      - uses: ros-tooling/setup-ros@v0.2
+      - name: Install ROS 2 Rolling on Focal
+        run: |
+          sudo mkdir -p /opt/ros/rolling
+          wget -q http://repo.ros2.org/ci_archives/rolling-on-focal/ros2-rolling-linux-focal-amd64-ci.tar.bz2
+          sudo tar xf ros2-rolling-linux-focal-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/rolling
+          sed -i 's|/tmp/ws/install_isolated|/opt/ros/rolling|g' /opt/ros/rolling/setup.sh
+          rm ros2-rolling-linux-focal-amd64-ci.tar.bz2
+          rosdep update && rosdep install --from-paths /opt/ros/rolling --ignore-src -y \
+            --skip-keys "cyclonedds fastcdr fastrtps rti-connext-dds-5.3.1 urdfdom_headers"
+
+      - name: Cope with Python 2 pollution
+        run: apt-get update && apt-get install -y python-is-python3
+      - name: Build and test all packages
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          target-ros2-distro: rolling
