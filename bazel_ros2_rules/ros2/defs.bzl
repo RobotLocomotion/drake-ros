@@ -29,7 +29,7 @@ COMMON_FILES_MANIFEST = [
     "resources/tools/package.BUILD.bazel",
 ]
 
-def symlink_common_files(repo_ctx):
+def _symlink_common_files(repo_ctx):
     repo_ctx.report_progress("Symlinking common files")
     for file_ in repo_ctx.attr._common_files:
         target = file_.name[len("resources/"):]
@@ -38,7 +38,7 @@ def symlink_common_files(repo_ctx):
             target = directory + "BUILD.bazel"
         repo_ctx.symlink(file_, target)
 
-def populate_distro_specific_files(repo_ctx, workspaces):
+def _populate_distro_specific_files(repo_ctx, workspaces):
     repo_ctx.report_progress("Generating run_under.bash")
 
     repo_ctx.template(
@@ -154,7 +154,7 @@ _ros2_local_repository_attrs = {
 _ros2_local_repository_attrs.update(_base_ros2_repository_rule_attrs)
 
 def _ros2_local_repository_impl(repo_ctx):
-    symlink_common_files(repo_ctx)
+    _symlink_common_files(repo_ctx)
 
     repo_ctx.report_progress("Sandboxing ROS 2 workspaces")
     workspaces_in_sandbox = {}
@@ -163,7 +163,7 @@ def _ros2_local_repository_impl(repo_ctx):
         repo_ctx.symlink(path, path_in_sandbox)
         workspaces_in_sandbox[path] = path_in_sandbox
 
-    populate_distro_specific_files(
+    _populate_distro_specific_files(
         repo_ctx, workspaces_in_sandbox)
 
 ros2_local_repository = repository_rule(
@@ -213,7 +213,7 @@ _ros2_archive_attrs = {
 _ros2_archive_attrs.update(_base_ros2_repository_rule_attrs)
 
 def _ros2_archive_impl(repo_ctx):
-    symlink_common_files(repo_ctx)
+    _symlink_common_files(repo_ctx)
 
     repo_ctx.report_progress("Pulling archive")
     download_info = repo_ctx.download_and_extract(
@@ -225,7 +225,7 @@ def _ros2_archive_impl(repo_ctx):
     )
     patch(repo_ctx)
 
-    populate_distro_specific_files(
+    _populate_distro_specific_files(
         repo_ctx, {str(repo_ctx.path("archive")): "archive"})
 
     return update_attrs(
