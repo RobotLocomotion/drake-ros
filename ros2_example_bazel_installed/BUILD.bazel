@@ -12,6 +12,6 @@ cmd_test(
     ],
     data = [
         "@ros2//:system-rosdep-keys.txt",
-	    "setup/prereq-rosdep-keys.txt",
+        "setup/prereq-rosdep-keys.txt",
     ],
 )
