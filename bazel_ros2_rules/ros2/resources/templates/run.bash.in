@@ -2,6 +2,7 @@
 
 # Source all workspaces
 for workspace in @WORKSPACES@; do
+    # TODO(hidmic): use setup.bash when available
     COLCON_CURRENT_PREFIX=${workspace}
     . ${workspace}/setup.sh
     # Ensure CMake prefix path is set for non
