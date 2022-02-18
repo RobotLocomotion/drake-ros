@@ -55,18 +55,20 @@ dpkg_install_from_curl \
   https://releases.bazel.build/4.2.1/release/bazel_4.2.1-linux-x86_64.deb \
   67447658b8313316295cd98323dfda2a27683456a237f7a3226b68c9c6c81b3a
 
-# Install ROS 2 dependencies
-ROS2_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
-if ! grep "${ROS2_APT_SOURCE}" /etc/apt/sources.list.d/ros2.list; then
-  echo ${ROS2_APT_SOURCE} | tee /etc/apt/sources.list.d/ros2.list
+if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
+  # Install dependencies for ROS 2 Rolling on Focal tarball
+  ROS2_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
+  if ! grep "${ROS2_APT_SOURCE}" /etc/apt/sources.list.d/ros2.list; then
+    echo ${ROS2_APT_SOURCE} | tee /etc/apt/sources.list.d/ros2.list
+  fi
+
+  apt update && apt install python3-rosdep
+  [[ -d /etc/ros/rosdep ]] || rosdep init
+  rosdep update
+
+  ROS_PYTHON_VERSION=3 apt install \
+    $(rosdep resolve $(cat prereq-rosdep-keys.txt) 2>/dev/null | grep -v '^#') libssl-dev
 fi
-
-apt update && apt install python3-rosdep
-[[ -d /etc/ros/rosdep ]] || rosdep init
-rosdep update
-
-ROS_PYTHON_VERSION=3 apt install \
-  $(rosdep resolve $(cat prereq-rosdep-keys.txt) 2>/dev/null | grep -v '^#') libssl-dev
 
 # Install Python dependencies
 apt install python3 python3-toposort python3-dev python-is-python3
