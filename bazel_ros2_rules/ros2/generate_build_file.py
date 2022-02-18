@@ -81,8 +81,7 @@ def parse_arguments():
 
     args.sandbox = sandboxing.make_path_mapping(
         name=args.repository_name, mapping=dict(
-            entry.partition(':')[0::2]
-            for entry in args.sandbox_mappings
+            entry.split(':') for entry in args.sandbox_mappings
         )
     )
 
