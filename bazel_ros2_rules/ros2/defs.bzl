@@ -113,10 +113,10 @@ _base_ros2_repository_rule_attrs = {
         "configuration and scrapping. Defaults to using all cores.",
         default=0,
     ),
-    # NOTE: all these labels are listed as private attributes
-    # to force prefetching, or else repository rules will be
-    # restarted on first hit. See cdc99afc1a03ff8fbbbae088d358b7c029e0d232
-    # at https://github.com/bazelbuild/bazel for further reference.
+    # NOTE: all these labels are listed as private attributes to force prefetching, or else
+    # repository rules will be restarted on first hit.
+    # See https://github.com/bazelbuild/bazel/commit/cdc99afc1a03ff8fbbbae088d358b7c029e0d232
+    # and https://github.com/bazelbuild/bazel/issues/4533 for further reference.
     "_common_files": attr.label_list(
         default = [_label(path) for path in COMMON_FILES_MANIFEST],
         doc = "List of common files to be symlinked to every new repository."
