@@ -5,6 +5,23 @@ import json
 import subprocess
 import sys
 
+
+# The list of rosdep keys that are skipped has been taken verbatim from
+# ROS 2 Rolling binary install docs.
+#
+# This is necessary because:
+# - Some non-ROS packages don't always install their package manifests
+#   (cyclonedds, fastcdr, fastrtps, urdfdom_headers)
+# - Group dependencies aren't supported everywhere and are hard-coded in
+#   some packages (rti-connext-dds-5.3.1)
+#
+# See https://docs.ros.org/en/rolling/Installation/Ubuntu-Install-Binary.html
+# for further reference.
+SKIPPED_ROSDEP_KEYS = {
+    'cyclonedds', 'fastcdr', 'fastrtps',
+    'rti-connext-dds-5.3.1', 'urdfdom_headers'}
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -25,21 +42,6 @@ def parse_arguments():
 
     return args
 
-
-# The list of rosdep keys that are skipped has been taken verbatim from
-# ROS 2 Rolling binary install docs.
-#
-# This is necessary because:
-# - Some non-ROS packages don't always install their package manifests
-#   (cyclonedds, fastcdr, fastrtps, urdfdom_headers)
-# - Group dependencies aren't supported everywhere and are hard-coded in
-#   some packages (rti-connext-dds-5.3.1)
-#
-# See https://docs.ros.org/en/rolling/Installation/Ubuntu-Install-Binary.html
-# for further reference.
-SKIPPED_ROSDEP_KEYS = {
-    'cyclonedds', 'fastcdr', 'fastrtps',
-    'rti-connext-dds-5.3.1', 'urdfdom_headers'}
 
 def compute_system_rosdeps(distro):
     cmd = [
