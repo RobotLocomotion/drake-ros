@@ -2,6 +2,7 @@
 
 load("//tools:cmd_test.bzl", "cmd_test")
 
+# TODO(hidmic): make linter more user-friendly
 cmd_test(
     name = "lint_rosdeps",
     cmd = [
@@ -10,7 +11,7 @@ cmd_test(
         "$(location @ros2//:system-rosdep-keys.txt)",
     ],
     data = [
-        "@ros2//:system-rosdep-keys.txt", 
+        "@ros2//:system-rosdep-keys.txt",
 	    "setup/prereq-rosdep-keys.txt",
     ],
 )
