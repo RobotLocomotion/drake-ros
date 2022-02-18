@@ -90,7 +90,7 @@ def _populate_distro_specific_files(repo_ctx, workspaces):
     repo_ctx.report_progress("Generating system-rosdep-keys.txt")
     path_to_compute_system_rosdeps_tool = repo_ctx.path(
         repo_ctx.attr._compute_system_rosdeps_tool)
-    cmd = [str(path_to_compute_system_rosdeps_tool), "distro_metadata.json"]
+    cmd = [str(path_to_compute_system_rosdeps_tool)] + list(workspaces.keys())
     result = execute_or_fail(repo_ctx, cmd, quiet=True)
     if result.stderr:
         print(result.stderr)

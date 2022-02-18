@@ -1,16 +1,15 @@
 assimp
+benchmark
 bullet
 cmake
 cppcheck
 curl
 eigen
-gmock_vendor
 google-mock
-google_benchmark_vendor
 graphviz
 gtest
-gtest_vendor
-ignition_math6_vendor
+ignition-cmake2
+ignition-math6
 libatomic
 libconsole-bridge-dev
 libfreetype6
@@ -26,8 +25,6 @@ libxml2-utils
 libxrandr
 libzstd-dev
 opengl
-orocos_kdl
-osrf_testing_tools_cpp
 pkg-config
 pybind11-dev
 pydocstyle
@@ -59,5 +56,4 @@ spdlog
 tinyxml
 tinyxml2
 uncrustify
-urdfdom
 yaml

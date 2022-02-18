@@ -66,7 +66,7 @@ apt update && apt install python3-rosdep
 rosdep update
 
 ROS_PYTHON_VERSION=3 apt install \
-  $(rosdep resolve $(cat prereq-rosdep-keys.txt)) libssl-dev
+  $(rosdep resolve $(cat prereq-rosdep-keys.txt) 2>/dev/null | grep -v '^#') libssl-dev
 
 # Install Python dependencies
 apt install python3 python3-toposort python3-dev python-is-python3

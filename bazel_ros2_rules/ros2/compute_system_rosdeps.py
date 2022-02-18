@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import pathlib
 import subprocess
 import sys
 
@@ -33,23 +34,24 @@ def parse_arguments():
         help='Path to file to write BUILD.bazel content to'
     )
     parser.add_argument(
-        'distro_file', type=argparse.FileType('r'),
-        help='Path to distro metadata file, in JSON format'
+        'workspace_paths', type=pathlib.Path, nargs='+',
+        help='Paths to (potentially overlayed) workspaces'
     )
     args = parser.parse_args()
-
-    args.distro = json.load(args.distro_file)
 
     return args
 
 
-def compute_system_rosdeps(distro):
+def compute_system_rosdeps(workspace_paths):
     cmd = [
         'rosdep', 'keys', '-i',
         '-t', 'buildtool_export',
         '-t', 'build_export',
         '-t', 'exec', '--from-paths'
-    ] + distro['paths']['ament_prefix']
+    ] + [  # leverage REP-122
+        path for workspace_path in workspace_paths
+        for path in workspace_path.glob('**/share')
+    ]
     output = subprocess.check_output(
         cmd, env={'ROS_PYTHON_VERSION': '3'},
         encoding='utf-8')
@@ -60,8 +62,8 @@ def compute_system_rosdeps(distro):
 def main():
     args = parse_arguments()
 
-    args.output.write('\n'.join(
-        compute_system_rosdeps(args.distro)) + '\n')
+    system_rosdeps = compute_system_rosdeps(args.workspace_paths)
+    args.output.write('\n'.join(system_rosdeps) + '\n')
 
 
 if __name__ == '__main__':
