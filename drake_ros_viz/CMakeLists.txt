@@ -13,7 +13,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(drake REQUIRED)
-find_package(visualization_msgs REQUIRED)
 
 add_library(drake_ros_viz
   src/utilities/name_conventions.cc
@@ -23,7 +22,6 @@ add_library(drake_ros_viz
 target_link_libraries(drake_ros_viz PUBLIC
     drake::drake
     ${geometry_msgs_TARGETS}
-    ${visualization_msgs_TARGETS}
 )
 
 target_include_directories(drake_ros_viz
@@ -39,7 +37,6 @@ ament_export_targets(${PROJECT_NAME})
 
 ament_export_dependencies(drake)
 ament_export_dependencies(geometry_msgs)
-ament_export_dependencies(visualization_msgs)
 
 install(
   TARGETS ${PROJECT_NAME}

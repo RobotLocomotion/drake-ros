@@ -19,7 +19,7 @@
 namespace drake_ros_tf2 {
 namespace utilities {
 
-/** Convert `X_AB` into its ROS message equivalent. */
+/** Convert `X_AB` into a Transform ROS message. */
 geometry_msgs::msg::Transform ToTransformMsg(
     const drake::math::RigidTransform<double> X_AB);
 

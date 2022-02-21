@@ -19,6 +19,7 @@
 namespace drake_ros_viz {
 namespace utilities {
 
+/** Convert `X_AB` into a Pose ROS message. */
 geometry_msgs::msg::Pose ToPoseMsg(
     const drake::math::RigidTransform<double> X_AB);
 
