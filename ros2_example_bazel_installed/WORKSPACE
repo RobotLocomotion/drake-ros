@@ -14,19 +14,36 @@ local_repository(
 load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
 add_bazel_ros2_rules_dependencies()
 
-load("//tools:ros2.bzl", "ros2_repository")
-ros2_repository(
-    name = "ros2",
-    prefix = ROS2_DISTRO_PREFIX,
-    include_packages = [
-        "action_msgs",
-        "builtin_interfaces",
-        "rosidl_default_generators",
-        "rclcpp_action",
-        "rclcpp",
-        "rclpy",
-        # RMW implementations
-        "rmw_cyclonedds_cpp",
-        "rmw_fastrtps_cpp",
-    ]
+load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
+load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
+
+ROS2_PACKAGES = [
+    "action_msgs",
+    "builtin_interfaces",
+    "rosidl_default_generators",
+    "rclcpp_action",
+    "rclcpp",
+    "rclpy",
+    # RMW implementations
+    "rmw_cyclonedds_cpp",
+    "rmw_fastrtps_cpp",
+]
+
+ros2_archive(
+    name = "ros2" if not ROS2_DISTRO_PREFIX else "ros2_ignored",
+    include_packages = ROS2_PACKAGES,
+    # TODO(hidmic): mirror this tarball for stability
+    url = "http://repo.ros2.org/ci_archives/rolling-on-focal/ros2-rolling-linux-focal-amd64-ci.tar.bz2",
+    # NOTE: the following checksum is likely to be often invalidated
+    # (as of Feb 2022, each time the preceding tarball gets rebuilt)
+    sha256 = "5bd37168cd2b704eabee207145362ce38eb83431ac183f9a9b432121c9fb8015",
+    strip_prefix = "ros2-linux",
+    # Fix wrong chained prefix, if any
+    patch_cmds = ["sed -i 's|COLCON_CURRENT_PREFIX=\"/opt/ros/rolling\"||g' archive/setup.sh"],
+)
+
+ros2_local_repository(
+    name = "ros2" if ROS2_DISTRO_PREFIX else "ros2_ignored",
+    workspaces = [ROS2_DISTRO_PREFIX],
+    include_packages = ROS2_PACKAGES,
 )
