@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Run a command in a ROS 2 setup environment
+#
+# $ ./run.bash command argument
+
 # Source all workspaces
 for workspace in @WORKSPACES@; do
     # TODO(hidmic): use setup.bash when available
