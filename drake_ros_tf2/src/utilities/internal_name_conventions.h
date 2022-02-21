@@ -31,11 +31,12 @@ std::string ReplaceAllOccurrences(std::string string, const std::string& target,
 }
 
 /** Formulate tf frame name given the model instance name, body name, body
-  index and frame ID.
+  index and frame ID value.
   @param[in] model_instance_name name of a given model instance.
   @param[in] body_name name of a given body.
   @param[in] body_index index of a given body.
-  @param[in] frame_id target frame ID.
+  @param[in] frame_id_value value of the given frame ID.
+  @returns formulated tf frame name.
  */
 template <typename ElementIndexType>
 std::string CalcTfFrameName(const std::string& model_instance_name,
@@ -55,9 +56,10 @@ std::string CalcTfFrameName(const std::string& model_instance_name,
   return ss.str();
 }
 
-/** Formulate tf frame name given the frame name and frame ID.
+/** Formulate tf frame name given the frame name and frame ID value.
   @param[in] frame_name name of the given frame.
-  @param[in] frame_id index of the given frame.
+  @param[in] frame_id_value value of the given frame ID.
+  @returns formulated tf frame name.
  */
 std::string CalcTfFrameName(const std::string& frame_name,
                             int64_t frame_id_value) {
