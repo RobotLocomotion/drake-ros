@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(drake_ros_viz)
 
-# Default to C++14
+# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif()
@@ -9,14 +9,15 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
-find_package(ament_cmake_ros REQUIRED)
+
+find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(drake REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 add_library(drake_ros_viz
-  src/utilities/name_conventions.cpp
-  src/utilities/type_conversion.cpp
+  src/utilities/name_conventions.cc
+  src/utilities/type_conversion.cc
 )
 
 target_link_libraries(drake_ros_viz PUBLIC
@@ -40,7 +41,9 @@ ament_export_dependencies(drake)
 ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(visualization_msgs)
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -60,7 +63,7 @@ if(BUILD_TESTING)
 
   find_package(ament_cmake_gtest REQUIRED)
 
-  ament_add_gtest(test_type_conversion test/test_type_conversion.cpp)
+  ament_add_gtest(test_type_conversion test/test_type_conversion.cc)
   target_link_libraries(test_type_conversion
     drake::drake
     drake_ros_viz

@@ -11,10 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#pragma once
 
-#include "drake_ros_viz/utilities/type_conversion.hpp"
-
-#include <drake/common/eigen_types.h>
 #include <drake/math/rigid_transform.h>
 #include <geometry_msgs/msg/pose.hpp>
 
@@ -22,21 +20,7 @@ namespace drake_ros_viz {
 namespace utilities {
 
 geometry_msgs::msg::Pose ToPoseMsg(
-    const drake::math::RigidTransform<double> X_AB) {
-  geometry_msgs::msg::Pose msg;
-
-  const drake::Vector3<double>& p_AB = X_AB.translation();
-  msg.position.x = p_AB.x();
-  msg.position.y = p_AB.y();
-  msg.position.z = p_AB.z();
-  const drake::Quaternion<double> R_AB = X_AB.rotation().ToQuaternion();
-  msg.orientation.x = R_AB.x();
-  msg.orientation.y = R_AB.y();
-  msg.orientation.z = R_AB.z();
-  msg.orientation.w = R_AB.w();
-
-  return msg;
-}
+    const drake::math::RigidTransform<double> X_AB);
 
 }  // namespace utilities
 }  // namespace drake_ros_viz

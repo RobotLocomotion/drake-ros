@@ -14,8 +14,9 @@
 
 #include <cmath>
 
-#include "drake_ros_viz/utilities/type_conversion.hpp"
 #include <gtest/gtest.h>
+
+#include "drake_ros_viz/utilities/type_conversion.h"
 
 TEST(TypeConversion, ToPoseMsg) {
   const drake::Vector3<double> position{1., 2., 3.};

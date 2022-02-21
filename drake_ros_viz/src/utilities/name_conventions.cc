@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_tf2/utilities/name_conventions.hpp"
+#include "drake_ros_viz/utilities/name_conventions.h"
 
 #include <sstream>
 #include <string>
 #include <unordered_set>
 
-namespace drake_ros_tf2 {
+namespace drake_ros_viz {
 namespace utilities {
 
 namespace {
@@ -35,45 +35,35 @@ std::string ReplaceAllOccurrences(std::string string, const std::string& target,
 
 }  // namespace
 
-std::string GetTfFrameName(
-    const drake::geometry::SceneGraphInspector<double>& inspector,
-    const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>&
-        plants,
-    const drake::geometry::FrameId& frame_id) {
-  std::stringstream ss;
-  for (auto* plant : plants) {
-    const drake::multibody::Body<double>* body =
-        plant->GetBodyFromFrameId(frame_id);
-    if (!body) {
-      continue;
-    }
-    const std::string& model_instance_name =
-        plant->GetModelInstanceName(body->model_instance());
-    ss << model_instance_name << "/";
-    const std::string& body_name = body->name();
-    if (body_name.empty()) {
-      ss << "unnamed_body_" << body->index();
-    } else {
-      ss << ReplaceAllOccurrences(body_name, "::", "/");
-    }
-    return ss.str();
-  }
-  const std::string& frame_name = inspector.GetName(frame_id);
-  if (frame_name.empty()) {
-    ss << "unnamed_frame_" << frame_id;
-  } else {
-    ss << ReplaceAllOccurrences(frame_name, "::", "/");
-  }
-  return ss.str();
-}
-
-std::string GetTfFrameName(
+std::string GetMarkerNamespace(
     const drake::geometry::SceneGraphInspector<double>& inspector,
     const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>&
         plants,
     const drake::geometry::GeometryId& geometry_id) {
-  return GetTfFrameName(inspector, plants, inspector.GetFrameId(geometry_id));
+  std::stringstream ss;
+  for (auto* plant : plants) {
+    const drake::multibody::Body<double>* body =
+        plant->GetBodyFromFrameId(inspector.GetFrameId(geometry_id));
+    if (body) {
+      ss << "/" << plant->GetModelInstanceName(body->model_instance());
+      const std::string& body_name = body->name();
+      if (body_name.empty()) {
+        ss << "/unnamed_body_" << body->index();
+      } else {
+        ss << "/" << ReplaceAllOccurrences(body_name, "::", "/");
+      }
+      return ss.str();
+    }
+  }
+  ss << "/" << inspector.GetOwningSourceName(geometry_id);
+  const std::string& geometry_name = inspector.GetName(geometry_id);
+  if (geometry_name.empty()) {
+    ss << "/unnamed_geometry_" << geometry_id.get_value();
+  } else {
+    ss << "/" << ReplaceAllOccurrences(geometry_name, "::", "/");
+  }
+  return ss.str();
 }
 
 }  // namespace utilities
-}  // namespace drake_ros_tf2
+}  // namespace drake_ros_viz

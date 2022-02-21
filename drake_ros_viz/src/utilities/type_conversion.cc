@@ -12,31 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_tf2/utilities/type_conversion.hpp"
+#include "drake_ros_viz/utilities/type_conversion.h"
 
 #include <drake/common/eigen_types.h>
 #include <drake/math/rigid_transform.h>
 #include <geometry_msgs/msg/pose.hpp>
 
-namespace drake_ros_tf2 {
+namespace drake_ros_viz {
 namespace utilities {
 
-geometry_msgs::msg::Transform ToTransformMsg(
+geometry_msgs::msg::Pose ToPoseMsg(
     const drake::math::RigidTransform<double> X_AB) {
-  geometry_msgs::msg::Transform msg;
+  geometry_msgs::msg::Pose msg;
 
   const drake::Vector3<double>& p_AB = X_AB.translation();
-  msg.translation.x = p_AB.x();
-  msg.translation.y = p_AB.y();
-  msg.translation.z = p_AB.z();
-  const Eigen::Quaternion<double> R_AB = X_AB.rotation().ToQuaternion();
-  msg.rotation.x = R_AB.x();
-  msg.rotation.y = R_AB.y();
-  msg.rotation.z = R_AB.z();
-  msg.rotation.w = R_AB.w();
+  msg.position.x = p_AB.x();
+  msg.position.y = p_AB.y();
+  msg.position.z = p_AB.z();
+  const drake::Quaternion<double> R_AB = X_AB.rotation().ToQuaternion();
+  msg.orientation.x = R_AB.x();
+  msg.orientation.y = R_AB.y();
+  msg.orientation.z = R_AB.z();
+  msg.orientation.w = R_AB.w();
 
   return msg;
 }
 
 }  // namespace utilities
-}  // namespace drake_ros_tf2
+}  // namespace drake_ros_viz
