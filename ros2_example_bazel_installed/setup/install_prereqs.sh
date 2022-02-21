@@ -55,6 +55,7 @@ dpkg_install_from_curl \
   https://releases.bazel.build/4.2.1/release/bazel_4.2.1-linux-x86_64.deb \
   67447658b8313316295cd98323dfda2a27683456a237f7a3226b68c9c6c81b3a
 
+# TODO(hidmic): install distributions from debians when Drake supports 22.04
 if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
   # Install dependencies for ROS 2 Rolling on Focal tarball
   ROS2_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
@@ -66,6 +67,9 @@ if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
   [[ -d /etc/ros/rosdep ]] || rosdep init
   rosdep update
 
+  # TODO(hidmic): be very explicit about what installation mechanisms we allow
+  # NOTE: since no ROS distributions has been sourced or specified yet,
+  # force Python version to 3.x (which is standard in ROS 2 distributions)
   ROS_PYTHON_VERSION=3 apt install \
     $(rosdep resolve $(cat prereq-rosdep-keys.txt) 2>/dev/null | grep -v '^#') libssl-dev
 fi
