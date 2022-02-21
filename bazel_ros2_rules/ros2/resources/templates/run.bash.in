@@ -3,6 +3,9 @@
 # Run a command in a ROS 2 setup environment
 #
 # $ ./run.bash command argument
+#
+# Not to be used as an interactive shell (yet)
+# TODO(hidmic): support source'ing
 
 # Source all workspaces
 for workspace in @WORKSPACES@; do
