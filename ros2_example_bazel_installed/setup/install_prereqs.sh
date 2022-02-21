@@ -70,8 +70,9 @@ if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
   # TODO(hidmic): be very explicit about what installation mechanisms we allow
   # NOTE: since no ROS distributions has been sourced or specified yet,
   # force Python version to 3.x (which is standard in ROS 2 distributions)
-  ROS_PYTHON_VERSION=3 apt install \
-    $(rosdep resolve $(cat prereq-rosdep-keys.txt) 2>/dev/null | grep -v '^#') libssl-dev
+  SETUP_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+  apt install $(env ROS_PYTHON_VERSION=3 rosdep resolve \
+    $(cat ${SETUP_DIR}/prereq-rosdep-keys.txt) 2>/dev/null | grep -v '^#') libssl-dev
 fi
 
 # Install Python dependencies
