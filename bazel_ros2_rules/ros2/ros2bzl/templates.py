@@ -60,7 +60,7 @@ def configure_package_interfaces_filegroup(name, metadata, sandbox):
 
 
 def configure_package_cc_library(
-    name, metadata, properties, dependencies, extras, sandbox
+    name, metadata, properties, dependencies, sandbox
 ):
     target_name = cc_name(name, metadata)
     libraries = [sandbox(library) for library in properties['link_libraries']]
@@ -110,12 +110,6 @@ def configure_package_cc_library(
         )
     # Prepare runfiles to support dynamic loading
     data.extend(library for library in libraries if library not in data)
-    if extras and 'data' in extras and target_name in extras['data']:
-        data.extend(
-            label_or_path
-            for label_or_path in extras['data'][target_name]
-            if label_or_path not in data
-        )
 
     template_path = 'templates/package_cc_library.bazel.tpl'
 
@@ -152,7 +146,7 @@ def configure_package_meta_py_library(name, metadata, dependencies):
 
 
 def configure_package_py_library(
-    name, metadata, properties, dependencies, extras, sandbox
+    name, metadata, properties, dependencies, sandbox
 ):
     target_name = py_name(name, metadata)
     eggs = [sandbox(egg_path) for egg_path, _ in properties['python_packages']]
@@ -211,9 +205,6 @@ def configure_package_py_library(
             for library in metadata['plugin_libraries']
         )
 
-    if extras and 'data' in extras:
-        data.extend(extras['data'].get(target_name, []))
-
     config['data'] = data
 
     return (
@@ -244,7 +235,7 @@ def configure_package_c_library_alias(name, metadata):
 
 
 def configure_executable_imports(
-    executables, dependencies, sandbox, extras=None, prefix=None
+    executables, dependencies, sandbox, prefix=None
 ):
     deps = []
     common_data = []
@@ -262,28 +253,25 @@ def configure_executable_imports(
         target_name = os.path.basename(executable)
         if prefix:
             target_name = prefix + '_' + target_name
-        data = common_data
-        if extras and 'data' in extras and target_name in extras['data']:
-            data = data + extras['data'][target_name]
         yield (
             target_name,
             load_resource('templates/overlay_executable.bazel.tpl'),
             to_starlark_string_dict({
                 'name': target_name,
                 'executable': sandbox(executable),
-                'data': data, 'deps': deps,
+                'data': common_data, 'deps': deps,
             })
         )
 
 
 def configure_package_executable_imports(
-    name, metadata, dependencies, sandbox, extras=None
+    name, metadata, dependencies, sandbox
 ):
     dependencies = dict(dependencies)
     dependencies[name] = metadata
     yield from configure_executable_imports(
-        metadata['executables'], dependencies, sandbox,
-        extras=extras, prefix=label_name(name, metadata)
+        metadata['executables'], dependencies,
+        sandbox, prefix=label_name(name, metadata)
     )
 
 
@@ -291,19 +279,3 @@ def configure_prologue(repo_name):
     return load_resource('templates/prologue.bazel'), {}
 
 
-def configure_distro(repo_name, distro):
-    typesupport_groups = [
-        'rosidl_typesupport_c_packages',
-        'rosidl_typesupport_cpp_packages'
-    ]
-    return load_resource('templates/distro.bzl.tpl'), to_starlark_string_dict({
-        'AMENT_PREFIX_PATH': distro['paths']['ament_prefix'],
-        'LOAD_PATH': distro['paths']['library_load'],  # Linux only
-        'AVAILABLE_TYPESUPPORT_LIST': [
-            name for name, metadata in distro['packages'].items() if any(
-                group in typesupport_groups
-                for group in metadata.get('groups', [])
-            )
-        ],
-        'REPOSITORY_ROOT': '@{}//'.format(repo_name),
-    })

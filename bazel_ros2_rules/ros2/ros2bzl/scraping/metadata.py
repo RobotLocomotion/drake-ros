@@ -58,18 +58,14 @@ DEFAULT_LANGS_PER_BUILD_TYPE = {
 
 
 def collect_package_langs(metadata):
-    langs = set()
     build_type = metadata.get('build_type')
     if build_type in DEFAULT_LANGS_PER_BUILD_TYPE:
-        langs.update(DEFAULT_LANGS_PER_BUILD_TYPE[build_type])
-    return langs
+        return set(DEFAULT_LANGS_PER_BUILD_TYPE[build_type])
+    return set()
 
 
 def collect_cmake_package_metadata(name, prefix):
-    metadata = dict(
-        prefix=prefix,
-        build_type='cmake',
-    )
+    metadata = dict(prefix=prefix, build_type='cmake')
     metadata['langs'] = collect_package_langs(metadata)
     return metadata
 
@@ -99,7 +95,9 @@ def collect_ros_package_metadata(name, prefix):
     )
 
     lib_directory = os.path.join(prefix, 'lib', name)
-    metadata['executables'] = list(find_executables(lib_directory))
+    executables = list(find_executables(lib_directory))
+    if executables:
+        metadata['executables'] = executables
 
     path_to_package_xml = os.path.join(share_directory, 'package.xml')
     metadata.update(parse_package_xml(path_to_package_xml))

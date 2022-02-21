@@ -77,20 +77,17 @@ def build_dependency_graph(packages, include=None, exclude=None):
     return packages, dependency_graph
 
 
-def load_distribution(sandbox, include=None, exclude=None):
+def scrape_distribution(include=None, exclude=None):
     packages, dependency_graph = build_dependency_graph(
         index_all_packages(), include, exclude)
     executables = list_all_executables()
+    ld_library_path = os.environ['LD_LIBRARY_PATH']
     return {
         'packages': packages,
         'dependency_graph': dependency_graph,
         'executables': executables,
         'paths': {
-            'ament_prefix': [
-                sandbox(path, external=True) for path in
-                ament_index_python.get_search_paths()],
-            'library_load': [
-                sandbox(path, external=True) for path in
-                os.environ['LD_LIBRARY_PATH'].split(os.path.pathsep)],
+            'ament_prefix': ament_index_python.get_search_paths(),
+            'library_load': ld_library_path.split(os.path.pathsep),
         }
     }

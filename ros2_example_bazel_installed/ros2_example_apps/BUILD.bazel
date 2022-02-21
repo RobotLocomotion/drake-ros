@@ -4,6 +4,7 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
+load("//tools:cmd_test.bzl", "cmd_test")
 
 rosidl_interfaces_group(
     name = "ros2_example_apps_msgs",
@@ -68,10 +69,9 @@ ros_py_binary(
     tags = ["requires-network"],
 )
 
-sh_test(
+cmd_test(
     name = "gdb_oracle_cc_test",
-    srcs = ["test/exec.sh"],
-    args = [
+    cmd = [
         "gdb",
         "-x", "$(location :test/oracle_cc.gdb)", "--batch", "--args",
         "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
@@ -80,10 +80,9 @@ sh_test(
     size = "small",
 )
 
-sh_test(
+cmd_test(
     name = "lldb_oracle_cc_test",
-    srcs = ["test/exec.sh"],
-    args = [
+    cmd = [
         "lldb",
         "-s", "$(location :test/oracle_cc.lldb)", "--batch", "--",
         "$(location :oracle_cc)", "--ros-args", "--disable-external-lib-logs",
