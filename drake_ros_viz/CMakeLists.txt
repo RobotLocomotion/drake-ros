@@ -65,6 +65,12 @@ if(BUILD_TESTING)
     drake::drake
     drake_ros_viz
   )
+
+  ament_add_gtest(test_name_conventions test/test_name_conventions.cc)
+  target_link_libraries(test_name_conventions
+    drake::drake
+    drake_ros_viz
+  )
 endif()
 
 ament_package()
