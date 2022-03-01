@@ -22,13 +22,3 @@ To build it:
     1. Get this code `git clone https://github.com/RobotLocomotion/drake-ros.git`
     1. `cd ..`
     1. Build this package and its dependencies `colcon build --packages-up-to drake_ros_tf2`
-
-    **CMake**
-    1. Get this code `git clone https://github.com/RobotLocomotion/drake-ros.git`
-    1. Build the [`drake_ros_core`](../drake_ros_core/README.md#building) package using CMake first
-    1. Manually set `CMAKE_PREFIX_PATH`: `export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$(pwd)/drake-ros/drake_ros_core/install`
-    1. `cd drake-ros/drake_ros_tf2`
-    1. Make a build and install folder to avoid installing to the whole system `mkdir build install`
-    1. `cd build`
-    1. Configure the project `cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/../install ..`
-    1. Build the project `make && make install`

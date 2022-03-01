@@ -21,7 +21,6 @@
 #include "utilities/internal_name_conventions.h"
 
 namespace drake_ros_viz {
-namespace utilities {
 
 std::string GetMarkerNamespace(
     const drake::geometry::SceneGraphInspector<double>& inspector,
@@ -45,5 +44,4 @@ std::string GetMarkerNamespace(
       inspector.GetName(geometry_id), geometry_id.get_value());
 }
 
-}  // namespace utilities
 }  // namespace drake_ros_viz

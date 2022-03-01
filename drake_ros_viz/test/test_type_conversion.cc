@@ -23,8 +23,7 @@ TEST(TypeConversion, ToPoseMsg) {
   const drake::Quaternion<double> orientation{0., 0., sin(M_PI / 4.),
                                               cos(M_PI / 4.)};
   const drake::math::RigidTransform<double> pose{orientation, position};
-  const geometry_msgs::msg::Pose message =
-      drake_ros_viz::utilities::ToPoseMsg(pose);
+  const geometry_msgs::msg::Pose message = drake_ros_viz::ToPoseMsg(pose);
   EXPECT_DOUBLE_EQ(message.position.x, position.x());
   EXPECT_DOUBLE_EQ(message.position.y, position.y());
   EXPECT_DOUBLE_EQ(message.position.z, position.z());

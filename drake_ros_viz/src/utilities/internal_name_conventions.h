@@ -20,7 +20,6 @@
 #include "drake_ros_viz/utilities/name_conventions.h"
 
 namespace drake_ros_viz {
-namespace utilities {
 namespace internal {
 
 std::string ReplaceAllOccurrences(std::string string, const std::string& target,
@@ -33,7 +32,7 @@ std::string ReplaceAllOccurrences(std::string string, const std::string& target,
   return string;
 }
 
-/** Formulate marker namespace given the model instance name, body name, body
+/* Formulate marker namespace given the model instance name, body name, body
   index and geometry ID value.
   @param[in] model_instance_name name of a given model instance.
   @param[in] body_name name of a given body.
@@ -59,7 +58,7 @@ std::string CalcMarkerNamespace(const std::string& model_instance_name,
   return ss.str();
 }
 
-/** Formulate marker namespace given the geometry source name, geometry name
+/* Formulate marker namespace given the geometry source name, geometry name
   and geometry ID value.
   @param[in] geometry_source_name name of the source owning a given geometry.
   @param[in] geometry_name name of a given geometry.
@@ -81,5 +80,4 @@ std::string CalcMarkerNamespace(const std::string& geometry_source_name,
 }
 
 }  // namespace internal
-}  // namespace utilities
 }  // namespace drake_ros_viz

@@ -19,7 +19,6 @@
 #include <geometry_msgs/msg/pose.hpp>
 
 namespace drake_ros_viz {
-namespace utilities {
 
 geometry_msgs::msg::Pose ToPoseMsg(
     const drake::math::RigidTransform<double> X_AB) {
@@ -38,5 +37,4 @@ geometry_msgs::msg::Pose ToPoseMsg(
   return msg;
 }
 
-}  // namespace utilities
 }  // namespace drake_ros_viz

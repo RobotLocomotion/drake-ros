@@ -20,7 +20,6 @@
 #include <drake/multibody/plant/multibody_plant.h>
 
 namespace drake_ros_viz {
-namespace utilities {
 
 /** Retrieve conventional marker namespace for a given scene geometry.
  @param[in] inspector inspector for a given SceneGraph's data.
@@ -38,5 +37,4 @@ std::string GetMarkerNamespace(
         plants,
     const drake::geometry::GeometryId& geometry_id);
 
-}  // namespace utilities
 }  // namespace drake_ros_viz

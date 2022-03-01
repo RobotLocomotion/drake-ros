@@ -20,58 +20,58 @@
 TEST(NameConventions, CalcMarkerNamespaceWithBody) {
   // All names are present
   EXPECT_EQ("/model_name/body_name/456",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace<int>(
+            drake_ros_viz::internal::CalcMarkerNamespace<int>(
                 "model_name", "body_name", 123, 456));
 
   // Scoped model name and body name
   EXPECT_EQ("/model_scope/model_name/body_scope/body_name/456",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
+            drake_ros_viz::internal::CalcMarkerNamespace(
                 "model_scope::model_name", "body_scope::body_name", 123, 456));
 
   // Model name with empty body name
-  EXPECT_EQ("/model_name/unnamed_body_123/456",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
-                "model_name", "", 123, 456));
+  EXPECT_EQ(
+      "/model_name/unnamed_body_123/456",
+      drake_ros_viz::internal::CalcMarkerNamespace("model_name", "", 123, 456));
 
   // Scoped model name with empty body name
   EXPECT_EQ("/model_scope/model_name/unnamed_body_123/456",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
+            drake_ros_viz::internal::CalcMarkerNamespace(
                 "model_scope::model_name", "", 123, 456));
 }
 
 TEST(NameConventions, CalcMarkerNamespaceWithoutBody) {
   // Geometry source and name is not empty
   EXPECT_EQ("/geometry_source/geometry_name",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
-                "geometry_source", "geometry_name", 123));
+            drake_ros_viz::internal::CalcMarkerNamespace("geometry_source",
+                                                         "geometry_name", 123));
 
   // Geometry name is empty
-  EXPECT_EQ("/geometry_source/unnamed_geometry_123",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
-                "geometry_source", "", 123));
+  EXPECT_EQ(
+      "/geometry_source/unnamed_geometry_123",
+      drake_ros_viz::internal::CalcMarkerNamespace("geometry_source", "", 123));
 
   // Geometry name with / delimiters
   EXPECT_EQ("/geometry_source/scope_one/scope_two/geometry_name",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
+            drake_ros_viz::internal::CalcMarkerNamespace(
                 "geometry_source", "scope_one/scope_two/geometry_name", 123));
 
   // Geometry name with :: delimiters
   EXPECT_EQ("/geometry_source/scope_one/scope_two/geometry_name",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
+            drake_ros_viz::internal::CalcMarkerNamespace(
                 "geometry_source", "scope_one::scope_two::geometry_name", 123));
 
   // Geometry name with mixed delimiters
   EXPECT_EQ("/geometry_source/scope_one/scope_two/geometry_name",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
+            drake_ros_viz::internal::CalcMarkerNamespace(
                 "geometry_source", "scope_one/scope_two::geometry_name", 123));
 
   // Geometry name with only :: delimiter
   EXPECT_EQ("/geometry_source/unnamed_geometry_123",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
-                "geometry_source", "::", 123));
+            drake_ros_viz::internal::CalcMarkerNamespace("geometry_source",
+                                                         "::", 123));
 
   // Geometry name with only / delimiter
   EXPECT_EQ("/geometry_source/unnamed_geometry_123",
-            drake_ros_viz::utilities::internal::CalcMarkerNamespace(
-                "geometry_source", "/", 123));
+            drake_ros_viz::internal::CalcMarkerNamespace("geometry_source", "/",
+                                                         123));
 }
