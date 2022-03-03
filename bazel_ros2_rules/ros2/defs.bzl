@@ -31,8 +31,11 @@ COMMON_FILES_MANIFEST = [
 
 def base_ros2_repository(repo_ctx, workspaces):
     """
-    Provides the base main logic to setup a ROS 2 repository
-    given a stack of overlayed ROS 2 workspaces.
+    Provides the base main logic to setup a ROS 2 repository given a
+    stack of overlayed ROS 2 workspaces.
+
+    Requires `base_ros2_repository_attrs()` to have been included in
+    `repository_rule(*, attrs)`.
 
     Arguments:
         workspaces:
@@ -113,6 +116,9 @@ def _label(relpath):
     return Label("//ros2:" + relpath)
 
 def base_ros2_repository_attrs():
+    """
+    Attributes necessary for `base_ros2_repository()`.
+    """
     return {
         "include_packages": attr.string_list(
             doc = "Optional set of packages to include, " +
