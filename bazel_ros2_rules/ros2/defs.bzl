@@ -29,7 +29,24 @@ COMMON_FILES_MANIFEST = [
     "resources/tools/package.BUILD.bazel",
 ]
 
-def _symlink_common_files(repo_ctx):
+def base_ros2_repository(repo_ctx, workspaces):
+    """
+    Provides the base main logic to setup a ROS 2 repository given a
+    stack of overlayed ROS 2 workspaces.
+
+    Requires `base_ros2_repository_attrs()` to have been included in
+    `repository_rule(*, attrs)`.
+
+    Arguments:
+        workspaces:
+            Paths to ROS 2 workspace install trees provided as
+            a mapping, from absolute paths (potentially outside
+            Bazel's sandbox) to relative paths, to be resolved
+            relative to the repository root directory. Iteration
+            order (which mirrors insertion order) dictates the
+            overlay ordering: latter workspaces overlay previous
+            workspaces.
+    """
     repo_ctx.report_progress("Symlinking common files")
     for file_ in repo_ctx.attr._common_files:
         target = file_.name[len("resources/"):]
@@ -38,7 +55,6 @@ def _symlink_common_files(repo_ctx):
             target = directory + "BUILD.bazel"
         repo_ctx.symlink(file_, target)
 
-def _populate_distro_specific_files(repo_ctx, workspaces):
     repo_ctx.report_progress("Generating run_under.bash")
 
     repo_ctx.template(
@@ -97,52 +113,56 @@ def _populate_distro_specific_files(repo_ctx, workspaces):
     repo_ctx.file("system-rosdep-keys.txt", result.stdout)
 
 def _label(relpath):
-    return "//ros2:" + relpath
+    return Label("//ros2:" + relpath)
 
-_base_ros2_repository_rule_attrs = {
-    "include_packages": attr.string_list(
-        doc = "Optional set of packages to include, " +
-        "with its recursive dependencies. Defaults to all."
-    ),
-    "exclude_packages": attr.string_list(
-        doc = "Optional set of packages to exclude, " +
-        "with precedence over included packages. Defaults to none."
-    ),
-    "jobs": attr.int(
-        doc = "Number of CMake jobs to use during package " +
-        "configuration and scrapping. Defaults to using all cores.",
-        default=0,
-    ),
-    # NOTE: all these labels are listed as private attributes to force prefetching, or else
-    # repository rules will be restarted on first hit.
-    # See https://github.com/bazelbuild/bazel/commit/cdc99afc1a03ff8fbbbae088d358b7c029e0d232
-    # and https://github.com/bazelbuild/bazel/issues/4533 for further reference.
-    "_common_files": attr.label_list(
-        default = [_label(path) for path in COMMON_FILES_MANIFEST],
-        doc = "List of common files to be symlinked to every new repository."
-    ),
-    "_run_template_file": attr.label(
-        default = _label("resources/templates/run.bash.in"),
-        doc = "Template script file to run executables " +
-        "in distribution environments."
-    ),
-    "_scrape_distribution_tool": attr.label(
-        default = _label("scrape_distribution.py"),
-        doc = "Tool to scrape target distribution metadata."
-    ),
-    "_generate_distro_file_tool": attr.label(
-        default = _label("generate_distro_file.py"),
-        doc = "Tool to generate distro.bzl file from distribution metadata."
-    ),
-    "_generate_build_file_tool": attr.label(
-        default = _label("generate_build_file.py"),
-        doc = "Tool to generate BUILD.bazel file from distribution metadata."
-    ),
-    "_compute_system_rosdeps_tool": attr.label(
-        default = _label("compute_system_rosdeps.py"),
-        doc = "Tool to compute system rosdep keys for target distribution."
-    ),
-}
+def base_ros2_repository_attrs():
+    """
+    Attributes necessary for `base_ros2_repository()`.
+    """
+    return {
+        "include_packages": attr.string_list(
+            doc = "Optional set of packages to include, " +
+            "with its recursive dependencies. Defaults to all."
+        ),
+        "exclude_packages": attr.string_list(
+            doc = "Optional set of packages to exclude, " +
+            "with precedence over included packages. Defaults to none."
+        ),
+        "jobs": attr.int(
+            doc = "Number of CMake jobs to use during package " +
+            "configuration and scrapping. Defaults to using all cores.",
+            default=0,
+        ),
+        # NOTE: all these labels are listed as private attributes to force prefetching, or else
+        # repository rules will be restarted on first hit.
+        # See https://github.com/bazelbuild/bazel/commit/cdc99afc1a03ff8fbbbae088d358b7c029e0d232
+        # and https://github.com/bazelbuild/bazel/issues/4533 for further reference.
+        "_common_files": attr.label_list(
+            default = [_label(path) for path in COMMON_FILES_MANIFEST],
+            doc = "List of common files to be symlinked to every new repository."
+        ),
+        "_run_template_file": attr.label(
+            default = _label("resources/templates/run.bash.in"),
+            doc = "Template script file to run executables " +
+            "in distribution environments."
+        ),
+        "_scrape_distribution_tool": attr.label(
+            default = _label("scrape_distribution.py"),
+            doc = "Tool to scrape target distribution metadata."
+        ),
+        "_generate_distro_file_tool": attr.label(
+            default = _label("generate_distro_file.py"),
+            doc = "Tool to generate distro.bzl file from distribution metadata."
+        ),
+        "_generate_build_file_tool": attr.label(
+            default = _label("generate_build_file.py"),
+            doc = "Tool to generate BUILD.bazel file from distribution metadata."
+        ),
+        "_compute_system_rosdeps_tool": attr.label(
+            default = _label("compute_system_rosdeps.py"),
+            doc = "Tool to compute system rosdep keys for target distribution."
+        ),
+    }
 
 _ros2_local_repository_attrs = {
     "workspaces": attr.string_list(
@@ -151,11 +171,9 @@ _ros2_local_repository_attrs = {
         mandatory = True,
     ),
 }
-_ros2_local_repository_attrs.update(_base_ros2_repository_rule_attrs)
+_ros2_local_repository_attrs.update(base_ros2_repository_attrs())
 
 def _ros2_local_repository_impl(repo_ctx):
-    _symlink_common_files(repo_ctx)
-
     repo_ctx.report_progress("Sandboxing ROS 2 workspaces")
     workspaces_in_sandbox = {}
     for path in repo_ctx.attr.workspaces:
@@ -163,8 +181,7 @@ def _ros2_local_repository_impl(repo_ctx):
         repo_ctx.symlink(path, path_in_sandbox)
         workspaces_in_sandbox[path] = path_in_sandbox
 
-    _populate_distro_specific_files(
-        repo_ctx, workspaces_in_sandbox)
+    base_ros2_repository(repo_ctx, workspaces_in_sandbox)
 
 ros2_local_repository = repository_rule(
     attrs = _ros2_local_repository_attrs,
@@ -210,11 +227,9 @@ _ros2_archive_attrs = {
         default = [],
     ),
 }
-_ros2_archive_attrs.update(_base_ros2_repository_rule_attrs)
+_ros2_archive_attrs.update(base_ros2_repository_attrs())
 
 def _ros2_archive_impl(repo_ctx):
-    _symlink_common_files(repo_ctx)
-
     repo_ctx.report_progress("Pulling archive")
     download_info = repo_ctx.download_and_extract(
         repo_ctx.attr.url,
@@ -225,8 +240,9 @@ def _ros2_archive_impl(repo_ctx):
     )
     patch(repo_ctx)
 
-    _populate_distro_specific_files(
-        repo_ctx, {str(repo_ctx.path("archive")): "archive"})
+    workspaces_in_sandbox =  {
+        str(repo_ctx.path("archive")): "archive"}
+    base_ros2_repository(repo_ctx, workspaces_in_sandbox)
 
     return update_attrs(
         repo_ctx.attr, _ros2_archive_attrs.keys(),
