@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "subscription.h"  // NOLINT(build/include,build/include_subdir)
+#include "subscription.h"  // NOLINT(build/include)
 
 #include <memory>
 #include <string>

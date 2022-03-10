@@ -14,8 +14,8 @@
 #include <memory>
 #include <unordered_set>
 
-#include "py_serializer_interface_pybind.h"  // NOLINT(build/include,build/include_subdir)
-#include "qos_type_caster_pybind.h"          // NOLINT(build/include,build/include_subdir)
+#include "py_serializer_interface_pybind.h"  // NOLINT(build/include)
+#include "qos_type_caster_pybind.h"          // NOLINT(build/include)
 #include <drake/systems/framework/leaf_system.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

@@ -19,7 +19,7 @@
 #include <unordered_set>
 #include <utility>
 
-#include "publisher.h"  // NOLINT(build/include,build/include_subdir)
+#include "publisher.h"  // NOLINT(build/include)
 
 #include "drake_ros_core/serializer_interface.h"
 
