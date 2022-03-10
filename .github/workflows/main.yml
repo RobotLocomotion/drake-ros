@@ -36,7 +36,7 @@ jobs:
           sudo tar xf ros2-rolling-linux-focal-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/rolling
           sed -i 's|/tmp/ws/install_isolated|/opt/ros/rolling|g' /opt/ros/rolling/setup.sh
           rm ros2-rolling-linux-focal-amd64-ci.tar.bz2
-          rosdep update && rosdep install --from-paths /opt/ros/rolling --ignore-src -y \
+          rosdep update && rosdep install --from-paths /opt/ros/rolling/share --ignore-src -y \
             --skip-keys "cyclonedds fastcdr fastrtps rti-connext-dds-5.3.1 urdfdom_headers"
 
       - name: Cope with Python 2 pollution
