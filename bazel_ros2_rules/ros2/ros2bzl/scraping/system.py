@@ -107,6 +107,7 @@ def find_library_dependencies(library_path):
             ['ldd', library_path],
             check=True,
             stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
             encoding='utf8'
         ).stdout.strip().split('\n')
         for line in lines:
