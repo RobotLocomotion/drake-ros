@@ -65,6 +65,9 @@ def test_nominal_case():
     rclpy.init()
     direct_ros_node = rclpy.create_node('sub_to_pub_py')
 
+    # Make sure the node is fully initialized
+    rclpy.spin_once(direct_ros_node, timeout_sec=0.1)
+
     # Create publisher talking to subscriber system.
     direct_pub_in = direct_ros_node.create_publisher(BasicTypes, 'in_py', qos)
 
