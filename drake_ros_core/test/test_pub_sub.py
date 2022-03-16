@@ -76,6 +76,14 @@ def test_nominal_case():
     direct_sub_out = direct_ros_node.create_subscription(
         BasicTypes, 'out_py', rx_callback_direct_sub_out, qos)
 
+    # Wait for the subscriber to connect
+    for i in range(1, 10):
+        if direct_pub_in.get_subscription_count() > 0:
+            break
+        rclpy.spin_once(direct_ros_node, timeout_sec=0.1)
+    else:
+        assert False, 'Timeout waiting for publisher and subscriber to connect'
+
     pub_sub_rounds = 5
     for i in range(1, pub_sub_rounds + 1):
         rx_msgs_count_before_pubsub = len(rx_msgs_direct_sub_out)
