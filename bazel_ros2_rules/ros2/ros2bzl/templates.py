@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 from ros2bzl.resources import load_resource
 from ros2bzl.scraping.system import find_library_path
@@ -71,7 +72,7 @@ def configure_package_cc_library(
         if not os.path.isabs(include)]
     headers = []
     for include in local_includes:
-        if not include.endswith(os.path.join(name, 'include')):
+        if name not in pathlib.Path(include).parts
             # Assume package lives in a merged install space
             # Assume package abides to REP-122 FHS layout
             include = os.path.join(include, name)
