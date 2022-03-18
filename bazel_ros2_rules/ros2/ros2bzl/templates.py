@@ -72,7 +72,7 @@ def configure_package_cc_library(
         if not os.path.isabs(include)]
     headers = []
     for include in local_includes:
-        if name not in pathlib.Path(include).parts
+        if name not in pathlib.Path(include).parts:
             # Assume package lives in a merged install space
             # Assume package abides to REP-122 FHS layout
             include = os.path.join(include, name)
