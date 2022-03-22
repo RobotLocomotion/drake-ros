@@ -22,26 +22,42 @@
 
 namespace drake_ros_viz {
 
-std::string GetMarkerNamespace(
-    const drake::geometry::SceneGraphInspector<double>& inspector,
-    const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>&
-        plants,
-    const drake::geometry::GeometryId& geometry_id) {
-  for (auto* plant : plants) {
-    const drake::multibody::Body<double>* body =
-        plant->GetBodyFromFrameId(inspector.GetFrameId(geometry_id));
-    if (!body) {
-      continue;
+MarkerNamespaceFunction GetFlatMarkerNamespaceFunction(
+    const std::optional<std::string>& marker_namespace_prefix) {
+  return [prefix = marker_namespace_prefix.value_or("")](
+             const drake::geometry::SceneGraphInspector<double>& inspector,
+             const std::unordered_set<
+                 const drake::multibody::MultibodyPlant<double>*>&,
+             const drake::geometry::GeometryId geometry_id) {
+    return internal::CalcMarkerNamespace(
+        prefix, inspector.GetOwningSourceName(geometry_id));
+  };
+}
+
+MarkerNamespaceFunction GetHierarchicalMarkerNamspaceFunction(
+    const std::optional<std::string>& marker_namespace_prefix) {
+  return [prefix = marker_namespace_prefix.value_or("")](
+             const drake::geometry::SceneGraphInspector<double>& inspector,
+             const std::unordered_set<
+                 const drake::multibody::MultibodyPlant<double>*>& plants,
+             const drake::geometry::GeometryId geometry_id) {
+    for (auto* plant : plants) {
+      const drake::multibody::Body<double>* body =
+          plant->GetBodyFromFrameId(inspector.GetFrameId(geometry_id));
+      if (!body) {
+        continue;
+      }
+
+      return internal::CalcHierarchicalMarkerNamespace(
+          prefix, plant->GetModelInstanceName(body->model_instance()),
+          body->name(), body->index(), inspector.GetName(geometry_id),
+          geometry_id.get_value());
     }
 
-    return internal::CalcMarkerNamespace(
-        plant->GetModelInstanceName(body->model_instance()), body->name(),
-        body->index(), geometry_id.get_value());
-  }
-
-  return internal::CalcMarkerNamespace(
-      inspector.GetOwningSourceName(geometry_id),
-      inspector.GetName(geometry_id), geometry_id.get_value());
+    return internal::CalcHierarchicalMarkerNamespace(
+        prefix, inspector.GetOwningSourceName(geometry_id),
+        inspector.GetName(geometry_id), geometry_id.get_value());
+  };
 }
 
 }  // namespace drake_ros_viz
