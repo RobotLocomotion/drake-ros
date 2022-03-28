@@ -33,64 +33,60 @@ TEST(NameConventions, CalcMarkerNamespace) {
 
 TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithBody) {
   // All names are present
-  EXPECT_EQ(
-      "prefix/model_name/body_name/geometry_name",
-      drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-          "prefix/", "model_name", "body_name", 123, "geometry_name", 456));
+  EXPECT_EQ("prefix/model_name/body_name/geometry_name",
+            drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
+                "prefix/", "model_name", "body_name", "geometry_name"));
 
   // Scoped model name and body name
   EXPECT_EQ("prefix/model_scope/model_name/body_scope/body_name/geometry_name",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
                 "prefix/", "model_scope::model_name", "body_scope::body_name",
-                123, "geometry_name", 456));
+                "geometry_name"));
 
   // Model name with empty body name
-  EXPECT_EQ("model_name/unnamed_body_123/geometry_name",
+  EXPECT_EQ("model_name/unnamed_body/geometry_name",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "", "model_name", "", 123, "geometry_name", 456));
+                "", "model_name", "", "geometry_name"));
 
   // Scoped model name with empty body name and empty geometry name
-  EXPECT_EQ("model_scope/model_name/unnamed_body_123/unnamed_geometry_456",
+  EXPECT_EQ("model_scope/model_name/unnamed_body/unnamed_geometry",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "", "model_scope::model_name", "", 123, "", 456));
+                "", "model_scope::model_name", "", ""));
 }
 
 TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithoutBody) {
   // Geometry source and name is not empty
   EXPECT_EQ("prefix/geometry_source/geometry_name",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "prefix/", "geometry_source", "geometry_name", 123));
+                "prefix/", "geometry_source", "geometry_name"));
 
   // Geometry name is empty
-  EXPECT_EQ("prefix/geometry_source/unnamed_geometry_123",
+  EXPECT_EQ("prefix/geometry_source/unnamed_geometry",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "prefix/", "geometry_source", "", 123));
+                "prefix/", "geometry_source", ""));
 
   // Geometry name with / delimiters
-  EXPECT_EQ(
-      "geometry_source/scope_one/scope_two/geometry_name",
-      drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-          "", "geometry_source", "scope_one/scope_two/geometry_name", 123));
+  EXPECT_EQ("geometry_source/scope_one/scope_two/geometry_name",
+            drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
+                "", "geometry_source", "scope_one/scope_two/geometry_name"));
 
   // Geometry name with :: delimiters
-  EXPECT_EQ(
-      "geometry_source/scope_one/scope_two/geometry_name",
-      drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-          "", "geometry_source", "scope_one::scope_two::geometry_name", 123));
+  EXPECT_EQ("geometry_source/scope_one/scope_two/geometry_name",
+            drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
+                "", "geometry_source", "scope_one::scope_two::geometry_name"));
 
   // Geometry name with mixed delimiters
-  EXPECT_EQ(
-      "geometry_source/scope_one/scope_two/geometry_name",
-      drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-          "", "geometry_source", "scope_one/scope_two::geometry_name", 123));
+  EXPECT_EQ("geometry_source/scope_one/scope_two/geometry_name",
+            drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
+                "", "geometry_source", "scope_one/scope_two::geometry_name"));
 
   // Geometry name with only :: delimiter
-  EXPECT_EQ("geometry_source/unnamed_geometry_123",
+  EXPECT_EQ("geometry_source/unnamed_geometry",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "", "geometry_source", "::", 123));
+                "", "geometry_source", "::"));
 
   // Geometry name with only / delimiter
-  EXPECT_EQ("geometry_source/unnamed_geometry_123",
+  EXPECT_EQ("geometry_source/unnamed_geometry",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "", "geometry_source", "/", 123));
+                "", "geometry_source", "/"));
 }

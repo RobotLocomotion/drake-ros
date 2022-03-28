@@ -54,27 +54,23 @@ std::string CalcMarkerNamespace(
   @param[in] prefix user defined prefix for this marker namespace
   @param[in] model_instance_name name of a given model instance.
   @param[in] body_name name of a given body.
-  @param[in] body_index index of a given body.
   @param[in] geometry_name name of a given geometry.
-  @param[in] geometry_id_value value of a given geometry ID.
   @returns formulated marker namespace.
  */
-template <typename ElementIndexType>
 std::string CalcHierarchicalMarkerNamespace(
     const std::string& prefix, const std::string& model_instance_name,
-    const std::string& body_name, ElementIndexType body_index,
-    const std::string& geometry_name, int64_t geometry_id_value) {
+    const std::string& body_name, const std::string& geometry_name) {
   std::stringstream ss;
   ss << prefix << ReplaceAllOccurrences(model_instance_name, "::", "/") << "/";
 
   if (IsEmptyName(body_name)) {
-    ss << "unnamed_body_" << body_index << "/";
+    ss << "unnamed_body/";
   } else {
     ss << ReplaceAllOccurrences(body_name, "::", "/") << "/";
   }
 
   if (IsEmptyName(geometry_name)) {
-    ss << "unnamed_geometry_" << geometry_id_value;
+    ss << "unnamed_geometry";
   } else {
     ss << geometry_name;
   }
@@ -87,17 +83,16 @@ std::string CalcHierarchicalMarkerNamespace(
   @param[in] prefix user defined prefix for this marker namespace
   @param[in] geometry_source_name name of the source owning a given geometry.
   @param[in] geometry_name name of a given geometry.
-  @parma[in] geometry_id_value value of a given geometry ID.
   @returns formulated marker namespace.
  */
 std::string CalcHierarchicalMarkerNamespace(
     const std::string& prefix, const std::string& geometry_source_name,
-    const std::string& geometry_name, int64_t geometry_id_value) {
+    const std::string& geometry_name) {
   std::stringstream ss;
   ss << prefix << ReplaceAllOccurrences(geometry_source_name, "::", "/") << "/";
 
   if (IsEmptyName(geometry_name)) {
-    ss << "unnamed_geometry_" << geometry_id_value;
+    ss << "unnamed_geometry";
   } else {
     ss << ReplaceAllOccurrences(geometry_name, "::", "/");
   }

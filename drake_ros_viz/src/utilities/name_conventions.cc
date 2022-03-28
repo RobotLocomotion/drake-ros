@@ -50,13 +50,12 @@ MarkerNamespaceFunction GetHierarchicalMarkerNamspaceFunction(
 
       return internal::CalcHierarchicalMarkerNamespace(
           prefix, plant->GetModelInstanceName(body->model_instance()),
-          body->name(), body->index(), inspector.GetName(geometry_id),
-          geometry_id.get_value());
+          body->name(), inspector.GetName(geometry_id));
     }
 
     return internal::CalcHierarchicalMarkerNamespace(
         prefix, inspector.GetOwningSourceName(geometry_id),
-        inspector.GetName(geometry_id), geometry_id.get_value());
+        inspector.GetName(geometry_id));
   };
 }
 
