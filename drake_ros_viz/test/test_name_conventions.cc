@@ -79,14 +79,4 @@ TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithoutBody) {
   EXPECT_EQ("geometry_source/scope_one/scope_two/geometry_name",
             drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
                 "", "geometry_source", "scope_one/scope_two::geometry_name"));
-
-  // Geometry name with only :: delimiter
-  EXPECT_EQ("geometry_source/unnamed_geometry",
-            drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "", "geometry_source", "::"));
-
-  // Geometry name with only / delimiter
-  EXPECT_EQ("geometry_source/unnamed_geometry",
-            drake_ros_viz::internal::CalcHierarchicalMarkerNamespace(
-                "", "geometry_source", "/"));
 }

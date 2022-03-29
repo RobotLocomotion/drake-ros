@@ -34,6 +34,11 @@ MarkerNamespaceFunction GetFlatMarkerNamespaceFunction(
   };
 }
 
+// TODO(aaronchongth): GetName provides more components than just the base
+// geometry name, as shown in
+// https://github.com/EricCousineau-TRI/repro/commit/c44615ee. This
+// will need to be refined further, perhaps just extracting the base name
+// without any scopes.
 MarkerNamespaceFunction GetHierarchicalMarkerNamspaceFunction(
     const std::optional<std::string>& marker_namespace_prefix) {
   return [prefix = marker_namespace_prefix.value_or("")](

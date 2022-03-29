@@ -22,13 +22,6 @@
 namespace drake_ros_viz {
 namespace internal {
 
-bool IsEmptyName(const std::string& name) {
-  if (name.empty() || name == "::" || name == "/") {
-    return true;
-  }
-  return false;
-}
-
 std::string ReplaceAllOccurrences(std::string string, const std::string& target,
                                   const std::string& replacement) {
   std::string::size_type n = 0;
@@ -63,13 +56,13 @@ std::string CalcHierarchicalMarkerNamespace(
   std::stringstream ss;
   ss << prefix << ReplaceAllOccurrences(model_instance_name, "::", "/") << "/";
 
-  if (IsEmptyName(body_name)) {
+  if (body_name.empty()) {
     ss << "unnamed_body/";
   } else {
     ss << ReplaceAllOccurrences(body_name, "::", "/") << "/";
   }
 
-  if (IsEmptyName(geometry_name)) {
+  if (geometry_name.empty()) {
     ss << "unnamed_geometry";
   } else {
     ss << geometry_name;
@@ -91,7 +84,7 @@ std::string CalcHierarchicalMarkerNamespace(
   std::stringstream ss;
   ss << prefix << ReplaceAllOccurrences(geometry_source_name, "::", "/") << "/";
 
-  if (IsEmptyName(geometry_name)) {
+  if (geometry_name.empty()) {
     ss << "unnamed_geometry";
   } else {
     ss << ReplaceAllOccurrences(geometry_name, "::", "/");

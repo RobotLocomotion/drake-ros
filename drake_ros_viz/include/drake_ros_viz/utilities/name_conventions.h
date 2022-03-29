@@ -43,12 +43,12 @@ MarkerNamespaceFunction GetFlatMarkerNamespaceFunction(
     const std::optional<std::string>& marker_namespace_prefix = std::nullopt);
 
 /** Returns a functor that generates a hierarchical namespace (if possible) in
-  the form of 'model_instance_name/body_name/geometry_id_value'. This is
+  the form of 'model_instance_name/body_name/geometry_name'. This is
   prefixed optionally by marker_namespace_prefix.
   @param[in] marker_namespace_prefix Optional prefix for the marker.
   @returns the functor for generating the marker namespace.
  */
-MarkerNamespaceFunction GetHierarchicalMarkerNamspaceFunction(
+MarkerNamespaceFunction GetHierarchicalMarkerNamespaceFunction(
     const std::optional<std::string>& marker_namespace_prefix = std::nullopt);
 
 }  // namespace drake_ros_viz
