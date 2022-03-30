@@ -24,7 +24,7 @@ TEST(TypeConversion, ToTransformMsg) {
                                            cos(-M_PI / 4.)};
   const drake::math::RigidTransform<double> transform{rotation, translation};
   const geometry_msgs::msg::Transform message =
-      drake_ros_tf2::utilities::ToTransformMsg(transform);
+      drake_ros_tf2::ToTransformMsg(transform);
   EXPECT_DOUBLE_EQ(message.translation.x, translation.x());
   EXPECT_DOUBLE_EQ(message.translation.y, translation.y());
   EXPECT_DOUBLE_EQ(message.translation.z, translation.z());

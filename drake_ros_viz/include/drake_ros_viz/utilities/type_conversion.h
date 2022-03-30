@@ -14,12 +14,12 @@
 #pragma once
 
 #include <drake/math/rigid_transform.h>
-#include <geometry_msgs/msg/transform.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 
-namespace drake_ros_tf2 {
+namespace drake_ros_viz {
 
-/** Convert `X_AB` into a Transform ROS message. */
-geometry_msgs::msg::Transform ToTransformMsg(
+/** Convert `X_AB` into a Pose ROS message. */
+geometry_msgs::msg::Pose ToPoseMsg(
     const drake::math::RigidTransform<double> X_AB);
 
-}  // namespace drake_ros_tf2
+}  // namespace drake_ros_viz

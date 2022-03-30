@@ -82,12 +82,12 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
         continue;
       }
 
-      transform.header.frame_id = utilities::GetTfFrameName(
+      transform.header.frame_id = GetTfFrameName(
           inspector, impl_->plants, inspector.GetParentFrame(frame_id));
       transform.child_frame_id =
-          utilities::GetTfFrameName(inspector, impl_->plants, frame_id);
+          GetTfFrameName(inspector, impl_->plants, frame_id);
       transform.transform =
-          utilities::ToTransformMsg(query_object.GetPoseInParent(frame_id));
+          ToTransformMsg(query_object.GetPoseInParent(frame_id));
       output_value->transforms.push_back(transform);
     }
   }

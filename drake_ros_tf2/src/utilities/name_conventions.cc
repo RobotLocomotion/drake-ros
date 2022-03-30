@@ -21,7 +21,6 @@
 #include "utilities/internal_name_conventions.h"
 
 namespace drake_ros_tf2 {
-namespace utilities {
 
 std::string GetTfFrameName(
     const drake::geometry::SceneGraphInspector<double>& inspector,
@@ -53,5 +52,4 @@ std::string GetTfFrameName(
   return GetTfFrameName(inspector, plants, inspector.GetFrameId(geometry_id));
 }
 
-}  // namespace utilities
 }  // namespace drake_ros_tf2
