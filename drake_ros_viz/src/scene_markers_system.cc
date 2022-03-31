@@ -14,6 +14,7 @@
 
 #include "drake_ros_viz/scene_markers_system.h"
 
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 
@@ -59,11 +60,20 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     DRAKE_ASSERT(nullptr != marker_array);
     marker_array_ = marker_array;
 
+    const std::string marker_namespace =
+        params_.marker_namespace_function(inspector, plants, geometry_id);
+    auto it = marker_namespace_id_map_.find(marker_namespace);
+    int marker_id = 0;
+    if (it == marker_namespace_id_map_.end()) {
+      marker_namespace_id_map_[marker_namespace] = marker_id;
+    } else {
+      marker_id = ++it->second;
+    }
+
     prototype_marker_.header.frame_id =
         drake_ros_tf2::GetTfFrameName(inspector, plants, geometry_id);
-    prototype_marker_.ns =
-        params_.marker_namespace_function(inspector, plants, geometry_id);
-    prototype_marker_.id = marker_array_->markers.size();
+    prototype_marker_.ns = marker_namespace;
+    prototype_marker_.id = marker_id;
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
 
     prototype_marker_.lifetime = rclcpp::Duration::from_nanoseconds(0);
@@ -227,6 +237,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
   }
 
   const SceneMarkersParams& params_;
+  std::unordered_map<std::string, int> marker_namespace_id_map_{};
   visualization_msgs::msg::MarkerArray* marker_array_{nullptr};
   visualization_msgs::msg::Marker prototype_marker_{};
   drake::math::RigidTransform<double> X_FG_{};
