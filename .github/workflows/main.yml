@@ -36,6 +36,7 @@ jobs:
           sudo tar xf ros2-rolling-linux-focal-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/rolling
           sed -i 's|/tmp/ws/install_isolated|/opt/ros/rolling|g' /opt/ros/rolling/setup.sh
           rm ros2-rolling-linux-focal-amd64-ci.tar.bz2
+          # TODO(sloretz) Use bazel_ros2_rules/ros2/compute_system_rosdeps.py to de-duplicate rosdep invocation knowledge
           rosdep update && rosdep install --from-paths /opt/ros/rolling/share --ignore-src -y \
             -t exec -t buildtool_export -t build_export \
             --skip-keys "cyclonedds fastcdr fastrtps rmw_connextdds rmw_cyclonedds_cpp rmw_fastrtps_dynamic_cpp rti-connext-dds-5.3.1 urdfdom_headers iceoryx_binding_c"
