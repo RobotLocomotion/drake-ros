@@ -56,26 +56,16 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
       const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>
           plants,
       const drake::geometry::GeometryId& geometry_id,
+      const std::string& marker_namespace, int marker_id,
       visualization_msgs::msg::MarkerArray* marker_array) {
     DRAKE_ASSERT(nullptr != marker_array);
     marker_array_ = marker_array;
-
-    const std::string marker_namespace =
-        params_.marker_namespace_function(inspector, plants, geometry_id);
-    auto it = marker_namespace_id_map_.find(marker_namespace);
-    int marker_id = 0;
-    if (it == marker_namespace_id_map_.end()) {
-      marker_namespace_id_map_[marker_namespace] = marker_id;
-    } else {
-      marker_id = ++it->second;
-    }
 
     prototype_marker_.header.frame_id =
         drake_ros_tf2::GetTfFrameName(inspector, plants, geometry_id);
     prototype_marker_.ns = marker_namespace;
     prototype_marker_.id = marker_id;
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
-
     prototype_marker_.lifetime = rclcpp::Duration::from_nanoseconds(0);
     prototype_marker_.frame_locked = true;
 
@@ -188,7 +178,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
 
     visualization_msgs::msg::Marker& upper_cap_marker =
         marker_array_->markers.back();
-    upper_cap_marker.id = body_marker.id + 1;
+    upper_cap_marker.ns = prototype_marker_.ns + "/upper_cap";
     upper_cap_marker.type = visualization_msgs::msg::Marker::SPHERE;
     upper_cap_marker.scale.x = diameter;
     upper_cap_marker.scale.y = diameter;
@@ -202,7 +192,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
 
     visualization_msgs::msg::Marker& lower_cap_marker =
         marker_array_->markers.back();
-    lower_cap_marker.id = upper_cap_marker.id + 1;
+    lower_cap_marker.ns = prototype_marker_.ns + "/lower_cap";
     const drake::math::RigidTransform<double> X_GL{
         drake::Vector3<double>{0., 0., -capsule.length() / 2.}};
     const drake::math::RigidTransform<double> X_FL = X_FG_ * X_GL;
@@ -237,7 +227,6 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
   }
 
   const SceneMarkersParams& params_;
-  std::unordered_map<std::string, int> marker_namespace_id_map_{};
   visualization_msgs::msg::MarkerArray* marker_array_{nullptr};
   visualization_msgs::msg::Marker prototype_marker_{};
   drake::math::RigidTransform<double> X_FG_{};
@@ -255,6 +244,9 @@ class SceneMarkersSystem::SceneMarkersSystemPrivate {
   drake::systems::InputPortIndex graph_query_port_index;
   drake::systems::OutputPortIndex scene_markers_port_index;
   std::unordered_set<const drake::multibody::MultibodyPlant<double>*> plants;
+  std::unordered_map<drake::geometry::GeometryId, int>
+      geometry_id_marker_id_map_{};
+  std::unordered_map<std::string, int> marker_namespace_id_map_{};
   mutable drake::geometry::GeometryVersion version;
 };
 
@@ -351,8 +343,28 @@ void SceneMarkersSystem::CalcSceneMarkers(
   for (const drake::geometry::FrameId& frame_id : inspector.GetAllFrameIds()) {
     for (const drake::geometry::GeometryId& geometry_id :
          inspector.GetGeometries(frame_id, impl_->params.role)) {
+      const std::string marker_namespace =
+          impl_->params.marker_namespace_function(inspector, impl_->plants,
+                                                  geometry_id);
+      int marker_id = 0;
+
+      auto g_it = impl_->geometry_id_marker_id_map_.find(geometry_id);
+      if (g_it != impl_->geometry_id_marker_id_map_.end()) {
+        marker_id = g_it->second;
+      } else {
+        auto m_it = impl_->marker_namespace_id_map_.find(marker_namespace);
+        if (m_it == impl_->marker_namespace_id_map_.end()) {
+          impl_->marker_namespace_id_map_[marker_namespace] = marker_id;
+        } else {
+          marker_id = ++m_it->second;
+        }
+
+        impl_->geometry_id_marker_id_map_[geometry_id] = marker_id;
+      }
+
       SceneGeometryToMarkers(impl_->params)
-          .Populate(inspector, impl_->plants, geometry_id, output_value);
+          .Populate(inspector, impl_->plants, geometry_id, marker_namespace,
+                    marker_id, output_value);
     }
   }
 }
