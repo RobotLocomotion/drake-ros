@@ -633,6 +633,7 @@ using drake_ros_viz::SceneMarkersSystem;
 
 static constexpr char kSourceName[] = "test";
 static constexpr double kTolerance{1e-6};
+static constexpr unsigned int kNumGeometries = 5;
 
 struct SingleSphereSceneTestDetails {
   static constexpr char kName[] = "sphere";
@@ -641,53 +642,61 @@ struct SingleSphereSceneTestDetails {
   static drake::geometry::FramePoseVector<double> PopulateSceneGraph(
       const drake::geometry::SourceId& source_id,
       drake::geometry::SceneGraph<double>* scene_graph) {
-    const drake::geometry::GeometryId geometry_id =
-        scene_graph->RegisterAnchoredGeometry(
-            source_id,
-            std::make_unique<drake::geometry::GeometryInstance>(
-                drake::math::RigidTransform<double>::Identity(),
-                std::make_unique<drake::geometry::Sphere>(kRadius), kName));
-    scene_graph->AssignRole(source_id, geometry_id,
-                            drake::geometry::IllustrationProperties());
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      std::stringstream ss;
+      ss << kName << i;
+      const drake::geometry::GeometryId geometry_id =
+          scene_graph->RegisterAnchoredGeometry(
+              source_id, std::make_unique<drake::geometry::GeometryInstance>(
+                             drake::math::RigidTransform<double>::Identity(),
+                             std::make_unique<drake::geometry::Sphere>(kRadius),
+                             ss.str()));
+      scene_graph->AssignRole(source_id, geometry_id,
+                              drake::geometry::IllustrationProperties());
+    }
     return {};
   }
 
   static void CheckSceneMarkers(
       const visualization_msgs::msg::MarkerArray& marker_array,
       SceneMarkersSystem* scene_markers_system) {
-    ASSERT_EQ(marker_array.markers.size(), 2u);
+    ASSERT_EQ(marker_array.markers.size(), 1u + kNumGeometries);
     const visualization_msgs::msg::Marker& control_marker =
         marker_array.markers[0];
     EXPECT_EQ(control_marker.action,
               visualization_msgs::msg::Marker::DELETEALL);
-    const visualization_msgs::msg::Marker& marker = marker_array.markers[1];
-    EXPECT_EQ(marker.header.frame_id, "world");
-    EXPECT_EQ(marker.header.stamp.sec, 0);
-    EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName));
-    EXPECT_EQ(marker.id, 0);
-    EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
-    EXPECT_EQ(marker.lifetime.sec, 0);
-    EXPECT_EQ(marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(marker.frame_locked);
-    constexpr double kDiameter = 2. * kRadius;
-    EXPECT_DOUBLE_EQ(marker.scale.x, kDiameter);
-    EXPECT_DOUBLE_EQ(marker.scale.y, kDiameter);
-    EXPECT_DOUBLE_EQ(marker.scale.z, kDiameter);
-    const drake::geometry::Rgba& default_color =
-        scene_markers_system->params().default_color;
-    EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      const visualization_msgs::msg::Marker& marker =
+          marker_array.markers[1 + i];
+      EXPECT_EQ(marker.header.frame_id, "world");
+      EXPECT_EQ(marker.header.stamp.sec, 0);
+      EXPECT_EQ(marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(marker.ns, std::string(kSourceName));
+      EXPECT_EQ(marker.id, static_cast<int>(i));
+      EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
+      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(marker.frame_locked);
+      constexpr double kDiameter = 2. * kRadius;
+      EXPECT_DOUBLE_EQ(marker.scale.x, kDiameter);
+      EXPECT_DOUBLE_EQ(marker.scale.y, kDiameter);
+      EXPECT_DOUBLE_EQ(marker.scale.z, kDiameter);
+      const drake::geometry::Rgba& default_color =
+          scene_markers_system->params().default_color;
+      EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+    }
   }
 };
 
@@ -700,53 +709,61 @@ struct SingleEllipsoidSceneTestDetails {
   static drake::geometry::FramePoseVector<double> PopulateSceneGraph(
       const drake::geometry::SourceId& source_id,
       drake::geometry::SceneGraph<double>* scene_graph) {
-    const drake::geometry::GeometryId geometry_id =
-        scene_graph->RegisterAnchoredGeometry(
-            source_id, std::make_unique<drake::geometry::GeometryInstance>(
-                           drake::math::RigidTransform<double>::Identity(),
-                           std::make_unique<drake::geometry::Ellipsoid>(
-                               kLengthA, kLengthB, kLengthC),
-                           kName));
-    scene_graph->AssignRole(source_id, geometry_id,
-                            drake::geometry::IllustrationProperties());
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      std::stringstream ss;
+      ss << kName << i;
+      const drake::geometry::GeometryId geometry_id =
+          scene_graph->RegisterAnchoredGeometry(
+              source_id, std::make_unique<drake::geometry::GeometryInstance>(
+                             drake::math::RigidTransform<double>::Identity(),
+                             std::make_unique<drake::geometry::Ellipsoid>(
+                                 kLengthA, kLengthB, kLengthC),
+                             ss.str()));
+      scene_graph->AssignRole(source_id, geometry_id,
+                              drake::geometry::IllustrationProperties());
+    }
     return {};
   }
 
   static void CheckSceneMarkers(
       const visualization_msgs::msg::MarkerArray& marker_array,
       SceneMarkersSystem* scene_markers_system) {
-    ASSERT_EQ(marker_array.markers.size(), 2u);
+    ASSERT_EQ(marker_array.markers.size(), 1u + kNumGeometries);
     const visualization_msgs::msg::Marker& control_marker =
         marker_array.markers[0];
     EXPECT_EQ(control_marker.action,
               visualization_msgs::msg::Marker::DELETEALL);
-    const visualization_msgs::msg::Marker& marker = marker_array.markers[1];
-    EXPECT_EQ(marker.header.frame_id, "world");
-    EXPECT_EQ(marker.header.stamp.sec, 0);
-    EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName));
-    EXPECT_EQ(marker.id, 0);
-    EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
-    EXPECT_EQ(marker.lifetime.sec, 0);
-    EXPECT_EQ(marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(marker.frame_locked);
-    EXPECT_DOUBLE_EQ(marker.scale.x, 2. * kLengthA);
-    EXPECT_DOUBLE_EQ(marker.scale.y, 2. * kLengthB);
-    EXPECT_DOUBLE_EQ(marker.scale.z, 2. * kLengthC);
-    const drake::geometry::Rgba& default_color =
-        scene_markers_system->params().default_color;
-    EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      const visualization_msgs::msg::Marker& marker =
+          marker_array.markers[1 + i];
+      EXPECT_EQ(marker.header.frame_id, "world");
+      EXPECT_EQ(marker.header.stamp.sec, 0);
+      EXPECT_EQ(marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(marker.ns, std::string(kSourceName));
+      EXPECT_EQ(marker.id, static_cast<int>(i));
+      EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
+      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(marker.frame_locked);
+      EXPECT_DOUBLE_EQ(marker.scale.x, 2. * kLengthA);
+      EXPECT_DOUBLE_EQ(marker.scale.y, 2. * kLengthB);
+      EXPECT_DOUBLE_EQ(marker.scale.z, 2. * kLengthC);
+      const drake::geometry::Rgba& default_color =
+          scene_markers_system->params().default_color;
+      EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+    }
   }
 };
 
@@ -758,54 +775,62 @@ struct SingleCylinderSceneTestDetails {
   static drake::geometry::FramePoseVector<double> PopulateSceneGraph(
       const drake::geometry::SourceId& source_id,
       drake::geometry::SceneGraph<double>* scene_graph) {
-    const drake::geometry::GeometryId geometry_id =
-        scene_graph->RegisterAnchoredGeometry(
-            source_id,
-            std::make_unique<drake::geometry::GeometryInstance>(
-                drake::math::RigidTransform<double>::Identity(),
-                std::make_unique<drake::geometry::Cylinder>(kRadius, kLength),
-                kName));
-    scene_graph->AssignRole(source_id, geometry_id,
-                            drake::geometry::IllustrationProperties());
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      std::stringstream ss;
+      ss << kName << i;
+      const drake::geometry::GeometryId geometry_id =
+          scene_graph->RegisterAnchoredGeometry(
+              source_id,
+              std::make_unique<drake::geometry::GeometryInstance>(
+                  drake::math::RigidTransform<double>::Identity(),
+                  std::make_unique<drake::geometry::Cylinder>(kRadius, kLength),
+                  ss.str()));
+      scene_graph->AssignRole(source_id, geometry_id,
+                              drake::geometry::IllustrationProperties());
+    }
     return {};
   }
 
   static void CheckSceneMarkers(
       const visualization_msgs::msg::MarkerArray& marker_array,
       SceneMarkersSystem* scene_markers_system) {
-    ASSERT_EQ(marker_array.markers.size(), 2u);
+    ASSERT_EQ(marker_array.markers.size(), 1u + kNumGeometries);
     const visualization_msgs::msg::Marker& control_marker =
         marker_array.markers[0];
     EXPECT_EQ(control_marker.action,
               visualization_msgs::msg::Marker::DELETEALL);
-    const visualization_msgs::msg::Marker& marker = marker_array.markers[1];
-    EXPECT_EQ(marker.header.frame_id, "world");
-    EXPECT_EQ(marker.header.stamp.sec, 0);
-    EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName));
-    EXPECT_EQ(marker.id, 0);
-    EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CYLINDER);
-    EXPECT_EQ(marker.lifetime.sec, 0);
-    EXPECT_EQ(marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(marker.frame_locked);
-    constexpr double kDiameter = 2. * kRadius;
-    EXPECT_DOUBLE_EQ(marker.scale.x, kDiameter);
-    EXPECT_DOUBLE_EQ(marker.scale.y, kDiameter);
-    EXPECT_DOUBLE_EQ(marker.scale.z, kLength);
-    const drake::geometry::Rgba& default_color =
-        scene_markers_system->params().default_color;
-    EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      const visualization_msgs::msg::Marker& marker =
+          marker_array.markers[1 + i];
+      EXPECT_EQ(marker.header.frame_id, "world");
+      EXPECT_EQ(marker.header.stamp.sec, 0);
+      EXPECT_EQ(marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(marker.ns, std::string(kSourceName));
+      EXPECT_EQ(marker.id, static_cast<int>(i));
+      EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CYLINDER);
+      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(marker.frame_locked);
+      constexpr double kDiameter = 2. * kRadius;
+      EXPECT_DOUBLE_EQ(marker.scale.x, kDiameter);
+      EXPECT_DOUBLE_EQ(marker.scale.y, kDiameter);
+      EXPECT_DOUBLE_EQ(marker.scale.z, kLength);
+      const drake::geometry::Rgba& default_color =
+          scene_markers_system->params().default_color;
+      EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+    }
   }
 };
 
@@ -815,44 +840,52 @@ struct SingleHalfSpaceSceneTestDetails {
   static drake::geometry::FramePoseVector<double> PopulateSceneGraph(
       const drake::geometry::SourceId& source_id,
       drake::geometry::SceneGraph<double>* scene_graph) {
-    const drake::geometry::GeometryId geometry_id =
-        scene_graph->RegisterAnchoredGeometry(
-            source_id,
-            std::make_unique<drake::geometry::GeometryInstance>(
-                drake::math::RigidTransform<double>::Identity(),
-                std::make_unique<drake::geometry::HalfSpace>(), kName));
-    scene_graph->AssignRole(source_id, geometry_id,
-                            drake::geometry::IllustrationProperties());
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      std::stringstream ss;
+      ss << kName << i;
+      const drake::geometry::GeometryId geometry_id =
+          scene_graph->RegisterAnchoredGeometry(
+              source_id,
+              std::make_unique<drake::geometry::GeometryInstance>(
+                  drake::math::RigidTransform<double>::Identity(),
+                  std::make_unique<drake::geometry::HalfSpace>(), ss.str()));
+      scene_graph->AssignRole(source_id, geometry_id,
+                              drake::geometry::IllustrationProperties());
+    }
     return {};
   }
 
   static void CheckSceneMarkers(
       const visualization_msgs::msg::MarkerArray& marker_array,
       SceneMarkersSystem* scene_markers_system) {
-    ASSERT_EQ(marker_array.markers.size(), 2u);
+    ASSERT_EQ(marker_array.markers.size(), 1u + kNumGeometries);
     const visualization_msgs::msg::Marker& control_marker =
         marker_array.markers[0];
     EXPECT_EQ(control_marker.action,
               visualization_msgs::msg::Marker::DELETEALL);
-    const visualization_msgs::msg::Marker& marker = marker_array.markers[1];
-    EXPECT_EQ(marker.header.frame_id, "world");
-    EXPECT_EQ(marker.header.stamp.sec, 0);
-    EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName));
-    EXPECT_EQ(marker.id, 0);
-    EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
-    EXPECT_EQ(marker.lifetime.sec, 0);
-    EXPECT_EQ(marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(marker.frame_locked);
-    EXPECT_GT(marker.scale.x, 10.0);
-    EXPECT_GT(marker.scale.y, 10.0);
-    const drake::geometry::Rgba& default_color =
-        scene_markers_system->params().default_color;
-    EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
+
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      const visualization_msgs::msg::Marker& marker =
+          marker_array.markers[1 + i];
+      EXPECT_EQ(marker.header.frame_id, "world");
+      EXPECT_EQ(marker.header.stamp.sec, 0);
+      EXPECT_EQ(marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(marker.ns, std::string(kSourceName));
+      EXPECT_EQ(marker.id, static_cast<int>(i));
+      EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
+      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(marker.frame_locked);
+      EXPECT_GT(marker.scale.x, 10.0);
+      EXPECT_GT(marker.scale.y, 10.0);
+      const drake::geometry::Rgba& default_color =
+          scene_markers_system->params().default_color;
+      EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
+    }
   }
 };
 
@@ -865,53 +898,61 @@ struct SingleBoxSceneTestDetails {
   static drake::geometry::FramePoseVector<double> PopulateSceneGraph(
       const drake::geometry::SourceId& source_id,
       drake::geometry::SceneGraph<double>* scene_graph) {
-    const drake::geometry::GeometryId geometry_id =
-        scene_graph->RegisterAnchoredGeometry(
-            source_id,
-            std::make_unique<drake::geometry::GeometryInstance>(
-                drake::math::RigidTransform<double>::Identity(),
-                std::make_unique<drake::geometry::Box>(kWidth, kDepth, kHeight),
-                kName));
-    scene_graph->AssignRole(source_id, geometry_id,
-                            drake::geometry::IllustrationProperties());
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      std::stringstream ss;
+      ss << kName << i;
+      const drake::geometry::GeometryId geometry_id =
+          scene_graph->RegisterAnchoredGeometry(
+              source_id, std::make_unique<drake::geometry::GeometryInstance>(
+                             drake::math::RigidTransform<double>::Identity(),
+                             std::make_unique<drake::geometry::Box>(
+                                 kWidth, kDepth, kHeight),
+                             ss.str()));
+      scene_graph->AssignRole(source_id, geometry_id,
+                              drake::geometry::IllustrationProperties());
+    }
     return {};
   }
 
   static void CheckSceneMarkers(
       const visualization_msgs::msg::MarkerArray& marker_array,
       SceneMarkersSystem* scene_markers_system) {
-    ASSERT_EQ(marker_array.markers.size(), 2u);
+    ASSERT_EQ(marker_array.markers.size(), 1u + kNumGeometries);
     const visualization_msgs::msg::Marker& control_marker =
         marker_array.markers[0];
     EXPECT_EQ(control_marker.action,
               visualization_msgs::msg::Marker::DELETEALL);
-    const visualization_msgs::msg::Marker& marker = marker_array.markers[1];
-    EXPECT_EQ(marker.header.frame_id, "world");
-    EXPECT_EQ(marker.header.stamp.sec, 0);
-    EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName));
-    EXPECT_EQ(marker.id, 0);
-    EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
-    EXPECT_EQ(marker.lifetime.sec, 0);
-    EXPECT_EQ(marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(marker.frame_locked);
-    EXPECT_DOUBLE_EQ(marker.scale.x, kWidth);
-    EXPECT_DOUBLE_EQ(marker.scale.y, kDepth);
-    EXPECT_DOUBLE_EQ(marker.scale.z, kHeight);
-    const drake::geometry::Rgba& default_color =
-        scene_markers_system->params().default_color;
-    EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      const visualization_msgs::msg::Marker& marker =
+          marker_array.markers[1 + i];
+      EXPECT_EQ(marker.header.frame_id, "world");
+      EXPECT_EQ(marker.header.stamp.sec, 0);
+      EXPECT_EQ(marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(marker.ns, std::string(kSourceName));
+      EXPECT_EQ(marker.id, static_cast<int>(i));
+      EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
+      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(marker.frame_locked);
+      EXPECT_DOUBLE_EQ(marker.scale.x, kWidth);
+      EXPECT_DOUBLE_EQ(marker.scale.y, kDepth);
+      EXPECT_DOUBLE_EQ(marker.scale.z, kHeight);
+      const drake::geometry::Rgba& default_color =
+          scene_markers_system->params().default_color;
+      EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+    }
   }
 };
 
@@ -923,22 +964,26 @@ struct SingleCapsuleSceneTestDetails {
   static drake::geometry::FramePoseVector<double> PopulateSceneGraph(
       const drake::geometry::SourceId& source_id,
       drake::geometry::SceneGraph<double>* scene_graph) {
-    const drake::geometry::GeometryId geometry_id =
-        scene_graph->RegisterAnchoredGeometry(
-            source_id,
-            std::make_unique<drake::geometry::GeometryInstance>(
-                drake::math::RigidTransform<double>::Identity(),
-                std::make_unique<drake::geometry::Capsule>(kRadius, kLength),
-                kName));
-    scene_graph->AssignRole(source_id, geometry_id,
-                            drake::geometry::IllustrationProperties());
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      std::stringstream ss;
+      ss << kName << i;
+      const drake::geometry::GeometryId geometry_id =
+          scene_graph->RegisterAnchoredGeometry(
+              source_id,
+              std::make_unique<drake::geometry::GeometryInstance>(
+                  drake::math::RigidTransform<double>::Identity(),
+                  std::make_unique<drake::geometry::Capsule>(kRadius, kLength),
+                  ss.str()));
+      scene_graph->AssignRole(source_id, geometry_id,
+                              drake::geometry::IllustrationProperties());
+    }
     return {};
   }
 
   static void CheckSceneMarkers(
       const visualization_msgs::msg::MarkerArray& marker_array,
       SceneMarkersSystem* scene_markers_system) {
-    ASSERT_EQ(marker_array.markers.size(), 4u);
+    ASSERT_EQ(marker_array.markers.size(), 1u + 3 * kNumGeometries);
     const visualization_msgs::msg::Marker& control_marker =
         marker_array.markers[0];
     EXPECT_EQ(control_marker.action,
@@ -947,87 +992,91 @@ struct SingleCapsuleSceneTestDetails {
     const drake::geometry::Rgba& default_color =
         scene_markers_system->params().default_color;
 
-    const visualization_msgs::msg::Marker& body_marker =
-        marker_array.markers[1];
-    EXPECT_EQ(body_marker.header.frame_id, "world");
-    EXPECT_EQ(body_marker.header.stamp.sec, 0);
-    EXPECT_EQ(body_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(body_marker.ns, std::string(kSourceName));
-    EXPECT_EQ(body_marker.id, 0);
-    EXPECT_EQ(body_marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(body_marker.type, visualization_msgs::msg::Marker::CYLINDER);
-    EXPECT_EQ(body_marker.lifetime.sec, 0);
-    EXPECT_EQ(body_marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(body_marker.frame_locked);
-    constexpr double kDiameter = 2. * kRadius;
-    EXPECT_DOUBLE_EQ(body_marker.scale.x, kDiameter);
-    EXPECT_DOUBLE_EQ(body_marker.scale.y, kDiameter);
-    EXPECT_DOUBLE_EQ(body_marker.scale.z, kLength);
-    EXPECT_NEAR(body_marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(body_marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(body_marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(body_marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(body_marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(body_marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(body_marker.pose.position.z, 0.);
-    EXPECT_DOUBLE_EQ(body_marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(body_marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(body_marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(body_marker.pose.orientation.w, 1.);
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      const visualization_msgs::msg::Marker& body_marker =
+          marker_array.markers[1 + i * 3];
+      EXPECT_EQ(body_marker.header.frame_id, "world");
+      EXPECT_EQ(body_marker.header.stamp.sec, 0);
+      EXPECT_EQ(body_marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(body_marker.ns, std::string(kSourceName));
+      EXPECT_EQ(body_marker.id, static_cast<int>(i));
+      EXPECT_EQ(body_marker.action, visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(body_marker.type, visualization_msgs::msg::Marker::CYLINDER);
+      EXPECT_EQ(body_marker.lifetime.sec, 0);
+      EXPECT_EQ(body_marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(body_marker.frame_locked);
+      constexpr double kDiameter = 2. * kRadius;
+      EXPECT_DOUBLE_EQ(body_marker.scale.x, kDiameter);
+      EXPECT_DOUBLE_EQ(body_marker.scale.y, kDiameter);
+      EXPECT_DOUBLE_EQ(body_marker.scale.z, kLength);
+      EXPECT_NEAR(body_marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(body_marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(body_marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(body_marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(body_marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(body_marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(body_marker.pose.position.z, 0.);
+      EXPECT_DOUBLE_EQ(body_marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(body_marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(body_marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(body_marker.pose.orientation.w, 1.);
 
-    const visualization_msgs::msg::Marker& upper_cap_marker =
-        marker_array.markers[2];
-    EXPECT_EQ(upper_cap_marker.header.frame_id, "world");
-    EXPECT_EQ(upper_cap_marker.header.stamp.sec, 0);
-    EXPECT_EQ(upper_cap_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(upper_cap_marker.ns, std::string(kSourceName));
-    EXPECT_EQ(upper_cap_marker.id, 1);
-    EXPECT_EQ(upper_cap_marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(upper_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
-    EXPECT_EQ(upper_cap_marker.lifetime.sec, 0);
-    EXPECT_EQ(upper_cap_marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(upper_cap_marker.frame_locked);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.x, kDiameter);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.y, kDiameter);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.scale.z, kDiameter);
-    EXPECT_NEAR(upper_cap_marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(upper_cap_marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(upper_cap_marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(upper_cap_marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.pose.position.z, kLength / 2);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.w, 1.);
+      const visualization_msgs::msg::Marker& upper_cap_marker =
+          marker_array.markers[1 + i * 3 + 1];
+      EXPECT_EQ(upper_cap_marker.header.frame_id, "world");
+      EXPECT_EQ(upper_cap_marker.header.stamp.sec, 0);
+      EXPECT_EQ(upper_cap_marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(upper_cap_marker.ns, std::string(kSourceName) + "/upper_cap");
+      EXPECT_EQ(upper_cap_marker.id, static_cast<int>(i));
+      EXPECT_EQ(upper_cap_marker.action,
+                visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(upper_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
+      EXPECT_EQ(upper_cap_marker.lifetime.sec, 0);
+      EXPECT_EQ(upper_cap_marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(upper_cap_marker.frame_locked);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.scale.x, kDiameter);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.scale.y, kDiameter);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.scale.z, kDiameter);
+      EXPECT_NEAR(upper_cap_marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(upper_cap_marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(upper_cap_marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(upper_cap_marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.pose.position.z, kLength / 2);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(upper_cap_marker.pose.orientation.w, 1.);
 
-    const visualization_msgs::msg::Marker& lower_cap_marker =
-        marker_array.markers[3];
-    EXPECT_EQ(lower_cap_marker.header.frame_id, "world");
-    EXPECT_EQ(lower_cap_marker.header.stamp.sec, 0);
-    EXPECT_EQ(lower_cap_marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(lower_cap_marker.ns, std::string(kSourceName));
-    EXPECT_EQ(lower_cap_marker.id, 2);
-    EXPECT_EQ(lower_cap_marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(lower_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
-    EXPECT_EQ(lower_cap_marker.lifetime.sec, 0);
-    EXPECT_EQ(lower_cap_marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(lower_cap_marker.frame_locked);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.x, kDiameter);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.y, kDiameter);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.scale.z, kDiameter);
-    EXPECT_NEAR(lower_cap_marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(lower_cap_marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(lower_cap_marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(lower_cap_marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.pose.position.z, -kLength / 2);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.w, 1.);
+      const visualization_msgs::msg::Marker& lower_cap_marker =
+          marker_array.markers[1 + i * 3 + 2];
+      EXPECT_EQ(lower_cap_marker.header.frame_id, "world");
+      EXPECT_EQ(lower_cap_marker.header.stamp.sec, 0);
+      EXPECT_EQ(lower_cap_marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(lower_cap_marker.ns, std::string(kSourceName) + "/lower_cap");
+      EXPECT_EQ(lower_cap_marker.id, static_cast<int>(i));
+      EXPECT_EQ(lower_cap_marker.action,
+                visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(lower_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
+      EXPECT_EQ(lower_cap_marker.lifetime.sec, 0);
+      EXPECT_EQ(lower_cap_marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(lower_cap_marker.frame_locked);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.scale.x, kDiameter);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.scale.y, kDiameter);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.scale.z, kDiameter);
+      EXPECT_NEAR(lower_cap_marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(lower_cap_marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(lower_cap_marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(lower_cap_marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.pose.position.z, -kLength / 2);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(lower_cap_marker.pose.orientation.w, 1.);
+    }
   }
 };
 
@@ -1040,52 +1089,60 @@ struct SingleMeshSceneTestDetails {
   static drake::geometry::FramePoseVector<double> PopulateSceneGraph(
       const drake::geometry::SourceId& source_id,
       drake::geometry::SceneGraph<double>* scene_graph) {
-    const drake::geometry::GeometryId geometry_id =
-        scene_graph->RegisterAnchoredGeometry(
-            source_id, std::make_unique<drake::geometry::GeometryInstance>(
-                           drake::math::RigidTransform<double>::Identity(),
-                           std::make_unique<T>(kFilename, kScale), kName));
-    scene_graph->AssignRole(source_id, geometry_id,
-                            drake::geometry::IllustrationProperties());
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      std::stringstream ss;
+      ss << kName << i;
+      const drake::geometry::GeometryId geometry_id =
+          scene_graph->RegisterAnchoredGeometry(
+              source_id, std::make_unique<drake::geometry::GeometryInstance>(
+                             drake::math::RigidTransform<double>::Identity(),
+                             std::make_unique<T>(kFilename, kScale), ss.str()));
+      scene_graph->AssignRole(source_id, geometry_id,
+                              drake::geometry::IllustrationProperties());
+    }
     return {};
   }
 
   static void CheckSceneMarkers(
       const visualization_msgs::msg::MarkerArray& marker_array,
       SceneMarkersSystem* scene_markers_system) {
-    ASSERT_EQ(marker_array.markers.size(), 2u);
+    ASSERT_EQ(marker_array.markers.size(), 1u + kNumGeometries);
     const visualization_msgs::msg::Marker& control_marker =
         marker_array.markers[0];
     EXPECT_EQ(control_marker.action,
               visualization_msgs::msg::Marker::DELETEALL);
-    const visualization_msgs::msg::Marker& marker = marker_array.markers[1];
-    EXPECT_EQ(marker.header.frame_id, "world");
-    EXPECT_EQ(marker.header.stamp.sec, 0);
-    EXPECT_EQ(marker.header.stamp.nanosec, 0u);
-    EXPECT_EQ(marker.ns, std::string(kSourceName));
-    EXPECT_EQ(marker.id, 0);
-    EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
-    EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::MESH_RESOURCE);
-    EXPECT_EQ(marker.lifetime.sec, 0);
-    EXPECT_EQ(marker.lifetime.nanosec, 0u);
-    EXPECT_TRUE(marker.frame_locked);
-    EXPECT_EQ(marker.mesh_resource, std::string("file://") + kFilename);
-    EXPECT_DOUBLE_EQ(marker.scale.x, kScale);
-    EXPECT_DOUBLE_EQ(marker.scale.y, kScale);
-    EXPECT_DOUBLE_EQ(marker.scale.z, kScale);
-    const drake::geometry::Rgba& default_color =
-        scene_markers_system->params().default_color;
-    EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
-    EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
-    EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
-    EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
-    EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
-    EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+
+    for (unsigned int i = 0; i < kNumGeometries; ++i) {
+      const visualization_msgs::msg::Marker& marker =
+          marker_array.markers[1 + i];
+      EXPECT_EQ(marker.header.frame_id, "world");
+      EXPECT_EQ(marker.header.stamp.sec, 0);
+      EXPECT_EQ(marker.header.stamp.nanosec, 0u);
+      EXPECT_EQ(marker.ns, std::string(kSourceName));
+      EXPECT_EQ(marker.id, static_cast<int>(i));
+      EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
+      EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::MESH_RESOURCE);
+      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.nanosec, 0u);
+      EXPECT_TRUE(marker.frame_locked);
+      EXPECT_EQ(marker.mesh_resource, std::string("file://") + kFilename);
+      EXPECT_DOUBLE_EQ(marker.scale.x, kScale);
+      EXPECT_DOUBLE_EQ(marker.scale.y, kScale);
+      EXPECT_DOUBLE_EQ(marker.scale.z, kScale);
+      const drake::geometry::Rgba& default_color =
+          scene_markers_system->params().default_color;
+      EXPECT_NEAR(marker.color.r, default_color.r(), kTolerance);
+      EXPECT_NEAR(marker.color.g, default_color.g(), kTolerance);
+      EXPECT_NEAR(marker.color.b, default_color.b(), kTolerance);
+      EXPECT_NEAR(marker.color.a, default_color.a(), kTolerance);
+      EXPECT_DOUBLE_EQ(marker.pose.position.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.position.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.x, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.y, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.z, 0.);
+      EXPECT_DOUBLE_EQ(marker.pose.orientation.w, 1.);
+    }
   }
 };
 
