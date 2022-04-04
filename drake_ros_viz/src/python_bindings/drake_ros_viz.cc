@@ -13,17 +13,19 @@
 // limitations under the License.
 #include <memory>
 
-#include "drake_ros_viz/rviz_visualizer.hpp"
-#include <drake/systems/framework/leaf_system.h>
+#include "drake_ros_core/drake_ros.h"
+#include <drake/systems/framework/diagram.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include "drake_ros_viz/rviz_visualizer.h"
 
 namespace py = pybind11;
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
 
-using drake_ros_core::DrakeRosInterface;
+using drake_ros_core::DrakeRos;
 using drake_ros_viz::RvizVisualizer;
 using drake_ros_viz::RvizVisualizerParams;
 
@@ -34,23 +36,26 @@ PYBIND11_MODULE(drake_ros_viz, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
 
+  const RvizVisualizerParams default_params{};
   py::class_<RvizVisualizerParams>(m, "RvizVisualizerParams")
-      .def(py::init([](py::kwargs kwargs) {
-        RvizVisualizerParams obj{};
-        py::object pyobj = py::cast(&obj, py::return_value_policy::reference);
-        for (auto& item : kwargs) {
-          py::setattr(pyobj, item.first, item.second);
-        }
-        return obj;
-      }))
+      .def(py::init([](const std::unordered_set<drake::systems::TriggerType>&
+                           publish_triggers,
+                       double publish_period, bool publish_tf) {
+             return RvizVisualizerParams{publish_triggers, publish_period,
+                                         publish_tf};
+           }),
+           py::kw_only(),
+           py::arg("publish_triggers") = default_params.publish_triggers,
+           py::arg("publish_period") = default_params.publish_period,
+           py::arg("publish_tf") = default_params.publish_tf)
       .def_readwrite("publish_triggers",
                      &RvizVisualizerParams::publish_triggers)
       .def_readwrite("publish_period", &RvizVisualizerParams::publish_period)
       .def_readwrite("publish_tf", &RvizVisualizerParams::publish_tf);
 
   py::class_<RvizVisualizer, Diagram<double>>(m, "RvizVisualizer")
-      .def(py::init<std::shared_ptr<DrakeRosInterface>, RvizVisualizerParams>(),
-           py::arg("ros_interface"), py::arg("params") = RvizVisualizerParams{})
+      .def(py::init<DrakeRos*, RvizVisualizerParams>(), py::arg("ros"),
+           py::arg("params") = RvizVisualizerParams{})
       .def("RegisterMultibodyPlant", &RvizVisualizer::RegisterMultibodyPlant)
       .def("get_graph_query_port", &RvizVisualizer::get_graph_query_port,
            py::return_value_policy::reference_internal);

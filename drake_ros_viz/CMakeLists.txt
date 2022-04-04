@@ -74,7 +74,7 @@ install(
 # Python bindings
 ###
 pybind11_add_module(py_drake_ros_viz SHARED
-  src/python_bindings/module_drake_ros_viz.cpp
+  src/python_bindings/drake_ros_viz.cc
 )
 set_target_properties(py_drake_ros_viz PROPERTIES OUTPUT_NAME "drake_ros_viz")
 target_link_libraries(py_drake_ros_viz PRIVATE drake_ros_viz)
@@ -84,11 +84,11 @@ target_include_directories(py_drake_ros_viz
 )
 
 # Sets PYTHON_INSTALL_DIR
-_ament_cmake_python_get_python_install_dir()
+ament_get_python_install_dir(python_install_dir)
 
 install(
   TARGETS py_drake_ros_viz
-  DESTINATION "${PYTHON_INSTALL_DIR}"
+  DESTINATION "${python_install_dir}"
 )
 ### End Python bindings
 
