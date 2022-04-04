@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import drake_ros_core
 from drake_ros_core import RosInterfaceSystem
 from drake_ros_core import RosPublisherSystem
 from drake_ros_core import RosSubscriberSystem
@@ -83,7 +84,8 @@ def main():
     # S: true  R: true  | Q: invalid    Q_not: invalid
     builder = DiagramBuilder()
 
-    sys_ros_interface = builder.AddSystem(RosInterfaceSystem())
+    drake_ros_core.init()
+    sys_ros_interface = builder.AddSystem(RosInterfaceSystem("rs_flip_flop_node"))
 
     qos = QoSProfile(depth=10)
 

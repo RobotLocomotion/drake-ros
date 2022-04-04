@@ -17,5 +17,3 @@ Run RViz in a different terminal with your ROS installation sourced to visualize
 ```
 ros2 run rviz2 rviz2 -d iiwa_manipulator.rviz
 ```
-
-

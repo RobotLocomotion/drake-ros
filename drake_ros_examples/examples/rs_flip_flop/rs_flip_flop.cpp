@@ -15,10 +15,10 @@
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
 
-#include <drake_ros_core/drake_ros.hpp>
-#include <drake_ros_core/ros_interface_system.hpp>
-#include <drake_ros_core/ros_publisher_system.hpp>
-#include <drake_ros_core/ros_subscriber_system.hpp>
+#include <drake_ros_core/drake_ros.h>
+#include <drake_ros_core/ros_interface_system.h>
+#include <drake_ros_core/ros_publisher_system.h>
+#include <drake_ros_core/ros_subscriber_system.h>
 
 #include <std_msgs/msg/bool.hpp>
 
@@ -109,7 +109,9 @@ int main()
 
   rclcpp::QoS qos{10};
 
-  auto sys_ros_interface = builder.AddSystem<RosInterfaceSystem>(std::make_unique<DrakeRos>());
+  drake_ros_core::init();
+  auto sys_ros_interface = builder.AddSystem<RosInterfaceSystem>(
+      std::make_unique<DrakeRos>("rs_flip_flop_node"));
   auto sys_pub_Q = builder.AddSystem(
     RosPublisherSystem::Make<std_msgs::msg::Bool>(
       "Q", qos, sys_ros_interface->get_ros_interface()));

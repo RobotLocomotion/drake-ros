@@ -14,7 +14,7 @@ To build it:
 1. [Download Drake binary](https://drake.mit.edu/from_binary.html), nightly or any stable releases after 14 Jan 2022.
 1. Extract the Drake binary installation, install it's prerequisites, and [use this Python virutalenv trick](https://drake.mit.edu/from_binary.html).
 1. Activate the drake virtual environment.
-1. Build it using Colcon, or using CMake directly.
+1. Build it using Colcon.
 
     **Colcon**
     1. Make a workspace `mkdir -p ./ws/src`

@@ -1,4 +1,4 @@
-// Copyright 2021https://www.youtube.com/watch?v=SUQnduNzsw8 Open Source Robotics Foundation, Inc.
+// Copyright 2021 Open Source Robotics Foundation, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@
 
 #include <drake/examples/manipulation_station/manipulation_station.h>
 
-#include <drake_ros_core/drake_ros.hpp>
-#include <drake_ros_core/ros_interface_system.hpp>
-#include <drake_ros_viz/rviz_visualizer.hpp>
+#include <drake_ros_core/drake_ros.h>
+#include <drake_ros_core/ros_interface_system.h>
+#include <drake_ros_viz/rviz_visualizer.h>
 
 #include <cmath>
 #include <memory>
@@ -45,8 +45,9 @@ int main()
 {
   drake::systems::DiagramBuilder<double> builder;
 
-  auto ros_interface_system =
-    builder.AddSystem<RosInterfaceSystem>(std::make_unique<DrakeRos>());
+  drake_ros_core::init();
+  auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
+    std::make_unique<DrakeRos>("iiwa_manipulator_node"));
 
   auto manipulation_station = builder.AddSystem<ManipulationStation>();
   manipulation_station->SetupClutterClearingStation();

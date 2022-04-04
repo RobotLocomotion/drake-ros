@@ -15,8 +15,9 @@
 
 import numpy as np
 
-from drake_ros_systems import RosInterfaceSystem
-from drake_ros_systems import RvizVisualizer
+import drake_ros_core
+from drake_ros_core import RosInterfaceSystem
+from drake_ros_viz import RvizVisualizer
 
 from pydrake.examples.manipulation_station import ManipulationStation
 from pydrake.systems.analysis import Simulator
@@ -25,15 +26,16 @@ from pydrake.systems.primitives import Adder
 from pydrake.systems.primitives import ConstantVectorSource
 from pydrake.systems.primitives import Sine
 
-
 def main():
     builder = DiagramBuilder()
 
-    ros_interface_system = builder.AddSystem(RosInterfaceSystem())
+    drake_ros_core.init()
+    ros_interface_system = builder.AddSystem(RosInterfaceSystem("iiwa_manipulator_node"))
 
     manipulation_station = builder.AddSystem(ManipulationStation())
     manipulation_station.SetupClutterClearingStation()
     manipulation_station.Finalize()
+    pdb.set_trace()
 
     # Make the base joint swing sinusoidally.
     constant_term = builder.AddSystem(ConstantVectorSource(

@@ -18,8 +18,11 @@ find_package(drake_ros_viz REQUIRED)
 add_subdirectory(examples)
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_clang_format REQUIRED)
+  find_package(ament_cmake_cpplint REQUIRED)
+
+  ament_clang_format(CONFIG_FILE .clang-format)
+  ament_cpplint()
 endif()
 
 ament_package()
