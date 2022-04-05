@@ -72,10 +72,10 @@ def base_ros2_repository(repo_ctx, workspaces):
         cmd.extend(["-i", package])
     for package in repo_ctx.attr.exclude_packages:
         cmd.extend(["-e", package])
+    cmd.extend(["-o", "distro_metadata.json"])
     result = execute_or_fail(repo_ctx, cmd, quiet=True)
     if result.stderr:
         print(result.stderr)
-    repo_ctx.file("distro_metadata.json", result.stdout)
 
     repo_ctx.report_progress("Generating distro.bzl")
     path_to_generate_distro_file_tool = repo_ctx.path(
@@ -84,10 +84,10 @@ def base_ros2_repository(repo_ctx, workspaces):
     for path, path_in_sandbox in workspaces.items():
         cmd.extend(["-s", path + ":" + path_in_sandbox])
     cmd.extend(["-d", "distro_metadata.json", repo_ctx.name])
+    cmd.extend(["-o", "distro.bzl"])
     result = execute_or_fail(repo_ctx, cmd, quiet=True)
     if result.stderr:
         print(result.stderr)
-    repo_ctx.file("distro.bzl", result.stdout)
 
     repo_ctx.report_progress("Generating BUILD.bazel")
     path_to_generate_build_file_tool = repo_ctx.path(
@@ -98,19 +98,19 @@ def base_ros2_repository(repo_ctx, workspaces):
     if repo_ctx.attr.jobs > 0:
         cmd.extend(["-j", repr(repo_ctx.attr.jobs)])
     cmd.extend(["-d", "distro_metadata.json", repo_ctx.name])
+    cmd.extend(["-o", "BUILD.bazel"])
     result = execute_or_fail(repo_ctx, cmd, quiet=True)
     if result.stderr:
         print(result.stderr)
-    repo_ctx.file("BUILD.bazel", result.stdout)
 
     repo_ctx.report_progress("Generating system-rosdep-keys.txt")
     path_to_compute_system_rosdeps_tool = repo_ctx.path(
         repo_ctx.attr._compute_system_rosdeps_tool)
     cmd = [str(path_to_compute_system_rosdeps_tool)] + list(workspaces.keys())
+    cmd.extend(["-o", "system-rosdep-keys.txt"])
     result = execute_or_fail(repo_ctx, cmd, quiet=True)
     if result.stderr:
         print(result.stderr)
-    repo_ctx.file("system-rosdep-keys.txt", result.stdout)
 
 def _label(relpath):
     return Label("//ros2:" + relpath)
