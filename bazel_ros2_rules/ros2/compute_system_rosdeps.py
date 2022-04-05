@@ -20,7 +20,8 @@ import sys
 # for further reference.
 SKIPPED_ROSDEP_KEYS = {
     'cyclonedds', 'fastcdr', 'fastrtps', 'iceoryx_binding_c',
-    'rti-connext-dds-5.3.1', 'urdfdom_headers'}
+    'rti-connext-dds-5.3.1', 'urdfdom_headers',
+    'rosidl_typesupport_fastrtps_cpp', 'rosidl_typesupport_fastrtps_c'}
 
 
 def parse_arguments():
