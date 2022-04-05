@@ -453,6 +453,8 @@ namespace drake_ros_viz {
 
 namespace {
 
+/// \internal
+/// Converts Drake shape descriptions to ROS Marker messages.
 class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SceneGeometryToMarkers)
@@ -462,6 +464,18 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
 
   ~SceneGeometryToMarkers() override = default;
 
+  /// \internal
+  /// Create ROS markers for a given Drake geometry.
+  ///
+  /// Multiple markers may be created for each geometry.
+  /// \param[in] inspector from which to get information about the geometry
+  /// \param[in] plants MultibodyPlant instances from which to get semantically
+  ///   useful information about the geometry, if possible
+  /// \param[in] marker_namespace name given to the marker, which is unique
+  ///   when combined with marker_id
+  /// \param[in] marker_id id given to the marker, which is unique when
+  ///   combined with marker_namespace
+  /// \param[in,out] marker_array array to which the markers will be appended
   void Populate(
       const drake::geometry::SceneGraphInspector<double>& inspector,
       const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>
