@@ -4,6 +4,14 @@ set -eux pipefail
 
 apt update && apt install apt-transport-https curl gnupg lsb-release cmake build-essential gettext-base coreutils
 
+as-user() {
+  if [[ -n "${SUDO_USER:+D}" ]]; then
+    sudo -u ${SUDO_USER} "$@"
+  else
+    "$@"
+  fi
+}
+
 # Install Bazel (derived from setup/ubuntu/source_distribution/install_prereqs.sh at
 # https://github.com/RobotLocomotion/drake/tree/e91e62f524788081a8fd231129b64ff80607c1dd)
 function dpkg_install_from_curl() {
@@ -65,7 +73,7 @@ if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
 
   apt update && apt install python3-rosdep
   [[ -d /etc/ros/rosdep ]] || rosdep init
-  rosdep update
+  as-user rosdep update --rosdistro=rolling
 
   # TODO(hidmic): be very explicit about what installation mechanisms we allow
   # NOTE: since no ROS distributions has been sourced or specified yet,
