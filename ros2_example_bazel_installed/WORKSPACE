@@ -24,6 +24,7 @@ ROS2_PACKAGES = [
     "rclcpp_action",
     "rclcpp",
     "rclpy",
+    "rviz2",
     # RMW implementations
     "rmw_cyclonedds_cpp",
     "rmw_fastrtps_cpp",
