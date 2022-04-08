@@ -13,7 +13,7 @@ yes | ./setup/install_prereqs.sh
 cd ../repro
 yes | apt install dialog
 dpkg -i ./amdgpu-install_21.50.2.50002-1_all.deb
-yes | amdgpu-install --opencl=rocr,legacy --no-32 --accept-eula
+yes | amdgpu-install --opencl=rocr,legacy --no-32 --accept-eula --no-dkms
 
 cd ../ros2_example_bazel_installed
 bazel build @ros2//:rviz2_rviz2
