@@ -1,0 +1,49 @@
+Bootstrap: docker
+From: robotlocomotion/drake:focal
+
+%files
+  .. /drake-ros
+
+%post
+  export DEBIAN_FRONTEND=noninteractive
+
+  apt-get update
+  apt-get install -y \
+    git \
+    curl \
+    locales \
+    gnupg2 \
+    lsb-release \
+    software-properties-common \
+    build-essential \
+    tzdata
+
+  locale-gen en_US en_US.UTF-8
+  update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+  export LANG=en_US.UTF-8
+
+  apt-add-repository universe
+  apt-add-repository "deb http://security.ubuntu.com/ubuntu `lsb_release -cs`-security main restricted universe multiverse"
+
+  curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
+
+  echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros1-stable.list
+  echo "deb http://packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2.list
+
+  apt-get update
+  apt-get install -y python3-rosdep
+
+  rosdep init
+
+  yes | /drake-ros/ros2_example_bazel_installed/setup/install_prereqs.sh
+
+  # Mess with /etc/ld.so.conf.d
+  echo /opt/amdgpu-pro/lib/x86_64-linux-gnu/ > /etc/ld.so.conf.d/amdgpu-pro.conf
+  mkdir -p /opt/amdgpu-pro/lib/x86_64-linux-gnu/
+  # Put a lib in there that ROS 2 libs use
+  cp  /usr/lib/x86_64-linux-gnu/libz.so.1 /opt/amdgpu-pro/lib/x86_64-linux-gnu/
+  ldconfig
+
+%environment
+  export LANG=en_US.UTF-8
+  export ROS_PYTHON_VERSION=3
