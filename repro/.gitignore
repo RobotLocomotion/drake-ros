@@ -1,1 +1,3 @@
 *.sif
+*.img
+/bazel_cache/
