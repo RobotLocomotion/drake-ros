@@ -94,7 +94,7 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
             cmd.extend(['-L', path])
     if link_flags:
         cmd.extend(link_flags)
-    for path in tuple(set(os.environ.get('LIBRARY_PATH', '').split(':'))):
+    for path in set(os.environ.get('LIBRARY_PATH', '').split(':')):
         cmd.extend(['-L', path])
     for path in system_link_dirs():
         cmd.extend(['-L', path])
