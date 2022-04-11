@@ -27,6 +27,11 @@ std::string GetTfFrameName(
     const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>&
         plants,
     const drake::geometry::FrameId& frame_id) {
+  // Special case: world frame is always world
+  if (frame_id == inspector.world_frame_id()) {
+    return "world";
+  }
+
   std::stringstream ss;
   for (auto* plant : plants) {
     const drake::multibody::Body<double>* body =

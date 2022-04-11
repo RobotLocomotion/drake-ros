@@ -29,7 +29,7 @@ def is_system_include(include_path):
 @lru_cache(maxsize=1)
 def system_link_dirs():
     """Get standard search paths for the linker."""
-    link_dirs = set(os.environ.get('LIBRARY_PATH', '').split(':'))
+    link_dirs = set()
     output = subprocess.run(
         ['ld', '--verbose'],
         check=True,
@@ -47,9 +47,9 @@ def system_link_dirs():
 @lru_cache(maxsize=1)
 def system_shared_lib_dirs():
     """Get standard search paths for the dynamic runtime loader."""
-    lib_dirs = set(os.environ.get('LD_LIBRARY_PATH', '').split(':'))
+    lib_dirs = set()
     output = subprocess.run(
-        ['ldconfig', '--verbose'],
+        ['ldconfig', '-XN', '--verbose'],
         check=False,  # TODO(sloretz) why does this proces have a non-zero exit
                       # code on my system?
         stdout=subprocess.PIPE,
@@ -95,7 +95,7 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
             cmd.extend(['-L', path])
     if link_flags:
         cmd.extend(link_flags)
-    for path in system_shared_lib_dirs():
+    for path in tuple(set(os.environ.get('LIBRARY_PATH', '').split(':'))):
         cmd.extend(['-L', path])
     for path in system_link_dirs():
         cmd.extend(['-L', path])
