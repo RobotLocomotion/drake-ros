@@ -17,6 +17,13 @@
 #include "utilities/internal_name_conventions.h"
 #include <gtest/gtest.h>
 
+#include "drake_ros_tf2/utilities/name_conventions.h"
+
+using drake::geometry::FrameId;
+using drake::multibody::ModelInstanceIndex;
+using drake::multibody::MultibodyPlant;
+using drake::systems::DiagramBuilder;
+
 TEST(NameConventions, CalcTfFrameNameWithBody) {
   // All names are present
   EXPECT_EQ("model_name/body_name/456",
@@ -70,4 +77,21 @@ TEST(NameConventions, CalcTfFrameNameWithoutBody) {
   // Frame name with only / delimiter
   EXPECT_EQ("unnamed_frame_123",
             drake_ros_tf2::internal::CalcTfFrameName("/", 123));
+}
+
+TEST(NameConventions, GetTfFrameNameWorld) {
+  DiagramBuilder<double> builder;
+
+  auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(
+      &builder, std::make_unique<MultibodyPlant<double>>(0.0));
+
+  std::unordered_set<const MultibodyPlant<double>*> plants = {&plant};
+
+  // World frame is always ModelInstanceIndex 0
+  const auto world_model_index = ModelInstanceIndex{0};
+  FrameId frame_id = plant.GetBodyFrameIdOrThrow(
+      plant.GetBodyIndices(world_model_index).at(0));
+
+  EXPECT_EQ("world", drake_ros_tf2::GetTfFrameName(
+                         scene_graph.model_inspector(), plants, frame_id));
 }
