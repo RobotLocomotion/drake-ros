@@ -50,8 +50,7 @@ def system_shared_lib_dirs():
     lib_dirs = set()
     output = subprocess.run(
         ['ldconfig', '-XN', '--verbose'],
-        check=False,  # TODO(sloretz) why does this proces have a non-zero exit
-                      # code on my system?
+        check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         encoding='utf8'
