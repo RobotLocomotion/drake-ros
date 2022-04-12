@@ -40,7 +40,7 @@ def system_link_dirs():
 
     for directory in re.findall(r'SEARCH_DIR\("=([^=]+)"\)', output):
         link_dirs.add(directory)
-    # Filter emtpy strings
+    # Filter empty strings
     return tuple([d for d in link_dirs if d])
 
 
@@ -58,7 +58,7 @@ def system_shared_lib_dirs():
 
     for directory in re.findall(r'([^:\t\n]+):', output):
         lib_dirs.add(directory)
-    # Filter emtpy strings
+    # Filter empty strings
     return tuple([d for d in lib_dirs if d])
 
 
