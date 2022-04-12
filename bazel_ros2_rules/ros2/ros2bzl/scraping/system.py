@@ -96,7 +96,11 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
         cmd.extend(link_flags)
     for path in set(os.environ.get('LIBRARY_PATH', '').split(':')):
         cmd.extend(['-L', path])
+    for path in set(os.environ.get('LD_LIBRARY_PATH', '').split(':')):
+        cmd.extend(['-L', path])
     for path in system_link_dirs():
+        cmd.extend(['-L', path])
+    for path in system_shared_lib_dirs():
         cmd.extend(['-L', path])
     cmd.extend(['-o', os.devnull, '-l' + library_name])
     try:
