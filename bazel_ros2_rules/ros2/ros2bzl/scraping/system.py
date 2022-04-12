@@ -40,7 +40,7 @@ def system_link_dirs():
 
     for directory in re.findall(r'SEARCH_DIR\("=([^=]+)"\)', output):
         link_dirs.add(directory)
-    # Filter emtpy strings
+    # Filter empty strings
     return tuple([d for d in link_dirs if d])
 
 
@@ -50,8 +50,7 @@ def system_shared_lib_dirs():
     lib_dirs = set()
     output = subprocess.run(
         ['ldconfig', '-XN', '--verbose'],
-        check=False,  # TODO(sloretz) why does this proces have a non-zero exit
-                      # code on my system?
+        check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         encoding='utf8'
@@ -59,7 +58,7 @@ def system_shared_lib_dirs():
 
     for directory in re.findall(r'([^:\t\n]+):', output):
         lib_dirs.add(directory)
-    # Filter emtpy strings
+    # Filter empty strings
     return tuple([d for d in lib_dirs if d])
 
 
@@ -89,15 +88,18 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
     # Adapted from ctypes.util.find_library_path() implementation.
     pattern = r'/(?:[^\(\)\s]*/)*lib{}\.[^\(\)\s]*'.format(library_name)
 
-    cmd = ['ld', '-t']
+    paths = []
     if link_directories:
-        for path in link_directories:
-            cmd.extend(['-L', path])
+        paths.extend(link_directories)
+    paths.extend(set(os.environ.get('LIBRARY_PATH', '').split(':')))
+    paths.extend(set(os.environ.get('LD_LIBRARY_PATH', '').split(':')))
+    paths.extend(system_link_dirs())
+    paths.extend(system_shared_lib_dirs())
+
+    cmd = ['ld', '-t']
     if link_flags:
         cmd.extend(link_flags)
-    for path in tuple(set(os.environ.get('LIBRARY_PATH', '').split(':'))):
-        cmd.extend(['-L', path])
-    for path in system_link_dirs():
+    for path in paths:
         cmd.extend(['-L', path])
     cmd.extend(['-o', os.devnull, '-l' + library_name])
     try:
