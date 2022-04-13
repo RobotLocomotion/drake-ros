@@ -96,7 +96,7 @@ class RvizVisualizer : public drake::systems::Diagram<double> {
 
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/diagram.h>
-#include <drake_ros_core/ros_interface_system.h>
+#include <drake_ros_core/drake_ros.h>
 
 namespace drake_ros_viz {
 
@@ -108,6 +108,7 @@ struct RvizVisualizerParams {
       drake::systems::TriggerType::kPeriodic};
 
   /// Period for periodic scene markers and tf broadcasting.
+  /// The default frequency is 20 Hz.
   double publish_period{0.05};
 
   /// Whether to perform tf broadcasting or not.
@@ -127,7 +128,7 @@ struct RvizVisualizerParams {
 /// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
 class RvizVisualizer : public drake::systems::Diagram<double> {
  public:
-  /** A constructor for the rviz vizualizer system.
+  /** A constructor for the RViz vizualizer system.
     @param[in] ros interface to a live ROS node to publish from.
     @param[in] params optional rviz visualizer configurations.
     */
