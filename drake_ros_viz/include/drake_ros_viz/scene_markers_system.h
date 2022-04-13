@@ -50,7 +50,7 @@ struct SceneMarkersParams {
   drake::geometry::Rgba default_color{0.9, 0.9, 0.9, 1.0};
 };
 
-/// System for SceneGraph depiction as a ROS markers array.
+/// System for SceneGraph depiction as a ROS marker array.
 ///
 /// This system outputs a `visualization_msgs/msg/MarkerArray` populated with
 /// all geometries found in a SceneGraph, using Context time to timestamp
