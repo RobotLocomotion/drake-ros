@@ -28,6 +28,34 @@ def labels_with(suffix):
     )
 
 
+def filter_invalid_labels(maybe_labels):
+    """
+    Filter strings that are invalid bazel labels.
+
+    https://docs.bazel.build/versions/main/build-ref.html#lexi
+    """
+    maybe_valid_labels = []
+    # Filter obviously invalid labels rather than parsing them fully
+    for candidate in maybe_labels:
+        if not candidate:
+            # Empty strings aren't valid labels
+            continue
+        if len(candidate) > 2 and candidate[0] == '/' and candidate[1] != '/':
+            # Labels can't start with a single slash
+            continue
+        if candidate.endswith('/'):
+            # Labels can't with a slash
+            continue
+        if candidate.count(':') > 1:
+            # Labels can't have more than one colon
+            continue
+        if candidate.count('//') > 1:
+            # Labels can't have more than one double slash
+            continue
+        maybe_valid_labels.append(candidate)
+    return maybe_valid_labels
+
+
 share_name, share_label = labels_with(suffix='_share')
 c_name, c_label = labels_with(suffix='_c')
 cc_name, cc_label = labels_with(suffix='_cc')
@@ -116,14 +144,14 @@ def configure_package_cc_library(
 
     config = {
         'name': target_name,
-        'srcs': libraries,
-        'headers': headers,
+        'srcs': filter_invalid_labels(libraries),
+        'headers': filter_invalid_labels(headers),
         'includes': local_includes,
         'copts': copts,
         'defines': defines,
         'linkopts': linkopts,
-        'data': data,
-        'deps': deps,
+        'data': filter_invalid_labels(data),
+        'deps': filter_invalid_labels(deps),
     }
 
     return (
@@ -187,8 +215,8 @@ def configure_package_py_library(
             template = 'templates/package_py_library_with_cc_libs.bazel.tpl'
             config.update({
                 'cc_name': c_name("_" + target_name, metadata),
-                'cc_libs': [
-                    sandbox(lib) for lib in properties['cc_libraries']],
+                'cc_libs': filter_invalid_labels([
+                    sandbox(lib) for lib in properties['cc_libraries']]),
                 'cc_deps': cc_deps
             })
             data.append(c_label("_" + target_name, metadata))
@@ -206,7 +234,7 @@ def configure_package_py_library(
             for library in metadata['plugin_libraries']
         )
 
-    config['data'] = data
+    config['data'] = filter_invalid_labels(data)
 
     return (
         target_name,
@@ -260,7 +288,8 @@ def configure_executable_imports(
             to_starlark_string_dict({
                 'name': target_name,
                 'executable': sandbox(executable),
-                'data': common_data, 'deps': deps,
+                'data': filter_invalid_labels(common_data),
+                'deps': filter_invalid_labels(deps),
             })
         )
 
