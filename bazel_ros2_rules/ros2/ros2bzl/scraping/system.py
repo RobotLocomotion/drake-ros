@@ -3,6 +3,7 @@ Utility functions to aid compilation and linkage configuration scraping by
 resorting to (Linux) system-wide conventions and tooling.
 """
 
+from functools import lru_cache
 import os
 import re
 import subprocess
@@ -25,24 +26,51 @@ def is_system_include(include_path):
         for path in DEFAULT_INCLUDE_DIRECTORIES)
 
 
-# Standard library files' search paths for linkers in Linux systems.
-# Useful to detect system libraries in package exported configuration.
-DEFAULT_LINK_DIRECTORIES = ['/lib', '/usr/lib', '/usr/local/lib']
+@lru_cache(maxsize=1)
+def system_link_dirs():
+    """Get standard search paths for the linker."""
+    link_dirs = set()
+    output = subprocess.run(
+        ['ld', '--verbose'],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        encoding='utf8'
+    ).stdout.strip()
+
+    for directory in re.findall(r'SEARCH_DIR\("=([^=]+)"\)', output):
+        link_dirs.add(directory)
+    # Filter empty strings
+    return tuple([d for d in link_dirs if d])
+
+
+@lru_cache(maxsize=1)
+def system_shared_lib_dirs():
+    """Get standard search paths for the dynamic runtime loader."""
+    lib_dirs = set()
+    output = subprocess.run(
+        ['ldconfig', '-XN', '--verbose'],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        encoding='utf8'
+    ).stdout.strip()
+
+    for directory in re.findall(r'([^:\t\n]+):', output):
+        lib_dirs.add(directory)
+    # Filter empty strings
+    return tuple([d for d in lib_dirs if d])
 
 
 def is_system_library(library_path):
     """
     Checks whether `library_path` is in a system library directory
-    i.e. known to linkers.
+    i.e. known to the linker or dynamic loader
     """
     library_path = os.path.realpath(library_path)
     return any(
         library_path.startswith(path)
-        for path in DEFAULT_LINK_DIRECTORIES)
-
-
-LD_LIBRARY_PATHS = [
-    path for path in os.environ.get('LD_LIBRARY_PATH', '').split(':') if path]
+        for path in system_link_dirs() + system_shared_lib_dirs())
 
 
 def find_library_path(library_name, link_directories=None, link_flags=None):
@@ -60,15 +88,18 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
     # Adapted from ctypes.util.find_library_path() implementation.
     pattern = r'/(?:[^\(\)\s]*/)*lib{}\.[^\(\)\s]*'.format(library_name)
 
-    cmd = ['ld', '-t']
+    paths = []
     if link_directories:
-        for path in link_directories:
-            cmd.extend(['-L', path])
+        paths.extend(link_directories)
+    paths.extend(set(os.environ.get('LIBRARY_PATH', '').split(':')))
+    paths.extend(set(os.environ.get('LD_LIBRARY_PATH', '').split(':')))
+    paths.extend(system_link_dirs())
+    paths.extend(system_shared_lib_dirs())
+
+    cmd = ['ld', '-t']
     if link_flags:
         cmd.extend(link_flags)
-    for path in LD_LIBRARY_PATHS:
-        cmd.extend(['-L', path])
-    for path in DEFAULT_LINK_DIRECTORIES:
+    for path in paths:
         cmd.extend(['-L', path])
     cmd.extend(['-o', os.devnull, '-l' + library_name])
     try:
