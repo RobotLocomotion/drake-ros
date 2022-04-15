@@ -58,6 +58,8 @@ def system_shared_lib_dirs():
 
     for directory in re.findall(r'([^:\t\n]+):', output):
         lib_dirs.add(directory)
+    # Workaround Singularity redirects, e.g. for `--nv`.
+    lib_dirs.add("/.singularity.d/libs")
     # Filter empty strings
     return tuple([d for d in lib_dirs if d])
 
