@@ -12,6 +12,7 @@ defaults:
 
 jobs:
   build_and_test:
+    if: false  # DISABLE CI
     runs-on: ubuntu-latest
     container:
       image: ros:rolling-ros-base-focal

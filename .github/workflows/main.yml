@@ -10,6 +10,7 @@ on:
       - develop
 jobs:
   test_against_galactic:
+    if: false  # DISABLE CI
     runs-on: ubuntu-latest
     container:
       image: robotlocomotion/drake:focal
@@ -24,6 +25,7 @@ jobs:
         with:
           target-ros2-distro: galactic
   test_against_rolling:
+    if: false  # DISABLE CI
     runs-on: ubuntu-latest
     container:
       image: robotlocomotion/drake:focal
