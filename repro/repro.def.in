@@ -2,7 +2,7 @@ Bootstrap: docker
 From: robotlocomotion/drake:focal
 
 %files
-  .. /drake-ros
+  {{src}} /drake-ros
 
 %post
   export DEBIAN_FRONTEND=noninteractive

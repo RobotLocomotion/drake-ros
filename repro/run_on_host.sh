@@ -3,27 +3,36 @@ set -eux
 
 cd $(dirname ${BASH_SOURCE})
 
-if [[ ! -f ./repro.sif ]]; then
-    singularity build --fakeroot repro.sif repro.def
+build=/tmp/drake-ros-repro-sandbox
+
+if [[ ! -f ${build}.sif ]]; then
+    ( cd .. && find . -name 'bazel-*' | xargs rm -f )
+
+    # Reformat.
+    sed 's#{{src}}#'${PWD}/..'#g' ./repro.def.in > ./repro.def
+
+    # TODO(eric): How do I tell it ignore files, and permit recursive copying?
+    # apptainer build --fakeroot --sandbox ${build} repro.def
+    apptainer build --fakeroot ${build}.sif repro.def
 fi
 
-mkdir -p bazel_cache
-
-if [[ ! -f ./overlay.img ]]; then
-    dd if=/dev/zero of=overlay.img bs=1M count=500
-    mkfs.ext4 overlay.img
+if [[ ! -d ${build} ]]; then
+    # Convert sif to writeable sandbox.
+    apptainer build --fakeroot --sandbox ${build} ${build}.sif
 fi
 
-# TODO(eric): How to make sandbox persistent?
-# I replaced `--writeable` with `--overlay ... --bind ...`, but eww.
-singularity exec \
+cache=${build}.bazel_cache
+mkdir -p ${cache}
+
+apptainer exec \
     --fakeroot \
-    --overlay ./overlay.img --bind ./bazel_cache:/root/.cache/bazel \
-    --no-home --containall \
+    --bind ${cache}:/root/.cache/bazel \
+    --no-home \
+    --containall \
     --bind ..:/drake-ros \
     --pwd /drake-ros/ros2_example_bazel_installed \
     --nv \
-    repro.sif \
+    ${build} \
     bash -eux -c '
         ls -1 /.singularity.d/libs/*.so* | wc -l
         bazel build @ros2//:builtin_interfaces_cc
