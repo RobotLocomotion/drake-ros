@@ -22,7 +22,11 @@ singularity exec \
     --no-home --containall \
     --bind ..:/drake-ros \
     --pwd /drake-ros/ros2_example_bazel_installed \
+    --nv \
     repro.sif \
-    bazel build @ros2//:builtin_interfaces_cc
-
+    bash -eux -c '
+        ls -1 /.singularity.d/libs/*.so* | wc -l
+        bazel build @ros2//:builtin_interfaces_cc
+        bazel run @ros2//:rviz2_rviz2
+    '
     # bazel build //ros2_example_apps:oracle_cc
