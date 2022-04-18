@@ -603,7 +603,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
 
     visualization_msgs::msg::Marker& upper_cap_marker =
         marker_array_->markers.back();
-    upper_cap_marker.ns = prototype_marker_.ns + "/upper_cap";
+    upper_cap_marker.id = prototype_marker_.id + 1;
     upper_cap_marker.type = visualization_msgs::msg::Marker::SPHERE;
     upper_cap_marker.scale.x = diameter;
     upper_cap_marker.scale.y = diameter;
@@ -617,7 +617,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
 
     visualization_msgs::msg::Marker& lower_cap_marker =
         marker_array_->markers.back();
-    lower_cap_marker.ns = prototype_marker_.ns + "/lower_cap";
+    lower_cap_marker.id = prototype_marker_.id + 2;
     const drake::math::RigidTransform<double> X_GL{
         drake::Vector3<double>{0., 0., -capsule.length() / 2.}};
     const drake::math::RigidTransform<double> X_FL = X_FG_ * X_GL;
