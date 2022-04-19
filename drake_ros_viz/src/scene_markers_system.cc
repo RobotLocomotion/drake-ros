@@ -258,8 +258,10 @@ class SceneMarkersSystem::SceneMarkersSystemPrivate {
   drake::systems::InputPortIndex graph_query_port_index;
   drake::systems::OutputPortIndex scene_markers_port_index;
   std::unordered_set<const drake::multibody::MultibodyPlant<double>*> plants;
+  // Map each geometry to the id of the first marker it creates
   std::unordered_map<drake::geometry::GeometryId, int>
       geometry_id_marker_id_map_{};
+  // Map each marker namespace and the next unique marker id
   std::unordered_map<std::string, int> marker_namespace_id_map_{};
   mutable drake::geometry::GeometryVersion version;
 };
@@ -362,23 +364,29 @@ void SceneMarkersSystem::CalcSceneMarkers(
                                                   geometry_id);
       int marker_id = 0;
 
+      auto m_it = impl_->marker_namespace_id_map_.end();
       auto g_it = impl_->geometry_id_marker_id_map_.find(geometry_id);
       if (g_it != impl_->geometry_id_marker_id_map_.end()) {
+        // Reuse the marker ID if one was already given to this geometry
         marker_id = g_it->second;
       } else {
-        auto m_it = impl_->marker_namespace_id_map_.find(marker_namespace);
-        if (m_it == impl_->marker_namespace_id_map_.end()) {
-          impl_->marker_namespace_id_map_[marker_namespace] = marker_id;
-        } else {
-          marker_id = ++m_it->second;
-        }
+        // Every namespace starts with an ID of 0; initialize it if needed.
+        m_it = impl_->marker_namespace_id_map_.try_emplace(marker_namespace, 0)
+                   .first;
 
+        marker_id = m_it->second;
         impl_->geometry_id_marker_id_map_[geometry_id] = marker_id;
       }
 
+      size_t num_markers_before = output_value->markers.size();
       SceneGeometryToMarkers(impl_->params)
           .Populate(inspector, impl_->plants, geometry_id, marker_namespace,
                     marker_id, output_value);
+      if (m_it != impl_->marker_namespace_id_map_.end()) {
+        // Update namespace/id map with next unique ID
+        m_it->second =
+            marker_id + (output_value->markers.size() - num_markers_before);
+      }
     }
   }
 }
