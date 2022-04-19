@@ -999,7 +999,7 @@ struct SingleCapsuleSceneTestDetails {
       EXPECT_EQ(body_marker.header.stamp.sec, 0);
       EXPECT_EQ(body_marker.header.stamp.nanosec, 0u);
       EXPECT_EQ(body_marker.ns, std::string(kSourceName));
-      EXPECT_EQ(body_marker.id, static_cast<int>(i));
+      EXPECT_EQ(body_marker.id, static_cast<int>(i * 3));
       EXPECT_EQ(body_marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(body_marker.type, visualization_msgs::msg::Marker::CYLINDER);
       EXPECT_EQ(body_marker.lifetime.sec, 0);
@@ -1026,8 +1026,8 @@ struct SingleCapsuleSceneTestDetails {
       EXPECT_EQ(upper_cap_marker.header.frame_id, "world");
       EXPECT_EQ(upper_cap_marker.header.stamp.sec, 0);
       EXPECT_EQ(upper_cap_marker.header.stamp.nanosec, 0u);
-      EXPECT_EQ(upper_cap_marker.ns, std::string(kSourceName) + "/upper_cap");
-      EXPECT_EQ(upper_cap_marker.id, static_cast<int>(i));
+      EXPECT_EQ(upper_cap_marker.ns, std::string(kSourceName));
+      EXPECT_EQ(upper_cap_marker.id, static_cast<int>(i * 3 + 1));
       EXPECT_EQ(upper_cap_marker.action,
                 visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(upper_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
@@ -1054,8 +1054,8 @@ struct SingleCapsuleSceneTestDetails {
       EXPECT_EQ(lower_cap_marker.header.frame_id, "world");
       EXPECT_EQ(lower_cap_marker.header.stamp.sec, 0);
       EXPECT_EQ(lower_cap_marker.header.stamp.nanosec, 0u);
-      EXPECT_EQ(lower_cap_marker.ns, std::string(kSourceName) + "/lower_cap");
-      EXPECT_EQ(lower_cap_marker.id, static_cast<int>(i));
+      EXPECT_EQ(lower_cap_marker.ns, std::string(kSourceName));
+      EXPECT_EQ(lower_cap_marker.id, static_cast<int>(i * 3 + 2));
       EXPECT_EQ(lower_cap_marker.action,
                 visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(lower_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
