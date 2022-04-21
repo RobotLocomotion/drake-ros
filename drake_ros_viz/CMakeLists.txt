@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(drake_ros_viz)
 
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
 # Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -44,7 +46,7 @@ target_include_directories(drake_ros_viz
 
 ament_export_include_directories(include)
 ament_export_libraries(drake_ros_viz)
-ament_export_targets(${PROJECT_NAME})
+ament_export_targets(drake_ros_viz)
 
 ament_export_dependencies(drake)
 ament_export_dependencies(drake_ros_core)
@@ -54,8 +56,8 @@ ament_export_dependencies(rclcpp)
 ament_export_dependencies(visualization_msgs)
 
 install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}
+  TARGETS drake_ros_viz
+  EXPORT drake_ros_viz
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
