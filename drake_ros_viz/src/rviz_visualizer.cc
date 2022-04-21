@@ -124,6 +124,7 @@ const drake::systems::InputPort<double>& RvizVisualizer::get_graph_query_port()
 #include <utility>
 
 #include <drake/systems/framework/diagram_builder.h>
+#include <drake_ros_core/drake_ros.h>
 #include <drake_ros_core/ros_publisher_system.h>
 #include <drake_ros_tf2/scene_tf_broadcaster_system.h>
 #include <rclcpp/qos.hpp>
