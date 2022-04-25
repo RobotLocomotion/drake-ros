@@ -33,10 +33,8 @@ ros2_archive(
     name = "ros2" if not ROS2_DISTRO_PREFIX else "ros2_ignored",
     include_packages = ROS2_PACKAGES,
     # TODO(hidmic): mirror this tarball for stability
-    url = "http://repo.ros2.org/ci_archives/rolling-on-focal/ros2-rolling-linux-focal-amd64-ci.tar.bz2",
-    # NOTE: the following checksum is likely to be often invalidated
-    # (as of Feb 2022, each time the preceding tarball gets rebuilt)
-    sha256 = "5bd37168cd2b704eabee207145362ce38eb83431ac183f9a9b432121c9fb8015",
+    url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-rolling-linux-focal-amd64-ci.tar.bz2",
+    sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-rolling-linux-focal-amd64-ci-CHECKSUM",
     strip_prefix = "ros2-linux",
     # Fix wrong chained prefix, if any
     patch_cmds = ["sed -i 's|COLCON_CURRENT_PREFIX=\"/opt/ros/rolling\"||g' archive/setup.sh"],

@@ -201,6 +201,9 @@ _ros2_archive_attrs = {
     "sha256": attr.string(
         doc = "The expected SHA-256 of the file downloaded.",
     ),
+    "sha256_url": attr.string(
+        doc = "The URL to fetch the SHA-256 checksum file for the tarball.",
+    ),
     "strip_prefix": attr.string(
         doc = "A directory prefix to strip from the extracted files.",
     ),
@@ -230,11 +233,22 @@ _ros2_archive_attrs = {
 _ros2_archive_attrs.update(base_ros2_repository_attrs())
 
 def _ros2_archive_impl(repo_ctx):
+    sha256 = repo_ctx.attr.sha256
+    if repo_ctx.attr.sha256_url:
+        checksum_download_info = repo_ctx.download(
+            repo_ctx.attr.sha256_url,
+            "archive.sha256"
+        )
+        sha256_file = repo_ctx.read("archive.sha256").split(' ', 1)[0]
+        if sha256 and sha256 != sha256_file:
+            fail("sha256 and sha256_url are both supplied and are different")
+        sha256 = sha256_file
+
     repo_ctx.report_progress("Pulling archive")
     download_info = repo_ctx.download_and_extract(
         repo_ctx.attr.url,
         "archive",
-        repo_ctx.attr.sha256,
+        sha256,
         repo_ctx.attr.type,
         repo_ctx.attr.strip_prefix
     )
