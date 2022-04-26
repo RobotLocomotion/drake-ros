@@ -15,9 +15,6 @@ import json
 import os
 import sys
 
-print('PYTHONPATH:', os.environ['PYTHONPATH'])
-print('sys.path:', sys.path)
-
 from ros2bzl.scraping import scrape_distribution
 
 
