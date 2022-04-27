@@ -28,10 +28,12 @@ cc_library(
     name = "rmw_isolation_cc",
     srcs = ["rmw_isolation.cc"],
     hdrs = ["rmw_isolation.h"],
+    include_prefix = "rmw_isolation",
     data = [":generate_isolated_rmw_env"],
     local_defines = [
-        "RMW_ISOLATION_ROOTPATH={}/rmw_isolation".format(
-            repository_name().strip("@") or ".")
+        "RMW_ISOLATION_ROOTPATH={}/{}".format(
+            repository_name().strip("@") or ".",
+            package_name())
     ],
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
@@ -45,7 +47,8 @@ ros_py_binary(
     main = "test/isolated_talker.py",
     deps = [
         "//:rclpy_py",
-        "//:std_msgs_py"
+        "//:std_msgs_py",
+        ":module_py",
     ],
     rmw_implementation = 'rmw_cyclonedds_cpp',
     legacy_create_init = False,
