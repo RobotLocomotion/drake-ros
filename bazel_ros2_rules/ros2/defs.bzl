@@ -202,9 +202,9 @@ _ros2_archive_attrs = {
         doc = "The expected SHA-256 of the file downloaded.",
     ),
     "sha256_url": attr.string(
-        doc = "The URL to fetch the SHA-256 checksum file for the tarball. "
-            "If 'sha256' is also supplied, then it must exactly match the "
-            "value fetched from this URL. "
+        doc = "The URL to fetch the SHA-256 checksum file for the tarball. " +
+            "If 'sha256' is also supplied, then it must exactly match the " +
+            "value fetched from this URL. " +
             "(In general, you may only want to supply one of these.)",
     ),
     "strip_prefix": attr.string(
