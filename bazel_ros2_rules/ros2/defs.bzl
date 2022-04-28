@@ -5,9 +5,13 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "patch", "update_attrs")
 load("//tools:execute.bzl", "execute_or_fail")
 
 COMMON_FILES_MANIFEST = [
-    "resources/ros_cc.bzl",
-    "resources/ros_py.bzl",
-    "resources/rosidl.bzl",
+    "ros_cc.bzl",
+    "ros_py.bzl",
+    "rosidl.bzl",
+
+    "resources/cmake_tools/__init__.py",
+    "resources/cmake_tools/packages.py",
+    "resources/cmake_tools/server_mode.py",
 
     "resources/rmw_isolation/__init__.py",
     "resources/rmw_isolation/generate_isolated_rmw_env.py",
@@ -21,12 +25,36 @@ COMMON_FILES_MANIFEST = [
     "resources/rmw_isolation/test/isolated_talker.py",
     "resources/rmw_isolation/test/rmw_isolation_test.sh",
 
-    "resources/tools/common.bzl",
-    "resources/tools/dload.bzl",
-    "resources/tools/dload_cc.bzl",
-    "resources/tools/dload_py.bzl",
-    "resources/tools/kwargs.bzl",
-    "resources/tools/package.BUILD.bazel",
+    "resources/ros2bzl/__init__.py",
+    "resources/ros2bzl/resources.py",
+    "resources/ros2bzl/sandboxing.py",
+    "resources/ros2bzl/scraping/ament_cmake.py",
+    "resources/ros2bzl/scraping/ament_python.py",
+    "resources/ros2bzl/scraping/__init__.py",
+    "resources/ros2bzl/scraping/metadata.py",
+    "resources/ros2bzl/scraping/system.py",
+    "resources/ros2bzl/templates.py",
+    "resources/ros2bzl/utilities.py",
+
+    "resources/templates/ament_cmake_CMakeLists.txt.in",
+    "resources/templates/distro.bzl.tpl",
+    "resources/templates/overlay_executable.bazel.tpl",
+    "resources/templates/package_alias.bazel.tpl",
+    "resources/templates/package_cc_library.bazel.tpl",
+    "resources/templates/package_interfaces_filegroup.bazel.tpl",
+    "resources/templates/package_meta_py_library.bazel.tpl",
+    "resources/templates/package_py_library.bazel.tpl",
+    "resources/templates/package_py_library_with_cc_libs.bazel.tpl",
+    "resources/templates/package_share_filegroup.bazel.tpl",
+    "resources/templates/prologue.bazel",
+    "resources/templates/run.bash.in",
+
+    "tools/common.bzl",
+    "tools/dload.bzl",
+    "tools/dload_cc.bzl",
+    "tools/dload_py.bzl",
+    "tools/kwargs.bzl",
+    "tools/package.BUILD.bazel",
 ]
 
 def base_ros2_repository(repo_ctx, workspaces):
@@ -49,7 +77,7 @@ def base_ros2_repository(repo_ctx, workspaces):
     """
     repo_ctx.report_progress("Symlinking common files")
     for file_ in repo_ctx.attr._common_files:
-        target = file_.name[len("resources/"):]
+        target = file_.name
         if target.endswith("package.BUILD.bazel"):
             directory = target[:-len("package.BUILD.bazel")]
             target = directory + "BUILD.bazel"
@@ -64,6 +92,8 @@ def base_ros2_repository(repo_ctx, workspaces):
         executable = True
     )
 
+    env = {'PYTHONPATH': 'resources/'}
+
     repo_ctx.report_progress("Generating distro_metadata.json")
     path_to_scrape_distribution_tool = repo_ctx.path(
         repo_ctx.attr._scrape_distribution_tool)
@@ -73,7 +103,7 @@ def base_ros2_repository(repo_ctx, workspaces):
     for package in repo_ctx.attr.exclude_packages:
         cmd.extend(["-e", package])
     cmd.extend(["-o", "distro_metadata.json"])
-    result = execute_or_fail(repo_ctx, cmd, quiet=True)
+    result = execute_or_fail(repo_ctx, cmd, quiet=True, environment=env)
     if result.stderr:
         print(result.stderr)
 
@@ -85,7 +115,7 @@ def base_ros2_repository(repo_ctx, workspaces):
         cmd.extend(["-s", path + ":" + path_in_sandbox])
     cmd.extend(["-d", "distro_metadata.json", repo_ctx.name])
     cmd.extend(["-o", "distro.bzl"])
-    result = execute_or_fail(repo_ctx, cmd, quiet=True)
+    result = execute_or_fail(repo_ctx, cmd, quiet=True, environment=env)
     if result.stderr:
         print(result.stderr)
 
@@ -99,7 +129,7 @@ def base_ros2_repository(repo_ctx, workspaces):
         cmd.extend(["-j", repr(repo_ctx.attr.jobs)])
     cmd.extend(["-d", "distro_metadata.json", repo_ctx.name])
     cmd.extend(["-o", "BUILD.bazel"])
-    result = execute_or_fail(repo_ctx, cmd, quiet=True)
+    result = execute_or_fail(repo_ctx, cmd, quiet=True, environment=env)
     if result.stderr:
         print(result.stderr)
 

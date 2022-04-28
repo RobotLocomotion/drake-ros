@@ -17,12 +17,6 @@ import sys
 
 import toposort
 
-# NOTE: this script is typically invoked by Bazel repository rules.
-# As repository rules are executed in Bazel's loading phase, `py_library()`
-# cannot be relied on to make modules such as `ros2bzl` and `cmake_tools`
-# reachable through PYTHONPATH. Thus, we force it here.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # noqa
-
 from ros2bzl.resources import load_resource
 
 import ros2bzl.sandboxing as sandboxing
