@@ -5,22 +5,27 @@ load("//:ros_cc.bzl", "ros_cc_binary")
 load("//:ros_py.bzl", "ros_py_binary")
 
 py_library(
-    name = "rmw_isolation_py",
-    srcs = ["rmw_isolation.py"],
-    deps = ["//:rclpy_py"],
+    name = "module_py",
+    srcs = ["__init__.py"],
 )
 
 py_library(
-    name = "module_py",
-    srcs = ["__init__.py"],
-    deps = [":rmw_isolation_py"],
+    name = "rmw_isolation_py",
+    srcs = ["rmw_isolation.py"],
+    deps = [
+        ":module_py",
+        "//:rclpy_py",
+    ],
+    # TODO(eric.cousineau, sloretz): This import path may shadow something in
+    # the future.
+    imports = ["."],
 )
 
 ros_py_binary(
     name = "generate_isolated_rmw_env",
     srcs = ["generate_isolated_rmw_env.py"],
     main = "generate_isolated_rmw_env.py",
-    deps = [":module_py"],
+    deps = [":rmw_isolation_py"],
     legacy_create_init = False,
 )
 
@@ -28,10 +33,12 @@ cc_library(
     name = "rmw_isolation_cc",
     srcs = ["rmw_isolation.cc"],
     hdrs = ["rmw_isolation.h"],
+    include_prefix = "rmw_isolation",
     data = [":generate_isolated_rmw_env"],
     local_defines = [
-        "RMW_ISOLATION_ROOTPATH={}/rmw_isolation".format(
-            repository_name().strip("@") or ".")
+        "RMW_ISOLATION_ROOTPATH={}/{}".format(
+            repository_name().strip("@") or ".",
+            package_name())
     ],
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
@@ -45,7 +52,8 @@ ros_py_binary(
     main = "test/isolated_talker.py",
     deps = [
         "//:rclpy_py",
-        "//:std_msgs_py"
+        "//:std_msgs_py",
+        ":rmw_isolation_py",
     ],
     rmw_implementation = 'rmw_cyclonedds_cpp',
     legacy_create_init = False,
@@ -58,7 +66,7 @@ ros_py_binary(
     deps = [
         "//:rclpy_py",
         "//:std_msgs_py",
-        ":module_py",
+        ":rmw_isolation_py",
     ],
     rmw_implementation = 'rmw_cyclonedds_cpp',
     legacy_create_init = False,
