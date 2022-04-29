@@ -1,0 +1,28 @@
+name: Model-interop Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+defaults:
+  run:
+    working-directory: model-interop
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    container:
+      image: ros:noetic-ros-base-focal
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: "/home/runner/.cache/model-interop"
+          key: model-interop
+      - name: pwd
+        run: pwd
+      - name: ls
+        run: ls
+      - name: Install prerequisites
+        run: yes | ./setup/install_prereqs.sh
