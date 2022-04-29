@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: model-interop
+    working-directory: model_interop
 
 jobs:
   build_and_test:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: "/home/runner/.cache/model-interop"
-          key: model-interop
+          key: model_interop
       - name: pwd
         run: pwd
       - name: ls
