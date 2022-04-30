@@ -95,6 +95,7 @@ install(
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_pytest REQUIRED)
 
   ament_clang_format(CONFIG_FILE .clang-format)
   ament_cpplint()
@@ -120,6 +121,8 @@ if(BUILD_TESTING)
     drake::drake
     drake_ros_viz
   )
+
+  ament_add_pytest_test(test_python_bindings test/test_python_bindings.py)
 endif()
 
 ament_package()
