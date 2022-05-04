@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 
   auto got_message = listener->NextMessage();
 
-  auto result = 
+  auto result =
     exec.spin_until_future_complete(got_message, std::chrono::seconds(5));
 
   rclcpp::shutdown();
