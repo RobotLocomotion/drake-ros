@@ -94,8 +94,6 @@ ros_cc_test(
     ":talker_cc",
     ":listener_cc",
   ],
-  # TODO(sloretz) can this be set inside TEST_TMPDIR?
-  env = {"ROS_HOME": "/tmp/.ros"},
   rmw_implementation = "rmw_cyclonedds_cpp",
   size = "small",
   srcs = ["test/talker_listener.cc"],
