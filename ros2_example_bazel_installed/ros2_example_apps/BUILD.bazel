@@ -2,6 +2,7 @@
 # vi: set ft=python :
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_cc.bzl", "ros_cc_test")
 load("@ros2//:ros_py.bzl", "ros_py_binary")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 load("//tools:cmd_test.bzl", "cmd_test")
@@ -67,6 +68,37 @@ ros_py_binary(
     ],
     rmw_implementation = "rmw_cyclonedds_cpp",
     tags = ["requires-network"],
+)
+
+
+cc_library(
+    name = "talker_cc",
+    hdrs = ["talker.hh"],
+    includes = ["."],
+    visibility = ["//visibility:public"]
+)
+
+cc_library(
+    name = "listener_cc",
+    hdrs = ["listener.hh"],
+    includes = ["."],
+    visibility = ["//visibility:public"]
+)
+
+ros_cc_test(
+  name = "talker_listener_cc_test",
+  deps = [
+    "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    "@ros2//:rclcpp_cc",
+    "@ros2//:std_msgs_cc",
+    ":talker_cc",
+    ":listener_cc",
+  ],
+  # TODO(sloretz) can this be set inside TEST_TMPDIR?
+  env = {"ROS_HOME": "/tmp/.ros"},
+  rmw_implementation = "rmw_cyclonedds_cpp",
+  size = "small",
+  srcs = ["test/talker_listener.cc"],
 )
 
 cmd_test(
