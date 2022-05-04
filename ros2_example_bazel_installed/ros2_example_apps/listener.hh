@@ -27,6 +27,7 @@ class Listener : public rclcpp::Node {
     for (auto & promise : promises_) {
       promise.set_value(msg);
     }
+    promises_.clear();
   }
 
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
