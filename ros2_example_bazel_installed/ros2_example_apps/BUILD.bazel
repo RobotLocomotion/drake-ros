@@ -73,14 +73,14 @@ ros_py_binary(
 
 cc_library(
     name = "talker_cc",
-    hdrs = ["talker.hh"],
+    hdrs = ["talker.h"],
     includes = ["."],
     visibility = ["//visibility:public"]
 )
 
 cc_library(
     name = "listener_cc",
-    hdrs = ["listener.hh"],
+    hdrs = ["listener.h"],
     includes = ["."],
     visibility = ["//visibility:public"]
 )
