@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: model_interop
+    working-directory: drake_model_interop
 
 jobs:
   build_and_test:
@@ -20,9 +20,5 @@ jobs:
         with:
           path: "/home/runner/.cache/model-interop"
           key: model_interop
-      - name: pwd
-        run: pwd
-      - name: ls
-        run: ls
       - name: Install prerequisites
         run: yes | ./setup/install_prereqs.sh
