@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -eux -o pipefail
+
 apt-get update
 apt-get install lsb-release wget gnupg
 
