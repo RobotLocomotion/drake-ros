@@ -1,4 +1,4 @@
-# Model interop
+# Drake Model Interop
 
 ## About
 

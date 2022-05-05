@@ -1,4 +1,4 @@
-name: Model-interop Continuous Integration
+name: drake_model_interop Continuous Integration
 
 on:
   pull_request:
