@@ -41,6 +41,10 @@ class ManagedSubscription:
             topic_name='/scene_markers/visual',
             required_message_count=1):
         self._context = rclpy.Context()
+        self._topic_name = topic_name
+        self._required_message_count = required_message_count
+        self._received_messages = []
+        self._spin_complete = threading.Event()
 
     def __enter__(self):
         self._context.init()
@@ -48,7 +52,8 @@ class ManagedSubscription:
         # Use a randomised node name to enable parallel usage
         random.seed()
         self._node = rclpy.node.Node('managed_subscription_{}'.format(
-            ''.join(random.choices(string.ascii_letters, k=10))))
+            ''.join(random.choices(string.ascii_letters, k=10))),
+            context=self._context)
 
         # TODO(gbiggs): When this is upstreamed, the topic type needs to be
         # parameterised.
@@ -58,12 +63,9 @@ class ManagedSubscription:
         # a subscription?
         self._subscription = self._node.create_subscription(
             MarkerArray,
-            topic_name,
+            self._topic_name,
             self.callback,
             10)
-        self._received_messages = []
-        self._required_message_count = required_message_count
-        self._spin_complete = threading.Event()
 
         return self
 
@@ -82,7 +84,8 @@ class ManagedSubscription:
         self._spinning_thread.start()
 
     def spinner(self, start_time, timeout):
-        executor = rclpy.executors.SingleThreadedExecutor()
+        executor = rclpy.executors.SingleThreadedExecutor(
+            context=self._context)
         executor.add_node(self._node)
         while self.continue_spinning(start_time, timeout):
             executor.spin_once(timeout_sec=1)
