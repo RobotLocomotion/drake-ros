@@ -165,11 +165,11 @@ def test_receive_visual_marker_array():
         # Get at least two messages to confirm the markers are being updated
         assert len(rx_messages) >= 2
 
-        # There should be 23 markers in the array
-        assert len(rx_messages[0].markers) == 24
+        # Make sure there are some markers in the array
+        assert len(rx_messages[0].markers) >= 2
 
         # Dissect and check some important values from a marker
         marker = rx_messages[0].markers[1]
-        assert marker.ns == 'Source_19'
+        assert marker.ns != ''
         assert marker.type == marker.MESH_RESOURCE
         assert marker.mesh_resource != ''
