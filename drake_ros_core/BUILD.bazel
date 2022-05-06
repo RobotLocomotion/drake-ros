@@ -21,10 +21,7 @@ cc_library(
   strip_include_prefix = "include",
   srcs = glob(["src/*.cc", "src/*.h"]),
   deps = [
-    "@drake//:drake_shared_library",
-    # Drake uses Eigen in public headers, but doesn't include that dependency
-    # in the drake_shared_library target
-    "@eigen//:eigen3",
+    "@drake//systems/framework:leaf_system",
     "@ros2//:rclcpp_cc",
     "@ros2//:rosidl_runtime_c_cc",
     "@ros2//:rosidl_typesupport_cpp_cc",
@@ -36,15 +33,12 @@ ros_cc_test(
   name = "test_pub_sub",
   deps = [
     "@com_google_googletest//:gtest_main",
-    "@drake//:drake_shared_library",
-    # Drake uses Eigen in public headers, but doesn't include that dependency
-    # in the drake_shared_library target
-    "@eigen//:eigen3",
+    "@drake//systems/analysis:simulator",
+    "@drake//systems/framework:diagram_builder",
     "@ros2//:rclcpp_cc",
     "@ros2//:test_msgs_cc",
     ":drake_ros_core",
   ],
-  # TODO(sloretz) switch to cyclone with latest archive
   rmw_implementation = "rmw_fastrtps_cpp",
   size = "small",
   srcs = ["test/test_pub_sub.cc"],
