@@ -112,7 +112,8 @@ class DrakeTestSystem:
         drake_ros_core.init()
 
         builder = DiagramBuilder()
-        ros_interface_system = builder.AddSystem(RosInterfaceSystem('drake_ros_viz_test'))
+        ros_interface_system = builder.AddSystem(
+            RosInterfaceSystem('drake_ros_viz_test'))
 
         self.manipulation_station = builder.AddSystem(ManipulationStation())
         self.manipulation_station.SetupClutterClearingStation()
@@ -159,16 +160,16 @@ def test_receive_visual_marker_array():
                 drake_test_system.advance()
         except KeyboardInterrupt:
             pass
-        received_messages = managed_subscription.wait_for_and_get_received_messages()
+        rx_messages = managed_subscription.wait_for_and_get_received_messages()
 
-        # We want at least two messages to confirm the markers are being updated
-        assert len(received_messages) >= 2
+        # Get at least two messages to confirm the markers are being updated
+        assert len(rx_messages) >= 2
 
         # There should be 23 markers in the array
-        assert len(received_messages[0].markers) == 24
+        assert len(rx_messages[0].markers) == 24
 
         # Dissect and check some important values from a marker
-        marker = received_messages[0].markers[1]
+        marker = rx_messages[0].markers[1]
         assert marker.ns == 'Source_19'
         assert marker.type == marker.MESH_RESOURCE
         assert marker.mesh_resource != ''
