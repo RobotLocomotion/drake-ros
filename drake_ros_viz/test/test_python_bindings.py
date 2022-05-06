@@ -104,7 +104,7 @@ class ManagedSubscription:
         return self._spin_complete.is_set()
 
 
-class System:
+class DrakeTestSystem:
     def __init__(self):
         drake_ros_core.init()
 
@@ -148,12 +148,12 @@ class System:
 
 def test_receive_visual_marker_array():
     with ManagedSubscription(required_message_count=2) as managed_subscription:
-        system = System()
+        drake_test_system = DrakeTestSystem()
 
         managed_subscription.spin_subscription(timeout=10)
         try:
             while not managed_subscription.spin_complete():
-                system.advance()
+                drake_test_system.advance()
         except KeyboardInterrupt:
             pass
         received_messages = managed_subscription.wait_for_and_get_received_messages()
