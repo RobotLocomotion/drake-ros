@@ -40,11 +40,22 @@ class ManagedSubscription:
             self,
             topic_name='/scene_markers/visual',
             required_message_count=1):
-        rclpy.init()
-        # TODO(gbiggs): Make the node name randomised so it's unique
+        self._context = rclpy.Context()
+
+    def __enter__(self):
+        self._context.init()
+
+        # Use a randomised node name to enable parallel usage
         random.seed()
         self._node = rclpy.node.Node('managed_subscription_{}'.format(
             ''.join(random.choices(string.ascii_letters, k=10))))
+
+        # TODO(gbiggs): When this is upstreamed, the topic type needs to be
+        # parameterised.
+        # TODO(gbiggs): When this is upstreamed, should it be possible to
+        # subscribe to multiple topics ("ManagedSubscriptions")? Or should
+        # there be a one-to-one relationship between a ManagedSubscription and
+        # a subscription?
         self._subscription = self._node.create_subscription(
             MarkerArray,
             topic_name,
@@ -53,6 +64,11 @@ class ManagedSubscription:
         self._received_messages = []
         self._required_message_count = required_message_count
         self._spin_complete = threading.Event()
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self._context.try_shutdown()
 
     def callback(self, message):
         self._received_messages.append(message)
@@ -131,25 +147,25 @@ class System:
 
 
 def test_receive_visual_marker_array():
-    managed_subscription = ManagedSubscription(required_message_count=2)
-    system = System()
+    with ManagedSubscription(required_message_count=2) as managed_subscription:
+        system = System()
 
-    managed_subscription.spin_subscription(timeout=10)
-    try:
-        while not managed_subscription.spin_complete():
-            system.advance()
-    except KeyboardInterrupt:
-        pass
-    received_messages = managed_subscription.wait_for_and_get_received_messages()
+        managed_subscription.spin_subscription(timeout=10)
+        try:
+            while not managed_subscription.spin_complete():
+                system.advance()
+        except KeyboardInterrupt:
+            pass
+        received_messages = managed_subscription.wait_for_and_get_received_messages()
 
-    # We want at least two messages to confirm the markers are being updated
-    assert len(received_messages) >= 2
+        # We want at least two messages to confirm the markers are being updated
+        assert len(received_messages) >= 2
 
-    # There should be 23 markers in the array
-    assert len(received_messages[0].markers) == 24
+        # There should be 23 markers in the array
+        assert len(received_messages[0].markers) == 24
 
-    # Dissect and check some important values from a marker
-    marker = received_messages[0].markers[1]
-    assert marker.ns == 'Source_19'
-    assert marker.type == marker.MESH_RESOURCE
-    assert marker.mesh_resource != ''
+        # Dissect and check some important values from a marker
+        marker = received_messages[0].markers[1]
+        assert marker.ns == 'Source_19'
+        assert marker.type == marker.MESH_RESOURCE
+        assert marker.mesh_resource != ''
