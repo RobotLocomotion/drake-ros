@@ -36,7 +36,7 @@ ros2_archive(
 )
 
 # Depend on Drake
-DRAKE_COMMIT = "master"
+DRAKE_COMMIT = "v1.2.0"
 DRAKE_CHECKSUM = ""
 http_archive(
     name = "drake",
