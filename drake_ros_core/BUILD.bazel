@@ -39,7 +39,7 @@ ros_cc_test(
     "@ros2//:test_msgs_cc",
     ":drake_ros_core",
   ],
-  rmw_implementation = "rmw_fastrtps_cpp",
+  rmw_implementation = "rmw_cyclonedds_cpp",
   size = "small",
   srcs = ["test/test_pub_sub.cc"],
 )
@@ -51,8 +51,7 @@ ros_cc_test(
     "@ros2//:rclcpp_cc",
     ":drake_ros_core",
   ],
-  # TODO(sloretz) switch to cyclone with latest archive
-  rmw_implementation = "rmw_fastrtps_cpp",
+  rmw_implementation = "rmw_cyclonedds_cpp",
   size = "small",
   srcs = ["test/test_drake_ros.cc"],
 )

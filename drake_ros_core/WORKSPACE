@@ -27,9 +27,8 @@ ros2_archive(
       "rosidl_typesupport_cpp",
       "test_msgs",
     ],
-    # TODO(sloretz) use nighlty archive once #71 is merged
-    url = "http://repo.ros2.org/ci_archives/rolling-on-focal/ros2-rolling-linux-focal-amd64-ci.tar.bz2",
-    sha256 = "5bd37168cd2b704eabee207145362ce38eb83431ac183f9a9b432121c9fb8015",
+    url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-rolling-linux-focal-amd64-ci.tar.bz2",
+    sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-rolling-linux-focal-amd64-ci-CHECKSUM",
     strip_prefix = "ros2-linux",
     # Fix wrong chained prefix, if any
     patch_cmds = ["sed -i 's|COLCON_CURRENT_PREFIX=\"/opt/ros/rolling\"||g' archive/setup.sh"],
