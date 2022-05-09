@@ -8,5 +8,5 @@ build --host_cxxopt=-std=c++17
 # Use Python 3.
 build --python_path=/usr/bin/python3
 
-# Disable ROS logging to file system
-test --test_env=ROS_HOME=/tmp/.ros
+# Signal that ROS logging to file system needs to be disabled in tests
+test --test_env=ROS_HOME=/does_not_exist/instead_please_reconfigure_in_test
