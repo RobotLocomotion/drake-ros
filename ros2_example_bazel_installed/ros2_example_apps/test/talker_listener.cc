@@ -13,6 +13,8 @@
 int main(int argc, char* argv[]) {
   const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
   if (TEST_TMPDIR != nullptr) {
+    std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
+    setenv("ROS_HOME", ros_home.c_str(), 1);
     ros2::isolate_rmw_by_path(argv[0], TEST_TMPDIR);
   }
   rclcpp::init(argc, argv);
