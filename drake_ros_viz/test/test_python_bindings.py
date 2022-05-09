@@ -94,7 +94,6 @@ class ManagedSubscription:
     def continue_spinning(self, start_time, timeout):
         if len(self._received_messages) >= self._required_message_count:
             return False
-        print('Elapsed time is {}'.format(time.monotonic_ns() - start_time))
         if (time.monotonic_ns() - start_time) > timeout:
             return False
         return True
