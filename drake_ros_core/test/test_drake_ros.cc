@@ -40,3 +40,19 @@ TEST(DrakeRos, local_context) {
   EXPECT_FALSE(rclcpp::contexts::get_global_default_context()->is_valid());
   context->shutdown("done");
 }
+
+#ifdef USE_RMW_ISOLATION
+#include "rmw_isolation/rmw_isolation.h"
+
+int main(int argc, char* argv[]) {
+  const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
+  if (TEST_TMPDIR != nullptr) {
+    std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
+    setenv("ROS_HOME", ros_home.c_str(), 1);
+    ros2::isolate_rmw_by_path(argv[0], TEST_TMPDIR);
+  }
+
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+#endif
