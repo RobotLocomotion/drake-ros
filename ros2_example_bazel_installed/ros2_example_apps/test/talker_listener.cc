@@ -6,8 +6,8 @@
 
 #include "rmw_isolation/rmw_isolation.h"
 
-#include "listener.hh"
-#include "talker.hh"
+#include "listener.h"
+#include "talker.h"
 
 
 int main(int argc, char* argv[]) {
