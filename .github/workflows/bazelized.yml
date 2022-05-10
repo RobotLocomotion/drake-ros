@@ -6,12 +6,8 @@ on:
       - main
       - develop
 
-defaults:
-  run:
-    working-directory: ros2_example_bazel_installed
-
 jobs:
-  build_and_test:
+  build_and_test__ros2_example_bazel_installed:
     runs-on: ubuntu-latest
     container:
       image: ros:rolling-ros-base-focal
@@ -23,7 +19,26 @@ jobs:
           key: bazel
       - name: Install prerequisites
         run: yes | ./setup/install_prereqs.sh
+        working-directory: ros2_example_bazel_installed
       - name: Build Bazel workspace
         run: bazel build //...
+        working-directory: ros2_example_bazel_installed
       - name: Test Bazel workspace
         run: bazel test //... @ros2//...
+        working-directory: ros2_example_bazel_installed
+  build_and_test__drake_ros_core:
+    runs-on: ubuntu-latest
+    container:
+      image: robotlocomotion/drake:focal-1.2.0
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: bazel
+      - name: Build drake_ros_core
+        run: bazel build //...
+        working-directory: drake_ros_core
+      - name: Test drake_ros_core
+        run: bazel test //...
+        working-directory: drake_ros_core
