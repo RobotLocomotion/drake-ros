@@ -22,3 +22,10 @@ jobs:
           key: model_interop
       - name: Install prerequisites
         run: yes | ./setup/install_prereqs.sh
+      - name: Download and test model
+        shell: bash
+        run: |
+          wget -q https://fuel.gazebosim.org/1.0/OpenRobotics/models/NAO%20with%20Ignition%20position%20controller/1/NAO%20with%20Ignition%20position%20controller.zip
+          unzip NAO\ with\ Ignition\ position\ controller.zip -d NAO
+          source setup.sh
+          bash format_model_and_generate_manifest.sh NAO model.sdf
