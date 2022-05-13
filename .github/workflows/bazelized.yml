@@ -7,7 +7,7 @@ on:
       - develop
 
 jobs:
-  build_and_test__ros2_example_bazel_installed:
+  bazel_build_and_test:
     runs-on: ubuntu-latest
     container:
       image: ros:rolling-ros-base-focal
