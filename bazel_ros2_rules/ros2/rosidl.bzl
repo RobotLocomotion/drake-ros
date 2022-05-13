@@ -721,8 +721,7 @@ def rosidl_typesupport_c_library(
     include, root = _deduce_source_paths(group, "typesupport/c")
 
     generated_c_sources = []
-    visibility_header = "msg/rosidl_typesupport_c__visibility_control.h"
-    generated_c_headers = ["{}/{}".format(root, visibility_header)]
+    generated_c_headers = []
     for ifc in interfaces:
         parent, basename = _deduce_source_parts(ifc)
         generated_c_sources.append(
