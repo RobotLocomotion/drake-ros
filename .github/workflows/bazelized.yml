@@ -26,22 +26,6 @@ jobs:
       - name: Test Bazel workspace
         run: bazel test //... @ros2//...
         working-directory: ros2_example_bazel_installed
-  build_and_test__drake_ros_core:
-    runs-on: ubuntu-latest
-    container:
-      image: robotlocomotion/drake:focal-1.2.0
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: "/home/runner/.cache/bazel"
-          key: bazel
-      - name: Setup bazel
-        uses: jwlawson/actions-setup-bazel@v1
-        with:
-          bazel-version: '5.1.0'
-      - name: Install toposort
-        run: apt update && apt install python3-toposort
       - name: Build drake_ros_core
         run: bazel build //...
         working-directory: drake_ros_core
