@@ -10,7 +10,18 @@ They publish the following topics:
 
 ## How To
 
-Run either the C++ `iiwa_manipulator` executable or the Python `iiwa_manipulator.py` script as explained [here](../../README.md#running).
+Run either the C++ `iiwa_manipulator` executable or the Python `iiwa_manipulator.py` script.
+For the C++ version of the example, run the executable.
+
+```
+ros2 run drake_ros_examples iiwa_manipulator
+```
+
+For the Python version of the example, run the Python script.
+
+```
+ros2 run drake_ros_examples iiwa_manipulator.py
+```
 
 Run RViz in a different terminal with your ROS installation sourced to visualize the station:
 
