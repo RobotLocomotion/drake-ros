@@ -25,7 +25,7 @@ To build it:
     
 ## Running
 
-* If you built with `colcon`, then source your workspace.
+Source your workspace.
 
 ```
 . ./ws/install/setup.bash
