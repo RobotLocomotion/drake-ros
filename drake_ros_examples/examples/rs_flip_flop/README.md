@@ -15,9 +15,20 @@ And publish to the following topics
 
 ## How To
 
-Run either the C++ `rs_flip_flop` executable or the Python `rs_flip_flop.py` script as explained [here](../../README.md#running).
+Run either the C++ executable or the Python script.
+For the C++ version of the example, run the executable.
 
-Run these commands in different terminals with your ROS installation sourced to echo the output topics:
+```
+ros2 run drake_ros_examples rs_flip_flop
+```
+
+For the Python version of the example, run the Python script.
+
+```
+ros2 run drake_ros_examples rs_flip_flop.py
+```
+
+Run the following commands in different terminals with your ROS installation sourced to echo the output topics:
 
 ```
 ros2 topic echo /Q
