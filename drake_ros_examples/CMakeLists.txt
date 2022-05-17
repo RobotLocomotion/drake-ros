@@ -15,7 +15,8 @@ find_package(drake REQUIRED)
 find_package(drake_ros_core REQUIRED)
 find_package(drake_ros_viz REQUIRED)
 
-add_subdirectory(examples)
+add_subdirectory(examples/iiwa_manipulator)
+add_subdirectory(examples/rs_flip_flop)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
