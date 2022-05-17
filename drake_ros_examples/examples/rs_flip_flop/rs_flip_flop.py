@@ -144,3 +144,7 @@ def main():
 
     while True:
         simulator.AdvanceTo(simulator_context.get_time() + 0.1)
+
+
+if __name__ == '__main__':
+    main()
