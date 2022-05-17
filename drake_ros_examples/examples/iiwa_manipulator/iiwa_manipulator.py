@@ -35,7 +35,6 @@ def main():
     manipulation_station = builder.AddSystem(ManipulationStation())
     manipulation_station.SetupClutterClearingStation()
     manipulation_station.Finalize()
-    pdb.set_trace()
 
     # Make the base joint swing sinusoidally.
     constant_term = builder.AddSystem(ConstantVectorSource(
