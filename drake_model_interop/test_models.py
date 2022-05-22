@@ -105,7 +105,7 @@ def remove_tag(tag, current):
         remove_tag(tag, element)
 
 
-def generate_sdf(model, poses_file, random, file_name, camera_config):
+def generate_sdf(model, poses_file, random, file_name, camera_info):
     sdf_text = f"""\
 <sdf version="1.9">
     <world name="default">
@@ -143,12 +143,12 @@ def generate_sdf(model, poses_file, random, file_name, camera_config):
                 <sensor name="camera" type="camera">
                     <camera>
                         <horizontal_fov>
-                                {2*math.atan(camera_config.width()/
-                                             (2*camera_config.focal_x()))}
+                                {2*math.atan(camera_info.width()/
+                                             (2*camera_info.focal_x()))}
                         </horizontal_fov>
                         <image>
-                            <width>{camera_config.width()}</width>
-                            <height>{camera_config.height()}</height>
+                            <width>{camera_info.width()}</width>
+                            <height>{camera_info.height()}</height>
                         </image>
                         <clip>
                             <near>0.01</near>
@@ -173,7 +173,7 @@ def perform_iou_testing(
     test_specific_temp_directory,
     pose_directory,
     randomize_poses,
-    camera_config,
+    camera_info,
 ):
 
     random_poses = {}
@@ -223,7 +223,7 @@ def perform_iou_testing(
     depth_camera = DepthRenderCamera(
         RenderCameraCore(
             renderer_name,
-            camera_config,
+            camera_info,
             ClippingRange(0.01, 10.0),
             RigidTransform(),
         ),
@@ -361,7 +361,7 @@ def run_test(
     mesh_type,
     type_joint_positions,
     randomize_poses,
-    camera_config,
+    camera_info,
     poses_filename="poses.txt",
 ):
     # Setup temporal pics and metadata directory
@@ -377,7 +377,7 @@ def run_test(
         os.path.join(temp_default_pics_path, poses_filename),
         randomize_poses,
         plugin_config_path,
-        camera_config,
+        camera_info,
     )
 
     os.system(
@@ -388,7 +388,7 @@ def run_test(
         os.path.join(temp_directory, mesh_type),
         type_joint_positions,
         randomize_poses,
-        camera_config,
+        camera_info,
     )
     os.chdir(current_dir)
 
@@ -404,7 +404,7 @@ def main():  # original_model_directory, description_file, temp_directory):
     )
     args = parser.parse_args()
 
-    camera_config = CameraInfo(
+    camera_info = CameraInfo(
         width=960,
         height=540,
         focal_x=831.382036787,
@@ -423,7 +423,7 @@ def main():  # original_model_directory, description_file, temp_directory):
         mesh_type,
         "default_pose",
         False,
-        camera_config,
+        camera_info,
     )
     run_test(
         tmp_model_file_path,
@@ -431,7 +431,7 @@ def main():  # original_model_directory, description_file, temp_directory):
         mesh_type,
         "random_pose",
         True,
-        camera_config,
+        camera_info,
     )
 
     mesh_type = "collision"
@@ -444,7 +444,7 @@ def main():  # original_model_directory, description_file, temp_directory):
         mesh_type,
         "default_pose",
         False,
-        camera_config,
+        camera_info,
     )
     run_test(
         tmp_model_file_path,
@@ -452,7 +452,7 @@ def main():  # original_model_directory, description_file, temp_directory):
         mesh_type,
         "random_pose",
         True,
-        camera_config,
+        camera_info,
     )
 
 
