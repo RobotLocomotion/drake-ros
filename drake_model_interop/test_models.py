@@ -67,7 +67,9 @@ def create_camera(builder, world_id, X_WB, depth_camera, scene_graph):
 
 def infer_mask(image, bg_pixel=[255, 255, 255]):
     image_array = np.array(image)
-    background_mask = np.all(image_array == np.full(image_array.shape, bg_pixel), axis=2)
+    background_mask = np.all(
+        image_array == np.full(image_array.shape, bg_pixel), axis=2
+    )
     return ~background_mask
 
 
@@ -103,7 +105,7 @@ def remove_tag(tag, current):
         remove_tag(tag, element)
 
 
-def generate_sdf(model, poses_file, random, file_name, CAMERA_CONFIG):
+def generate_sdf(model, poses_file, random, file_name, camera_config):
     sdf_text = f"""\
 <sdf version="1.9">
     <world name="default">
@@ -140,13 +142,16 @@ def generate_sdf(model, poses_file, random, file_name, CAMERA_CONFIG):
                 <pose>0 0 0 0 0 0</pose>
                 <sensor name="camera" type="camera">
                     <camera>
-                        <horizontal_fov>1.047</horizontal_fov>
+                        <horizontal_fov>
+                                {2*math.atan(camera_config.width()/
+                                             (2*camera_config.focal_x()))}
+                        </horizontal_fov>
                         <image>
-                            <width>960</width>
-                            <height>540</height>
+                            <width>{camera_config.width()}</width>
+                            <height>{camera_config.height()}</height>
                         </image>
                         <clip>
-                            <near>0.1</near>
+                            <near>0.01</near>
                             <far>100</far>
                         </clip>
                     </camera>
@@ -163,13 +168,20 @@ def generate_sdf(model, poses_file, random, file_name, CAMERA_CONFIG):
         f.write(textwrap.dedent(sdf_text))
 
 
-def perform_iou_testing(model_file, test_specific_temp_directory, pose_directory, randomize_poses, CAMERA_CONFIG):
+def perform_iou_testing(
+    model_file,
+    test_specific_temp_directory,
+    pose_directory,
+    randomize_poses,
+    camera_config,
+):
 
     random_poses = {}
     # Read camera translation calculated and applied on gazebo
     # we read the random positions file as it contains everything:
     with open(
-        os.path.join(test_specific_temp_directory, "pics", pose_directory, "poses.txt"), "r"
+        os.path.join(test_specific_temp_directory, "pics", pose_directory, "poses.txt"),
+        "r",
     ) as datafile:
         for line in datafile:
             if line.startswith("Translation:"):
@@ -211,14 +223,7 @@ def perform_iou_testing(model_file, test_specific_temp_directory, pose_directory
     depth_camera = DepthRenderCamera(
         RenderCameraCore(
             renderer_name,
-            CameraInfo(
-                CAMERA_CONFIG['width'],
-                CAMERA_CONFIG['height'],
-                CAMERA_CONFIG['focal_x'],
-                CAMERA_CONFIG['focal_y'],
-                CAMERA_CONFIG['center_x'],
-                CAMERA_CONFIG['center_y']
-            ),
+            camera_config,
             ClippingRange(0.01, 10.0),
             RigidTransform(),
         ),
@@ -356,12 +361,12 @@ def run_test(
     mesh_type,
     type_joint_positions,
     randomize_poses,
-    CAMERA_CONFIG,
-    poses_filename="poses.txt"
+    camera_config,
+    poses_filename="poses.txt",
 ):
     # Setup temporal pics and metadata directory
-    temp_default_pics_path = (
-        os.path.join(temp_directory, mesh_type, "pics", type_joint_positions)
+    temp_default_pics_path = os.path.join(
+        temp_directory, mesh_type, "pics", type_joint_positions
     )
     os.makedirs(temp_default_pics_path)
     current_dir = os.getcwd()
@@ -372,22 +377,26 @@ def run_test(
         os.path.join(temp_default_pics_path, poses_filename),
         randomize_poses,
         plugin_config_path,
-        CAMERA_CONFIG
+        camera_config,
     )
 
-    os.system(f"ign gazebo -s -r --headless-rendering {plugin_config_path} --iterations 50")
+    os.system(
+        f"ign gazebo -s -r --headless-rendering {plugin_config_path} --iterations 50"
+    )
     perform_iou_testing(
-        model_file_path, os.path.join(temp_directory, mesh_type), type_joint_positions, randomize_poses, CAMERA_CONFIG
+        model_file_path,
+        os.path.join(temp_directory, mesh_type),
+        type_joint_positions,
+        randomize_poses,
+        camera_config,
     )
     os.chdir(current_dir)
 
 
-def main(): #original_model_directory, description_file, temp_directory):
+def main():  # original_model_directory, description_file, temp_directory):
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "model_directory", help="Directory location of the model files"
-    )
+    parser.add_argument("model_directory", help="Directory location of the model files")
     parser.add_argument("description_file", help="Model description file name")
     parser.add_argument(
         "temp_directory",
@@ -395,28 +404,56 @@ def main(): #original_model_directory, description_file, temp_directory):
     )
     args = parser.parse_args()
 
-    CAMERA_CONFIG = {
-        'width': 960,
-        'height': 540,
-        'focal_x': 831.382036787,
-        'focal_y': 831.382036787,
-        'center_x': 480,
-        'center_y': 270
-    }
+    camera_config = CameraInfo(
+        width=960,
+        height=540,
+        focal_x=831.382036787,
+        focal_y=831.382036787,
+        center_x=480,
+        center_y=270,
+    )
 
     mesh_type = "visual"
     tmp_model_file_path = setup_temporal_model_description_file(
         args.model_directory, args.description_file, args.temp_directory, mesh_type
     )
-    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "default_pose", False, CAMERA_CONFIG)
-    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "random_pose", True, CAMERA_CONFIG)
+    run_test(
+        tmp_model_file_path,
+        args.temp_directory,
+        mesh_type,
+        "default_pose",
+        False,
+        camera_config,
+    )
+    run_test(
+        tmp_model_file_path,
+        args.temp_directory,
+        mesh_type,
+        "random_pose",
+        True,
+        camera_config,
+    )
 
     mesh_type = "collision"
     tmp_model_file_path = setup_temporal_model_description_file(
         args.model_directory, args.description_file, args.temp_directory, mesh_type
     )
-    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "default_pose", False, CAMERA_CONFIG)
-    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "random_pose", True, CAMERA_CONFIG)
+    run_test(
+        tmp_model_file_path,
+        args.temp_directory,
+        mesh_type,
+        "default_pose",
+        False,
+        camera_config,
+    )
+    run_test(
+        tmp_model_file_path,
+        args.temp_directory,
+        mesh_type,
+        "random_pose",
+        True,
+        camera_config,
+    )
 
 
 if __name__ == "__main__":

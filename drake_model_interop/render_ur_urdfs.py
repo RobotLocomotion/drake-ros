@@ -107,23 +107,25 @@ def get_mesh_extent(scene, mesh_file, filetype="obj"):
     center = (ub + lb) / 2
     return np.array([center, size])
 
+
 def np_array_to_transform(np_array, transform):
-    transform.a1 = np_array[0,0]
-    transform.a2 = np_array[0,1]
-    transform.a3 = np_array[0,2]
-    transform.a4 = np_array[0,3]
-    transform.b1 = np_array[1,0]
-    transform.b2 = np_array[1,1]
-    transform.b3 = np_array[1,2]
-    transform.b4 = np_array[1,3]
-    transform.c1 = np_array[2,0]
-    transform.c2 = np_array[2,1]
-    transform.c3 = np_array[2,2]
-    transform.c4 = np_array[2,3]
-    transform.d1 = np_array[3,0]
-    transform.d2 = np_array[3,1]
-    transform.d3 = np_array[3,2]
-    transform.d4 = np_array[3,3]
+    transform.a1 = np_array[0, 0]
+    transform.a2 = np_array[0, 1]
+    transform.a3 = np_array[0, 2]
+    transform.a4 = np_array[0, 3]
+    transform.b1 = np_array[1, 0]
+    transform.b2 = np_array[1, 1]
+    transform.b3 = np_array[1, 2]
+    transform.b4 = np_array[1, 3]
+    transform.c1 = np_array[2, 0]
+    transform.c2 = np_array[2, 1]
+    transform.c3 = np_array[2, 2]
+    transform.c4 = np_array[2, 3]
+    transform.d1 = np_array[3, 0]
+    transform.d2 = np_array[3, 1]
+    transform.d3 = np_array[3, 2]
+    transform.d4 = np_array[3, 3]
+
 
 # Aplies a rotation to the root node
 def rotate_root_node(scene, rotation):
