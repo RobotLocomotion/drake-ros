@@ -91,14 +91,14 @@ def main():
     qos = QoSProfile(depth=10)
 
     sys_pub_Q = builder.AddSystem(
-        RosPublisherSystem(Bool, "Q", qos, sys_ros_interface.get_ros_interface()))
+        RosPublisherSystem.Make(Bool, "Q", qos, sys_ros_interface.get_ros_interface()))
     sys_pub_Q_not = builder.AddSystem(
-        RosPublisherSystem(Bool, "Q_not", qos, sys_ros_interface.get_ros_interface()))
+        RosPublisherSystem.Make(Bool, "Q_not", qos, sys_ros_interface.get_ros_interface()))
 
     sys_sub_S = builder.AddSystem(
-        RosSubscriberSystem(Bool, "S", qos, sys_ros_interface.get_ros_interface()))
+        RosSubscriberSystem.Make(Bool, "S", qos, sys_ros_interface.get_ros_interface()))
     sys_sub_R = builder.AddSystem(
-        RosSubscriberSystem(Bool, "R", qos, sys_ros_interface.get_ros_interface()))
+        RosSubscriberSystem.Make(Bool, "R", qos, sys_ros_interface.get_ros_interface()))
 
     sys_nor_gate_1 = builder.AddSystem(NorGate())
     sys_nor_gate_2 = builder.AddSystem(NorGate())
