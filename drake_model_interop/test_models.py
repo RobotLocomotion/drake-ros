@@ -7,6 +7,8 @@ import argparse
 from PIL import Image
 import shutil
 from lxml import etree
+import textwrap
+import math
 
 from pydrake.all import (
     FindResourceOrThrow,
@@ -45,7 +47,7 @@ import multibody_extras as me
 def xyz_rpy_deg(xyz, rpy_deg):
     # Shorthand for defining a pose.
     rpy_deg = np.asarray(rpy_deg)
-    return RigidTransform(RollPitchYaw(rpy_deg * np.pi / 180), xyz)
+    return RigidTransform(RollPitchYaw(np.deg2rad(rpy_deg)), xyz)
 
 
 def make_parser(plant):
@@ -65,8 +67,8 @@ def create_camera(builder, world_id, X_WB, depth_camera, scene_graph):
 
 def infer_mask(image, bg_pixel=[255, 255, 255]):
     image_array = np.array(image)
-    mask_bg1 = np.all(image_array == np.full(image_array.shape, bg_pixel), axis=2)
-    return ~mask_bg1
+    background_mask = np.all(image_array == np.full(image_array.shape, bg_pixel), axis=2)
+    return ~background_mask
 
 
 def intersection_over_union(mask_a, mask_b):
@@ -84,10 +86,10 @@ def generate_images_and_iou(simulator, sensor, temp_directory, poses_dir, num_im
     image_drake = Image.fromarray(color, "RGBA")
 
     image_drake.save(
-        temp_directory + "/pics/" + poses_dir + "/" + str(num_image) + "_drake.png"
+        os.path.join(temp_directory, "pics", poses_dir, f"{num_image}_drake.png")
     )
     with Image.open(
-        temp_directory + "/pics/" + poses_dir + "/" + str(num_image) + ".png"
+        os.path.join(temp_directory, "pics", poses_dir, f"{num_image}.png")
     ) as image_ignition:
         mask_a = infer_mask(image_drake, image_drake.getpixel((0, 0)))
         mask_b = infer_mask(image_ignition, image_ignition.getpixel((0, 0)))
@@ -101,73 +103,73 @@ def remove_tag(tag, current):
         remove_tag(tag, element)
 
 
-def generate_sdf(model, poses_file, random, file_name):
-    sdf_text = f"""<sdf version="1.6">
-  <world name="default">
-      <plugin
-      filename="ignition-gazebo-physics-system"
-      name="ignition::gazebo::systems::Physics">
-      </plugin>
-      <plugin
-      filename="ignition-gazebo-sensors-system"
-      name="ignition::gazebo::systems::Sensors">
-      <render_engine>ogre2</render_engine>
-      <background_color>0, 1, 0</background_color>
-      </plugin>
-      <plugin
-          filename="ignition-gazebo-user-commands-system"
-          name="ignition::gazebo::systems::UserCommands">
-      </plugin>
-      <plugin
-      filename="ignition-gazebo-scene-broadcaster-system"
-      name="ignition::gazebo::systems::SceneBroadcaster">
-      </plugin>
-      <include>
-      <uri>{model}</uri>
-      <plugin
-          filename="ignition-gazebo-model-photo-shoot-system"
-          name="ignition::gazebo::systems::ModelPhotoShoot">
-          <translation_data_file>{poses_file}</translation_data_file>
-          <random_joints_pose>{random}</random_joints_pose>
-      </plugin>
-      </include>
-      <model name="photo_shoot">
-      <pose>2.2 0 0 0 0 -3.14</pose>
-      <link name="link">
-          <pose>0 0 0 0 0 0</pose>
-          <sensor name="camera" type="camera">
-          <camera>
-              <horizontal_fov>1.047</horizontal_fov>
-              <image>
-              <width>960</width>
-              <height>540</height>
-              </image>
-              <clip>
-              <near>0.1</near>
-              <far>100</far>
-              </clip>
-          </camera>
-          <always_on>1</always_on>
-          <update_rate>30</update_rate>
-          <visualize>true</visualize>
-          <topic>camera</topic>
-          </sensor>
-      </link>
-      <static>true</static>
-      </model>
-  </world>
+def generate_sdf(model, poses_file, random, file_name, CAMERA_CONFIG):
+    sdf_text = f"""\
+<sdf version="1.9">
+    <world name="default">
+        <plugin
+                filename="ignition-gazebo-physics-system"
+                name="ignition::gazebo::systems::Physics">
+        </plugin>
+        <plugin
+                filename="ignition-gazebo-sensors-system"
+                name="ignition::gazebo::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+            <background_color>0, 1, 0</background_color>
+        </plugin>
+        <plugin
+                filename="ignition-gazebo-user-commands-system"
+                name="ignition::gazebo::systems::UserCommands">
+        </plugin>
+        <plugin
+                filename="ignition-gazebo-scene-broadcaster-system"
+                name="ignition::gazebo::systems::SceneBroadcaster">
+        </plugin>
+        <include>
+            <uri>{model}</uri>
+            <plugin
+                    filename="ignition-gazebo-model-photo-shoot-system"
+                    name="ignition::gazebo::systems::ModelPhotoShoot">
+                <translation_data_file>{poses_file}</translation_data_file>
+                <random_joints_pose>{random}</random_joints_pose>
+            </plugin>
+        </include>
+        <model name="photo_shoot">
+            <pose>2.2 0 0 0 0 {math.pi}</pose>
+            <link name="link">
+                <pose>0 0 0 0 0 0</pose>
+                <sensor name="camera" type="camera">
+                    <camera>
+                        <horizontal_fov>1.047</horizontal_fov>
+                        <image>
+                            <width>960</width>
+                            <height>540</height>
+                        </image>
+                        <clip>
+                            <near>0.1</near>
+                            <far>100</far>
+                        </clip>
+                    </camera>
+                    <always_on>1</always_on>
+                    <visualize>true</visualize>
+                    <topic>camera</topic>
+                </sensor>
+            </link>
+            <static>true</static>
+        </model>
+    </world>
 </sdf>"""
     with open(file_name, "w") as f:
-        f.write(sdf_text)
+        f.write(textwrap.dedent(sdf_text))
 
 
-def perform_iou_testing(model_file, test_specific_temp_directory, pose_directory):
+def perform_iou_testing(model_file, test_specific_temp_directory, pose_directory, randomize_poses, CAMERA_CONFIG):
 
     random_poses = {}
     # Read camera translation calculated and applied on gazebo
     # we read the random positions file as it contains everything:
     with open(
-        test_specific_temp_directory + "/pics/" + pose_directory + "/poses.txt", "r"
+        os.path.join(test_specific_temp_directory, "pics", pose_directory, "poses.txt"), "r"
     ) as datafile:
         for line in datafile:
             if line.startswith("Translation:"):
@@ -210,12 +212,12 @@ def perform_iou_testing(model_file, test_specific_temp_directory, pose_directory
         RenderCameraCore(
             renderer_name,
             CameraInfo(
-                width=960,
-                height=540,
-                focal_x=831.382036787,
-                focal_y=831.382036787,
-                center_x=480,
-                center_y=270,
+                CAMERA_CONFIG['width'],
+                CAMERA_CONFIG['height'],
+                CAMERA_CONFIG['focal_x'],
+                CAMERA_CONFIG['focal_y'],
+                CAMERA_CONFIG['center_x'],
+                CAMERA_CONFIG['center_y']
             ),
             ClippingRange(0.01, 10.0),
             RigidTransform(),
@@ -279,7 +281,7 @@ def perform_iou_testing(model_file, test_specific_temp_directory, pose_directory
             "Error on converted model: Num positions is not equal to num actuated dofs."
         )
 
-    if pose_directory == "random_pose":
+    if randomize_poses:
         joint_positions = [0] * dofs
         for joint_name, pose in random_poses.items():
             # check if NaN
@@ -320,8 +322,8 @@ def setup_temporal_model_description_file(
     model_directory, description_file, temp_directory, mesh_type
 ):
     # Setup model temporal files
-    temp_test_model_path = temp_directory + "/" + mesh_type + "/model/"
-    model_file_path = temp_test_model_path + "/" + description_file
+    temp_test_model_path = os.path.join(temp_directory, mesh_type, "model")
+    model_file_path = os.path.join(temp_test_model_path, description_file)
     shutil.copytree(model_directory, temp_test_model_path)
     root = etree.parse(model_file_path)
     model_name = root.find("model").attrib["name"]
@@ -330,7 +332,6 @@ def setup_temporal_model_description_file(
 
     if mesh_type == "collision":
         # Create ignore namespace so lxml don't complain
-        # os.system("sed -i 's/visual/ignore:collision/g' " + model_file_path)
         my_namespaces = {"ignore": "http://ignore"}
         namespace = etree.Element("namespace", nsmap=my_namespaces)
         namespace.append(root.getroot())
@@ -339,7 +340,7 @@ def setup_temporal_model_description_file(
         for collision_tag in collision_tags:
             collision_tag.tag = "visual"
         for visual_tag in visual_tags:
-            visual_tag.tag = "{%s}visual" % my_namespaces["ignore"]
+            visual_tag.tag = f"{{my_namespaces['ignore']}}visual"
 
     data = etree.tostring(root, pretty_print=True).decode("utf-8")
     text_file = open(model_file_path, "w")
@@ -354,68 +355,73 @@ def run_test(
     temp_directory,
     mesh_type,
     type_joint_positions,
-    poses_filename="poses.txt",
+    randomize_poses,
+    CAMERA_CONFIG,
+    poses_filename="poses.txt"
 ):
     # Setup temporal pics and metadata directory
     temp_default_pics_path = (
-        temp_directory + "/" + mesh_type + "/pics/" + type_joint_positions + "/"
+        os.path.join(temp_directory, mesh_type, "pics", type_joint_positions)
     )
     os.makedirs(temp_default_pics_path)
     current_dir = os.getcwd()
     os.chdir(temp_default_pics_path)
-    plugin_config_path = temp_default_pics_path + "plugin_config.sdf"
-    if type_joint_positions == "default_pose":
-        generate_sdf(
-            model_file_path,
-            temp_default_pics_path + poses_filename,
-            "false",
-            plugin_config_path,
-        )
-    else:
-        generate_sdf(
-            model_file_path,
-            temp_default_pics_path + poses_filename,
-            "true",
-            plugin_config_path,
-        )
+    plugin_config_path = os.path.join(temp_default_pics_path, "plugin_config.sdf")
+    generate_sdf(
+        model_file_path,
+        os.path.join(temp_default_pics_path, poses_filename),
+        randomize_poses,
+        plugin_config_path,
+        CAMERA_CONFIG
+    )
 
-    os.system("ign gazebo -s -r --headless-rendering " + plugin_config_path + " --iterations 50")
+    os.system(f"ign gazebo -s -r --headless-rendering {plugin_config_path} --iterations 50")
     perform_iou_testing(
-        model_file_path, temp_directory + "/" + mesh_type, type_joint_positions
+        model_file_path, os.path.join(temp_directory, mesh_type), type_joint_positions, randomize_poses, CAMERA_CONFIG
     )
     os.chdir(current_dir)
 
 
-def main(original_model_directory, description_file, temp_directory):
+def main(): #original_model_directory, description_file, temp_directory):
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "model_directory", help="Directory location of the model files"
+    )
+    parser.add_argument("description_file", help="Model description file name")
+    parser.add_argument(
+        "temp_directory",
+        help="Temporal directory file where temporal objects will be written",
+    )
+    args = parser.parse_args()
+
+    CAMERA_CONFIG = {
+        'width': 960,
+        'height': 540,
+        'focal_x': 831.382036787,
+        'focal_y': 831.382036787,
+        'center_x': 480,
+        'center_y': 270
+    }
 
     mesh_type = "visual"
     tmp_model_file_path = setup_temporal_model_description_file(
-        original_model_directory, description_file, temp_directory, mesh_type
+        args.model_directory, args.description_file, args.temp_directory, mesh_type
     )
-    run_test(tmp_model_file_path, temp_directory, mesh_type, "default_pose")
-    run_test(tmp_model_file_path, temp_directory, mesh_type, "random_pose")
+    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "default_pose", False, CAMERA_CONFIG)
+    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "random_pose", True, CAMERA_CONFIG)
 
     mesh_type = "collision"
     tmp_model_file_path = setup_temporal_model_description_file(
-        original_model_directory, description_file, temp_directory, mesh_type
+        args.model_directory, args.description_file, args.temp_directory, mesh_type
     )
-    run_test(tmp_model_file_path, temp_directory, mesh_type, "default_pose")
-    run_test(tmp_model_file_path, temp_directory, mesh_type, "random_pose")
+    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "default_pose", False, CAMERA_CONFIG)
+    run_test(tmp_model_file_path, args.temp_directory, mesh_type, "random_pose", True, CAMERA_CONFIG)
 
 
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
-            "model_directory", help="Directory location of the model files"
-        )
-        parser.add_argument("description_file", help="Model description file name")
-        parser.add_argument(
-            "temp_directory",
-            help="Temporal directory file where temporal objects will be written",
-        )
-        args = parser.parse_args()
-        main(args.model_directory, args.description_file, args.temp_directory)
+        main()
         print()
         print("[ Done ]")
     except UserError as e:

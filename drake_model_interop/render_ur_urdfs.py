@@ -107,26 +107,28 @@ def get_mesh_extent(scene, mesh_file, filetype="obj"):
     center = (ub + lb) / 2
     return np.array([center, size])
 
+def np_array_to_transform(np_array, transform):
+    transform.a1 = np_array[0,0]
+    transform.a2 = np_array[0,1]
+    transform.a3 = np_array[0,2]
+    transform.a4 = np_array[0,3]
+    transform.b1 = np_array[1,0]
+    transform.b2 = np_array[1,1]
+    transform.b3 = np_array[1,2]
+    transform.b4 = np_array[1,3]
+    transform.c1 = np_array[2,0]
+    transform.c2 = np_array[2,1]
+    transform.c3 = np_array[2,2]
+    transform.c4 = np_array[2,3]
+    transform.d1 = np_array[3,0]
+    transform.d2 = np_array[3,1]
+    transform.d3 = np_array[3,2]
+    transform.d4 = np_array[3,3]
 
 # Aplies a rotation to the root node
 def rotate_root_node(scene, rotation):
     transformed = rotation.dot(scene.rootnode.transformation)
-    scene.mRootNode.contents.mTransformation.a1 = transformed.item(0)
-    scene.mRootNode.contents.mTransformation.a2 = transformed.item(1)
-    scene.mRootNode.contents.mTransformation.a3 = transformed.item(2)
-    scene.mRootNode.contents.mTransformation.a4 = transformed.item(3)
-    scene.mRootNode.contents.mTransformation.b1 = transformed.item(4)
-    scene.mRootNode.contents.mTransformation.b2 = transformed.item(5)
-    scene.mRootNode.contents.mTransformation.b3 = transformed.item(6)
-    scene.mRootNode.contents.mTransformation.b4 = transformed.item(7)
-    scene.mRootNode.contents.mTransformation.c1 = transformed.item(8)
-    scene.mRootNode.contents.mTransformation.c2 = transformed.item(9)
-    scene.mRootNode.contents.mTransformation.c3 = transformed.item(10)
-    scene.mRootNode.contents.mTransformation.c4 = transformed.item(11)
-    scene.mRootNode.contents.mTransformation.d1 = transformed.item(12)
-    scene.mRootNode.contents.mTransformation.d2 = transformed.item(13)
-    scene.mRootNode.contents.mTransformation.d3 = transformed.item(14)
-    scene.mRootNode.contents.mTransformation.d4 = transformed.item(15)
+    np_array_to_transform(transformed, scene.mRootNode.contents.mTransformation)
 
 
 def convert_file_to_obj(mesh_file, suffix, scale=1):
