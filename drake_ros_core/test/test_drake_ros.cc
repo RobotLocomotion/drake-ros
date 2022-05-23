@@ -20,6 +20,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include "drake_ros_core/drake_ros.h"
+#include "rmw_isolation/rmw_isolation.h"
 
 using drake_ros_core::DrakeRos;
 
@@ -41,9 +42,6 @@ TEST(DrakeRos, local_context) {
   context->shutdown("done");
 }
 
-#ifdef USE_RMW_ISOLATION
-#include "rmw_isolation/rmw_isolation.h"
-
 int main(int argc, char* argv[]) {
   const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
   if (TEST_TMPDIR != nullptr) {
@@ -55,4 +53,3 @@ int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-#endif

@@ -41,7 +41,6 @@ ros_cc_test(
     ":drake_ros_core",
   ],
   rmw_implementation = "rmw_cyclonedds_cpp",
-  local_defines = ["USE_RMW_ISOLATION"],
   size = "small",
   srcs = ["test/test_pub_sub.cc"],
 )
@@ -54,7 +53,6 @@ ros_cc_test(
     "@ros2//resources/rmw_isolation:rmw_isolation_cc",
     ":drake_ros_core",
   ],
-  local_defines = ["USE_RMW_ISOLATION"],
   rmw_implementation = "rmw_cyclonedds_cpp",
   size = "small",
   srcs = ["test/test_drake_ros.cc"],
