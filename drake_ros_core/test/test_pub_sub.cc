@@ -26,7 +26,6 @@
 #include "drake_ros_core/ros_interface_system.h"
 #include "drake_ros_core/ros_publisher_system.h"
 #include "drake_ros_core/ros_subscriber_system.h"
-#include "rmw_isolation/rmw_isolation.h"
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -108,6 +107,9 @@ TEST(Integration, sub_to_pub) {
   drake_ros_core::shutdown();
 }
 
+#ifdef USE_RMW_ISOLATION
+#include "rmw_isolation/rmw_isolation.h"
+
 int main(int argc, char* argv[]) {
   const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
   if (TEST_TMPDIR != nullptr) {
@@ -119,3 +121,4 @@ int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+#endif
