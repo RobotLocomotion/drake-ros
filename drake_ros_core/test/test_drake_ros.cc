@@ -41,7 +41,8 @@ TEST(DrakeRos, local_context) {
   context->shutdown("done");
 }
 
-#ifdef USE_RMW_ISOLATION
+// Only available in Bazel.
+#ifndef _TEST_DISABLE_RMW_ISOLATION
 #include "rmw_isolation/rmw_isolation.h"
 
 int main(int argc, char* argv[]) {

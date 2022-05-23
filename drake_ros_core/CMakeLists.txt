@@ -100,15 +100,26 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_pub_sub test/test_pub_sub.cc)
 
+  target_compile_definitions(test_pub_sub
+    PRIVATE
+    # We do not expose `rmw_isoliation` via CMake.
+    _TEST_DISABLE_RMW_ISOLATION
+  )
   target_link_libraries(test_pub_sub
     drake::drake
     drake_ros_core
     ${test_msgs_TARGETS}
   )
 
+  # TODO(eric, shane): Add environment variable to disable rmw_isolation.
   ament_add_pytest_test(test_pub_sub_py test/test_pub_sub.py)
 
   ament_add_gtest(test_drake_ros test/test_drake_ros.cc)
+  target_compile_definitions(test_drake_ros
+    PRIVATE
+    # We do not expose `rmw_isoliation` via CMake.
+    _TEST_DISABLE_RMW_ISOLATION
+  )
   target_link_libraries(test_drake_ros
     drake_ros_core
   )
