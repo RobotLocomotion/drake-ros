@@ -1,6 +1,6 @@
-# Drake ROS Viz
+# Drake ROS Examples
 
-This package provides abstractions to simplify the visualization of a Drake scene using `rviz2`.
+This is a collection of examples built around `drake_ros` libraries' C++ and Python APIs.
 
 ## Building
 
@@ -15,10 +15,26 @@ To build it:
 1. Extract the Drake binary installation, install it's prerequisites, and [use this Python virutalenv trick](https://drake.mit.edu/from_binary.html).
 1. Activate the drake virtual environment.
 1. Build it using Colcon.
-
+    
     **Colcon**
     1. Make a workspace `mkdir -p ./ws/src`
     1. `cd ./ws/src`
     1. Get this code `git clone https://github.com/RobotLocomotion/drake-ros.git`
     1. `cd ..`
-    1. Build this package `colcon build --packages-up-to drake_ros_viz`
+    1. Build this package `colcon build --packages-up-to drake_ros_examples`
+    
+## Running
+
+Source your workspace.
+
+```
+. ./ws/install/setup.bash
+# Also make sure to activate drake virtual environment
+```
+
+  Now you can run C++ and Python examples using `ros2 run drake_ros_examples <example-executable-or-script>`.
+
+## List of examples
+
+- [RS flip flop](./examples/rs_flip_flop): a latch with a ROS 2 topic interface.
+- [IIWA manipulator](./examples/iiwa_manipulator): an RViz visualization of a static IIWA arm.
