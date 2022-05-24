@@ -6,8 +6,6 @@ import pathlib
 
 import numpy
 
-from ament_index_python.packages import get_package_share_directory
-
 import drake_ros_core
 from drake_ros_core import RosInterfaceSystem
 from drake_ros_tf2 import SceneTfBroadcasterSystem

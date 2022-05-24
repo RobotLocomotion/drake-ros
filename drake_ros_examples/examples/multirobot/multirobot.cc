@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
-
 #include <drake/common/find_resource.h>
 #include <drake/geometry/drake_visualizer.h>
 #include <drake/multibody/plant/multibody_plant.h>
