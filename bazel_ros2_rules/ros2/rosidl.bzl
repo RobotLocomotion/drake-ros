@@ -147,11 +147,29 @@ def _deduce_source_parts(interface_path):
     """
     parent, _, base = interface_path.rpartition("/")
     basename, _, ext = base.rpartition(".")
-    basename = basename[0].lower() + "".join([
-        "_" + char.lower() if char.isupper() else char
-        for char in basename[1:].elems()
-    ])
-    return parent, basename
+
+    # Logic must match rosidl_cmake.convert_camel_case_to_lower_case_underscore
+    basename_build = []
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    numbers = "0123456789"
+    for i in range(len(basename)):
+        insert_underscore = False
+        if basename[i] in alphabet.upper():
+            # insert an underscore before any upper case letter
+            # which is not followed by another upper case letter
+            if i > 0 and i + 1 < len(basename):
+                if basename[i+1] not in alphabet.upper():
+                    insert_underscore = True
+            # insert an underscore before any upper case letter
+            # which is preseded by a lower case letter or number
+            if i - 1 >= 0:
+                if basename[i - 1] in numbers + alphabet.lower():
+                    insert_underscore = True
+        if insert_underscore:
+            basename_build.append('_')
+        basename_build.append(basename[i].lower())
+
+    return parent, "".join(basename_build)
 
 def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
     """
