@@ -7,7 +7,8 @@ _provision_repos() { (
     cd ${_cur_dir}
     repo_dir=${PWD}/repos
     completion_token=2021-03-12.1
-    completion_file=$1/.completion-token
+    completion_file="$1"/.completion-token
+    echo $completion_file
 
     if [[ "$2" == *\.sdf ]]
     then
@@ -29,7 +30,7 @@ _provision_repos() { (
         ./ros_setup.bash ./render_ur_urdfs.py "$1" "$2"
     fi
 
-    echo "${completion_token}" > ${completion_file}
+    echo "${completion_token}" > "${completion_file}"
 ) }
 
 if [[ $# -lt 1 || $# -gt 2 ]]; then

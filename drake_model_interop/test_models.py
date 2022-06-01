@@ -3,6 +3,7 @@
 import numpy as np
 import sys
 import os
+import subprocess
 import argparse
 from PIL import Image
 import shutil
@@ -14,7 +15,6 @@ from pydrake.all import (
     FindResourceOrThrow,
     Parser,
     AddMultibodyPlantSceneGraph,
-    ConnectMeshcatVisualizer,
     DiagramBuilder,
     JacobianWrtVariable,
     Simulator,
@@ -50,9 +50,9 @@ def xyz_rpy_deg(xyz, rpy_deg):
     return RigidTransform(RollPitchYaw(np.deg2rad(rpy_deg)), xyz)
 
 
-def make_parser(plant):
+def make_parser(plant, package_dir):
     parser = Parser(plant)
-    parser.package_map().PopulateFromFolder("./repos/")
+    parser.package_map().PopulateFromFolder(package_dir)
     return parser
 
 
@@ -73,16 +73,20 @@ def infer_mask(image, bg_pixel=[255, 255, 255]):
     return ~background_mask
 
 
-def intersection_over_union(mask_a, mask_b):
+def intersection_over_union(mask_a, mask_b, threshold):
     intersection = np.logical_and(mask_a, mask_b).sum()
     union = np.logical_or(mask_a, mask_b).sum()
-    print(intersection / union)
+    iou_result = intersection / union
+    if iou_result < threshold:
+        raise ValueError(
+            f"Intersection over union test value {iou_result} was lower than threshold: {threshold}."
+        )
+    print(iou_result)
 
 
-def generate_images_and_iou(simulator, sensor, temp_directory, poses_dir, num_image):
-
-    context = simulator.get_context()
-    sensor_context = sensor.GetMyMutableContextFromRoot(context)
+def generate_images_and_iou(
+    sensor_context, sensor, temp_directory, poses_dir, num_image, iou_test_threshold
+):
 
     color = sensor.color_image_output_port().Eval(sensor_context).data
     image_drake = Image.fromarray(color, "RGBA")
@@ -95,7 +99,7 @@ def generate_images_and_iou(simulator, sensor, temp_directory, poses_dir, num_im
     ) as image_ignition:
         mask_a = infer_mask(image_drake, image_drake.getpixel((0, 0)))
         mask_b = infer_mask(image_ignition, image_ignition.getpixel((0, 0)))
-        intersection_over_union(mask_a, mask_b)
+        intersection_over_union(mask_a, mask_b, iou_test_threshold)
 
 
 def remove_tag(tag, current):
@@ -105,8 +109,9 @@ def remove_tag(tag, current):
         remove_tag(tag, element)
 
 
-def generate_sdf(model, poses_file, random, file_name, camera_info):
-    sdf_text = f"""\
+def generate_sdf(model, poses_file, random, file_name, render_camera_core):
+    sdf_text = textwrap.dedent(
+        f"""\
 <sdf version="1.9">
     <world name="default">
         <plugin
@@ -143,16 +148,16 @@ def generate_sdf(model, poses_file, random, file_name, camera_info):
                 <sensor name="camera" type="camera">
                     <camera>
                         <horizontal_fov>
-                                {2*math.atan(camera_info.width()/
-                                             (2*camera_info.focal_x()))}
+                                {2*math.atan(render_camera_core.intrinsics().width()/
+                                             (2*render_camera_core.intrinsics().focal_x()))}
                         </horizontal_fov>
                         <image>
-                            <width>{camera_info.width()}</width>
-                            <height>{camera_info.height()}</height>
+                            <width>{render_camera_core.intrinsics().width()}</width>
+                            <height>{render_camera_core.intrinsics().height()}</height>
                         </image>
                         <clip>
-                            <near>0.01</near>
-                            <far>100</far>
+                            <near>{render_camera_core.clipping().near()}</near>
+                            <far>{render_camera_core.clipping().far()}</far>
                         </clip>
                     </camera>
                     <always_on>1</always_on>
@@ -164,8 +169,9 @@ def generate_sdf(model, poses_file, random, file_name, camera_info):
         </model>
     </world>
 </sdf>"""
+    )
     with open(file_name, "w") as f:
-        f.write(textwrap.dedent(sdf_text))
+        f.write(sdf_text)
 
 
 def perform_iou_testing(
@@ -173,7 +179,9 @@ def perform_iou_testing(
     test_specific_temp_directory,
     pose_directory,
     randomize_poses,
-    camera_info,
+    render_camera_core,
+    iou_test_threshold,
+    drake_visualizer,
 ):
 
     random_poses = {}
@@ -205,7 +213,9 @@ def perform_iou_testing(
     plant, scene_graph = AddMultibodyPlantSceneGraph(builder, 0.0)
 
     parser = Parser(plant)
-    model = make_parser(plant).AddModelFromFile(model_file)
+    model = make_parser(plant, test_specific_temp_directory).AddModelFromFile(
+        model_file
+    )
 
     model_bodies = me.get_bodies(plant, {model})
     frame_W = plant.world_frame()
@@ -216,69 +226,53 @@ def perform_iou_testing(
         )
 
     # Creating cameras:
-    renderer_name = "renderer"
-    scene_graph.AddRenderer(renderer_name, MakeRenderEngineVtk(RenderEngineVtkParams()))
+    scene_graph.AddRenderer(
+        render_camera_core.renderer_name(), MakeRenderEngineVtk(RenderEngineVtkParams())
+    )
 
     # N.B. These properties are chosen arbitrarily.
     depth_camera = DepthRenderCamera(
-        RenderCameraCore(
-            renderer_name,
-            camera_info,
-            ClippingRange(0.01, 10.0),
-            RigidTransform(),
-        ),
+        render_camera_core,
         DepthRange(0.01, 10.0),
     )
 
     world_id = plant.GetBodyFrameIdOrThrow(plant.world_body().index())
 
     # Creating perspective cam
+    sensors = []
     X_WB = xyz_rpy_deg(
         [1.6 / scaling + trans_x, -1.6 / scaling + trans_y, 1.2 / scaling + trans_z],
         [-120, 0, 45],
     )
-    sensor_perspective = create_camera(
-        builder, world_id, X_WB, depth_camera, scene_graph
-    )
+    sensors.append(create_camera(builder, world_id, X_WB, depth_camera, scene_graph))
     # Creating top cam
     X_WB = xyz_rpy_deg(
         [0 + trans_x, 0 + trans_y, 2.2 / scaling + trans_z], [-180, 0, -90]
     )
-    sensor_top = create_camera(builder, world_id, X_WB, depth_camera, scene_graph)
+    sensors.append(create_camera(builder, world_id, X_WB, depth_camera, scene_graph))
     # Creating front cam
     X_WB = xyz_rpy_deg(
         [2.2 / scaling + trans_x, 0 + trans_y, 0 + trans_z], [-90, 0, 90]
     )
-    sensor_front = create_camera(builder, world_id, X_WB, depth_camera, scene_graph)
+    sensors.append(create_camera(builder, world_id, X_WB, depth_camera, scene_graph))
     # Creating side cam
     X_WB = xyz_rpy_deg(
         [0 + trans_x, 2.2 / scaling + trans_y, 0 + trans_z], [-90, 0, 180]
     )
-    sensor_side = create_camera(builder, world_id, X_WB, depth_camera, scene_graph)
+    sensors.append(create_camera(builder, world_id, X_WB, depth_camera, scene_graph))
     # Creating back cam
     X_WB = xyz_rpy_deg(
         [-2.2 / scaling + trans_x, 0 + trans_y, 0 + trans_z], [-90, 0, -90]
     )
-    sensor_back = create_camera(builder, world_id, X_WB, depth_camera, scene_graph)
+    sensors.append(create_camera(builder, world_id, X_WB, depth_camera, scene_graph))
 
-    DrakeVisualizer.AddToBuilder(builder, scene_graph)
-
-    # Remove gravity to avoid extra movements of the model when running the simulation
-    plant.gravity_field().set_gravity_vector(np.array([0, 0, 0], dtype=np.float64))
-
-    # Switch off collisions to avoid problems with random positions
-    collision_filter_manager = scene_graph.collision_filter_manager()
-    model_inspector = scene_graph.model_inspector()
-    geometry_ids = GeometrySet(model_inspector.GetAllGeometryIds())
-    collision_filter_manager.Apply(
-        CollisionFilterDeclaration().ExcludeWithin(geometry_ids)
-    )
+    if drake_visualizer:
+        DrakeVisualizer.AddToBuilder(builder, scene_graph)
 
     plant.Finalize()
     diagram = builder.Build()
 
-    simulator = Simulator(diagram)
-    simulator.Initialize()
+    diagram_context = diagram.CreateDefaultContext()
 
     dofs = plant.num_actuated_dofs()
     if dofs != plant.num_positions():
@@ -298,35 +292,27 @@ def perform_iou_testing(
             else:
                 joint = plant.GetJointByName(joint_name + "_joint")
             joint_positions[joint.position_start()] = pose
-        sim_plant_context = plant.GetMyContextFromRoot(simulator.get_mutable_context())
+        sim_plant_context = plant.GetMyContextFromRoot(diagram_context)
         plant.get_actuation_input_port(model).FixValue(
             sim_plant_context, np.zeros((dofs, 1))
         )
         plant.SetPositions(sim_plant_context, model, joint_positions)
 
-        simulator.AdvanceTo(1)
-
-    generate_images_and_iou(
-        simulator, sensor_perspective, test_specific_temp_directory, pose_directory, 1
-    )
-    generate_images_and_iou(
-        simulator, sensor_top, test_specific_temp_directory, pose_directory, 2
-    )
-    generate_images_and_iou(
-        simulator, sensor_front, test_specific_temp_directory, pose_directory, 3
-    )
-    generate_images_and_iou(
-        simulator, sensor_side, test_specific_temp_directory, pose_directory, 4
-    )
-    generate_images_and_iou(
-        simulator, sensor_back, test_specific_temp_directory, pose_directory, 5
-    )
+    for i, sensor in enumerate(sensors):
+        generate_images_and_iou(
+            sensor.GetMyMutableContextFromRoot(diagram_context),
+            sensor,
+            test_specific_temp_directory,
+            pose_directory,
+            i + 1,
+            iou_test_threshold,
+        )
 
 
-def setup_temporal_model_description_file(
+def setup_temporary_model_description_file(
     model_directory, description_file, temp_directory, mesh_type
 ):
-    # Setup model temporal files
+    # Setup model temporary files
     temp_test_model_path = os.path.join(temp_directory, mesh_type, "model")
     model_file_path = os.path.join(temp_test_model_path, description_file)
     shutil.copytree(model_directory, temp_test_model_path)
@@ -336,21 +322,22 @@ def setup_temporal_model_description_file(
         uri.text = uri.text.replace("model://" + model_name + "/", "")
 
     if mesh_type == "collision":
-        # Create ignore namespace so lxml don't complain
-        my_namespaces = {"ignore": "http://ignore"}
-        namespace = etree.Element("namespace", nsmap=my_namespaces)
-        namespace.append(root.getroot())
         collision_tags = root.findall(".//collision")
-        visual_tags = root.findall(".//visual")
+        for visual_parent in root.findall(".//visual/.."):
+            for visual_element in visual_parent.findall("visual"):
+                visual_parent.remove(visual_element)
         for collision_tag in collision_tags:
             collision_tag.tag = "visual"
-        for visual_tag in visual_tags:
-            visual_tag.tag = f"{{my_namespaces['ignore']}}visual"
+        # Remove tags that cause problems after the collision-visual swap
+        tags = ["surface", "contact"]
+        for tag in tags:
+            for element_parent in root.findall(f".//{tag}/.."):
+                for element in element_parent.findall(tag):
+                    element_parent.remove(element)
 
     data = etree.tostring(root, pretty_print=True).decode("utf-8")
-    text_file = open(model_file_path, "w")
-    text_file.write(data)
-    text_file.close()
+    with open(model_file_path, "w") as text_file:
+        text_file.write(data)
 
     return model_file_path
 
@@ -361,10 +348,12 @@ def run_test(
     mesh_type,
     type_joint_positions,
     randomize_poses,
-    camera_info,
+    render_camera_core,
+    iou_test_threshold,
+    drake_visualizer,
     poses_filename="poses.txt",
 ):
-    # Setup temporal pics and metadata directory
+    # Setup temporary pics and metadata directory
     temp_default_pics_path = os.path.join(
         temp_directory, mesh_type, "pics", type_joint_positions
     )
@@ -377,65 +366,91 @@ def run_test(
         os.path.join(temp_default_pics_path, poses_filename),
         randomize_poses,
         plugin_config_path,
-        camera_info,
+        render_camera_core,
     )
 
-    os.system(
-        f"ign gazebo -s -r --headless-rendering {plugin_config_path} --iterations 50"
+    subprocess.run(
+        f"ign gazebo -s -r --headless-rendering {plugin_config_path} --iterations 50",
+        shell=True,
+        check=True,
     )
     perform_iou_testing(
         model_file_path,
         os.path.join(temp_directory, mesh_type),
         type_joint_positions,
         randomize_poses,
-        camera_info,
+        render_camera_core,
+        iou_test_threshold,
+        drake_visualizer,
     )
     os.chdir(current_dir)
 
 
-def main():  # original_model_directory, description_file, temp_directory):
+def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("model_directory", help="Directory location of the model files")
     parser.add_argument("description_file", help="Model description file name")
     parser.add_argument(
-        "temp_directory",
-        help="Temporal directory file where temporal objects will be written",
+        "-t",
+        "--temp_directory",
+        required=True,
+        help="Temporary directory file where temporary objects will be written",
     )
+    parser.add_argument(
+        "-i",
+        "--iou_threshold",
+        help="Threshold for the intesrsection over union test",
+        type=float,
+        default=0.9,
+    )
+    parser.add_argument("-d", "--drake_visualizer", action="store_true")
     args = parser.parse_args()
 
-    camera_info = CameraInfo(
-        width=960,
-        height=540,
-        focal_x=831.382036787,
-        focal_y=831.382036787,
-        center_x=480,
-        center_y=270,
+    render_camera_core = RenderCameraCore(
+        "renderer",
+        CameraInfo(
+            width=960,
+            height=540,
+            focal_x=831.382036787,
+            focal_y=831.382036787,
+            center_x=480,
+            center_y=270,
+        ),
+        ClippingRange(0.01, 10.0),
+        RigidTransform(),
     )
 
     mesh_type = "visual"
-    tmp_model_file_path = setup_temporal_model_description_file(
+    tmp_model_file_path = setup_temporary_model_description_file(
         args.model_directory, args.description_file, args.temp_directory, mesh_type
     )
+    print("Running default pose, visual mesh test:")
     run_test(
         tmp_model_file_path,
         args.temp_directory,
         mesh_type,
         "default_pose",
         False,
-        camera_info,
+        render_camera_core,
+        args.iou_threshold,
+        args.drake_visualizer,
     )
+    print("Running random pose, visual mesh test:")
     run_test(
         tmp_model_file_path,
         args.temp_directory,
         mesh_type,
         "random_pose",
         True,
-        camera_info,
+        render_camera_core,
+        args.iou_threshold,
+        args.drake_visualizer,
     )
 
+    print("Running default pose, collision mesh test:")
     mesh_type = "collision"
-    tmp_model_file_path = setup_temporal_model_description_file(
+    tmp_model_file_path = setup_temporary_model_description_file(
         args.model_directory, args.description_file, args.temp_directory, mesh_type
     )
     run_test(
@@ -444,15 +459,20 @@ def main():  # original_model_directory, description_file, temp_directory):
         mesh_type,
         "default_pose",
         False,
-        camera_info,
+        render_camera_core,
+        args.iou_threshold,
+        args.drake_visualizer,
     )
+    print("Running random pose, collision mesh test:")
     run_test(
         tmp_model_file_path,
         args.temp_directory,
         mesh_type,
         "random_pose",
         True,
-        camera_info,
+        render_camera_core,
+        args.iou_threshold,
+        args.drake_visualizer,
     )
 
 
