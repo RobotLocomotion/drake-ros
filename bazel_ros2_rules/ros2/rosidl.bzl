@@ -7,7 +7,7 @@ load(
     "REPOSITORY_ROOT"
 )
 load(
-    ":_calculate_rosidl_capitalization",
+    ":_calculate_rosidl_capitalization.bzl",
     "calculate_rosidl_capitalization"
 )
 
