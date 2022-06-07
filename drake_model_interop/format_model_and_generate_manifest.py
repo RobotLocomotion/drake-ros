@@ -258,17 +258,50 @@ def preprocess_sdf_and_materials(model_directory, description_file):
                     print(line, end="")
 
 
-def main(model_directory, description_file):
+def check_completion_token_exists(completion_file, completion_token):
+    print(completion_file)
+    if os.path.exists(completion_file):
+        with open(completion_file, "r") as f:
+            completion_file_data = f.read()
+        if completion_file_data == completion_token:
+            return True
+        else:
+            return False
+    else:
+        return False
 
-    if description_file.endswith(".sdf"):
-        preprocess_sdf_and_materials(model_directory, description_file)
+
+def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-d",
+        "--model_directory",
+        required=True,
+        help="Directory location of the model files",
+    )
+    parser.add_argument(
+        "-m", "--model_description_file", help="Model description file name", default=""
+    )
+    args = parser.parse_args()
+
+    # Check for completion file
+    completion_token = "2021-03-12.1"
+    completion_file = os.path.join(args.model_directory, ".completion-token")
+    if check_completion_token_exists(completion_file, completion_token):
+        print("Skipping conversion. It has been done already.")
+        return
+
+    if args.model_description_file.endswith(".sdf"):
+        preprocess_sdf_and_materials(args.model_directory, args.model_description_file)
+
     source_tree = parent_dir(abspath(__file__), count=1)
     cd(source_tree)
 
     print(pyassimp.__file__)
     print(pyassimp.core._assimp_lib.dll)
 
-    cd(model_directory)
+    cd(args.model_directory)
     print(f"[ Convert Meshes for Drake :( ]")
     for dae_file in find_mesh_files(".", ".dae"):
         root = etree.parse(dae_file)
@@ -278,12 +311,12 @@ def main(model_directory, description_file):
     for stl_file in find_mesh_files(".", ".stl"):
         convert_file_to_obj(stl_file, ".stl")
 
-    if description_file.endswith(".sdf"):
+    if args.model_description_file.endswith(".sdf"):
         print(
             "Found SDF as description file, making arrangements to ensure compatibility"
         )
-        remove_gazebo_specific_scripts(description_file)
-        create_pacakge_xml(description_file)
+        remove_gazebo_specific_scripts(args.model_description_file)
+        create_pacakge_xml(args.model_description_file)
     else:
         print("Found URDF as description file, translating through ros launch")
         cd(source_tree)
@@ -328,16 +361,17 @@ def main(model_directory, description_file):
             print("Generated URDF files:")
             print(indent("\n".join(urdf_files), "  "))
 
+    # Save completion token
+    cd(source_tree)
+    with open(completion_file, "w") as f:
+        f.write(completion_token)
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("model_directory", help="Directory location of the model files")
-    parser.add_argument("description_file", help="Model description file name")
-    args = parser.parse_args()
     try:
-        main(args.model_directory, args.description_file)
+        main()
+        print()
+        print("[ Done ]")
     except UserError as e:
         eprint(e)
         sys.exit(1)
-    print()
-    print("[ Done ]")

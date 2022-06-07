@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [[ $# -lt 1 || $# -gt 6 ]]; then
+if [[ $# -lt 2 || $# -gt 6 ]]; then
     echo "Please provide path to model directory and model file name."
     echo "      Usage:"
     echo "                  To transform an sdf model provide directory and model file name:"
@@ -19,10 +19,15 @@ if [[ $# -lt 1 || $# -gt 6 ]]; then
     exit 1
 fi
 
-echo
-
 source setup.sh
 
-bash format_model_and_generate_manifest.sh "$1" "$2"
+if [[ $# -gt 2 ]]; then
+    ./format_model_and_generate_manifest.py $@
 
-bash compare_model_via_drake_and_ingition_images.sh "$1" "$2" "${@:3}"
+    temp_directory=$(mktemp -d)
+    echo "Saving temporal test files to: ${temp_directory}"
+    ./compare_model_via_drake_and_ingition_images.py $@ --temp_directory "$temp_directory"
+else
+    set -x
+    ./ros_setup.bash ./format_model_and_generate_manifest.py $@
+fi

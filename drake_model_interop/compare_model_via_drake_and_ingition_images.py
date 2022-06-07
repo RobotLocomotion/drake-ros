@@ -11,30 +11,20 @@ from lxml import etree
 import textwrap
 import math
 
-from pydrake.all import (
-    FindResourceOrThrow,
-    Parser,
-    AddMultibodyPlantSceneGraph,
-    DiagramBuilder,
-    JacobianWrtVariable,
-    Simulator,
-)
+from pydrake.multibody.parsing import Parser
+from pydrake.multibody.plant import AddMultibodyPlantSceneGraph
+from pydrake.systems.framework import DiagramBuilder
+from pydrake.geometry import DrakeVisualizer
+
 from pydrake.geometry.render import (
     ClippingRange,
     DepthRange,
     DepthRenderCamera,
     RenderCameraCore,
-    RenderLabel,
     MakeRenderEngineVtk,
     RenderEngineVtkParams,
 )
-from pydrake.geometry import (
-    DrakeVisualizer,
-    HalfSpace,
-    FrameId,
-    GeometrySet,
-    CollisionFilterDeclaration,
-)
+
 from pydrake.systems.sensors import (
     CameraInfo,
     RgbdSensor,
@@ -389,8 +379,15 @@ def run_test(
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("model_directory", help="Directory location of the model files")
-    parser.add_argument("description_file", help="Model description file name")
+    parser.add_argument(
+        "-d",
+        "--model_directory",
+        required=True,
+        help="Directory location of the model files",
+    )
+    parser.add_argument(
+        "-m", "--model_description_file", help="Model description file name", default=""
+    )
     parser.add_argument(
         "-t",
         "--temp_directory",
@@ -404,7 +401,7 @@ def main():
         type=float,
         default=0.9,
     )
-    parser.add_argument("-d", "--drake_visualizer", action="store_true")
+    parser.add_argument("-v", "--drake_visualizer", action="store_true")
     args = parser.parse_args()
 
     render_camera_core = RenderCameraCore(
@@ -423,7 +420,10 @@ def main():
 
     mesh_type = "visual"
     tmp_model_file_path = setup_temporary_model_description_file(
-        args.model_directory, args.description_file, args.temp_directory, mesh_type
+        args.model_directory,
+        args.model_description_file,
+        args.temp_directory,
+        mesh_type,
     )
     print("Running default pose, visual mesh test:")
     run_test(
@@ -451,7 +451,10 @@ def main():
     print("Running default pose, collision mesh test:")
     mesh_type = "collision"
     tmp_model_file_path = setup_temporary_model_description_file(
-        args.model_directory, args.description_file, args.temp_directory, mesh_type
+        args.model_directory,
+        args.model_description_file,
+        args.temp_directory,
+        mesh_type,
     )
     run_test(
         tmp_model_file_path,
