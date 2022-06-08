@@ -24,10 +24,6 @@ jobs:
         run: yes | ./setup/install_prereqs.sh
       - name: Install xvfb
         run: sudo apt-get install xvfb
-      - name: Download, convert and test model
+      - name: Download, convert and test models
         shell: bash
-        run: |
-          wget -q https://fuel.gazebosim.org/1.0/OpenRobotics/models/NAO%20with%20Ignition%20position%20controller/1/NAO%20with%20Ignition%20position%20controller.zip
-          unzip NAO\ with\ Ignition\ position\ controller.zip -d NAO
-          source setup.sh
-          xvfb-run --auto-servernum bash setup_transform_test.sh NAO model.sdf
+        run: xvfb-run --auto-servernum bash ./setup/ci_tests.sh
