@@ -29,11 +29,9 @@ ros2_archive(
       "rosidl_typesupport_cpp",
       "test_msgs",
     ],
-    url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-rolling-linux-focal-amd64-ci.tar.bz2",
-    sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-rolling-linux-focal-amd64-ci-CHECKSUM",
+    url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci.tar.bz2",
+    sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci-CHECKSUM",
     strip_prefix = "ros2-linux",
-    # Fix wrong chained prefix, if any
-    patch_cmds = ["sed -i 's|COLCON_CURRENT_PREFIX=\"/opt/ros/rolling\"||g' archive/setup.sh"],
 )
 
 # Depend on Drake
