@@ -1,8 +1,8 @@
 # Empty build file to mark package boundaries.
 
 load(
-	":_calculate_rosidl_capitalization.bzl",
-	"run_calculate_rosidl_capitalization_tests"
+  ":_calculate_rosidl_capitalization.bzl",
+  "run_calculate_rosidl_capitalization_tests"
 )
 
 run_calculate_rosidl_capitalization_tests()
