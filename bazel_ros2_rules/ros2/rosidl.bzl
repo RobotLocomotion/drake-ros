@@ -6,6 +6,10 @@ load(
     "AVAILABLE_TYPESUPPORT_LIST",
     "REPOSITORY_ROOT"
 )
+load(
+    ":_calculate_rosidl_capitalization.bzl",
+    "calculate_rosidl_capitalization"
+)
 
 def _as_idl_tuple(file):
     """
@@ -147,11 +151,8 @@ def _deduce_source_parts(interface_path):
     """
     parent, _, base = interface_path.rpartition("/")
     basename, _, ext = base.rpartition(".")
-    basename = basename[0].lower() + "".join([
-        "_" + char.lower() if char.isupper() else char
-        for char in basename[1:].elems()
-    ])
-    return parent, basename
+
+    return parent, calculate_rosidl_capitalization(basename)
 
 def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
     """
