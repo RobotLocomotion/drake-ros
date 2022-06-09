@@ -29,7 +29,7 @@ jobs:
       image: robotlocomotion/drake:focal
     steps:
       - uses: ros-tooling/setup-ros@v0.2
-      - name: Install ROS 2 Rolling on Focal
+      - name: Install dependencies to build ROS packages
         run: |
           sudo mkdir -p /opt/ros/humble
           wget -q https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci-CHECKSUM
