@@ -311,6 +311,10 @@ def setup_temporary_model_description_file(
     for uri in root.findall(".//uri"):
         uri.text = uri.text.replace("model://" + model_name + "/", "")
 
+    # XML substitution workaround to visualize collisions this should be
+    # doable through AssignRole and RemoveRole, but it's still needed for
+    # gazebo anyway. It can be reformed once the gazebo model_photo_shoot
+    # plugin adds support for collisions.
     if mesh_type == "collision":
         collision_tags = root.findall(".//collision")
         for visual_parent in root.findall(".//visual/.."):

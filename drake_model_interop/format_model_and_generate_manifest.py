@@ -259,7 +259,6 @@ def preprocess_sdf_and_materials(model_directory, description_file):
 
 
 def check_completion_token_exists(completion_file, completion_token):
-    print(completion_file)
     if os.path.exists(completion_file):
         with open(completion_file, "r") as f:
             completion_file_data = f.read()
@@ -283,7 +282,7 @@ def main():
     parser.add_argument(
         "-m", "--model_description_file", help="Model description file name", default=""
     )
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
 
     # Check for completion file
     completion_token = "2021-03-12.1"
