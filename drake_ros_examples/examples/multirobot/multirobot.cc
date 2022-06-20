@@ -61,7 +61,7 @@ int main()
   auto scene_visualizer = builder.AddSystem<drake_ros_viz::RvizVisualizer>(
     ros_interface_system->get_ros_interface(),
     drake_ros_viz::RvizVisualizerParams{
-      {drake::systems::TriggerType::kPeriodic}, 0.05, true});
+      {drake::systems::TriggerType::kForced}, 0., true});
   builder.Connect(scene_graph.get_query_output_port(),
     scene_visualizer->get_graph_query_port());
 
