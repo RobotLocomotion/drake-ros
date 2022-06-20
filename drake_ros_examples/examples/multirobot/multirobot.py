@@ -65,7 +65,6 @@ if __name__ == '__main__':
 
     # Prepare to load the robot model
     parser = Parser(plant)
-    parser.package_map().PopulateFromEnvironment('AMENT_PREFIX_PATH')
     model_file_path = FindResourceOrThrow(
         'drake/manipulation/models/iiwa_description/urdf/iiwa14_polytope_collision.urdf')
     model_name = "kuka_iiwa"

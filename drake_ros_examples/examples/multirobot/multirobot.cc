@@ -67,7 +67,6 @@ int main()
 
   // Prepare to load the robot model
   auto parser = drake::multibody::Parser(&plant);
-  parser.package_map().PopulateFromEnvironment("AMENT_PREFIX_PATH");
   auto model_file_path =
     drake::FindResourceOrThrow(
       "drake/manipulation/models/iiwa_description/urdf/iiwa14_polytope_collision.urdf");
