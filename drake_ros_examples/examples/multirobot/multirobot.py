@@ -55,7 +55,8 @@ if __name__ == '__main__':
         RvizVisualizer(
             sys_ros_interface.get_ros_interface(),
             params=RvizVisualizerParams(
-                publish_triggers={TriggerType.kPeriodic}
+                publish_triggers={TriggerType.kForced},
+                publish_period=0.0
             )
         )
     )
