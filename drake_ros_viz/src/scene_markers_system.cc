@@ -396,7 +396,7 @@ const SceneMarkersParams& SceneMarkersSystem::params() const {
 }
 
 const drake::systems::InputPort<double>&
-SceneMarkersSystem::get_graph_query_port() const {
+SceneMarkersSystem::get_graph_query_input_port() const {
   return get_input_port(impl_->graph_query_port_index);
 }
 

@@ -567,7 +567,7 @@ TYPED_TEST_P(SceneMarkersTest, NominalCase) {
 
   auto scene_markers = builder.AddSystem<SceneMarkersSystem>();
   builder.Connect(scene_graph->get_query_output_port(),
-                  scene_markers->get_graph_query_port());
+                  scene_markers->get_graph_query_input_port());
 
   builder.ExportOutput(scene_markers->get_markers_output_port());
 

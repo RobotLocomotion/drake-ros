@@ -62,7 +62,9 @@ PYBIND11_MODULE(drake_ros_tf2, m) {
            py::arg("params") = SceneTfBroadcasterParams{})
       .def("RegisterMultibodyPlant",
            &SceneTfBroadcasterSystem::RegisterMultibodyPlant)
-      .def("get_graph_query_port",
-           &SceneTfBroadcasterSystem::get_graph_query_port,
+      .def("ComputeFrameHierarchy",
+           &SceneTfBroadcasterSystem::ComputeFrameHierarchy)
+      .def("get_graph_query_input_port",
+           &SceneTfBroadcasterSystem::get_graph_query_input_port,
            py::return_value_policy::reference_internal);
 }

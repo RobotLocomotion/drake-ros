@@ -30,6 +30,7 @@ namespace drake_ros_tf2 {
 class SceneTfBroadcasterSystem::Impl {
  public:
   SceneTfSystem* scene_tf;
+  drake::systems::InputPortIndex graph_query_port_index;
 };
 
 SceneTfBroadcasterSystem::SceneTfBroadcasterSystem(
@@ -48,7 +49,9 @@ SceneTfBroadcasterSystem::SceneTfBroadcasterSystem(
   builder.Connect(impl_->scene_tf->get_scene_tf_output_port(),
                   scene_tf_publisher->get_input_port());
 
-  builder.ExportInput(impl_->scene_tf->get_graph_query_port(), "graph_query");
+  impl_->graph_query_port_index = builder.ExportInput(
+    impl_->scene_tf->get_graph_query_input_port(),
+    "graph_query");
 
   builder.BuildInto(this);
 }
@@ -60,9 +63,13 @@ void SceneTfBroadcasterSystem::RegisterMultibodyPlant(
   impl_->scene_tf->RegisterMultibodyPlant(plant);
 }
 
+void SceneTfBroadcasterSystem::ComputeFrameHierarchy() {
+  impl_->scene_tf->ComputeFrameHierarchy();
+}
+
 const drake::systems::InputPort<double>&
-SceneTfBroadcasterSystem::get_graph_query_port() const {
-  return get_input_port();
+SceneTfBroadcasterSystem::get_graph_query_input_port() const {
+  return get_input_port(impl_->graph_query_port_index);
 }
 
 }  // namespace drake_ros_tf2

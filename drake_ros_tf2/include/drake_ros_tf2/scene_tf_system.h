@@ -54,7 +54,15 @@ class SceneTfSystem : public drake::systems::LeafSystem<double> {
   void RegisterMultibodyPlant(
       const drake::multibody::MultibodyPlant<double>* plant);
 
-  const drake::systems::InputPort<double>& get_graph_query_port() const;
+  /** Compute the frame hierarchy of all the registered Multibody Plants.
+
+   Call this after you have registered all your finalised Multibody Plants.
+   It will calculate the frame hierarchy of the plants for use in providing
+   a TF tree that accurately represents the hierarchy of frames in your System.
+  */
+  void ComputeFrameHierarchy();
+
+  const drake::systems::InputPort<double>& get_graph_query_input_port() const;
 
   const drake::systems::OutputPort<double>& get_scene_tf_output_port() const;
 

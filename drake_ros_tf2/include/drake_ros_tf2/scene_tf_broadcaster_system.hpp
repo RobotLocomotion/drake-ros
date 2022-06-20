@@ -24,7 +24,7 @@
 
 namespace drake_ros_tf2 {
 
-/// Set of parameters that configure a SceneTfBroadcasterSystem.
+/// Set of parameters that configure a SceneTfBroadcaster.
 struct SceneTfBroadcasterParams {
   /// Publish triggers for tf broadcasting.
   std::unordered_set<drake::systems::TriggerType> publish_triggers{
