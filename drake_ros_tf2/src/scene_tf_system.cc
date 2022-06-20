@@ -88,12 +88,12 @@ void SceneTfSystem::ComputeFrameHierarchy() {
       auto& joint = plant->get_joint(drake::multibody::JointIndex(ii));
 
       auto& parent_body = joint.parent_body();
-      auto parent_body_index = plant->GetIndexOfBodyIfExists(parent_body);
-      auto parent_body_frame_id = plant->GetBodyFrameIdOrThrow(parent_body_index.value());
+      auto parent_body_index = parent_body.index();
+      auto parent_body_frame_id = plant->GetBodyFrameIdOrThrow(parent_body_index);
 
       auto& child_body = joint.child_body();
-      auto child_body_index = plant->GetIndexOfBodyIfExists(child_body);
-      auto child_body_frame_id = plant->GetBodyFrameIdOrThrow(child_body_index.value());
+      auto child_body_index = child_body.index();
+      auto child_body_frame_id = plant->GetBodyFrameIdOrThrow(child_body_index);
 
       geometry_msgs::msg::TransformStamped transform;
       if (joint.parent_body().name() == plant->world_body().name()) {
@@ -112,7 +112,7 @@ void SceneTfSystem::ComputeFrameHierarchy() {
       impl_->parent_frames_map.insert(
         {child_body_frame_id,
         SceneTfSystem::Impl::Frame({parent_body_frame_id,
-           parent_body_index.value(),
+           parent_body_index,
            joint.parent_body().name(),
            transform})
         });
