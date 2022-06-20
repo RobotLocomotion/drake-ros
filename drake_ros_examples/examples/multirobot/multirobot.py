@@ -95,7 +95,7 @@ if __name__ == '__main__':
     for x in range(NUM_ROWS):
         for y in range(NUM_COLS):
             # Get the number of degrees of freedom for the robot
-            nu = plant.num_actuated_dofs(model)
+            nu = plant.num_actuated_dofs(models[x][y])
             # Create a vector with the same number of zeros
             u0 = numpy.zeros(nu)
             # Create a system that emits a constant value using that vector
@@ -103,7 +103,7 @@ if __name__ == '__main__':
             # Connect the constant value to the robot
             builder.Connect(
                 constant.get_output_port(0),
-                plant.get_actuation_input_port(model))
+                plant.get_actuation_input_port(models[x][y]))
 
     # Add a Drake visualiser instance to the diagram
     viz = DrakeVisualizer.AddToBuilder(builder, scene_graph)
