@@ -87,6 +87,8 @@ def collect_ros_package_metadata(name, prefix):
     """
     share_directory = os.path.join(prefix, 'share', name)
     ament_index_directory = os.path.join(prefix, 'share', 'ament_index')
+    resource_index_directory = os.path.join(
+        ament_index_directory, 'resource_index')
 
     metadata = dict(
         prefix=prefix,
@@ -104,12 +106,19 @@ def collect_ros_package_metadata(name, prefix):
 
     metadata['langs'] = collect_package_langs(metadata)
 
-    path_to_plugins_description_xml = os.path.join(
-        share_directory, 'plugins_description.xml'
-    )
-    if os.path.exists(path_to_plugins_description_xml):
-        metadata.update(parse_plugins_description_xml(
-            path_to_plugins_description_xml
-        ))
+    # Find any plugins provided by this package
+    plugin_libraries = []
+    for resource_name in os.listdir(resource_index_directory)
+        if resource_name.endswith('__pluginlib_plugin'):
+            plugin_resource = os.path.join(
+                resource_index_directory, resource_name, name)
+            if os.path.exists(plugin_resource):
+                with open('plugin_resource', 'r') as fin:
+                    path_to_plugin_descriptions_xml = fin.read()
+                if os.path.exists(path_to_plugins_description_xml):
+                    plugin_libraries.extend(parse_plugins_description_xml(
+                        path_to_plugins_description_xml)['plugin_libraries'])
+    if plugin_libraries:
+        metadata['plugin_libraries'] = plugin_info
 
     return metadata
