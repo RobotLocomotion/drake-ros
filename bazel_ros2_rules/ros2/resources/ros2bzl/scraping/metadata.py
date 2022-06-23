@@ -108,7 +108,7 @@ def collect_ros_package_metadata(name, prefix):
 
     # Find any plugins provided by this package
     plugin_libraries = []
-    for resource_name in os.listdir(resource_index_directory)
+    for resource_name in os.listdir(resource_index_directory):
         if resource_name.endswith('__pluginlib_plugin'):
             plugin_resource = os.path.join(
                 resource_index_directory, resource_name, name)
