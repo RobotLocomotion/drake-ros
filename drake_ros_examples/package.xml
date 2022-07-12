@@ -12,7 +12,9 @@
 
   <depend>drake_ros_core</depend>
   <depend>drake_ros_viz</depend>
+  <depend>drake_ros_introspection</depend>
   <depend>std_msgs</depend>
+  <depend>example_interfaces</depend>
 
   <test_depend>ament_cmake_clang_format</test_depend>
   <test_depend>ament_lint_auto</test_depend>
