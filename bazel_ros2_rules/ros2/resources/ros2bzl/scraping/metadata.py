@@ -108,10 +108,14 @@ def collect_ros_package_metadata(name, prefix):
 
     # Find any plugins provided by this package
     plugin_libraries = []
-    for resource_name in os.listdir(resource_index_directory):
-        if resource_name.endswith('__pluginlib__plugin'):
+    for resource_type in os.listdir(resource_index_directory):
+        # Pluginlib adds this suffix to the ament index resource type
+        # https://github.com/ros/pluginlib/blob/
+        # a11ecea28a587637d51f036e0e04eb194b94abfe/pluginlib/cmake/
+        # pluginlib_package_hook.cmake#L22
+        if resource_type.endswith('__pluginlib__plugin'):
             plugin_resource = os.path.join(
-                resource_index_directory, resource_name, name)
+                resource_index_directory, resource_type, name)
             if os.path.exists(plugin_resource):
                 with open(plugin_resource, 'r') as fin:
                     path_to_desc = fin.read()
