@@ -91,9 +91,9 @@ int main(int argc, char* argv[]) {
       // For each OutputPort declared by drake::systems::Sine...
       .For(Each<drake::systems::OutputPort>(DeclaredBy<drake::systems::Sine>()))
       // ... receive a drake::systems::BasicVector instance...
-      .Expect<drake::systems::BasicVector>()
+      .ReceiveDrakeType<drake::systems::BasicVector>()
       // ... and publish a std_msgs::msg::Float64 message
-      .Publish<std_msgs::msg::Float64>();
+      .PublishRosType<std_msgs::msg::Float64>();
 
   // Build the SimulationMonitor using the specification from above
   SimulatorMonitor<double> simulator_monitor =
