@@ -14,6 +14,8 @@ find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
 find_package(drake_ros_core REQUIRED)
 find_package(drake_ros_viz REQUIRED)
+find_package(drake_ros_introspection REQUIRED)
+find_package(rclcpp REQUIRED)
 
 add_subdirectory(examples/iiwa_manipulator)
 add_subdirectory(examples/rs_flip_flop)
