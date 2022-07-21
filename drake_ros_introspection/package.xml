@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>drake_ros_introspection</name>
+  <version>0.1.0</version>
+  <description>Drake systems introspection via ROS 2.</description>
+  <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
+  <maintainer email="ian.mcmahon@tri.global">Ian McMahon</maintainer>
+  <maintainer email="sloretz@openrobotics.org">Shane Loretz</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+
+  <depend>drake</depend>
+  <depend>rclcpp</depend>
+
+  <exec_depend>std_msgs</exec_depend>
+
+  <test_depend>ament_cmake_clang_format</test_depend>
+  <test_depend>ament_cmake_cpplint</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
