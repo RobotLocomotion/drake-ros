@@ -83,7 +83,7 @@ class SceneMarkersSystem : public drake::systems::LeafSystem<double> {
 
   const SceneMarkersParams& params() const;
 
-  const drake::systems::InputPort<double>& get_graph_query_port() const;
+  const drake::systems::InputPort<double>& get_graph_query_input_port() const;
 
   const drake::systems::OutputPort<double>& get_markers_output_port() const;
 

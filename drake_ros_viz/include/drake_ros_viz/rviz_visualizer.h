@@ -64,7 +64,9 @@ class RvizVisualizer : public drake::systems::Diagram<double> {
   void RegisterMultibodyPlant(
       const drake::multibody::MultibodyPlant<double>* plant);
 
-  const drake::systems::InputPort<double>& get_graph_query_port() const;
+  void ComputeFrameHierarchy();
+
+  const drake::systems::InputPort<double>& get_graph_query_input_port() const;
 
  private:
   class RvizVisualizerPrivate;

@@ -53,7 +53,7 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
   builder.Connect(impl_->scene_visual_markers->get_markers_output_port(),
                   scene_visual_markers_publisher->get_input_port());
 
-  builder.ExportInput(impl_->scene_visual_markers->get_graph_query_port(),
+  builder.ExportInput(impl_->scene_visual_markers->get_graph_query_input_port(),
                       "graph_query");
 
   auto scene_collision_markers_publisher = builder.AddSystem(
@@ -68,7 +68,7 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
                   scene_collision_markers_publisher->get_input_port());
 
   builder.ConnectInput("graph_query",
-                       impl_->scene_collision_markers->get_graph_query_port());
+                       impl_->scene_collision_markers->get_graph_query_input_port());
 
   if (params.publish_tf) {
     impl_->scene_tf_broadcaster =
@@ -77,7 +77,8 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
                      params.publish_triggers, params.publish_period});
 
     builder.ConnectInput("graph_query",
-                         impl_->scene_tf_broadcaster->get_graph_query_port());
+                         impl_->scene_tf_broadcaster->get_graph_query_input_port());
+    impl_->scene_tf_broadcaster->ComputeFrameHierarchy();
   }
 
   builder.BuildInto(this);
@@ -94,7 +95,13 @@ void RvizVisualizer::RegisterMultibodyPlant(
   }
 }
 
-const drake::systems::InputPort<double>& RvizVisualizer::get_graph_query_port()
+void RvizVisualizer::ComputeFrameHierarchy() {
+  if (impl_->scene_tf_broadcaster) {
+    impl_->scene_tf_broadcaster->ComputeFrameHierarchy();
+  }
+}
+
+const drake::systems::InputPort<double>& RvizVisualizer::get_graph_query_input_port()
     const {
   return get_input_port();
 }

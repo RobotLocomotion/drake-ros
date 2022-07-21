@@ -11,63 +11,55 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef DRAKE_ROS_TF2__SCENE_TF_BROADCASTER_SYSTEM_HPP_
+#define DRAKE_ROS_TF2__SCENE_TF_BROADCASTER_SYSTEM_HPP_
 
 #include <memory>
-#include <string>
 #include <unordered_set>
 
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_core/drake_ros.h>
+
+#include "drake_ros_core/drake_ros_interface.hpp"
 
 namespace drake_ros_tf2 {
 
-/** Set of parameters that configure a SceneTfBroadcasterSystem. */
+/// Set of parameters that configure a SceneTfBroadcaster.
 struct SceneTfBroadcasterParams {
-  /** Publish triggers for tf broadcasting. */
+  /// Publish triggers for tf broadcasting.
   std::unordered_set<drake::systems::TriggerType> publish_triggers{
       drake::systems::TriggerType::kForced,
       drake::systems::TriggerType::kPerStep};
 
-  /** Period for periodic tf broadcasting. */
+  /// Period for periodic tf broadcasting.
   double publish_period{0.0};
-
-  /** Topic name to be used by the broadcaster. */
-  std::string tf_topic_name{"/tf"};
 };
 
-/** System for tf2 transform broadcasting.
-
- This system is a subdiagram aggregating a SceneTfSystem and a
- RosPublisherSystem to broadcast SceneGraph frame transforms.
- Messages are published to the `/tf` ROS topic.
-
- It exports one input port:
- - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
-*/
+/// System for tf2 transform broadcasting.
+///
+/// This system is a subdiagram aggregating a SceneTfSystem and a
+/// RosPublisherSystem to broadcast SceneGraph frame transforms.
+/// Messages are published to the `/tf` ROS topic.
+///
+/// It exports one input port:
+/// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
 class SceneTfBroadcasterSystem : public drake::systems::Diagram<double> {
  public:
-  /** A constructor for the scene tf2 broadcaster system.
-   @param[in] ros interface to a live ROS node to publish from.
-   @param[in] params optional broadcasting configuration.
-   */
-  explicit SceneTfBroadcasterSystem(drake_ros_core::DrakeRos* ros,
-                                    SceneTfBroadcasterParams params = {});
+  explicit SceneTfBroadcasterSystem(
+      std::shared_ptr<drake_ros_core::DrakeRosInterface> ros_interface,
+      SceneTfBroadcasterParams params = {});
   ~SceneTfBroadcasterSystem() override;
 
-  /** Forwarded to SceneTfSystem::RegisterMultibodyPlant(). */
+  // Forwarded to SceneTfSystem::RegisterMultibodyPlant
   void RegisterMultibodyPlant(
       const drake::multibody::MultibodyPlant<double>* plant);
 
-  /** Forwarded to SceneTfSystem::ComputeFrameHierarchy(). */
-  void ComputeFrameHierarchy();
-
-  const drake::systems::InputPort<double>& get_graph_query_input_port() const;
+  const drake::systems::InputPort<double>& get_graph_query_port() const;
 
  private:
-  class Impl;
+  class SceneTfBroadcasterSystemPrivate;
 
-  std::unique_ptr<Impl> impl_;
+  std::unique_ptr<SceneTfBroadcasterSystemPrivate> impl_;
 };
 }  // namespace drake_ros_tf2
+#endif  // DRAKE_ROS_TF2__SCENE_TF_BROADCASTER_SYSTEM_HPP_
