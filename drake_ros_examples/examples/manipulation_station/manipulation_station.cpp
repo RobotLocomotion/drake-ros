@@ -170,9 +170,9 @@ int main(int argc, char* argv[]) {
         DeclaredBy<ManipulationStation>(),
         Named("iiwa_position_commanded")))
       // ... receive a drake::systems::BasicVector instance...
-      .Expect<drake::systems::BasicVector>()
+      .ReceiveDrakeType<drake::systems::BasicVector>()
       // ... and publish a sensor_msgs::msg::JointState message
-      .Publish<sensor_msgs::msg::JointState>();
+      .PublishRosType<sensor_msgs::msg::JointState>();
   // Another specification to capture another specific port
   simulator_monitor_builder
       // For each OutputPort declared by ManipulationStation with the
@@ -181,9 +181,9 @@ int main(int argc, char* argv[]) {
         DeclaredBy<ManipulationStation>(),
         Named("iiwa_position_measured")))
       // ... receive a drake::systems::BasicVector instance...
-      .Expect<drake::systems::BasicVector>()
+      .ReceiveDrakeType<drake::systems::BasicVector>()
       // ... and publish a sensor_msgs::msg::JointState message
-      .Publish<sensor_msgs::msg::JointState>();
+      .PublishRosType<sensor_msgs::msg::JointState>();
 
   // Build the SimulationMonitor using the specification from above
   SimulatorMonitor<double> simulator_monitor =

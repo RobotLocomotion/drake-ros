@@ -50,7 +50,7 @@ class PortProbingRuleWriter {
 
   // Call this function to add a publishing port probe to the PortProbingRule.
   template <typename MessageT>
-  void Publish() {
+  void PublishRosType() {
     using PortProbeBuilderT =
         probes::PortProbeBuilder<PortT, ValueT, ValueTConvention, MessageT>;
     rule_.builder = std::make_unique<PortProbeBuilderT>();
@@ -66,7 +66,7 @@ class PortProbingRuleWriter {
 // In other words, it adds to a PortProbingRule a port probe builder that constructs a ROS topic
 // publisher for the Drake port.
 // It can be converted into a PortProbingRuleWriter for BasicVector type Drake ports by using the
-// Expect() member function.
+// ReceiveDrakeType() member function.
 template <typename PortT>
 class AbstractPortProbingRuleWriter {
  public:
@@ -80,7 +80,7 @@ class AbstractPortProbingRuleWriter {
   template <typename ValueT,
             auto ValueTConvention = utilities::BuiltinTypeConventions::Default>
   PortProbingRuleWriter<PortT, ValueT, ValueTConvention>
-  Expect() {
+  ReceiveDrakeType() {
     return PortProbingRuleWriter<PortT, ValueT, ValueTConvention>(rule_);
   }
 
@@ -92,14 +92,14 @@ class AbstractPortProbingRuleWriter {
             auto ValueConvention = utilities::BuiltinTypeConventions::Default,
             typename ScalarT = typename utilities::port_traits<PortT>::ScalarT>
   PortProbingRuleWriter<PortT, Value<ScalarT>, ValueConvention>
-  Expect() {
-    return Expect<Value<ScalarT>, ValueConvention>();
+  ReceiveDrakeType() {
+    return ReceiveDrakeType<Value<ScalarT>, ValueConvention>();
   }
 
   // Call this function to add a publishing port probe builder to the PortProbingRule. The port
   // probe builder constructs a port probe that publishes a Drake AbstractValue.
   template <typename MessageT>
-  void Publish() {
+  void PublishRosType() {
     using ValueT = drake::AbstractValue;
     constexpr auto ValueTConvention =
         utilities::BuiltinTypeConventions::Default;
