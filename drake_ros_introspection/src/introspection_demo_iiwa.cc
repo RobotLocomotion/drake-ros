@@ -131,14 +131,11 @@ int main(int argc, char* argv[])
         Named("iiwa_position_measured")))
       .Expect<drake::systems::BasicVector>()
       .Publish<std_msgs::msg::Float64>();
-  simulator_monitor_builder
-      .For(Each<drake::systems::OutputPort>(DeclaredBy<ManipulationStation>()))
-      .Expect<drake::systems::BasicVector>()
-      .Publish<std_msgs::msg::Float64>();
 
   SimulatorMonitor<double> simulator_monitor =
       simulator_monitor_builder.Build(*diagram);
   simulator_monitor.Configure(node);
+  simulator->set_monitor(simulator_monitor);
 
   simulator->Initialize();
 
