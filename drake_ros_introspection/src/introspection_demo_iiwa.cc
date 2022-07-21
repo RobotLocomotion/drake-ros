@@ -29,10 +29,12 @@
 #include <drake_ros_introspection/simulator_monitor.h>
 #include <drake_ros_introspection/simulator_monitor_builder.h>
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/float64.hpp>
 
 #include <cmath>
 #include <memory>
+#include <sstream>
 #include <utility>
 
 using drake_ros_core::DrakeRos;
@@ -55,6 +57,22 @@ struct conventional_convert<drake::systems::BasicVector<T>,
       const drake::systems::BasicVector<T>& value) {
     auto message = std::make_unique<std_msgs::msg::Float64>();
     message->data = value[0];
+    return message;
+  }
+};
+
+template <typename T>
+struct conventional_convert<drake::systems::BasicVector<T>,
+                            sensor_msgs::msg::JointState> {
+  static std::unique_ptr<sensor_msgs::msg::JointState> to_message(
+      const drake::systems::BasicVector<T>& value) {
+    auto message = std::make_unique<sensor_msgs::msg::JointState>();
+    for (auto ii = 0; ii < value.size(); ++ii) {
+      std::stringstream joint_name;
+      joint_name << ii;
+      message->name.push_back(joint_name.str());
+      message->position.push_back(value[ii]);
+    }
     return message;
   }
 };
@@ -128,9 +146,15 @@ int main(int argc, char* argv[])
   simulator_monitor_builder
       .For(Each<drake::systems::OutputPort>(
         DeclaredBy<ManipulationStation>(),
+        Named("iiwa_position_commanded")))
+      .Expect<drake::systems::BasicVector>()
+      .Publish<sensor_msgs::msg::JointState>();
+  simulator_monitor_builder
+      .For(Each<drake::systems::OutputPort>(
+        DeclaredBy<ManipulationStation>(),
         Named("iiwa_position_measured")))
       .Expect<drake::systems::BasicVector>()
-      .Publish<std_msgs::msg::Float64>();
+      .Publish<sensor_msgs::msg::JointState>();
 
   SimulatorMonitor<double> simulator_monitor =
       simulator_monitor_builder.Build(*diagram);

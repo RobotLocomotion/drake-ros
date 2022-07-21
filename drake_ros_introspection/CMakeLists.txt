@@ -14,6 +14,7 @@ find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(drake_ros_core REQUIRED)
 find_package(drake_ros_viz REQUIRED)
 
@@ -36,7 +37,8 @@ target_link_libraries(introspection_demo_iiwa
   drake_ros_core::drake_ros_core
   drake_ros_viz::drake_ros_viz
   rclcpp::rclcpp
-  ${std_msgs_TARGETS})
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS})
 
 install(
   DIRECTORY include/
