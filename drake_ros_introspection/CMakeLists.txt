@@ -13,8 +13,6 @@ endif()
 find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(drake_ros_core REQUIRED)
 find_package(drake_ros_viz REQUIRED)
 
@@ -25,29 +23,9 @@ target_include_directories(drake_ros_introspection
     "$<INSTALL_INTERFACE:include>"
 )
 
-add_executable(introspection_demo_sine src/introspection_demo_sine.cc)
-target_link_libraries(introspection_demo_sine
-  drake_ros_introspection drake::drake
-  rclcpp::rclcpp ${std_msgs_TARGETS})
-
-add_executable(introspection_demo_iiwa src/introspection_demo_iiwa.cc)
-target_link_libraries(introspection_demo_iiwa
-  drake_ros_introspection
-  drake::drake
-  drake_ros_core::drake_ros_core
-  drake_ros_viz::drake_ros_viz
-  rclcpp::rclcpp
-  ${std_msgs_TARGETS}
-  ${sensor_msgs_TARGETS})
-
 install(
   DIRECTORY include/
   DESTINATION include
-)
-
-install(
-  TARGETS introspection_demo_sine introspection_demo_iiwa
-  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
