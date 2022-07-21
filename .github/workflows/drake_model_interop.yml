@@ -22,3 +22,8 @@ jobs:
           key: model_interop
       - name: Install prerequisites
         run: yes | ./setup/install_prereqs.sh
+      - name: Install xvfb
+        run: sudo apt-get install xvfb
+      - name: Download, convert and test models
+        shell: bash
+        run: xvfb-run --auto-servernum bash ./setup/ci_tests.sh
