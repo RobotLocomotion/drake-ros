@@ -45,6 +45,11 @@ def parse_arguments():
         help='Path to distro metadata file, in JSON format'
     )
     parser.add_argument(
+        '--default-localhost-only',
+        action='store_true', required=False,
+        help='Restrict ROS 2 to localhost communication by default'
+    )
+    parser.add_argument(
         'repository_name', help='Bazel repository name'
     )
     args = parser.parse_args()
@@ -66,7 +71,9 @@ ROSIDL_TYPESUPPORT_GROUPS = [
 ]
 
 
-def generate_distro_file_content(repo_name, distro, sandbox):
+def generate_distro_file_content(
+        repo_name, distro, sandbox, default_localhost_only
+        ):
     packages = distro['packages']
     ament_prefix_paths = distro['paths']['ament_prefix']
     library_load_paths = distro['paths']['library_load']
@@ -84,6 +91,7 @@ def generate_distro_file_content(repo_name, distro, sandbox):
                     for group in metadata['groups']
                 )],
             'REPOSITORY_ROOT': '@{}//'.format(repo_name),
+            'DEFAULT_LOCALHOST_ONLY': '1' if default_localhost_only else '0',
         })
     ) + '\n'
 
@@ -92,7 +100,8 @@ def main():
     args = parse_arguments()
 
     args.output.write(generate_distro_file_content(
-        args.repository_name, args.distro, args.sandbox))
+        args.repository_name, args.distro, args.sandbox,
+        args.default_localhost_only))
 
 
 if __name__ == '__main__':

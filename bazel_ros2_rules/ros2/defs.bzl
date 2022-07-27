@@ -116,6 +116,8 @@ def base_ros2_repository(repo_ctx, workspaces):
         cmd.extend(["-s", path + ":" + path_in_sandbox])
     cmd.extend(["-d", "distro_metadata.json", repo_ctx.name])
     cmd.extend(["-o", "distro.bzl"])
+    if repo_ctx.attr.default_localhost_only:
+        cmd.extend(["--default-localhost-only"])
     result = execute_or_fail(repo_ctx, cmd, quiet=True, environment=env)
     if result.stderr:
         print(result.stderr)
@@ -163,6 +165,11 @@ def base_ros2_repository_attrs():
             doc = "Number of CMake jobs to use during package " +
             "configuration and scrapping. Defaults to using all cores.",
             default=0,
+        ),
+        "default_localhost_only": attr.bool(
+            doc = "Whether ROS communication should be restricted to " +
+            "localhost by default. Defaults to False",
+            default=False,
         ),
         # NOTE: all these labels are listed as private attributes to force prefetching, or else
         # repository rules will be restarted on first hit.
