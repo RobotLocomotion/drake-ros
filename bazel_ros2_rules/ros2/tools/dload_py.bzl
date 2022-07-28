@@ -34,6 +34,11 @@ def main(argv):
         if action_type == 'replace':
             assert len(action_args) == 1
             value = action_args[0]
+        elif action_type == 'set-if-not-set':
+            assert len(action_args) == 1
+            if name in os.environ:
+                continue
+            value = action_args[0]
         elif action_type == 'path-replace':
             assert len(action_args) == 1
             value = rlocation(action_args[0])

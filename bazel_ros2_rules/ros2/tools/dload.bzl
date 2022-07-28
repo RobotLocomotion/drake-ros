@@ -72,8 +72,9 @@ def do_dload_shim(ctx, template, to_list):
         env_changes: runtime environment changes to be applied, as a mapping from
           environment variable names to actions to be performed on them.
           Actions are (action_type, action_args) tuples. Supported action types
-          are: 'path-prepend', 'path-replace', and 'replace'. Paths are resolved
-          relative to the runfiles directory of the downstream executable.
+          are: 'path-prepend', 'path-replace', 'set-if-not-set', and 'replace'.
+          Paths are resolved relative to the runfiles directory of the
+          downstream executable.
           Also, see MAGIC_VARIABLES for platform-independent runtime environment
           specification.
 
@@ -130,7 +131,7 @@ def _parse_runtime_environment_action(ctx, action):
             _resolve_runfile_path(ctx, path[:-1]) + "!" if path.endswith("!")
             else _resolve_runfile_path(ctx, path) for path in action_args
         ])
-    elif action_type in ("path-replace", "replace"):
+    elif action_type in ("path-replace", "set-if-not-set", "replace"):
         if len(action_args) != 1:
             tpl = "'{}' action requires exactly one argument"
             fail(msg = tpl.format(action_type))

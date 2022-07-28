@@ -42,6 +42,12 @@ int main(int argc, const char * argv[]) {{
     if (actions[i][0] == "replace") {{
       assert(actions[i].size() == 2);
       value_stream << actions[i][1];
+    }} else if (actions[i][0] == "set-if-not-set") {{
+      assert(actions[i].size() == 2);
+      if (NULL != getenv(names[i].c_str())) {{
+        continue;
+      }}
+      value_stream << actions[i][1];
     }} else if (actions[i][0] == "path-replace") {{
       assert(actions[i].size() == 2);
       value_stream << runfiles->Rlocation(actions[i][1]);
