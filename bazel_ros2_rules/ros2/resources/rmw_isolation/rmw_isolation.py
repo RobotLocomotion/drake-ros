@@ -2,7 +2,6 @@ import hashlib
 import os
 import pathlib
 import tempfile
-
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 

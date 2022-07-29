@@ -4,7 +4,6 @@ import os
 
 import ros2bzl.sandboxing as sandboxing
 
-
 PATH_TO_RESOURCES = os.path.realpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 )
