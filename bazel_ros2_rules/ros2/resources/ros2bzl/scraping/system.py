@@ -9,7 +9,6 @@ import re
 import subprocess
 import sys
 
-
 # Standard include files' search paths for compilers in Linux systems.
 # Useful to detect system includes in package exported configuration.
 DEFAULT_INCLUDE_DIRECTORIES = ['/usr/include', '/usr/local/include']

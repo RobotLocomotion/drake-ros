@@ -6,7 +6,6 @@ import sysconfig
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_library
 
-
 EXTENSION_SUFFIX = sysconfig.get_config_var('EXT_SUFFIX')
 
 

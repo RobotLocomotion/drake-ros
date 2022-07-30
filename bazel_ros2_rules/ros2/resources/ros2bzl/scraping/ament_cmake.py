@@ -1,13 +1,10 @@
 import glob
-import os
-
 from multiprocessing.dummy import Pool
+import os
 from tempfile import TemporaryDirectory
 
 import cmake_tools
-
 from ros2bzl.resources import path_to_resource
-
 from ros2bzl.scraping.system import find_library_path
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_include
