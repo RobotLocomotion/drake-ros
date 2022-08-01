@@ -168,8 +168,8 @@ def base_ros2_repository_attrs():
         ),
         "default_localhost_only": attr.bool(
             doc = "Whether ROS communication should be restricted to " +
-            "localhost by default. Defaults to False",
-            default=False,
+            "localhost by default. Defaults to True",
+            default=True,
         ),
         # NOTE: all these labels are listed as private attributes to force prefetching, or else
         # repository rules will be restarted on first hit.
