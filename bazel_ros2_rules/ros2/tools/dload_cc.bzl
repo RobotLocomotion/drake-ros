@@ -48,7 +48,7 @@ int main(int argc, const char * argv[]) {{
       value_stream << actions[i][1];
     }} else if (actions[i][0] == "set-if-not-set") {{
       assert(actions[i].size() == 2);
-      if (NULL != getenv(names[i].c_str())) {{
+      if (nullptr != getenv(names[i].c_str())) {{
         continue;
       }}
       value_stream << actions[i][1];
@@ -88,7 +88,7 @@ int main(int argc, const char * argv[]) {{
   for (int i = 1; i < argc; ++i) {{
     other_argv[i] = strdup(argv[i]);
   }}
-  other_argv[argc] = NULL;
+  other_argv[argc] = nullptr;
   int ret = execv(other_argv[0], other_argv);
   // What follows applies if and only if execv() itself fails
   // (e.g. can't find the binary) and returns control
