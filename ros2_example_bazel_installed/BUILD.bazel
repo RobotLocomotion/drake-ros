@@ -32,13 +32,3 @@ ros_py_test(
     deps = ["@bazel_tools//tools/python/runfiles"],
     data = ["test/runfiles_test_data.txt"],
 )
-
-py_test(
-    name = "runfiles_direct_test",
-    srcs = ["test/runfiles_direct_test.py"],
-    data = [
-        ":runfiles_cc_test",
-        ":runfiles_py_test",
-    ],
-    deps = ["@bazel_tools//tools/python/runfiles"],
-)

@@ -1,8 +1,5 @@
 /*
-At present, this works via `bazel test` and `bazel run`.
-However, it fails with `bazel-bin/...`.
-
-It needs to work in this mode :(
+See `runfiles_direct_test.sh`.
 */
 #include <cassert>
 #include <cstdlib>
