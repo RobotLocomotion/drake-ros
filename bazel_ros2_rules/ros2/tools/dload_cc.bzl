@@ -30,8 +30,12 @@ using bazel::tools::cpp::runfiles::Runfiles;
 int main(int argc, const char * argv[]) {{
   std::string error;
   std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv[0], &error));
+  if (!runfiles && std::filesystem::is_symlink(argv[0])) {{
+    runfiles.reset(
+      Runfiles::Create(std::filesystem::read_symlink(argv[0]), &error));
+  }}
   if (!runfiles) {{
-    std::cerr << "ERROR: " << error << std::endl;
+    std::cerr << "DLOAD SHIM ERROR: " << error << std::endl;
     return -1;
   }}
 
