@@ -11,6 +11,9 @@ load(
     "get_dload_shim_attributes",
 )
 
+# TODO(eric.cousineau): We should ideally separate out as much as this actual
+# logic into separate static library, and make entry point minimal. Then we
+# can do more targeted / less "autogen" magical testing.
 _DLOAD_CC_SHIM_TEMPLATE = """\
 #include <assert.h>
 #include <stdlib.h>
@@ -39,6 +42,26 @@ int main(int argc, const char * argv[]) {{
     return -1;
   }}
 
+  // Forward runfiles env vars if needed. This is necessary since our shims are
+  // (presently) separate C++ binaries, and inferring runfiles manifests via
+  // `argv[0]` will not work properly when run outside of Bazel.
+  const auto& runfiles_env = runfiles->EnvVars();
+  bool needs_runfiles_env = true;
+  for (const auto& [key, value] : runfiles_env) {{
+    if (nullptr != getenv(key.c_str())) {{
+      needs_runfiles_env = false;
+      break;
+    }}
+  }}
+  if (needs_runfiles_env) {{
+    for (const auto& [key, value] : runfiles_env) {{
+      if (setenv(key.c_str(), value.c_str(), 1) != 0) {{
+        std::cerr << "ERROR: failed to set " << key << std::endl;
+      }}
+    }}
+  }}
+
+  // Apply actions.
   std::vector<std::string> names = {names};
   std::vector<std::vector<std::string>> actions = {actions};  // NOLINT
   for (size_t i = 0; i < names.size(); ++i) {{
