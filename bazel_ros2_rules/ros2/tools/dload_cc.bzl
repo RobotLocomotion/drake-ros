@@ -44,7 +44,7 @@ int main(int argc, const char * argv[]) {{
 
   // Forward runfiles env vars if needed. This is necessary since our shims are
   // (presently) separate C++ binaries, and inferring runfiles manifests via
-  // `argv[0]` will not work properly when run outside of Bazel.
+  // `argv[0]` will not work properly when run outside of Bazel (#105).
   const auto& runfiles_env = runfiles->EnvVars();
   bool needs_runfiles_env = true;
   for (const auto& [key, value] : runfiles_env) {{

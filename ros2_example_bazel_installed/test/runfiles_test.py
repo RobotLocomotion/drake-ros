@@ -1,4 +1,4 @@
-# See `runfiles_direct_test.sh`.
+# See `runfiles_direct_test.sh` for motivation.
 from bazel_tools.tools.python.runfiles import runfiles
 
 
