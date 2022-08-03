@@ -18,7 +18,8 @@ def main():
     keys = {"HOME", "PWD", "USER", "PATH", "SHELL"}
     minimal_env = {}
     for key in keys:
-        minimal_env[key] = os.environ[key]
+        if key in os.environ:
+            minimal_env[key] = os.environ[key]
 
     # Works
     subprocess.run([py_test], env=minimal_env, check=True)
