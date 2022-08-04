@@ -1,5 +1,7 @@
 # -*- python -*-
 
+load("@ros2//:ros_cc.bzl", "ros_cc_test")
+load("@ros2//:ros_py.bzl", "ros_py_test")
 load("//tools:cmd_test.bzl", "cmd_test")
 
 # TODO(hidmic): make linter more user-friendly
@@ -14,4 +16,19 @@ cmd_test(
         "@ros2//:system-rosdep-keys.txt",
         "setup/prereq-rosdep-keys.txt",
     ],
+)
+
+ros_cc_test(
+    name = "runfiles_cc_test",
+    srcs = ["test/runfiles_test.cc"],
+    deps = ["@bazel_tools//tools/cpp/runfiles"],
+    data = ["test/runfiles_test_data.txt"],
+)
+
+ros_py_test(
+    name = "runfiles_py_test",
+    srcs = ["test/runfiles_test.py"],
+    main = "test/runfiles_test.py",
+    deps = ["@bazel_tools//tools/python/runfiles"],
+    data = ["test/runfiles_test_data.txt"],
 )

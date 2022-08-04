@@ -11,6 +11,8 @@ load(
     "get_dload_shim_attributes",
 )
 
+# TODO(eric.cousineau): We should ideally separate out as much as this actual
+# logic into separate static library, and make entry point minimal.
 _DLOAD_CC_SHIM_TEMPLATE = """\
 #include <assert.h>
 #include <stdlib.h>
@@ -30,11 +32,38 @@ using bazel::tools::cpp::runfiles::Runfiles;
 int main(int argc, const char * argv[]) {{
   std::string error;
   std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv[0], &error));
+  if (!runfiles && std::filesystem::is_symlink(argv[0])) {{
+    runfiles.reset(
+      Runfiles::Create(std::filesystem::read_symlink(argv[0]), &error));
+  }}
   if (!runfiles) {{
-    std::cerr << "ERROR: " << error << std::endl;
+    std::cerr << "DLOAD SHIM ERROR: " << error << std::endl;
     return -1;
   }}
 
+  // Forward runfiles env vars if needed. This is necessary since our shims are
+  // (presently) separate C++ binaries, and inferring runfiles manifests via
+  // `argv[0]` will not work properly when run outside of Bazel (#105).
+  // This will check if any runfiles env vars are set; if so, we assume this is
+  // a nested invocation and will not overwrite the env vars, and use the
+  // existing runfiles that are set.
+  const auto& runfiles_env = runfiles->EnvVars();
+  bool has_exiting_runfiles_env = false;
+  for (const auto& [key, value] : runfiles_env) {{
+    if (nullptr != getenv(key.c_str())) {{
+      has_exiting_runfiles_env = true;
+      break;
+    }}
+  }}
+  if (!has_exiting_runfiles_env) {{
+    for (const auto& [key, value] : runfiles_env) {{
+      if (setenv(key.c_str(), value.c_str(), 1) != 0) {{
+        std::cerr << "DLOAD SHIM ERROR: failed to set " << key << std::endl;
+      }}
+    }}
+  }}
+
+  // Apply actions.
   std::vector<std::string> names = {names};
   std::vector<std::vector<std::string>> actions = {actions};  // NOLINT
   for (size_t i = 0; i < names.size(); ++i) {{
@@ -44,7 +73,7 @@ int main(int argc, const char * argv[]) {{
       value_stream << actions[i][1];
     }} else if (actions[i][0] == "set-if-not-set") {{
       assert(actions[i].size() == 2);
-      if (NULL != getenv(names[i].c_str())) {{
+      if (nullptr != getenv(names[i].c_str())) {{
         continue;
       }}
       value_stream << actions[i][1];
@@ -72,7 +101,7 @@ int main(int argc, const char * argv[]) {{
     }}
 
     if (setenv(names[i].c_str(), value.c_str(), 1) != 0) {{
-      std::cerr << "ERROR: failed to set " << names[i] << std::endl;
+      std::cerr << "DLOAD SHIM ERROR: failed to set " << names[i] << std::endl;
     }}
   }}
 
@@ -84,11 +113,11 @@ int main(int argc, const char * argv[]) {{
   for (int i = 1; i < argc; ++i) {{
     other_argv[i] = strdup(argv[i]);
   }}
-  other_argv[argc] = NULL;
+  other_argv[argc] = nullptr;
   int ret = execv(other_argv[0], other_argv);
   // What follows applies if and only if execv() itself fails
   // (e.g. can't find the binary) and returns control
-  std::cout << "ERROR: " << strerror(errno) << std::endl;
+  std::cout << "DLOAD SHIM ERROR: " << strerror(errno) << std::endl;
   return ret;
 }}
 """
