@@ -44,18 +44,21 @@ int main(int argc, const char * argv[]) {{
   // Forward runfiles env vars if needed. This is necessary since our shims are
   // (presently) separate C++ binaries, and inferring runfiles manifests via
   // `argv[0]` will not work properly when run outside of Bazel (#105).
+  // This will check if any runfiles env vars are set; if so, we assume this is
+  // a nested invocation and will not overwrite the env vars, and use the
+  // existing runfiles that are set.
   const auto& runfiles_env = runfiles->EnvVars();
-  bool needs_runfiles_env = true;
+  bool has_exiting_runfiles_env = false;
   for (const auto& [key, value] : runfiles_env) {{
     if (nullptr != getenv(key.c_str())) {{
-      needs_runfiles_env = false;
+      has_exiting_runfiles_env = true;
       break;
     }}
   }}
-  if (needs_runfiles_env) {{
+  if (!has_exiting_runfiles_env) {{
     for (const auto& [key, value] : runfiles_env) {{
       if (setenv(key.c_str(), value.c_str(), 1) != 0) {{
-        std::cerr << "ERROR: failed to set " << key << std::endl;
+        std::cerr << "DLOAD SHIM ERROR: failed to set " << key << std::endl;
       }}
     }}
   }}
@@ -98,7 +101,7 @@ int main(int argc, const char * argv[]) {{
     }}
 
     if (setenv(names[i].c_str(), value.c_str(), 1) != 0) {{
-      std::cerr << "ERROR: failed to set " << names[i] << std::endl;
+      std::cerr << "DLOAD SHIM ERROR: failed to set " << names[i] << std::endl;
     }}
   }}
 
@@ -114,7 +117,7 @@ int main(int argc, const char * argv[]) {{
   int ret = execv(other_argv[0], other_argv);
   // What follows applies if and only if execv() itself fails
   // (e.g. can't find the binary) and returns control
-  std::cout << "ERROR: " << strerror(errno) << std::endl;
+  std::cout << "DLOAD SHIM ERROR: " << strerror(errno) << std::endl;
   return ret;
 }}
 """
