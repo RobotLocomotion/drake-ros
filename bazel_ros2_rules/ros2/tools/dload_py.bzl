@@ -12,6 +12,8 @@ load(
     "get_dload_shim_attributes",
 )
 
+# TODO(eric.cousineau): We should ideally separate out as much as this actual
+# logic into separate library, and make entry point minimal.
 _DLOAD_PY_SHIM_TEMPLATE = """\
 import os
 import sys

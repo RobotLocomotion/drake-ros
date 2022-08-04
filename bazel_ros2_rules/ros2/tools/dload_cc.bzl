@@ -12,8 +12,7 @@ load(
 )
 
 # TODO(eric.cousineau): We should ideally separate out as much as this actual
-# logic into separate static library, and make entry point minimal. Then we
-# can do more targeted / less "autogen" magical testing.
+# logic into separate static library, and make entry point minimal.
 _DLOAD_CC_SHIM_TEMPLATE = """\
 #include <assert.h>
 #include <stdlib.h>
