@@ -39,6 +39,15 @@ def index_all_packages():
 def build_dependency_graph(packages, include=None, exclude=None):
     package_set = set(packages)
     if include:
+        include = set(include)
+        if not package_set.issuperset(include):
+            unknown_packages = tuple(include.difference(package_set))
+            msg = 'Cannont find package'
+            if len(unknown_packages) == 1:
+                msg +=  ' ' + repr(unknown_packages[0])
+            else:
+                msg += 's ' + repr(unknown_packages)
+            raise RuntimeError(msg)
         package_set &= include
     if exclude:
         package_set -= exclude

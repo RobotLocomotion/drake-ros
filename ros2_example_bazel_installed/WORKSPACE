@@ -27,8 +27,9 @@ ROS2_PACKAGES = [
     "ros2cli",
     "ros2cli_common_extensions",
     # RMW implementations
+    # Uncomment one and only one to change implementations
     "rmw_cyclonedds_cpp",
-    "rmw_fastrtps_cpp",
+    # "rmw_fastrtps_cpp",
 ]
 
 ros2_archive(
