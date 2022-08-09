@@ -83,7 +83,7 @@ def ros_py_binary(
     Additional keyword arguments are forwarded to the `py_binary_rule`.
     """
 
-    binary_name = "_" + name + "_shimmed"
+    binary_name = "_" + name + "_noshim"
     binary_kwargs = dict(kwargs)
     if "main" not in binary_kwargs:
         binary_kwargs["main"] = name + ".py"
@@ -143,7 +143,7 @@ def ros_py_test(
     Additional keyword arguments are forwarded to the `py_test_rule` and to the
     `py_binary_rule` (minus the test specific ones).
     """
-    binary_name = "_" + name + "_shimmed"
+    binary_name = "_" + name + "_noshim"
     binary_kwargs = remove_test_specific_kwargs(kwargs)
     binary_kwargs.update(testonly = True)
     binary_env_changes = dict(RUNTIME_ENVIRONMENT)

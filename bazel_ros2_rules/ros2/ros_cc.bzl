@@ -39,7 +39,7 @@ def ros_cc_binary(
         native.cc_binary(name = name, **kwargs)
         return
 
-    binary_name = "_" + name + "_shimmed"
+    binary_name = "_" + name + "_noshim"
     binary_kwargs = kwargs
     binary_env_changes = dict(RUNTIME_ENVIRONMENT)
 
@@ -93,7 +93,7 @@ def ros_cc_test(
     Additional keyword arguments are forwarded to the `cc_test_rule` and to the
     `cc_binary_rule` (minus the test specific ones).
     """
-    binary_name = "_" + name + "_shimmed"
+    binary_name = "_" + name + "_noshim"
     binary_kwargs = remove_test_specific_kwargs(kwargs)
     binary_kwargs.update(testonly = True)
     binary_env_changes = dict(RUNTIME_ENVIRONMENT)
