@@ -1,0 +1,1 @@
+void some_function();

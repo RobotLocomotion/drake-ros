@@ -32,3 +32,18 @@ ros_py_test(
     deps = ["@bazel_tools//tools/python/runfiles"],
     data = ["test/runfiles_test_data.txt"],
 )
+
+cc_library(
+  name = "lib_with_ros",
+  srcs = ["test/lib_with_ros.cc"],
+  hdrs = ["test/lib_with_ros.h"],
+  deps = ["@ros2//:rclcpp_cc"]
+)
+
+cc_binary(
+  name = "bin_unaware_of_ros",
+  srcs = ["test/bin_unaware_of_ros.cc"],
+  deps = [":lib_with_ros"]
+)
+
+# bazel run //:bin_unaware_of_ros
