@@ -83,40 +83,40 @@ def ros_py_binary(
     Additional keyword arguments are forwarded to the `py_binary_rule`.
     """
 
-    binary_name = "_" + name + "_noshim"
-    binary_kwargs = dict(kwargs)
-    if "main" not in binary_kwargs:
-        binary_kwargs["main"] = name + ".py"
-    binary_env_changes = dict(RUNTIME_ENVIRONMENT)
+    noshim_name = "_" + name + "_noshim"
+    noshim_kwargs = dict(kwargs)
+    if "main" not in noshim_kwargs:
+        noshim_kwargs["main"] = name + ".py"
+    shim_env_changes = dict(RUNTIME_ENVIRONMENT)
 
     if rmw_implementation:
-        binary_kwargs, binary_env_changes = \
+        noshim_kwargs, shim_env_changes = \
             incorporate_rmw_implementation(
-                binary_kwargs, binary_env_changes,
+                noshim_kwargs, shim_env_changes,
                 rmw_implementation = rmw_implementation
             )
 
     py_binary_rule(
-        name = binary_name,
-        **binary_kwargs
+        name = noshim_name,
+        **noshim_kwargs
     )
 
     shim_name = "_" + name + "_shim.py"
     shim_kwargs = filter_to_only_common_kwargs(kwargs)
     dload_py_shim(
         name = shim_name,
-        target = ":" + binary_name,
-        env_changes = binary_env_changes,
+        target = ":" + noshim_name,
+        env_changes = shim_env_changes,
         **shim_kwargs
     )
 
     kwargs.update(
         srcs = [shim_name],
         main = shim_name,
-        data = [":" + binary_name],
+        data = [":" + noshim_name],
         deps = [
             "@bazel_tools//tools/python/runfiles",
-            ":" + binary_name,  # Support py_binary being used a dependency
+            ":" + noshim_name,  # Support py_binary being used a dependency
         ],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
@@ -143,20 +143,20 @@ def ros_py_test(
     Additional keyword arguments are forwarded to the `py_test_rule` and to the
     `py_binary_rule` (minus the test specific ones).
     """
-    binary_name = "_" + name + "_noshim"
-    binary_kwargs = remove_test_specific_kwargs(kwargs)
-    binary_kwargs.update(testonly = True)
-    binary_env_changes = dict(RUNTIME_ENVIRONMENT)
+    noshim_name = "_" + name + "_noshim"
+    noshim_kwargs = remove_test_specific_kwargs(kwargs)
+    noshim_kwargs.update(testonly = True)
+    shim_env_changes = dict(RUNTIME_ENVIRONMENT)
     if rmw_implementation:
-        binary_kwargs, binary_env_changes = \
+        noshim_kwargs, shim_env_changes = \
             incorporate_rmw_implementation(
-                binary_kwargs, binary_env_changes,
+                noshim_kwargs, shim_env_changes,
                 rmw_implementation = rmw_implementation,
             )
 
     py_binary_rule(
-        name = binary_name,
-        **binary_kwargs
+        name = noshim_name,
+        **noshim_kwargs
     )
 
     shim_name = "_" + name + "_shim.py"
@@ -164,15 +164,15 @@ def ros_py_test(
     shim_kwargs.update(testonly = True)
     dload_py_shim(
         name = shim_name,
-        target = ":" + binary_name,
-        env_changes = binary_env_changes,
+        target = ":" + noshim_name,
+        env_changes = shim_env_changes,
         **shim_kwargs
     )
 
     kwargs.update(
         srcs = [shim_name],
         main = shim_name,
-        data = [":" + binary_name],
+        data = [":" + noshim_name],
         deps = ["@bazel_tools//tools/python/runfiles"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
