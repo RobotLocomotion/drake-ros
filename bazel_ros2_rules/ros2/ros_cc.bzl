@@ -39,34 +39,34 @@ def ros_cc_binary(
         native.cc_binary(name = name, **kwargs)
         return
 
-    binary_name = "_" + name + "_shimmed"
-    binary_kwargs = kwargs
-    binary_env_changes = dict(RUNTIME_ENVIRONMENT)
+    noshim_name = "_" + name + "_noshim"
+    noshim_kwargs = kwargs
+    shim_env_changes = dict(RUNTIME_ENVIRONMENT)
 
     if rmw_implementation:
-        binary_kwargs, binary_env_changes = \
+        noshim_kwargs, shim_env_changes = \
             incorporate_rmw_implementation(
-                binary_kwargs, binary_env_changes,
+                noshim_kwargs, shim_env_changes,
                 rmw_implementation = rmw_implementation
             )
 
     cc_binary_rule(
-        name = binary_name,
-        **binary_kwargs
+        name = noshim_name,
+        **noshim_kwargs
     )
 
     shim_name = "_" + name + "_shim.cc"
     shim_kwargs = filter_to_only_common_kwargs(kwargs)
     dload_cc_shim(
         name = shim_name,
-        target = ":" + binary_name,
-        env_changes = binary_env_changes,
+        target = ":" + noshim_name,
+        env_changes = shim_env_changes,
         **shim_kwargs
     )
 
     kwargs.update(
         srcs = [shim_name],
-        data = [":" + binary_name],
+        data = [":" + noshim_name],
         deps = ["@bazel_tools//tools/cpp/runfiles"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
@@ -93,20 +93,20 @@ def ros_cc_test(
     Additional keyword arguments are forwarded to the `cc_test_rule` and to the
     `cc_binary_rule` (minus the test specific ones).
     """
-    binary_name = "_" + name + "_shimmed"
-    binary_kwargs = remove_test_specific_kwargs(kwargs)
-    binary_kwargs.update(testonly = True)
-    binary_env_changes = dict(RUNTIME_ENVIRONMENT)
+    noshim_name = "_" + name + "_noshim"
+    noshim_kwargs = remove_test_specific_kwargs(kwargs)
+    noshim_kwargs.update(testonly = True)
+    shim_env_changes = dict(RUNTIME_ENVIRONMENT)
     if rmw_implementation:
-        binary_kwargs, test_env_changes = \
+        noshim_kwargs, test_env_changes = \
             incorporate_rmw_implementation(
-                binary_kwargs, binary_env_changes,
+                noshim_kwargs, shim_env_changes,
                 rmw_implementation = rmw_implementation
             )
 
     cc_binary_rule(
-        name = binary_name,
-        **binary_kwargs
+        name = noshim_name,
+        **noshim_kwargs
     )
 
     shim_name = "_" + name + "_shim.cc"
@@ -114,14 +114,14 @@ def ros_cc_test(
     shim_kwargs.update(testonly = True)
     dload_cc_shim(
         name = shim_name,
-        target = ":" + binary_name,
-        env_changes = binary_env_changes,
+        target = ":" + noshim_name,
+        env_changes = shim_env_changes,
         **shim_kwargs
     )
 
     kwargs.update(
         srcs = [shim_name],
-        data = [":" + binary_name],
+        data = [":" + noshim_name],
         deps = ["@bazel_tools//tools/cpp/runfiles"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
