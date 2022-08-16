@@ -22,6 +22,13 @@ def main():
     assert topic_echo.returncode == 0
     talker.kill()
 
+    interfaces = subprocess.run(
+        [ros2_bin, "interface", "list"],
+        check=True, text=True, stdout=subprocess.PIPE,
+    ).stdout
+    print(interfaces)
+    assert "ros2_example_apps_msgs/msg/Status" in interfaces
+
     print("[ Done ]")
 
 
