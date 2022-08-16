@@ -3,7 +3,7 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
-load("@ros2//:ros_py.bzl", "ros_py_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 load("//tools:cmd_test.bzl", "cmd_test")
 
@@ -119,4 +119,33 @@ cmd_test(
     ],
     data = ["test/oracle_cc.lldb", ":oracle_cc"],
     size = "small",
+)
+
+ros_py_binary(
+    name = "simple_talker",
+    srcs = ["simple_talker.py"],
+    deps = [
+        ":ros2_example_apps_msgs_py",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+# This shows how to ensure a Bazel-provided `ros2` CLI can print out custom
+# messages (#118). See note below.
+ros_py_test(
+    name = "custom_message_echo_test",
+    main = "test/custom_message_echo_test.py",
+    srcs = ["test/custom_message_echo_test.py"],
+    deps = [
+        # This is the main key - you must provide the generated messages as a
+        # Python dependency. Otherwise, attempting to use `ros2 topic ...` will
+        # indicate the message type is invalid.
+        ":ros2_example_apps_msgs_py",
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+    data = [
+        ":simple_talker",
+        "@ros2//:ros2",
+    ],
 )
