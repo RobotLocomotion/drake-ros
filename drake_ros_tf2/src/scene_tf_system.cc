@@ -38,7 +38,7 @@ class SceneTfSystem::Impl {
     drake::geometry::FrameId id;
     drake::multibody::BodyIndex body_index;
     std::string name;
-    geometry_msgs::msg::TransformStamped transform;
+    geometry_msgs::msg::TransformStamped X_PC;
   };
   using ParentFrameMap = std::unordered_map<drake::geometry::FrameId, Frame>;
   ParentFrameMap parent_frames_map;
@@ -138,13 +138,13 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
       }
       if (impl_->parent_frames_map.find(frame_id) != impl_->parent_frames_map.end()) {
         auto& parent_frame = impl_->parent_frames_map[frame_id];
-        parent_frame.transform.header.stamp =
+        parent_frame.X_PC.header.stamp =
           rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
         auto parent_transform = query_object.GetPoseInParent(parent_frame.id);
         auto child_transform = query_object.GetPoseInParent(frame_id);
-        parent_frame.transform.transform =
+        parent_frame.X_PC.transform =
             ToTransformMsg(parent_transform.inverse() * child_transform);
-        output_value->transforms.push_back(parent_frame.transform);
+        output_value->transforms.push_back(parent_frame.X_PC);
       } else {
         geometry_msgs::msg::TransformStamped transform;
         transform.header.stamp =
