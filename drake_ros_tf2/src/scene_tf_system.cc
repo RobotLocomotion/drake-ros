@@ -41,6 +41,8 @@ class SceneTfSystem::Impl {
     geometry_msgs::msg::TransformStamped X_PC;
   };
   using ParentFrameMap = std::unordered_map<drake::geometry::FrameId, Frame>;
+  // A map from child frames to their parent frames (i.e. the key is the child
+  // frame name and the value is the parent frame information).
   ParentFrameMap parent_frames_map;
 };
 
