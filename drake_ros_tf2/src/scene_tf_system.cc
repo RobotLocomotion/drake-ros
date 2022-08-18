@@ -142,10 +142,10 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
         auto& parent_frame = impl_->parent_frames_map[frame_id];
         parent_frame.X_PC.header.stamp =
           rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
-        auto parent_transform = query_object.GetPoseInParent(parent_frame.id);
-        auto child_transform = query_object.GetPoseInParent(frame_id);
+        auto X_WP = query_object.GetPoseInParent(parent_frame.id);
+        auto X_WC = query_object.GetPoseInParent(frame_id);
         parent_frame.X_PC.transform =
-            ToTransformMsg(parent_transform.inverse() * child_transform);
+            ToTransformMsg(X_WP.inverse() * X_WC);
         output_value->transforms.push_back(parent_frame.X_PC);
       } else {
         geometry_msgs::msg::TransformStamped transform;
