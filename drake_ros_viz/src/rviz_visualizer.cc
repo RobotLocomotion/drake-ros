@@ -78,7 +78,6 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
 
     builder.ConnectInput("graph_query",
                          impl_->scene_tf_broadcaster->get_graph_query_input_port());
-    impl_->scene_tf_broadcaster->ComputeFrameHierarchy();
   }
 
   builder.BuildInto(this);
