@@ -30,6 +30,17 @@ ROS2_PACKAGES = [
     # Uncomment one and only one to change implementations
     "rmw_cyclonedds_cpp",
     # "rmw_fastrtps_cpp",
+
+    # extras for repro
+    "geometry_msgs",
+    "interactive_markers",
+    "rclpy",
+    "rviz2",
+    "sensor_msgs",
+    "std_msgs",
+    "tf2_ros_py",
+    "tf2_ros",
+    "visualization_msgs",
 ]
 
 ros2_archive(
@@ -40,6 +51,7 @@ ros2_archive(
     # TODO(hidmic,cottsay): Make release-pinned snapshots of this repository once `drake-ros`
     # itself has versions.
     url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci.tar.bz2",
+    sha256 = "b7a8982cdc07a090b9719e35ae4735df82f9f648d5b703b93bc9db51e448f81d",
     sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci-CHECKSUM",
     strip_prefix = "ros2-linux",
 )
@@ -47,5 +59,6 @@ ros2_archive(
 ros2_local_repository(
     name = "ros2" if ROS2_DISTRO_PREFIX else "ros2_ignored",
     workspaces = [ROS2_DISTRO_PREFIX],
+    default_localhost_only = True,
     include_packages = ROS2_PACKAGES,
 )
