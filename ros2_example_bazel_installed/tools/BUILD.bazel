@@ -1,3 +1,15 @@
 # -*- python -*-
 
 exports_files(["cmd_exec.sh"])
+
+load("//tools:ros_sh.bzl", "ros_sh_alias")
+
+ros_sh_alias(
+    name = "rviz2",
+    target = "@ros2//:rviz2",
+)
+
+ros_sh_alias(
+    name = "ros2",
+    target = "@ros2//:ros2",
+)

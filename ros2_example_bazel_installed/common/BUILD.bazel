@@ -1,0 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "module_py",
+    srcs = ["__init__.py"],
+)
+
+py_library(
+    name = "runfiles_py",
+    srcs = ["runfiles.py"],
+    deps = [
+        ":module_py",
+        "@bazel_tools//tools/python/runfiles",
+    ],
+)
