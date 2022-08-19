@@ -1,0 +1,12 @@
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+
+ros_py_binary(
+    name = "rviz_pub",
+    srcs = ["rviz_pub.py"],
+    deps = [
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+        "@ros2//:tf2_ros_py_py",
+        "@ros2//:visualization_msgs_py",
+    ],
+)
