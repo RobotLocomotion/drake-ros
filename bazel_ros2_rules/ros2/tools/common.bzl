@@ -2,7 +2,7 @@
 
 load("//:distro.bzl", "REPOSITORY_ROOT")
 
-def share_filegroup(name, share_directories):
+def share_filegroup(name, share_directories, ament_resource_marker_files):
     native.filegroup(
         name = name,
         srcs = [path for path in native.glob(
@@ -14,7 +14,9 @@ def share_filegroup(name, share_directories):
                 "*/*.bash",
                 "*/*.dsv",
             ]
-        ) if " " not in path],
+        ) if " " not in path] + [
+	    path for path in ament_resource_marker_files if " " not in path
+        ],
         # NOTE(hidmic): workaround lack of support for spaces.
         # See https://github.com/bazelbuild/bazel/issues/4327.
     )

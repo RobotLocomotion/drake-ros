@@ -37,13 +37,15 @@ meta_py_name, meta_py_label = labels_with(suffix='_transitive_py')
 def configure_package_share_filegroup(name, metadata, sandbox):
     target_name = share_name(name, metadata)
     shared_directories = [sandbox(metadata['share_directory'])]
-    if 'ament_index_directory' in metadata:
-        shared_directories.append(sandbox(metadata['ament_index_directory']))
+    ament_resource_marker_files = [
+        sandbox(f) for f in metadata.get('ament_resource_marker_files', ())
+    ]
     return (
         target_name,
         load_resource('templates/package_share_filegroup.bazel.tpl'),
         to_starlark_string_dict({
-            'name': target_name, 'share_directories': shared_directories
+            'name': target_name, 'share_directories': shared_directories,
+            'ament_resource_marker_files': ament_resource_marker_files,
         })
     )
 
