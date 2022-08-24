@@ -85,10 +85,8 @@ Generates a Python shim that can inject runtime environment information for
 Python binaries that have such requirements. Using a Python shim for Python
 binaries enables downstream usage of the latter through transitive dependencies.
 
-This shim sets the environment variable `_BAZEL_ROS2_RULES_SHIMMED`. Processes
-can check for the presence of it to see if they have been shimmed. If the shim
-discovers the environment variable has already been set then it will not modify
-any environment variables.
+This shim uses a sentinel environment variable so that it only modifies the
+environment once. Any nested shims will use the top-level shim's environment.
 
 See do_dload_shim() documentation for further reference.
 """
