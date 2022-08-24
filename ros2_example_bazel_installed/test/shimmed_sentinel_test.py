@@ -8,6 +8,7 @@ wrapped with a dload shim is called in a subprocess of another binary that was
 also wrapped in a dload shim.
 """
 
+import copy
 import json
 import os
 import subprocess
@@ -21,6 +22,12 @@ SHIM_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED"
 def run_bazel_target(target, env, *args):
     """Run a bazel executable target and return stdout."""
     r = runfiles.Create()
+    env = copy.deepcopy(env)
+    # The runfiles directories for the binaries used by this test only exist
+    # if bazel was explicitly asked to build them, meaning this test would fail
+    # if it were the only thing run from a clean build. This gives the binaries
+    # access to the test's runfiles, which should have everything they need.
+    env.update(r.EnvVars())
     p = subprocess.Popen(
         [r.Rlocation(target)] + list(args),
         env=env,
