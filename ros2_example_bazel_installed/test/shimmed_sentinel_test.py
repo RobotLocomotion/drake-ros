@@ -21,8 +21,6 @@ SHIM_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED"
 def run_bazel_target(target, env, *args):
     """Run a bazel executable target and return stdout."""
     r = runfiles.Create()
-    if env is None:
-        env = {}
     p = subprocess.Popen(
         [r.Rlocation(target)] + list(args),
         env=env,
