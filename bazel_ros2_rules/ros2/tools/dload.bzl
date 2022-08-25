@@ -10,7 +10,7 @@ specific shim generation.
 
 load(
     "//tools:ament_index.bzl",
-    "AmentIndexes",
+    "AggregatedAmentIndexes",
     "ament_index_prefixes",
 )
 
@@ -96,13 +96,13 @@ def do_dload_shim(ctx, template, to_list):
     }
 
     # Add ament resource index paths from targets we depend on
-    if AmentIndexes in ctx.attr.target:
+    if AggregatedAmentIndexes in ctx.attr.target:
         if "AMENT_PREFIX_PATH" not in env_changes:
             env_changes["AMENT_PREFIX_PATH"] = ["path-prepend"]
         if env_changes["AMENT_PREFIX_PATH"][0] != "path-prepend":
             fail("failed assumption - AMENT_PREFIX_PATH was not prepended to")
         env_changes["AMENT_PREFIX_PATH"].extend(
-          ctx.attr.target[AmentIndexes].prefixes)
+          ctx.attr.target[AggregatedAmentIndexes].prefixes)
 
     envvars = env_changes.keys()
     actions = env_changes.values()

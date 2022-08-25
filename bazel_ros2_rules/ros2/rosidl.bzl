@@ -16,6 +16,13 @@ load(
 RosInterfaces = provider(
     fields = ["interfaces"],
 )
+"""
+Provides ROS interface definition files.
+
+Interface definition files are either written in the ROS interface definition,
+format, or in the subset of OMG IDL supported by ROS 2. These files may have
+the extensions ".msg", ".srv", ".action", or ".idl".
+"""
 
 def _as_idl_tuple(file):
     """
@@ -116,7 +123,7 @@ def _rosidl_translate_genrule_impl(ctx):
         ),
         outputs = ctx.outputs.translated_interfaces
     )
-    return [RosInterfaces(interfaces = ctx.outputs.translated_interfaces)]
+    return [RosInterfaces(interfaces = ctx.files.interfaces + ctx.outputs.translated_interfaces)]
 
 rosidl_translate_genrule = rule(
     attrs = dict(
@@ -176,17 +183,12 @@ def _rosidl_generate_ament_index_entry_impl(ctx):
     )
     manifest_out = ctx.actions.declare_file(manifest_path)
 
-    # Gather interface files from arguments which may be rules or files.
+    # Gather interface files.
     interface_files = []
-    for input_file_or_rule in ctx.attr.interfaces:
-        if RosInterfaces in input_file_or_rule:
-            rule = input_file_or_rule
-            for file in rule[RosInterfaces].interfaces:
-                interface_files.append(file)
-        else:
-            input_file = input_file_or_rule
-            for file in input_file.files.to_list():
-                interface_files.append(file)
+    for def_rule in ctx.attr.definitions_deps:
+        if RosInterfaces not in def_rule:
+            fail(repr(def_rule) + "does not provide RosInterfaces")
+        interface_files.extend(def_rule[RosInterfaces].interfaces)
 
     # Reduce names to "{msg|srv|action}/{message name}.{msg|srv|action|idl}
     rosidl_interfaces_manifest = []
@@ -199,7 +201,7 @@ def _rosidl_generate_ament_index_entry_impl(ctx):
 
     ctx.actions.write(
         output = manifest_out,
-        content = "\n".join(rosidl_interfaces_manifest)
+        content = "\n".join(sorted(rosidl_interfaces_manifest))
     )
 
     # Symlink interface files into the share directory
@@ -222,7 +224,7 @@ def _rosidl_generate_ament_index_entry_impl(ctx):
 rosidl_generate_ament_index_entry = rule(
     attrs = dict(
         group = attr.string(mandatory = True),
-        interfaces = attr.label_list(
+        definitions_deps = attr.label_list(
             mandatory = True, allow_empty = False, allow_files = True),
         prefix = attr.string(default = "."),
     ),
@@ -230,6 +232,20 @@ rosidl_generate_ament_index_entry = rule(
     output_to_genfiles = True,
     provides = [AmentIndex],
 )
+"""
+Generates an ament resource index for bazel-generated messages.
+
+Args:
+    group: interface group name (i.e. ROS 2 package name).
+    definitions_deps: Rules which provide definitions. These may either
+      be in the ROS interface definition format or OMG IDL.
+    prefix: optional prefix to give to the generated runfiles.
+
+Provides:
+    AmentIndex: a prefix path where the ament resource index was generated.
+    DefaultInfo: folders and symlinked files to add to the runfiles of a
+      dependent target.
+"""
 
 def _deduce_source_parts(interface_path):
     """
@@ -259,12 +275,28 @@ def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
         base, _, ext = ifc.rpartition(".")
         translated_interfaces.append(base + ".idl")
     rosidl_translate_genrule(
-        name = name,
+        name = name + "_translate",
         output_format = "idl",
         translated_interfaces = translated_interfaces,
         group = group,
         interfaces = interfaces,
         includes = includes,
+        **kwargs
+    )
+
+    rosidl_generate_ament_index_entry(
+        name = name + "_ament_index",
+        group = group,
+        definitions_deps = [_make_public_label(name, "_translate")],
+        **kwargs
+    )
+
+    native.filegroup(
+        name = name,
+        data = [
+            _make_public_label(name, "_translate"),
+            _make_public_label(name, "_ament_index"),
+        ],
         **kwargs
     )
 
@@ -1135,12 +1167,6 @@ def rosidl_interfaces_group(
         interfaces = interfaces,
         includes = [_make_public_label(dep, "_defs") for dep in deps],
         **kwargs
-    )
-
-    rosidl_generate_ament_index_entry(
-        name = name + "_ament_index",
-        group = group or name,
-        interfaces = [_make_public_label(name, "_defs")] + interfaces,
     )
 
     rosidl_cc_support(
