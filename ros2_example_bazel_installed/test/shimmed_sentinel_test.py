@@ -23,10 +23,10 @@ def run_bazel_target(target, env, *args):
     """Run a bazel executable target and return stdout."""
     r = runfiles.Create()
     env = copy.deepcopy(env)
-    # The runfiles directories for the binaries used by this test only exist
-    # if bazel was explicitly asked to build them, meaning this test would fail
-    # if it were the only thing run from a clean build. This gives the binaries
-    # access to the test's runfiles, which should have everything they need.
+    # The binaries used by this test need their runfiles to run successfully.
+    # Give them the test's runfiles, because they include the binaries'
+    # runfiles, and are the only ones guaranteed to exist.
+    # See RobotLocomotion/drake-ros#106 for more info.
     env.update(r.EnvVars())
     p = subprocess.Popen(
         [r.Rlocation(target)] + list(args),
