@@ -145,8 +145,26 @@ ros_py_test(
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
     data = [
-        ":ros2_example_apps_msgs_ament_index",
         ":simple_talker",
+        "@ros2//:ros2",
+    ],
+)
+
+# This shows how to ensure a Bazel-provided `ros2` CLI can discover custom
+# messages (#118). See note below.
+ros_py_test(
+    name = "custom_message_list_test",
+    main = "test/custom_message_list_test.py",
+    srcs = ["test/custom_message_list_test.py"],
+    deps = [
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+    data = [
+        # This is the main key. You must provide the generated ament index as a
+        # Python dependency. Otherwise, attempting to use `ros2 interface ...`
+        # will indicate the message type is invalid.
+        ":ros2_example_apps_msgs_ament_index",
         "@ros2//:ros2",
     ],
 )

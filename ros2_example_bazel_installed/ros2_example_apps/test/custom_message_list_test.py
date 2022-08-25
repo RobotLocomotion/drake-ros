@@ -12,17 +12,13 @@ def main():
 
     manifest = runfiles.Create()
     ros2_bin = manifest.Rlocation("ros2/ros2")
-    talker_bin = manifest.Rlocation(
-        "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
 
-    timeout = 5.0
-    topic_echo = subprocess.Popen([
-        ros2_bin, "topic", "echo", "--once",
-        "/status", "ros2_example_apps_msgs/msg/Status"])
-    talker = subprocess.Popen([talker_bin])
-    topic_echo.wait(timeout=timeout)
-    assert topic_echo.returncode == 0
-    talker.kill()
+    interfaces = subprocess.run(
+        [ros2_bin, "interface", "list"],
+        check=True, text=True, stdout=subprocess.PIPE,
+    ).stdout
+    print(interfaces)
+    assert "ros2_example_apps_msgs/msg/Status" in interfaces
 
     print("[ Done ]")
 
