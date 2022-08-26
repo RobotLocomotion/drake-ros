@@ -8,8 +8,14 @@ The primary macro of interest is `do_dload_shim`, which aids language
 specific shim generation.
 """
 
+load(
+    "//tools:ament_index.bzl",
+    "AggregatedAmentIndexes",
+    "ament_index_prefixes",
+)
+
 MAGIC_VARIABLES = {
-    "${LOAD_PATH}": "LD_LIBRARY_PATH"  # for Linux
+    "${LOAD_PATH}": "LD_LIBRARY_PATH",  # for Linux
 }
 
 def _unique(input_list):
@@ -46,6 +52,7 @@ def get_dload_shim_attributes():
     """
     return {
         "target": attr.label(
+            aspects = [ament_index_prefixes],
             mandatory = True,
             allow_files = True,
             executable = True,
@@ -83,23 +90,36 @@ def do_dload_shim(ctx, template, to_list):
     executable_file = ctx.executable.target
 
     env_changes = {
-        MAGIC_VARIABLES.get(name, default=name):
-        _parse_runtime_environment_action(ctx, action)
+        MAGIC_VARIABLES.get(name, default = name): _parse_runtime_environment_action(ctx, action)
         for name, action in ctx.attr.env_changes.items()
     }
+
+    # Add ament resource index paths from targets we depend on
+    if AggregatedAmentIndexes in ctx.attr.target:
+        if "AMENT_PREFIX_PATH" not in env_changes:
+            env_changes["AMENT_PREFIX_PATH"] = ["path-prepend"]
+        if env_changes["AMENT_PREFIX_PATH"][0] != "path-prepend":
+            fail("failed assumption - AMENT_PREFIX_PATH was not prepended to")
+        env_changes["AMENT_PREFIX_PATH"].extend(
+            ctx.attr.target[AggregatedAmentIndexes].prefixes,
+        )
+
     envvars = env_changes.keys()
     actions = env_changes.values()
 
     shim_content = template.format(
         # Deal with usage in external workspaces' BUILD.bazel files
-        executable_path=_normpath("{}/{}".format(
-            ctx.workspace_name, executable_file.short_path
+        executable_path = _normpath("{}/{}".format(
+            ctx.workspace_name,
+            executable_file.short_path,
         )),
-        names=to_list([repr(name) for name in envvars]),
-        actions=to_list([
+        names = to_list([repr(name) for name in envvars]),
+        actions = to_list([
             to_list([
-                repr(field) for field in action
-            ]) for action in actions
+                repr(field)
+                for field in action
+            ])
+            for action in actions
         ]),
     )
     shim = ctx.actions.declare_file(ctx.label.name)
@@ -128,8 +148,8 @@ def _parse_runtime_environment_action(ctx, action):
             tpl = "'{}' action requires at least one argument"
             fail(msg = tpl.format(action_type))
         action_args = _unique([
-            _resolve_runfile_path(ctx, path[:-1]) + "!" if path.endswith("!")
-            else _resolve_runfile_path(ctx, path) for path in action_args
+            _resolve_runfile_path(ctx, path[:-1]) + "!" if path.endswith("!") else _resolve_runfile_path(ctx, path)
+            for path in action_args
         ])
     elif action_type in ("path-replace", "set-if-not-set", "replace"):
         if len(action_args) != 1:
