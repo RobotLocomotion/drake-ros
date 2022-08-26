@@ -107,7 +107,7 @@ def write_build_file(fd, repo_name, distro, sandbox, cache):
             )
         direct_dependencies = {
             dependency_name: distro['packages'][dependency_name]
-            for dependency_name in direct_dependency_names
+            for dependency_name in sorted(direct_dependency_names)
         }
 
         if 'share_directory' in metadata:
