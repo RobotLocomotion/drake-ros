@@ -158,7 +158,9 @@ def generate_isolated_rmw_cyclonedds_cpp_env(
     builder.data('0')  # ignore domain IDs
     builder.end('DomainGain')
     builder.start('ParticipantGain')
-    builder.data(str(PARTICIPANT_ID_GAIN))
+    # Ignore participant IDs given that we use PartcipantIndex="none". For more
+    # details, see drake-ros#125.
+    builder.data('0')
     builder.end('ParticipantGain')
     unicast_ports_offset = (
         ((digest[3] << 8) + digest[4]) % 2**10  # Use 10 bits
