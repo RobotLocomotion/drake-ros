@@ -162,8 +162,10 @@ ros_py_test(
     ],
     data = [
         # This is the main key. You must provide the generated definitions as
-        # a dependency. Otherwise, attempting to use `ros2 interface ...` will
-        # indicate the message type is invalid.
+        # a dependency. It can come through data as is done here, or via any
+        # dependency, such as the C++ (*_cc) or Python (*_py) targets.
+        # Otherwise, `ros2 interface ...` will indicate the message type is
+        # invalid.
         ":ros2_example_apps_msgs_defs",
         "@ros2//:ros2",
     ],
