@@ -61,7 +61,7 @@ def ros_import_binary(
         tags = ["nolint"] + kwargs.get("tags", []),
         data = [executable] + kwargs.get("data", []),
         deps = kwargs.get("deps", []) + [
-            "@bazel_tools//tools/python/runfiles"]
+            "@bazel_ros2_rules//ros2:dload_shim_py"]
     )
     py_binary_rule(name = name, **kwargs)
 
@@ -115,7 +115,7 @@ def ros_py_binary(
         main = shim_name,
         data = [":" + noshim_name],
         deps = [
-            "@bazel_tools//tools/python/runfiles",
+            "@bazel_ros2_rules//ros2:dload_shim_py",
             ":" + noshim_name,  # Support py_binary being used a dependency
         ],
         tags = ["nolint"] + kwargs.get("tags", [])
@@ -173,7 +173,7 @@ def ros_py_test(
         srcs = [shim_name],
         main = shim_name,
         data = [":" + noshim_name],
-        deps = ["@bazel_tools//tools/python/runfiles"],
+        deps = ["@bazel_ros2_rules//ros2:dload_shim_py"],
         tags = ["nolint"] + kwargs.get("tags", [])
     )
     py_test_rule(name = name, **kwargs)

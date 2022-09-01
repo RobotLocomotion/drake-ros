@@ -11,4 +11,11 @@ cc_library(
   visibility = ["//visibility:public"],
 )
 
+py_library(
+  name = "dload_shim_py",
+  deps = ["@bazel_tools//tools/python/runfiles"],
+  srcs = ["tools/dload_shim.py"],
+  visibility = ["//visibility:public"],
+)
+
 run_calculate_rosidl_capitalization_tests()

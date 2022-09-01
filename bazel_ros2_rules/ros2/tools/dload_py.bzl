@@ -12,60 +12,10 @@ load(
     "get_dload_shim_attributes",
 )
 
-# TODO(eric.cousineau): We should ideally separate out as much as this actual
-# logic into separate library, and make entry point minimal.
 _DLOAD_PY_SHIM_TEMPLATE = """\
-import os
-import sys
-
-from bazel_tools.tools.python.runfiles import runfiles
-
-SHIMMED_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED";
-
-
-def main(argv):
-    r = runfiles.Create()
-    # NOTE(hidmic): unlike its C++ equivalent, Python runfiles'
-    # builtin tools will only look for runfiles in the manifest
-    # if there is a manifest
-    runfiles_dir = r.EnvVars()['RUNFILES_DIR']
-
-    def rlocation(path):
-        return r.Rlocation(path) or os.path.join(runfiles_dir, path)
-
-    if SHIMMED_SENTINEL not in os.environ:
-        for name, action in zip({names}, {actions}):  # noqa
-            action_type, action_args = action[0], action[1:]
-            if action_type == 'replace':
-                assert len(action_args) == 1
-                value = action_args[0]
-            elif action_type == 'set-if-not-set':
-                assert len(action_args) == 1
-                if name in os.environ:
-                    continue
-                value = action_args[0]
-            elif action_type == 'path-replace':
-                assert len(action_args) == 1
-                value = rlocation(action_args[0])
-            elif action_type == 'path-prepend':
-                assert len(action_args) > 0
-                value = ':'.join([rlocation(path) for path in action_args])
-                if name in os.environ:
-                    value += ':' + os.environ[name]
-            else:
-                assert False  # should never get here
-            if '$PWD' in value:
-                value = value.replace('$PWD', os.getcwd())
-            os.environ[name] = value
-        os.environ[SHIMMED_SENTINEL] = ""
-
-    executable_path = r.Rlocation('{executable_path}')  # noqa
-    argv = [executable_path] + argv[1:]
-    os.execv(executable_path, argv)
-
-
-if __name__ == '__main__':
-    main(sys.argv)
+assert __name__ == "__main__"
+from bazel_ros2_rules.ros2.tools.dload_shim import do_dload_shim
+do_dload_shim("{executable_path}", {names}, {actions})
 """
 
 def _to_py_list(collection):
