@@ -15,7 +15,10 @@ _DLOAD_CC_SHIM_TEMPLATE = """\
 #include "ros2/tools/dload_shim.h"
 
 int main(int argc, const char * argv[]) {{
-  return do_dload_shim(argc, argv, "{executable_path}", {names}, {actions});
+  const char * executable_path = "{executable_path}";
+  std::vector<const char *> names = {names};
+  std::vector<std::vector<const char *>> actions = {actions};
+  return do_dload_shim(argc, argv, executable_path, names, actions);
 }}
 """
 

@@ -14,8 +14,13 @@ load(
 
 _DLOAD_PY_SHIM_TEMPLATE = """\
 assert __name__ == "__main__"
+
 from bazel_ros2_rules.ros2.tools.dload_shim import do_dload_shim
-do_dload_shim("{executable_path}", {names}, {actions})
+
+executable_path = "{executable_path}"
+names = {names}
+actions = {actions}
+do_dload_shim(executable_path, names, actions)
 """
 
 def _to_py_list(collection):
