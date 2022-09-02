@@ -5,8 +5,18 @@ from bazel_tools.tools.python.runfiles import runfiles
 
 SHIMMED_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED";
 
-
 def do_dload_shim(executable_path, names, actions):
+    """
+    Call exec() on another executable with arguments and modified environment
+    variables.
+    This is meant to be called by a generated shim executable.
+
+    :param argc: count of arguments in argv.
+    :param argv: process arguments.
+    :param executable_path: path to an executable to execute.
+    :param names: environment variables to be modified.
+    :param actions: actions to be performed on each named environment variable.
+    """
     argv = sys.argv
     r = runfiles.Create()
     # NOTE(hidmic): unlike its C++ equivalent, Python runfiles'
