@@ -1,10 +1,9 @@
 #include "dload_shim.h"
 
-#include <assert.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <memory>
@@ -70,19 +69,27 @@ int do_dload_shim(
     for (size_t i = 0; i < names.size(); ++i) {
       std::stringstream value_stream;
       if (actions[i][0] == kReplace) {
-        assert(actions[i].size() == 2);
+        if (actions[i].size() != 2) {
+          std::abort();
+        }
         value_stream << actions[i][1];
       } else if (actions[i][0] == kSetIfNotSet) {
-        assert(actions[i].size() == 2);
+        if (actions[i].size() != 2) {
+          std::abort();
+        }
         if (nullptr != getenv(names[i])) {
           continue;
         }
         value_stream << actions[i][1];
       } else if (actions[i][0] == kPathReplace) {
-        assert(actions[i].size() == 2);
+        if (actions[i].size() != 2) {
+          std::abort();
+        }
         value_stream << runfiles->Rlocation(actions[i][1]);
       } else if (actions[i][0] == kPathPrepend) {
-        assert(actions[i].size() >= 2);
+        if (actions[i].size() < 2) {
+          std::abort();
+        }
         for (size_t j = 1; j < actions[i].size(); ++j) {
           value_stream << runfiles->Rlocation(actions[i][j]) << ":";
         }
@@ -92,7 +99,7 @@ int do_dload_shim(
           value_stream << raw_value;
         }
       } else {
-        assert(false);  // should never get here
+        std::abort();  // should never get here
       }
       std::string value = value_stream.str();
 
