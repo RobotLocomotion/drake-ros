@@ -58,6 +58,10 @@ Eigen::Isometry3d ros_pose_to_eigen_isometry3d(
     const geometry_msgs::msg::Pose& pose)
 {
   Eigen::Isometry3d result;
+  result.translate(Eigen::Vector3d(pose.position.x, pose.position.y, pose.position.z));
+  Eigen::Quaterniond quat(pose.orientation.w, pose.orientation.x,
+                          pose.orientation.y, pose.orientation.z);
+  result.rotate(quat);
   return result;
 }
 
@@ -65,6 +69,14 @@ geometry_msgs::msg::Pose eigen_isometry3d_to_ros_pose(
     const Eigen::Isometry3d& isometry)
 {
   geometry_msgs::msg::Pose result;
+  result.position.x = isometry.translation()[0];
+  result.position.y = isometry.translation()[1];
+  result.position.z = isometry.translation()[2];
+  Eigen::Quaterniond orientation(isometry.rotation());
+  result.orientation.x = orientation.x();
+  result.orientation.y = orientation.y();
+  result.orientation.z = orientation.z();
+  result.orientation.w = orientation.w();
   return result;
 }
 
