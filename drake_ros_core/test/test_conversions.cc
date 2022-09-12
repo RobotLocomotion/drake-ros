@@ -66,7 +66,7 @@ TEST(DrakeRosConversions, Twist) {
 }
 
 TEST(DrakeRosConversions, Acceleration) {
-  geometry_msgs::msg::Accel accel = {
+  geometry_msgs::msg::AccEl accel = {
       .linear = {.x = 1.0f, .y = 2.0f, .z = 3.0f},
       .angular = {.x = 4.0f, .y = 5.0f, .z = 6.0f}};
 

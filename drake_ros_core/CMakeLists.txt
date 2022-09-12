@@ -19,6 +19,12 @@ find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
+# Work around broken find module in AlmaLinux/RHEL eigen3-devel from PowerTools repo
+find_package(Eigen3 QUIET NO_MODULE)
+if(NOT Eigen3_FOUND)
+  find_package(Eigen3 REQUIRED)
+endif()
+
 add_library(drake_ros_core
   src/conversions.cc
   src/drake_ros.cc
@@ -34,6 +40,7 @@ target_link_libraries(drake_ros_core PUBLIC
     rclcpp::rclcpp
     rosidl_runtime_c::rosidl_runtime_c
     rosidl_typesupport_cpp::rosidl_typesupport_cpp
+    Eigen3::Eigen
     ${geometry_msgs_TARGETS}
 )
 
