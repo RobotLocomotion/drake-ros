@@ -17,8 +17,10 @@ find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 add_library(drake_ros_core
+  src/conversions.cc
   src/drake_ros.cc
   src/publisher.cc
   src/ros_interface_system.cc
@@ -32,6 +34,7 @@ target_link_libraries(drake_ros_core PUBLIC
     rclcpp::rclcpp
     rosidl_runtime_c::rosidl_runtime_c
     rosidl_typesupport_cpp::rosidl_typesupport_cpp
+    ${geometry_msgs_TARGETS}
 )
 
 target_include_directories(drake_ros_core
@@ -49,6 +52,7 @@ ament_export_dependencies(drake)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_runtime_c)
 ament_export_dependencies(rosidl_typesupport_cpp)
+ament_export_dependencies(geometry_msgs)
 
 ### Drake library path environment hook
 get_target_property(DRAKE_LIBRARY drake::drake LOCATION)
@@ -137,6 +141,9 @@ if(BUILD_TESTING)
   target_link_libraries(test_drake_ros
     drake_ros_core
   )
+
+  ament_add_gtest(test_conversions test/test_conversions.cc)
+  taRget_link_libraries(test_conversions drake_ros_core)
 endif()
 
 ament_package()
