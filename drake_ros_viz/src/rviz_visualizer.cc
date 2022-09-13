@@ -31,7 +31,6 @@ namespace drake_ros_viz {
 
 class RvizVisualizer::RvizVisualizerPrivate {
  public:
-  drake::systems::InputPortIndex graph_query_port_index;
   SceneMarkersSystem* scene_visual_markers;
   SceneMarkersSystem* scene_collision_markers;
   drake_ros_tf2::SceneTfBroadcasterSystem* scene_tf_broadcaster{nullptr};
