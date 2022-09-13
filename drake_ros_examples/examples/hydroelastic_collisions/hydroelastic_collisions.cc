@@ -57,11 +57,18 @@
 #include <drake/systems/lcm/lcm_publisher_system.h>
 #include <drake_ros_core/drake_ros.h>
 #include <drake_ros_core/ros_interface_system.h>
+#include <drake_ros_core/ros_publisher_system.h>
 #include <drake_ros_viz/rviz_visualizer.h>
+#include <drake_ros_viz/contact_markers_system.h>
 #include <gflags/gflags.h>
+
+#include <visualization_msgs/msg/marker_array.hpp>
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
+using drake_ros_core::RosPublisherSystem;
+using drake_ros_viz::ContactMarkersParams;
+using drake_ros_viz::ContactMarkersSystem;
 using drake_ros_viz::RvizVisualizer;
 
 namespace drake {
@@ -395,6 +402,29 @@ int do_main() {
 
   auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
       ros_interface_system->get_ros_interface());
+
+  // TODO(sloretz) make ConnectContactResultsToRviz() that does this
+  // Publisher system for marker message
+  auto hydroelastic_contact_markers_publisher = builder.AddSystem(
+      RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
+          "/hydroelastic_contact/mesh", rclcpp::QoS(1),
+          ros_interface_system->get_ros_interface()));
+
+  // System that turns contact results into ROS Messages
+  auto hydroelastic_contact_markers = builder.AddSystem<ContactMarkersSystem>(
+      ContactMarkersParams::Strict());
+
+  // TODO(sloretz) Drake quivalent seems to use Multibody plant instead of scene graph
+  builder.Connect(
+      scene_graph.get_query_output_port(),
+      hydroelastic_contact_markers->get_graph_query_port());
+
+  builder.Connect(
+      hydroelastic_contact_markers->get_markers_output_port(),
+      hydroelastic_contact_markers_publisher->get_input_port());
+
+  // TODO(sloretz) where to get a multibody plant from?
+  // hydroelastic_contact_markers->RegisterMultibodyPlant(plant);
 
   builder.Connect(scene_graph.get_query_output_port(),
                   rviz_visualizer.get_graph_query_port());
