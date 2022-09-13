@@ -98,20 +98,6 @@ install(
 )
 ### End Python bindings
 
-add_executable(hydroelastic_collisions
-  examples/hydroelastic_collisions/hydroelastic_collisions.cc
-)
-target_link_libraries(hydroelastic_collisions
-  drake::drake
-  drake_ros_viz
-  gflags
-)
-install(
-  TARGETS
-    hydroelastic_collisions
-  DESTINATION lib/${PROJECT_NAME}
-)
-
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   find_package(ament_cmake_cpplint REQUIRED)
