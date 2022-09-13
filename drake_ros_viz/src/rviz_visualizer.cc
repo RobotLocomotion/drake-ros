@@ -18,8 +18,8 @@
 #include <unordered_set>
 #include <utility>
 
-#include "drake_ros_viz/contact_markers_system.hpp"
-#include "drake_ros_viz/scene_markers_system.hpp"
+#include "drake_ros_viz/contact_markers_system.h"
+#include "drake_ros_viz/scene_markers_system.h"
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake_ros_core/drake_ros.h>
 #include <drake_ros_core/ros_publisher_system.h>
@@ -89,7 +89,7 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
   // Hydroelastic Contact Connections
   auto hydroelastic_contact_markers_publisher = builder.AddSystem(
       RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
-          "/hydroelastic_contact/mesh", rclcpp::QoS(1), ros_interface,
+          "/hydroelastic_contact/mesh", rclcpp::QoS(1), ros,
           params.publish_triggers, params.publish_period));
 
   impl_->hydroelastic_contact_markers =

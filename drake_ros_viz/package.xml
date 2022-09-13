@@ -13,6 +13,7 @@
   <depend>drake_ros_core</depend>
   <depend>drake_ros_tf2</depend>
   <depend>geometry_msgs</depend>
+  <depend>tf2_eigen</depend>
   <depend>rclcpp</depend>
   <depend>visualization_msgs</depend>
 
