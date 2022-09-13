@@ -27,7 +27,7 @@ add_library(drake_ros_viz
   src/name_conventions.cc
   src/rviz_visualizer.cc
   src/scene_markers_system.cc
-  src/contact_markers_system.cpp
+  src/contact_markers_system.cc
   src/lodepng/lodepng.cpp
 )
 
@@ -97,7 +97,7 @@ install(
 ### End Python bindings
 
 add_executable(hydroelastic_collisions
-  examples/hydroelastic_collisions/hydroelastic_collisions.cpp
+  examples/hydroelastic_collisions/hydroelastic_collisions.cc
 )
 target_link_libraries(hydroelastic_collisions
   drake::drake
