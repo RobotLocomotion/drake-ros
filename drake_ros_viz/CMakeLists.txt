@@ -37,9 +37,11 @@ target_link_libraries(drake_ros_viz PUBLIC
     drake_ros_core::drake_ros_core
     drake_ros_tf2::drake_ros_tf2
     rclcpp::rclcpp
-    tf2_eigen::tf2_eigen
     ${geometry_msgs_TARGETS}
     ${visualization_msgs_TARGETS}
+)
+target_link_libraries(drake_ros_viz PRIVATE
+    tf2_eigen::tf2_eigen
 )
 
 target_include_directories(drake_ros_viz
@@ -61,6 +63,7 @@ ament_export_dependencies(drake_ros_core)
 ament_export_dependencies(drake_ros_tf2)
 ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(rclcpp)
+ament_export_dependencies(tf2_eigen)
 ament_export_dependencies(visualization_msgs)
 
 install(
