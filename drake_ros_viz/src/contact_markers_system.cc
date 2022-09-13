@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_viz/contact_markers_system.hpp"
+#include "drake_ros_viz/contact_markers_system.h"
 
 #include <algorithm>
 #include <cmath>
@@ -21,8 +21,8 @@
 #include <utility>
 #include <vector>
 
-#include "drake_ros_viz/utilities/name_conventions.hpp"
-#include "drake_ros_viz/utilities/type_conversion.hpp"
+#include "drake_ros_viz/utilities/name_conventions.h"
+#include "drake_ros_viz/utilities/type_conversion.h"
 #include "lodepng/lodepng.h"
 #include <Eigen/Core>
 #include <builtin_interfaces/msg/time.hpp>
@@ -131,7 +131,7 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
       face_msg.scale.z = 1.0;
 
       const drake::geometry::TriangleSurfaceMesh<double>& mesh_W =
-          surface.mesh_W();
+          surface.tri_mesh_W();
       face_msg.points.clear();
       face_msg.points.resize(mesh_W.num_triangles() * 3);
       face_msg.colors.clear();
@@ -165,7 +165,7 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
 
       // Generate the surface markers for each mesh.
       size_t index = 0;
-      const auto& field = surface.e_MN();
+      const auto& field = surface.tri_e_MN();
       for (int j = 0; j < mesh_W.num_triangles(); ++j) {
         // Get the three vertices.
         const auto& face = mesh_W.element(j);
@@ -283,9 +283,9 @@ void ContactMarkersSystem::CalcContactMarkers(
   std::vector<drake::geometry::PenetrationAsPointPair<double>> points;
 
   if (impl_->params.use_strict_hydro_) {
-    surfaces = query_object.ComputeContactSurfaces();
+    surfaces = query_object.ComputeContactSurfaces(drake::geometry::HydroelasticContactRepresentation::kTriangle);
   } else {
-    query_object.ComputeContactSurfacesWithFallback(&surfaces, &points);
+    query_object.ComputeContactSurfacesWithFallback(drake::geometry::HydroelasticContactRepresentation::kTriangle, &surfaces, &points);
   }
 
   ContactGeometryToMarkers(impl_->params)

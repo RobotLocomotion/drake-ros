@@ -36,7 +36,7 @@
 
 #include <drake/common/value.h>
 #include <drake/geometry/drake_visualizer.h>
-#include <drake/geometry/frame_kinematics_vector.h>
+#include <drake/geometry/kinematics_vector.h>
 #include <drake/geometry/geometry_frame.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/geometry/geometry_instance.h>
@@ -55,9 +55,9 @@
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/lcm/lcm_publisher_system.h>
-#include <drake_ros_core/drake_ros.hpp>
-#include <drake_ros_core/ros_interface_system.hpp>
-#include <drake_ros_viz/rviz_visualizer.hpp>
+#include <drake_ros_core/drake_ros.h>
+#include <drake_ros_core/ros_interface_system.h>
+#include <drake_ros_viz/rviz_visualizer.h>
 #include <gflags/gflags.h>
 
 using drake_ros_core::DrakeRos;
@@ -73,7 +73,7 @@ using Eigen::Vector3d;
 using Eigen::Vector4d;
 using geometry::AddContactMaterial;
 using geometry::AddRigidHydroelasticProperties;
-using geometry::AddSoftHydroelasticProperties;
+using geometry::AddCompliantHydroelasticProperties;
 using geometry::Box;
 using geometry::ContactSurface;
 using geometry::Cylinder;
@@ -105,9 +105,9 @@ using systems::lcm::LcmPublisherSystem;
 DEFINE_double(simulation_time, 10.0,
               "Desired duration of the simulation in seconds.");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
-DEFINE_double(length, 1.0,
-              "Measure of sphere edge length -- smaller numbers produce a "
-              "denser, more expensive mesh");
+DEFINE_double(resolution_hint, 1.0,
+              "Measure of typical mesh edge length in meters."
+              " Smaller numbers produce a denser mesh");
 DEFINE_bool(rigid_cylinders, true,
             "Set to true, the cylinders are given a rigid "
             "hydroelastic representation");
@@ -138,8 +138,9 @@ class MovingBall final : public LeafSystem<double> {
                                       make_unique<Sphere>(1.0), "ball"));
 
     ProximityProperties prox_props;
-    AddContactMaterial(1e8, {}, {}, &prox_props);
-    AddSoftHydroelasticProperties(FLAGS_length, &prox_props);
+    const double kHydroelasticModulus = 1e8;
+    AddCompliantHydroelasticProperties(
+        FLAGS_resolution_hint, kHydroelasticModulus, &prox_props);
     scene_graph->AssignRole(source_id_, geometry_id_, prox_props);
 
     IllustrationProperties illus_props;
@@ -220,9 +221,9 @@ class ContactResultMaker final : public LeafSystem<double> {
     std::vector<ContactSurface<double>> surfaces;
     std::vector<PenetrationAsPointPair<double>> points;
     if (use_strict_hydro_) {
-      surfaces = query_object.ComputeContactSurfaces();
+      surfaces = query_object.ComputeContactSurfaces(drake::geometry::HydroelasticContactRepresentation::kTriangle);
     } else {
-      query_object.ComputeContactSurfacesWithFallback(&surfaces, &points);
+      query_object.ComputeContactSurfacesWithFallback(drake::geometry::HydroelasticContactRepresentation::kTriangle, &surfaces, &points);
     }
     const int num_surfaces = static_cast<int>(surfaces.size());
     const int num_pairs = static_cast<int>(points.size());
@@ -234,77 +235,100 @@ class ContactResultMaker final : public LeafSystem<double> {
     msg.num_hydroelastic_contacts = num_surfaces;
     msg.hydroelastic_contacts.resize(num_surfaces);
 
-    auto write_double3 = [](const Vector3d& src, double* dest) {
-      dest[0] = src(0);
-      dest[1] = src(1);
-      dest[2] = src(2);
-    };
+    // auto write_double3 = [](const Vector3d& src, double* dest) {
+    //   dest[0] = src(0);
+    //   dest[1] = src(1);
+    //   dest[2] = src(2);
+    // };
 
     // Contact surfaces.
     for (int i = 0; i < num_surfaces; ++i) {
       lcmt_hydroelastic_contact_surface_for_viz& surface_msg =
           msg.hydroelastic_contacts[i];
 
+      // Copied from:
+      // https://github.com/RobotLocomotion/drake/blob/
+      // dd1fdff4ab4250462fe6d13a338d992d3c29de29/
+      // geometry/profiling/contact_surface_rigid_bowl_soft_ball.cc#L280-L311
       surface_msg.body1_name = "Id_" + to_string(surfaces[i].id_M());
       surface_msg.body2_name = "Id_" + to_string(surfaces[i].id_N());
 
-      const TriangleSurfaceMesh<double>& mesh_W = surfaces[i].mesh_W();
-      surface_msg.num_triangles = mesh_W.num_triangles();
-      surface_msg.triangles.resize(surface_msg.num_triangles);
-      write_double3(mesh_W.centroid(), surface_msg.centroid_W);
-      surface_msg.num_quadrature_points = surface_msg.num_triangles;
-      surface_msg.quadrature_point_data.resize(
-          surface_msg.num_quadrature_points);
+      const int num_vertices = surfaces[i].num_vertices();
+      surface_msg.num_vertices = num_vertices;
+      surface_msg.p_WV.resize(num_vertices);
+      surface_msg.pressure.resize(num_vertices);
 
-      // Loop through each contact triangle on the contact surface.
-      const auto& field = surfaces[i].e_MN();
-      for (int j = 0; j < surface_msg.num_triangles; ++j) {
-        lcmt_hydroelastic_contact_surface_tri_for_viz& tri_msg =
-            surface_msg.triangles[j];
-        lcmt_hydroelastic_quadrature_per_point_data_for_viz& quad_msg =
-            surface_msg.quadrature_point_data[j];
+      const TriangleSurfaceMesh<double>& mesh_W = surfaces[i].tri_mesh_W();
+      const auto& e_MN_W = surfaces[i].tri_e_MN();
 
-        // Get the three vertices.
-        const auto& face = mesh_W.element(j);
-        const Vector3d& vA = mesh_W.vertex(face.vertex(0));
-        const Vector3d& vB = mesh_W.vertex(face.vertex(1));
-        const Vector3d& vC = mesh_W.vertex(face.vertex(2));
-
-        write_double3(vA, tri_msg.p_WA);
-        write_double3(vB, tri_msg.p_WB);
-        write_double3(vC, tri_msg.p_WC);
-        write_double3((vA + vB + vC) / 3.0, quad_msg.p_WQ);
-
-        tri_msg.pressure_A = field.EvaluateAtVertex(face.vertex(0));
-        tri_msg.pressure_B = field.EvaluateAtVertex(face.vertex(1));
-        tri_msg.pressure_C = field.EvaluateAtVertex(face.vertex(2));
-
-        // Face contact *traction* and *slip velocity* data.
-        write_double3(Vector3<double>(0, 0.2, 0), quad_msg.vt_BqAq_W);
-        write_double3(Vector3<double>(0, -0.2, 0), quad_msg.traction_Aq_W);
+      // Write vertices and per vertex pressure values.
+      for (int v = 0; v < num_vertices; ++v) {
+        const Vector3d& p_WV = mesh_W.vertex(v);
+        surface_msg.p_WV[v] = {p_WV.x(), p_WV.y(), p_WV.z()};
+        surface_msg.pressure[v] =
+            ExtractDoubleOrThrow(e_MN_W.EvaluateAtVertex(v));
       }
-      // Fake contact *force* and *moment* data.
-      write_double3(Vector3<double>(1, 0, 0), surface_msg.force_C_W);
-      write_double3(Vector3<double>(0, 0, 1), surface_msg.moment_C_W);
+
+      // Write faces.
+      surface_msg.poly_data_int_count = mesh_W.num_triangles() * 4;
+      surface_msg.poly_data.resize(surface_msg.poly_data_int_count);
+      int index = -1;
+      for (int t = 0; t < mesh_W.num_triangles(); ++t) {
+        const geometry::SurfaceTriangle& tri = mesh_W.element(t);
+        surface_msg.poly_data[++index] = 3;
+        surface_msg.poly_data[++index] = tri.vertex(0);
+        surface_msg.poly_data[++index] = tri.vertex(1);
+        surface_msg.poly_data[++index] = tri.vertex(2);
+      }
+
+      // // Loop through each contact triangle on the contact surface.
+      // for (int j = 0; j < surface_msg.num_triangles; ++j) {
+      //   lcmt_hydroelastic_contact_surface_tri_for_viz& tri_msg =
+      //       surface_msg.triangles[j];
+      //   lcmt_hydroelastic_quadrature_per_point_data_for_viz& quad_msg =
+      //       surface_msg.quadrature_point_data[j];
+
+      //   // Get the three vertices.
+      //   const auto& face = mesh_W.element(j);
+      //   const Vector3d& vA = mesh_W.vertex(face.vertex(0));
+      //   const Vector3d& vB = mesh_W.vertex(face.vertex(1));
+      //   const Vector3d& vC = mesh_W.vertex(face.vertex(2));
+
+      //   write_double3(vA, tri_msg.p_WA);
+      //   write_double3(vB, tri_msg.p_WB);
+      //   write_double3(vC, tri_msg.p_WC);
+      //   write_double3((vA + vB + vC) / 3.0, quad_msg.p_WQ);
+
+      //   tri_msg.pressure_A = e_MN_W.EvaluateAtVertex(face.vertex(0));
+      //   tri_msg.pressure_B = e_MN_W.EvaluateAtVertex(face.vertex(1));
+      //   tri_msg.pressure_C = e_MN_W.EvaluateAtVertex(face.vertex(2));
+
+      //   // Face contact *traction* and *slip velocity* data.
+      //   write_double3(Vector3<double>(0, 0.2, 0), quad_msg.vt_BqAq_W);
+      //   write_double3(Vector3<double>(0, -0.2, 0), quad_msg.traction_Aq_W);
+      // }
+      // // Fake contact *force* and *moment* data.
+      // write_double3(Vector3<double>(1, 0, 0), surface_msg.force_C_W);
+      // write_double3(Vector3<double>(0, 0, 1), surface_msg.moment_C_W);
     }
 
-    // Point pairs.
-    for (int i = 0; i < num_pairs; ++i) {
-      lcmt_point_pair_contact_info_for_viz& info_msg =
-          msg.point_pair_contact_info[i];
-      info_msg.timestamp = msg.timestamp;
-      const PenetrationAsPointPair<double>& pair = points[i];
+    // // Point pairs.
+    // for (int i = 0; i < num_pairs; ++i) {
+    //   lcmt_point_pair_contact_info_for_viz& info_msg =
+    //       msg.point_pair_contact_info[i];
+    //   info_msg.timestamp = msg.timestamp;
+    //   const PenetrationAsPointPair<double>& pair = points[i];
 
-      info_msg.body1_name = query_object.inspector().GetName(pair.id_A);
-      info_msg.body1_name = query_object.inspector().GetName(pair.id_B);
+    //   info_msg.body1_name = query_object.inspector().GetName(pair.id_A);
+    //   info_msg.body1_name = query_object.inspector().GetName(pair.id_B);
 
-      // Fake contact *force* data from strictly contact data. Contact point
-      // is midway between the two contact points and force = normal.
-      const Vector3d contact_point = (pair.p_WCa + pair.p_WCb) / 2.0;
-      write_double3(contact_point, info_msg.contact_point);
-      write_double3(pair.nhat_BA_W, info_msg.contact_force);
-      write_double3(pair.nhat_BA_W, info_msg.normal);
-    }
+    //   // Fake contact *force* data from strictly contact data. Contact point
+    //   // is midway between the two contact points and force = normal.
+    //   const Vector3d contact_point = (pair.p_WCa + pair.p_WCb) / 2.0;
+    //   write_double3(contact_point, info_msg.contact_point);
+    //   write_double3(pair.nhat_BA_W, info_msg.contact_force);
+    //   write_double3(pair.nhat_BA_W, info_msg.normal);
+    // }
   }
 
   int geometry_query_input_port_{-1};
@@ -315,8 +339,10 @@ class ContactResultMaker final : public LeafSystem<double> {
 int do_main() {
   DiagramBuilder<double> builder;
 
+  drake_ros_core::init();
   auto ros_interface_system =
-      builder.AddSystem<RosInterfaceSystem>(std::make_unique<DrakeRos>());
+      builder.AddSystem<RosInterfaceSystem>(
+          std::make_unique<DrakeRos>("hydroelastic_collisions"));
 
   auto& scene_graph = *builder.AddSystem<SceneGraph<double>>();
 

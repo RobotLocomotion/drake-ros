@@ -21,6 +21,7 @@ find_package(drake_ros_tf2 REQUIRED)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
+find_package(tf2_eigen REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 add_library(drake_ros_viz
@@ -37,6 +38,7 @@ target_link_libraries(drake_ros_viz PUBLIC
     drake_ros_core::drake_ros_core
     drake_ros_tf2::drake_ros_tf2
     rclcpp::rclcpp
+    tf2_eigen::tf2_eigen
     ${geometry_msgs_TARGETS}
     ${visualization_msgs_TARGETS}
 )
