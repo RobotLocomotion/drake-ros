@@ -55,8 +55,10 @@ Visualization Manager:
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        0_edges: true
-        0_faces: true
+        Edges|DefaultModelInstance::Ball::collision//WorldModelInstance::WorldBody::collision_ground: true
+        Edges|DefaultModelInstance::Ball::collision//WorldModelInstance::WorldBody::collision_wall: true
+        Faces|DefaultModelInstance::Ball::collision//WorldModelInstance::WorldBody::collision_ground: true
+        Faces|DefaultModelInstance::Ball::collision//WorldModelInstance::WorldBody::collision_wall: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -134,7 +136,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.1838157176971436
+      Distance: 2.373239517211914
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -149,10 +151,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5553978681564331
-      Target Frame: DefaultModelInstance/Ball/21
+      Pitch: 0.35039737820625305
+      Target Frame: DefaultModelInstance/Ball/25
       Value: Orbit (rviz)
-      Yaw: 5.923559665679932
+      Yaw: 5.3535566329956055
     Saved: ~
 Window Geometry:
   Displays:
