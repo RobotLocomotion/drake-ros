@@ -68,6 +68,7 @@
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
 using drake_ros_core::RosPublisherSystem;
+using drake_ros_viz::ConnectContactResultsToRviz;
 using drake_ros_viz::ContactMarkersParams;
 using drake_ros_viz::ContactMarkersSystem;
 using drake_ros_viz::RvizVisualizer;
@@ -121,7 +122,7 @@ using systems::lcm::LcmPublisherSystem;
 DEFINE_double(simulation_time, 10.0,
               "Desired duration of the simulation in seconds.");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
-DEFINE_double(resolution_hint, 1.0,
+DEFINE_double(resolution_hint, 0.1,
               "Measure of typical mesh edge length in meters."
               " Smaller numbers produce a denser mesh");
 DEFINE_bool(rigid_cylinders, true,
@@ -140,11 +141,11 @@ int do_main() {
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
 
-  const double radius = 0.1;   // m
-  const double mass = 1;      // kg
+  const double radius = 0.5;   // m
+  const double mass = 10;      // kg
   const double g = 9.81;        // m/s^2
 
-  const double hydroelastic_modulus = 1e8;   // Pa
+  const double hydroelastic_modulus = 1000;   // Pa
   const double dissipation = 5.0;            // s/m
   const double friction_coefficient = 0.3;
 
@@ -159,6 +160,9 @@ int do_main() {
   UnitInertia<double> G_Bcm = UnitInertia<double>::SolidSphere(radius);
   SpatialInertia<double> M_Bcm(mass, Vector3<double>::Zero(), G_Bcm);
 
+  const double alpha = 0.35;
+  const Vector4<double> gray(0.5, 0.5, 0.5, alpha);
+  const Vector4<double> orange(1.0, 0.55, 0.0, alpha);
 
   // Add a sloped half space
   RigidTransformd X_WG(
@@ -170,11 +174,27 @@ int do_main() {
   AddContactMaterial(
       dissipation, {} /* point stiffness */, surface_friction, &ground_props);
   plant.RegisterCollisionGeometry(
-      plant.world_body(), X_WG, geometry::HalfSpace{}, "collision",
+      plant.world_body(), X_WG, geometry::HalfSpace{}, "collision_ground",
       std::move(ground_props));
   // Add visual for the ground.
   plant.RegisterVisualGeometry(plant.world_body(), X_WG,
-                                geometry::HalfSpace{}, "visual");
+                                geometry::HalfSpace{}, "visual_ground", gray);
+
+  // Add a vertical wall (Q)
+  RigidTransformd X_WQ(
+    RollPitchYaw<double>(-1.570796, 0.0, 0.0),
+    Vector3<double>(0.0, -10.0, 0.0));
+
+  ProximityProperties wall_props;
+  AddRigidHydroelasticProperties(&wall_props);
+  AddContactMaterial(
+      dissipation, {} /* point stiffness */, surface_friction, &wall_props);
+  plant.RegisterCollisionGeometry(
+      plant.world_body(), X_WQ, geometry::HalfSpace{}, "collision_wall",
+      std::move(wall_props));
+  // Add visual for the wall.
+  plant.RegisterVisualGeometry(plant.world_body(), X_WQ,
+                                geometry::HalfSpace{}, "visual_wall", gray);
 
   const RigidBody<double>& ball = plant.AddRigidBody("Ball", M_Bcm);
 
@@ -189,9 +209,6 @@ int do_main() {
   plant.RegisterCollisionGeometry(ball, X_BS, Sphere(radius), "collision",
                                    std::move(ball_props));
 
-  const double alpha = 0.35;
-  // Add visual for the ball.
-  const Vector4<double> orange(1.0, 0.55, 0.0, alpha);
   plant.RegisterVisualGeometry(
     ball, X_BS, Sphere(radius), "visual", orange);
 
@@ -206,39 +223,13 @@ int do_main() {
 
   rviz_visualizer.RegisterMultibodyPlant(&plant);
 
-  // TODO(sloretz) make ConnectContactResultsToRviz() that does this
-  // Publisher system for marker message
-  auto hydroelastic_contact_markers_publisher = builder.AddSystem(
-      RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
-          "/hydroelastic_contact/mesh", rclcpp::QoS(1),
-          ros_interface_system->get_ros_interface()));
-
-  // System that turns contact results into ROS Messages
-  auto hydroelastic_contact_markers = builder.AddSystem<ContactMarkersSystem>(
-      plant, scene_graph, ContactMarkersParams::Strict());
-
-  // TODO(sloretz) Drake quivalent seems to use Multibody plant instead of scene graph
-  builder.Connect(
-      scene_graph.get_query_output_port(),
-      hydroelastic_contact_markers->get_graph_query_port());
-
-  builder.Connect(
-      hydroelastic_contact_markers->get_markers_output_port(),
-      hydroelastic_contact_markers_publisher->get_input_port());
-
-  // TODO(sloretz) where to get a multibody plant from?
-  // hydroelastic_contact_markers->RegisterMultibodyPlant(plant);
-
   builder.Connect(scene_graph.get_query_output_port(),
                   rviz_visualizer.get_graph_query_port());
 
-  // // Now visualize.
-  // DrakeLcm lcm;
-
-  // // Visualize geometry.
-  // DrakeVisualizerd::AddToBuilder(&builder, scene_graph, &lcm);
-
-  // TODO Use ConnectContactResultsToDrakeVisualizer() for comparison
+  ConnectContactResultsToRviz(
+      &builder, plant, scene_graph,
+      ros_interface_system->get_ros_interface(),
+      ContactMarkersParams::Strict());
 
   auto diagram = builder.Build();
 

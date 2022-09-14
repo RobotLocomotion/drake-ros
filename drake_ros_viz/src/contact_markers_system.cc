@@ -36,6 +36,8 @@
 #include <drake/geometry/shape_specification.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/leaf_system.h>
+#include <drake_ros_core/drake_ros.h>
+#include <drake_ros_core/ros_publisher_system.h>
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -400,4 +402,31 @@ ContactMarkersSystem::get_markers_output_port() const {
   return get_output_port(impl_->contact_markers_port_index);
 }
 
+ContactMarkersSystem * ConnectContactResultsToRviz(
+    drake::systems::DiagramBuilder<double>* builder,
+    const drake::multibody::MultibodyPlant<double>& plant,
+    const drake::geometry::SceneGraph<double>& scene_graph,
+    drake_ros_core::DrakeRos* ros,
+    ContactMarkersParams params,
+    const std::string & markers_topic,
+    const rclcpp::QoS & markers_qos)
+{
+  auto * markers_publisher = builder->AddSystem(
+      drake_ros_core::RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
+        markers_topic, markers_qos, ros));
+
+  // System that turns contact results into ROS Messages
+  ContactMarkersSystem * contact_markers = builder->AddSystem<ContactMarkersSystem>(
+      plant, scene_graph, params);
+
+  builder->Connect(
+      scene_graph.get_query_output_port(),
+      contact_markers->get_graph_query_port());
+
+  builder->Connect(
+      contact_markers->get_markers_output_port(),
+      markers_publisher->get_input_port());
+
+  return contact_markers;
+}
 }  // namespace drake_ros_viz

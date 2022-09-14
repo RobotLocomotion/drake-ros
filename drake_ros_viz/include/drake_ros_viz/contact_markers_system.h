@@ -22,6 +22,7 @@
 #include <drake/geometry/rgba.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
+#include <drake_ros_core/drake_ros.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 namespace drake_ros_viz {
@@ -37,10 +38,6 @@ struct ContactMarkersParams {
     params.use_strict_hydro_ = false;
     return params;
   }
-
-  /// Optional namespace for all markers, defaults
-  /// to utilities::GetMarkerNamespace() outcome.
-  std::optional<std::string> marker_namespace{std::nullopt};
 
   /// Origin Frame Name
   std::string origin_frame_name{"world"};
@@ -96,6 +93,27 @@ class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
 
   std::unique_ptr<ContactMarkersSystemPrivate> impl_;
 };
+
+/// Publish contacts from a multibody plant and associated scene graph
+/// for visualization in RViz.
+///
+/// @param builder The diagram builder this method should add systems to.
+/// @param plant The multibody plant whose contacts are to be visualized.
+/// @param scene_graph The scene graph to query for geometry information.
+/// @param ros A DrakeROS instance to use to create ROS publishers.
+/// @param params Parameters to control how contacts are visualized.
+/// @param markers_topic The name of a ROS topic to publish contact markers to.
+/// @param markers_qos The QoS settings to set on the ROS publisher for the
+///  contact markers topic.
+/// @returns A created ContactMarkersSystem which has been added to the builder.
+ContactMarkersSystem * ConnectContactResultsToRviz(
+    drake::systems::DiagramBuilder<double>* builder,
+    const drake::multibody::MultibodyPlant<double>& plant,
+    const drake::geometry::SceneGraph<double>& scene_graph,
+    drake_ros_core::DrakeRos* ros,
+    ContactMarkersParams params = {},
+    const std::string & markers_topic = "/hydroelastic_contact/mesh",
+    const rclcpp::QoS & markers_qos = rclcpp::QoS(1));
 
 }  // namespace drake_ros_viz
 
