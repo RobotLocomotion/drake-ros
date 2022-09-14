@@ -72,16 +72,11 @@ struct ContactMarkersParams {
 /// versioning, geometry roles, and so on are equally applicable here.
 class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
  public:
-  explicit ContactMarkersSystem(ContactMarkersParams params = {});
+  ContactMarkersSystem(
+    const drake::multibody::MultibodyPlant<double>& plant,
+    const drake::geometry::SceneGraph<double>& scene_graph,
+    ContactMarkersParams params = {});
   virtual ~ContactMarkersSystem();
-
-  /// Register a MultibodyPlant present in the scene
-  /**
-   * This provides the system with additional information to generate
-   * semantically meaningful frame string IDs and marker namespaces.
-   */
-  void RegisterMultibodyPlant(
-      const drake::multibody::MultibodyPlant<double>* plant);
 
   const ContactMarkersParams& params() const;
 

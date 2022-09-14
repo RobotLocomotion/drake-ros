@@ -49,6 +49,7 @@
 #include <drake/lcm/drake_lcm.h>
 #include <drake/lcmt_contact_results_for_viz.hpp>
 #include <drake/math/rigid_transform.h>
+#include "drake/multibody/plant/multibody_plant.h"
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/continuous_state.h>
@@ -100,6 +101,14 @@ using geometry::Sphere;
 using geometry::TriangleSurfaceMesh;
 using lcm::DrakeLcm;
 using math::RigidTransformd;
+using math::RollPitchYaw;
+using multibody::AddMultibodyPlantSceneGraph;
+using multibody::ContactModel;
+using multibody::CoulombFriction;
+using multibody::RigidBody;
+using multibody::SpatialInertia;
+using multibody::SpatialVelocity;
+using multibody::UnitInertia;
 using std::make_unique;
 using systems::BasicVector;
 using systems::Context;
@@ -120,75 +129,6 @@ DEFINE_bool(rigid_cylinders, true,
             "hydroelastic representation");
 DEFINE_bool(hybrid, false, "Set to true to run hybrid hydroelastic");
 
-/** Places a ball at the world's origin and defines its velocity as being
- sinusoidal in time in the z direction.
- @system
- name: MovingBall
- output_ports:
- - geometry_pose
- @endsystem
- */
-class MovingBall final : public LeafSystem<double> {
- public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MovingBall)
-
-  explicit MovingBall(SceneGraph<double>* scene_graph) {
-    this->DeclareContinuousState(2);
-
-    // Add geometry for a ball that moves based on sinusoidal derivatives.
-    source_id_ = scene_graph->RegisterSource("moving_ball");
-    frame_id_ =
-        scene_graph->RegisterFrame(source_id_, GeometryFrame("moving_frame"));
-    geometry_id_ = scene_graph->RegisterGeometry(
-        source_id_, frame_id_,
-        make_unique<GeometryInstance>(RigidTransformd(),
-                                      make_unique<Sphere>(1.0), "ball"));
-
-    ProximityProperties prox_props;
-    const double kHydroelasticModulus = 1e8;
-    AddCompliantHydroelasticProperties(
-        FLAGS_resolution_hint, kHydroelasticModulus, &prox_props);
-    scene_graph->AssignRole(source_id_, geometry_id_, prox_props);
-
-    IllustrationProperties illus_props;
-    illus_props.AddProperty("phong", "diffuse", Vector4d(0.1, 0.8, 0.1, 0.25));
-    scene_graph->AssignRole(source_id_, geometry_id_, illus_props);
-
-    geometry_pose_port_ =
-        this->DeclareAbstractOutputPort("geometry_pose",
-                                        &MovingBall::CalcFramePoseOutput)
-            .get_index();
-  }
-
-  SourceId source_id() const { return source_id_; }
-
-  const systems::OutputPort<double>& get_geometry_pose_output_port() const {
-    return systems::System<double>::get_output_port(geometry_pose_port_);
-  }
-
- private:
-  void DoCalcTimeDerivatives(
-      const Context<double>& context,
-      ContinuousState<double>* derivatives) const override {
-    BasicVector<double>& derivative_values =
-        dynamic_cast<BasicVector<double>&>(derivatives->get_mutable_vector());
-    derivative_values.SetAtIndex(0, std::sin(context.get_time()));
-  }
-
-  void CalcFramePoseOutput(const Context<double>& context,
-                           FramePoseVector<double>* poses) const {
-    RigidTransformd pose;
-    const double pos_z = context.get_continuous_state().get_vector()[0];
-    pose.set_translation({0.0, 0.0, pos_z});
-    *poses = {{frame_id_, pose}};
-  }
-
-  SourceId source_id_;
-  FrameId frame_id_;
-  GeometryId geometry_id_;
-
-  int geometry_pose_port_{-1};
-};
 
 int do_main() {
   DiagramBuilder<double> builder;
@@ -198,57 +138,73 @@ int do_main() {
       builder.AddSystem<RosInterfaceSystem>(
           std::make_unique<DrakeRos>("hydroelastic_collisions"));
 
-  auto& scene_graph = *builder.AddSystem<SceneGraph<double>>();
+  auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
 
-  // Add the bouncing ball.
-  auto& moving_ball = *builder.AddSystem<MovingBall>(&scene_graph);
-  builder.Connect(moving_ball.get_geometry_pose_output_port(),
-                  scene_graph.get_source_pose_port(moving_ball.source_id()));
+  const double radius = 0.1;   // m
+  const double mass = 1;      // kg
+  const double g = 9.81;        // m/s^2
 
-  // Add a large box, such that intersection occurs at the edge.
-  SourceId source_id = scene_graph.RegisterSource("world");
-  const double edge_len = 10;
-  const RigidTransformd X_WB(Eigen::AngleAxisd(M_PI / 4, Vector3d::UnitX()),
-                             Vector3d{0, 0, -sqrt(2.0) * edge_len / 2});
-  GeometryId ground_id = scene_graph.RegisterAnchoredGeometry(
-      source_id,
-      make_unique<GeometryInstance>(
-          X_WB, make_unique<Box>(edge_len, edge_len, edge_len), "box"));
-  ProximityProperties rigid_props;
-  AddRigidHydroelasticProperties(edge_len, &rigid_props);
-  scene_graph.AssignRole(source_id, ground_id, rigid_props);
-  IllustrationProperties illustration_box;
-  illustration_box.AddProperty("phong", "diffuse",
-                               Vector4d{0.5, 0.5, 0.45, 0.5});
-  scene_graph.AssignRole(source_id, ground_id, illustration_box);
+  const double hydroelastic_modulus = 1e8;   // Pa
+  const double dissipation = 5.0;            // s/m
+  const double friction_coefficient = 0.3;
 
-  // Add two cylinders to bang into -- if the rigid_cylinders flag is set to
-  // false, this should crash in strict hydroelastic mode, but report point
-  // contact in non-strict mode.
-  // The purpose of having two cylinders instead of one is to verify that the
-  // duplicated contact patch visualization issue in #14578 is fixed.
-  const RigidTransformd X_WC1(Vector3d{-0.5, 0, 3});
-  const RigidTransformd X_WC2(Vector3d{0.5, 0, 3});
-  const GeometryId can1_id = scene_graph.RegisterAnchoredGeometry(
-      source_id, make_unique<GeometryInstance>(
-                     X_WC1, make_unique<Cylinder>(0.5, 1.0), "can1"));
-  const GeometryId can2_id = scene_graph.RegisterAnchoredGeometry(
-      source_id, make_unique<GeometryInstance>(
-                     X_WC2, make_unique<Cylinder>(0.5, 1.0), "can2"));
-  ProximityProperties proximity_cylinder;
-  if (FLAGS_rigid_cylinders) {
-    AddRigidHydroelasticProperties(0.5, &proximity_cylinder);
-  }
-  scene_graph.AssignRole(source_id, can1_id, proximity_cylinder);
-  scene_graph.AssignRole(source_id, can2_id, proximity_cylinder);
-  IllustrationProperties illustration_cylinder;
-  illustration_cylinder.AddProperty("phong", "diffuse",
-                                    Vector4d{0.5, 0.5, 0.45, 0.5});
-  scene_graph.AssignRole(source_id, can1_id, illustration_cylinder);
-  scene_graph.AssignRole(source_id, can2_id, illustration_cylinder);
+  const CoulombFriction<double> surface_friction(
+      friction_coefficient /* static friction */,
+      friction_coefficient /* dynamic friction */);
+
+  // Hydroelastic Ball and Plane example taken from
+  // https://github.com/RobotLocomotion/drake/blob/
+  // 940b63716161c7206d494378701be11852c53d75/
+  // examples/multibody/rolling_sphere/populate_ball_plant.cc
+  UnitInertia<double> G_Bcm = UnitInertia<double>::SolidSphere(radius);
+  SpatialInertia<double> M_Bcm(mass, Vector3<double>::Zero(), G_Bcm);
+
+
+  // Add a sloped half space
+  RigidTransformd X_WG(
+    RollPitchYaw<double>(0.15, 0.0, 0.0),
+    Vector3<double>(0.0, 0.0, 0.0));
+
+  ProximityProperties ground_props;
+  AddRigidHydroelasticProperties(&ground_props);
+  AddContactMaterial(
+      dissipation, {} /* point stiffness */, surface_friction, &ground_props);
+  plant.RegisterCollisionGeometry(
+      plant.world_body(), X_WG, geometry::HalfSpace{}, "collision",
+      std::move(ground_props));
+  // Add visual for the ground.
+  plant.RegisterVisualGeometry(plant.world_body(), X_WG,
+                                geometry::HalfSpace{}, "visual");
+
+  const RigidBody<double>& ball = plant.AddRigidBody("Ball", M_Bcm);
+
+  // Add sphere geometry for the ball.
+  // Pose of sphere geometry S in body frame B.
+  const RigidTransformd X_BS = RigidTransformd::Identity();
+  // Set material properties for hydroelastics.
+  ProximityProperties ball_props;
+  AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
+                     &ball_props);
+  AddCompliantHydroelasticProperties(radius, hydroelastic_modulus, &ball_props);
+  plant.RegisterCollisionGeometry(ball, X_BS, Sphere(radius), "collision",
+                                   std::move(ball_props));
+
+  const double alpha = 0.35;
+  // Add visual for the ball.
+  const Vector4<double> orange(1.0, 0.55, 0.0, alpha);
+  plant.RegisterVisualGeometry(
+    ball, X_BS, Sphere(radius), "visual", orange);
+
+  // Gravity acting in the -z direction.
+  plant.mutable_gravity_field().set_gravity_vector(-g * Vector3d::UnitZ());
+
+  plant.set_contact_model(ContactModel::kHydroelastic);
+  plant.Finalize();
 
   auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
       ros_interface_system->get_ros_interface());
+
+  rviz_visualizer.RegisterMultibodyPlant(&plant);
 
   // TODO(sloretz) make ConnectContactResultsToRviz() that does this
   // Publisher system for marker message
@@ -259,7 +215,7 @@ int do_main() {
 
   // System that turns contact results into ROS Messages
   auto hydroelastic_contact_markers = builder.AddSystem<ContactMarkersSystem>(
-      ContactMarkersParams::Strict());
+      plant, scene_graph, ContactMarkersParams::Strict());
 
   // TODO(sloretz) Drake quivalent seems to use Multibody plant instead of scene graph
   builder.Connect(
@@ -276,19 +232,34 @@ int do_main() {
   builder.Connect(scene_graph.get_query_output_port(),
                   rviz_visualizer.get_graph_query_port());
 
-  // Now visualize.
-  DrakeLcm lcm;
+  // // Now visualize.
+  // DrakeLcm lcm;
 
-  // Visualize geometry.
-  DrakeVisualizerd::AddToBuilder(&builder, scene_graph, &lcm);
+  // // Visualize geometry.
+  // DrakeVisualizerd::AddToBuilder(&builder, scene_graph, &lcm);
 
   // TODO Use ConnectContactResultsToDrakeVisualizer() for comparison
 
   auto diagram = builder.Build();
 
-  systems::Simulator<double> simulator(*diagram);
+  // Create a context for this system:
+  std::unique_ptr<systems::Context<double>> diagram_context =
+      diagram->CreateDefaultContext();
+  systems::Context<double>& plant_context =
+      diagram->GetMutableSubsystemContext(plant, diagram_context.get());
 
-  auto& simulator_context = simulator.get_mutable_context();
+  // Set the sphere's initial pose.
+  math::RotationMatrixd R_WB(math::RollPitchYawd(
+      M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
+  math::RigidTransformd X_WB(
+      R_WB, 
+      Vector3d(0.0, 0.0, 3.0));
+  plant.SetFreeBodyPose(
+      &plant_context, plant.GetBodyByName("Ball"), X_WB);
+
+  systems::Simulator<double> simulator(*diagram, std::move(diagram_context));
+
+  auto & simulator_context = simulator.get_mutable_context();
 
   simulator.get_mutable_integrator().set_maximum_step_size(0.002);
   simulator.set_target_realtime_rate(FLAGS_real_time ? 1.f : 0.f);
