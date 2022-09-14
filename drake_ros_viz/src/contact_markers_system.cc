@@ -49,6 +49,19 @@ namespace drake_ros_viz {
 
 namespace {
 
+// Copied from:
+// https://github.com/RobotLocomotion/drake/blob/
+// c246c0d4480a5b4cc2cdc07cfda9aabe6b25b9a1/
+// multibody/plant/contact_results_to_lcm.h#L43-L49
+struct FullBodyName {
+  std::string model;
+  std::string body;
+  std::string geometry;
+  bool body_name_is_unique;
+  int geometry_count;
+};
+// End copied code
+
 double calc_uv(double pressure, double min_pressure, double max_pressure) {
   double u = ((pressure - min_pressure) / (max_pressure - min_pressure));
   return std::clamp(u, 0.0, 1.0);
@@ -232,12 +245,23 @@ class ContactMarkersSystem::ContactMarkersSystemPrivate {
   const ContactMarkersParams params;
   drake::systems::InputPortIndex graph_query_port_index;
   drake::systems::OutputPortIndex contact_markers_port_index;
-  std::unordered_set<const drake::multibody::MultibodyPlant<double>*> plants;
   mutable drake::geometry::GeometryVersion version;
+
+  // A mapping from geometry IDs to per-body name data.
+  std::unordered_map<drake::geometry::GeometryId, FullBodyName>
+      geometry_id_to_body_name_map_;
+
+  // A mapping from body index values to body names.
+  std::vector<std::string> body_names_;
 };
 
-ContactMarkersSystem::ContactMarkersSystem(ContactMarkersParams params)
-    : impl_(new ContactMarkersSystemPrivate(std::move(params))) {
+ContactMarkersSystem::ContactMarkersSystem(
+    const drake::multibody::MultibodyPlant<double>& plant,
+    const drake::geometry::SceneGraph<double>& scene_graph,
+    ContactMarkersParams params
+) : impl_(new ContactMarkersSystemPrivate(std::move(params))) {
+
+  // TODO(sloretz) do something with plant
   impl_->graph_query_port_index =
       this->DeclareAbstractInputPort(
               "graph_query",
@@ -248,15 +272,47 @@ ContactMarkersSystem::ContactMarkersSystem(ContactMarkersParams params)
       this->DeclareAbstractOutputPort("contact_markers",
                                       &ContactMarkersSystem::CalcContactMarkers)
           .get_index();
+
+  // Mostly Copied from:
+  // https://github.com/RobotLocomotion/drake/blob/
+  // 8994f6809fb86d23438c3456ba086eebc737864d/
+  // multibody/plant/contact_results_to_lcm.cc#L87-L120
+  const int body_count = plant.num_bodies();
+
+  impl_->body_names_.reserve(body_count);
+  const drake::geometry::SceneGraphInspector<double>& inspector =
+    scene_graph.model_inspector();
+  for (drake::multibody::BodyIndex i{0}; i < body_count; ++i) {
+    const drake::multibody::Body<double >& body = plant.get_body(i);
+    using std::to_string;
+    impl_->body_names_.push_back(
+        body.name() + "(" + to_string(body.model_instance()) + ")");
+    for (auto geometry_id : plant.GetCollisionGeometriesForBody(body)) {
+      const std::string& model_name =
+          plant.GetModelInstanceName(body.model_instance());
+      const bool body_name_is_unique =
+          plant.NumBodiesWithName(body.name()) == 1;
+      // TODO(SeanCurtis-TRI): collision geometries can be added to SceneGraph
+      //  after the plant has been finalized. Those geometries will not be found
+      //  in this map. What *should* happen is that this should *also* be
+      //  connected to SceneGraph's query object output port and it should ask
+      //  scene graph about things like this when evaluating the output port.
+      //  However, this is not an immediate problem for *this* system, because
+      //  MultibodyPlant is authored such that if someone were to add such a
+      //  geometry and it participated in collision, MultibodyPlant would have
+      //  already thrown an exception in computing the contact. Until MbP gets
+      //  out of the way, there's no reason to update here.
+      const int collision_count =
+          static_cast<int>(plant.GetCollisionGeometriesForBody(body).size());
+      impl_->geometry_id_to_body_name_map_[geometry_id] = {
+          model_name, body.name(), inspector.GetName(geometry_id),
+          body_name_is_unique, collision_count};
+    }
+  }
+  // End copied code
 }
 
 ContactMarkersSystem::~ContactMarkersSystem() {}
-
-void ContactMarkersSystem::RegisterMultibodyPlant(
-    const drake::multibody::MultibodyPlant<double>* plant) {
-  DRAKE_THROW_UNLESS(plant != nullptr);
-  impl_->plants.insert(plant);
-}
 
 namespace {
 
