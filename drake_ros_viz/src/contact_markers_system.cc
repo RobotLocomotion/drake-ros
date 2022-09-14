@@ -62,6 +62,33 @@ struct FullBodyName {
 };
 // End copied code
 
+std::string contact_name(
+    const FullBodyName & name1, const FullBodyName & name2)
+{
+  auto make_full_name = [](const FullBodyName & name) -> std::string {
+    std::stringstream full_name;
+    if (!name.model.empty()) {
+      full_name << name.model << "::";
+    }
+    if (!name.body.empty()) {
+      full_name << name.body << "::";
+    }
+    if (!name.geometry.empty()) {
+      full_name << name.geometry;
+    }
+    return full_name.str();
+  };
+
+  std::string full_name1 = make_full_name(name1);
+  std::string full_name2 = make_full_name(name2);
+
+  // Sort so names are consistent
+  if (full_name2 < full_name1) {
+    return full_name2 + "//" + full_name1;
+  }
+  return full_name1 + "//" + full_name2;
+}
+
 double calc_uv(double pressure, double min_pressure, double max_pressure) {
   double u = ((pressure - min_pressure) / (max_pressure - min_pressure));
   return std::clamp(u, 0.0, 1.0);
@@ -87,12 +114,15 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
   visualization_msgs::msg::MarkerArray* marker_array_{nullptr};
   drake::math::RigidTransform<double> X_FG_{};
   std::vector<uint8_t> texture_;
+  const std::function<std::string (const drake::geometry::ContactSurface<double>&)> contact_namer_;
 
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(ContactGeometryToMarkers)
 
-  explicit ContactGeometryToMarkers(const ContactMarkersParams& params)
-      : params_(params) {
+  explicit ContactGeometryToMarkers(
+      const ContactMarkersParams& params,
+      const std::function<std::string (const drake::geometry::ContactSurface<double>&)> contact_namer)
+      : params_(params), contact_namer_(contact_namer) {
     std::vector<uint8_t> image(TEXTURE_SIZE * 4);
     double red, green, blue;
     for (size_t i = 0; i < TEXTURE_SIZE; i++) {
@@ -121,11 +151,12 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker_array_->markers.reserve(num_surfaces + num_pairs);
 
     // Translate Drake Contact Surface into ROS List of Triangles.
-    int name_index = 0;
     for (const drake::geometry::ContactSurface<double>& surface : surfaces) {
+      const std::string cname = contact_namer_(surface);
+
       visualization_msgs::msg::Marker face_msg;
       face_msg.header.frame_id = params_.origin_frame_name;
-      face_msg.ns = std::to_string(name_index) + "_faces";
+      face_msg.ns = "Faces|" + cname;
       face_msg.id = marker_array_->markers.size();
       face_msg.type = visualization_msgs::msg::Marker::TRIANGLE_LIST;
       face_msg.action = visualization_msgs::msg::Marker::ADD;
@@ -162,7 +193,7 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
       edge_msg.action = visualization_msgs::msg::Marker::ADD;
       edge_msg.lifetime = rclcpp::Duration::from_nanoseconds(0);
       edge_msg.frame_locked = true;
-      edge_msg.ns = std::to_string(name_index++) + "_edges";
+      edge_msg.ns = "Edges|" + cname;
       edge_msg.id = 1;
       // Set the size of the individual markers (depends on scale)
       // edge_msg.scale = ToScale(edge_scale * scale);
@@ -260,8 +291,6 @@ ContactMarkersSystem::ContactMarkersSystem(
     const drake::geometry::SceneGraph<double>& scene_graph,
     ContactMarkersParams params
 ) : impl_(new ContactMarkersSystemPrivate(std::move(params))) {
-
-  // TODO(sloretz) do something with plant
   impl_->graph_query_port_index =
       this->DeclareAbstractInputPort(
               "graph_query",
@@ -344,7 +373,16 @@ void ContactMarkersSystem::CalcContactMarkers(
     query_object.ComputeContactSurfacesWithFallback(drake::geometry::HydroelasticContactRepresentation::kTriangle, &surfaces, &points);
   }
 
-  ContactGeometryToMarkers(impl_->params)
+
+  auto contact_namer = [this](const drake::geometry::ContactSurface<double> & surface) -> std::string {
+    const FullBodyName & name1 =
+      impl_->geometry_id_to_body_name_map_.at(surface.id_M());
+    const FullBodyName & name2 =
+      impl_->geometry_id_to_body_name_map_.at(surface.id_N());
+    return contact_name(name1, name2);
+  };
+
+  ContactGeometryToMarkers(impl_->params, contact_namer)
       .Populate(surfaces, points, output_value);
 }
 
