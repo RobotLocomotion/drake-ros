@@ -19,6 +19,7 @@
 
 #include <drake/geometry/geometry_roles.h>
 #include <drake/geometry/rgba.h>
+#include "drake/multibody/plant/contact_results.h"
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake_ros_core/drake_ros.h>
@@ -28,28 +29,11 @@ namespace drake_ros_viz {
 
 /// Set of parameters that configure a ContactMarkersSystem.
 struct ContactMarkersParams {
-  /// Configure ContactMarkersSystem to require only hydroelastic collisions.
-  static ContactMarkersParams StrictHydroelastic() {
-    ContactMarkersParams params;
-    params.use_strict_hydro_ = true;
-    return params;
-  }
-
-  /// Configure ContactMarkersSystem to depict all collisions.
-  static ContactMarkersParams HydroelasticWithFallback() {
-    ContactMarkersParams params;
-    params.use_strict_hydro_ = false;
-    return params;
-  }
-
   /// Origin Frame Name
   std::string origin_frame_name{"world"};
 
   /// Default marker color if no ("phong", "diffuse") property is found.
   drake::geometry::Rgba default_color{0.6, 1.0, 0.6, 1.0};
-
-  /// Use strict hydroelastic collisions.
-  bool use_strict_hydro_{false};
 };
 
 /// System for visualizing contacts as a ROS markers array.
@@ -59,7 +43,8 @@ struct ContactMarkersParams {
 /// each `visualization_msgs/msg/Marker` message.
 ///
 /// It has one input port:
-/// - *graph_query* (abstract): expects a QueryObject from the SceneGraph.
+/// - *contact_results* (abstract): expects contact results from a
+///   MultibodyPlant.
 ///
 /// It has one output port:
 /// - *contact_markers* (abstract): all scene geometries, as a
@@ -74,13 +59,11 @@ class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
 
   const ContactMarkersParams& params() const;
 
-  const drake::systems::InputPort<double>& get_graph_query_port() const;
+  const drake::systems::InputPort<double>& get_contact_results_port() const;
 
   const drake::systems::OutputPort<double>& get_markers_output_port() const;
 
  private:
-  // Inspects the SceneGraph and carries out the conversion
-  // to visualization_msgs::msg::MarkerArray message unconditionally.
   void CalcContactMarkers(
       const drake::systems::Context<double>& context,
       visualization_msgs::msg::MarkerArray* output_value) const;
@@ -91,12 +74,11 @@ class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
   std::unique_ptr<ContactMarkersSystemPrivate> impl_;
 };
 
-/// Publish contacts from a multibody plant and associated scene graph
-/// for visualization in RViz.
+/// Publish contacts from a multibody plant for visualization in RViz.
 ///
 /// @param builder The diagram builder this method should add systems to.
 /// @param plant The multibody plant whose contacts are to be visualized.
-/// @param scene_graph The scene graph to query for geometry information.
+/// @param scene_graph The scene graph to query for geometry names.
 /// @param ros A DrakeROS instance to use to create ROS publishers.
 /// @param params Parameters to control how contacts are visualized.
 /// @param markers_topic The name of a ROS topic to publish contact markers to.
@@ -108,7 +90,7 @@ ContactMarkersSystem * ConnectContactResultsToRviz(
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
     drake_ros_core::DrakeRos* ros,
-    ContactMarkersParams params = ContactMarkersParams::HydroelasticWithFallback(),
+    ContactMarkersParams params = {},
     const std::string & markers_topic = "/hydroelastic_contact/mesh",
     const rclcpp::QoS & markers_qos = rclcpp::QoS(1));
 }  // namespace drake_ros_viz
