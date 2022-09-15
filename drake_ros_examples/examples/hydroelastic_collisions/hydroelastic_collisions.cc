@@ -183,8 +183,7 @@ int do_main() {
 
   ConnectContactResultsToRviz(
       &builder, plant, scene_graph,
-      ros_interface_system->get_ros_interface(),
-      ContactMarkersParams::Strict());
+      ros_interface_system->get_ros_interface());
 
   auto diagram = builder.Build();
 
