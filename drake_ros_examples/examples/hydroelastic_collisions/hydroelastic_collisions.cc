@@ -13,26 +13,11 @@
 // limitations under the License.
 
 /** @file
- A simple binary for exercising and visualizing computation of ContactSurfaces.
- This is decoupled from dynamics so that just the geometric components can be
- evaluated in as light-weight a fashion as possible.
- This can serve as a test bed for evaluating the various cases of the
- ContactSurface-computing algorithms. Simply swap the geometry types (moving
- and anchored) and their properties to see the effect on contact surface.  */
-
-/*
-#include <drake/common/eigen_types.h>
-#include <drake/systems/analysis/simulator.h>
-#include <drake/systems/framework/diagram_builder.h>
-#include <drake/systems/primitives/adder.h>
-#include <drake/systems/primitives/constant_vector_source.h>
-#include <drake/systems/primitives/sine.h>
-*/
+ An example of visualizing ContactSurfaces with RViz.  */
 
 #include <cmath>
 #include <memory>
 #include <utility>
-#include <vector>
 
 #include <drake/common/value.h>
 #include <drake/geometry/drake_visualizer.h>
@@ -65,59 +50,32 @@
 
 #include <visualization_msgs/msg/marker_array.hpp>
 
+using drake::geometry::AddContactMaterial;
+using drake::geometry::AddRigidHydroelasticProperties;
+using drake::geometry::AddCompliantHydroelasticProperties;
+using drake::geometry::HalfSpace;
+using drake::geometry::ProximityProperties;
+using drake::geometry::Sphere;
+using drake::math::RigidTransformd;
+using drake::math::RollPitchYawd;
+using drake::math::RotationMatrixd;
+using drake::multibody::AddMultibodyPlantSceneGraph;
+using drake::multibody::ContactModel;
+using drake::multibody::CoulombFriction;
+using drake::multibody::RigidBody;
+using drake::multibody::SpatialInertia;
+using drake::multibody::UnitInertia;
+using drake::systems::Context;
+using drake::systems::DiagramBuilder;
+using drake::systems::Simulator;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
-using drake_ros_core::RosPublisherSystem;
 using drake_ros_viz::ConnectContactResultsToRviz;
 using drake_ros_viz::ContactMarkersParams;
-using drake_ros_viz::ContactMarkersSystem;
 using drake_ros_viz::RvizVisualizer;
-
-namespace drake {
-namespace examples {
-namespace scene_graph {
-namespace contact_surface {
-
 using Eigen::Vector3d;
 using Eigen::Vector4d;
-using geometry::AddContactMaterial;
-using geometry::AddRigidHydroelasticProperties;
-using geometry::AddCompliantHydroelasticProperties;
-using geometry::Box;
-using geometry::ContactSurface;
-using geometry::Cylinder;
-using geometry::DrakeVisualizerd;
-using geometry::FrameId;
-using geometry::FramePoseVector;
-using geometry::GeometryFrame;
-using geometry::GeometryId;
-using geometry::GeometryInstance;
-using geometry::IllustrationProperties;
-using geometry::PenetrationAsPointPair;
-using geometry::ProximityProperties;
-using geometry::QueryObject;
-using geometry::SceneGraph;
-using geometry::SourceId;
-using geometry::Sphere;
-using geometry::TriangleSurfaceMesh;
-using lcm::DrakeLcm;
-using math::RigidTransformd;
-using math::RollPitchYaw;
-using multibody::AddMultibodyPlantSceneGraph;
-using multibody::ContactModel;
-using multibody::CoulombFriction;
-using multibody::RigidBody;
-using multibody::SpatialInertia;
-using multibody::SpatialVelocity;
-using multibody::UnitInertia;
 using std::make_unique;
-using systems::BasicVector;
-using systems::Context;
-using systems::ContinuousState;
-using systems::DiagramBuilder;
-using systems::LeafSystem;
-using systems::Simulator;
-using systems::lcm::LcmPublisherSystem;
 
 DEFINE_double(simulation_time, 10.0,
               "Desired duration of the simulation in seconds.");
@@ -158,43 +116,43 @@ int do_main() {
   // 940b63716161c7206d494378701be11852c53d75/
   // examples/multibody/rolling_sphere/populate_ball_plant.cc
   UnitInertia<double> G_Bcm = UnitInertia<double>::SolidSphere(radius);
-  SpatialInertia<double> M_Bcm(mass, Vector3<double>::Zero(), G_Bcm);
+  SpatialInertia<double> M_Bcm(mass, Vector3d::Zero(), G_Bcm);
 
   const double alpha = 0.35;
-  const Vector4<double> gray(0.5, 0.5, 0.5, alpha);
-  const Vector4<double> orange(1.0, 0.55, 0.0, alpha);
+  const Vector4d gray(0.5, 0.5, 0.5, alpha);
+  const Vector4d orange(1.0, 0.55, 0.0, alpha);
 
   // Add a sloped half space
   RigidTransformd X_WG(
-    RollPitchYaw<double>(0.15, 0.0, 0.0),
-    Vector3<double>(0.0, 0.0, 0.0));
+    RollPitchYawd(0.15, 0.0, 0.0),
+    Vector3d(0.0, 0.0, 0.0));
 
   ProximityProperties ground_props;
   AddRigidHydroelasticProperties(&ground_props);
   AddContactMaterial(
       dissipation, {} /* point stiffness */, surface_friction, &ground_props);
   plant.RegisterCollisionGeometry(
-      plant.world_body(), X_WG, geometry::HalfSpace{}, "collision_ground",
+      plant.world_body(), X_WG, HalfSpace{}, "collision_ground",
       std::move(ground_props));
   // Add visual for the ground.
   plant.RegisterVisualGeometry(plant.world_body(), X_WG,
-                                geometry::HalfSpace{}, "visual_ground", gray);
+                               HalfSpace{}, "visual_ground", gray);
 
   // Add a vertical wall (Q)
   RigidTransformd X_WQ(
-    RollPitchYaw<double>(-1.570796, 0.0, 0.0),
-    Vector3<double>(0.0, -10.0, 0.0));
+    RollPitchYawd(-1.570796, 0.0, 0.0),
+    Vector3d(0.0, -10.0, 0.0));
 
   ProximityProperties wall_props;
   AddRigidHydroelasticProperties(&wall_props);
   AddContactMaterial(
       dissipation, {} /* point stiffness */, surface_friction, &wall_props);
   plant.RegisterCollisionGeometry(
-      plant.world_body(), X_WQ, geometry::HalfSpace{}, "collision_wall",
+      plant.world_body(), X_WQ, HalfSpace{}, "collision_wall",
       std::move(wall_props));
   // Add visual for the wall.
   plant.RegisterVisualGeometry(plant.world_body(), X_WQ,
-                                geometry::HalfSpace{}, "visual_wall", gray);
+                                HalfSpace{}, "visual_wall", gray);
 
   const RigidBody<double>& ball = plant.AddRigidBody("Ball", M_Bcm);
 
@@ -234,21 +192,17 @@ int do_main() {
   auto diagram = builder.Build();
 
   // Create a context for this system:
-  std::unique_ptr<systems::Context<double>> diagram_context =
+  std::unique_ptr<Context<double>> diagram_context =
       diagram->CreateDefaultContext();
-  systems::Context<double>& plant_context =
+  Context<double>& plant_context =
       diagram->GetMutableSubsystemContext(plant, diagram_context.get());
 
   // Set the sphere's initial pose.
-  math::RotationMatrixd R_WB(math::RollPitchYawd(
-      M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
-  math::RigidTransformd X_WB(
-      R_WB, 
-      Vector3d(0.0, 0.0, 3.0));
-  plant.SetFreeBodyPose(
-      &plant_context, plant.GetBodyByName("Ball"), X_WB);
+  RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
+  RigidTransformd X_WB(R_WB, Vector3d(0.0, 0.0, 3.0));
+  plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("Ball"), X_WB);
 
-  systems::Simulator<double> simulator(*diagram, std::move(diagram_context));
+  Simulator<double> simulator(*diagram, std::move(diagram_context));
 
   auto & simulator_context = simulator.get_mutable_context();
 
@@ -263,12 +217,7 @@ int do_main() {
   return 0;
 }
 
-}  // namespace contact_surface
-}  // namespace scene_graph
-}  // namespace examples
-}  // namespace drake
-
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  return drake::examples::scene_graph::contact_surface::do_main();
+  return do_main();
 }
