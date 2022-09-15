@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DRAKE_ROS_SYSTEMS__CONTACT_MARKERS_SYSTEM_HPP_
-#define DRAKE_ROS_SYSTEMS__CONTACT_MARKERS_SYSTEM_HPP_
+#pragma once
 
 #include <memory>
 #include <optional>  // NOLINT(build/include_order)
@@ -29,11 +28,15 @@ namespace drake_ros_viz {
 
 /// Set of parameters that configure a ContactMarkersSystem.
 struct ContactMarkersParams {
-  /// Configure ContactMarkersSystem to depict strict hydroelastic collisions.
-  static ContactMarkersParams Strict() { return {}; }
+  /// Configure ContactMarkersSystem to require only hydroelastic collisions.
+  static ContactMarkersParams StrictHydroelastic() {
+    ContactMarkersParams params;
+    params.use_strict_hydro_ = true;
+    return params;
+  }
 
-  /// Configure ContactMarkersSystem to depict collisions.
-  static ContactMarkersParams NoStrict() {
+  /// Configure ContactMarkersSystem to depict all collisions.
+  static ContactMarkersParams HydroelasticWithFallback() {
     ContactMarkersParams params;
     params.use_strict_hydro_ = false;
     return params;
@@ -46,13 +49,13 @@ struct ContactMarkersParams {
   drake::geometry::Rgba default_color{0.6, 1.0, 0.6, 1.0};
 
   /// Use strict hydroelastic collisions.
-  bool use_strict_hydro_{true};
+  bool use_strict_hydro_{false};
 };
 
-/// System for SceneGraph depiction as a ROS markers array.
+/// System for visualizing contacts as a ROS markers array.
 ///
 /// This system outputs a `visualization_msgs/msg/MarkerArray` populated with
-/// all geometries found in a SceneGraph, using Context time to timestamp
+/// markers for all contacts found in a SceneGraph, using Context time for
 /// each `visualization_msgs/msg/Marker` message.
 ///
 /// It has one input port:
@@ -61,12 +64,6 @@ struct ContactMarkersParams {
 /// It has one output port:
 /// - *contact_markers* (abstract): all scene geometries, as a
 ///   visualization_msg::msg::MarkerArray message.
-///
-/// This system provides the same base functionality in terms of SceneGraph
-/// geometries lookup and message conversion for ROS-based applications as
-/// the DrakeVisualizer system does for LCM-based applications.
-/// Thus, discussions in DrakeVisualizer's documentation about geometry
-/// versioning, geometry roles, and so on are equally applicable here.
 class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
  public:
   ContactMarkersSystem(
@@ -111,10 +108,7 @@ ContactMarkersSystem * ConnectContactResultsToRviz(
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
     drake_ros_core::DrakeRos* ros,
-    ContactMarkersParams params = {},
+    ContactMarkersParams params = ContactMarkersParams::HydroelasticWithFallback(),
     const std::string & markers_topic = "/hydroelastic_contact/mesh",
     const rclcpp::QoS & markers_qos = rclcpp::QoS(1));
-
 }  // namespace drake_ros_viz
-
-#endif  // DRAKE_ROS_SYSTEMS__CONTACT_MARKERS_SYSTEM_HPP_

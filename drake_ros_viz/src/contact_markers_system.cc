@@ -50,7 +50,6 @@
 namespace drake_ros_viz {
 
 namespace {
-
 // Copied from:
 // https://github.com/RobotLocomotion/drake/blob/
 // c246c0d4480a5b4cc2cdc07cfda9aabe6b25b9a1/
@@ -59,8 +58,6 @@ struct FullBodyName {
   std::string model;
   std::string body;
   std::string geometry;
-  bool body_name_is_unique;
-  int geometry_count;
 };
 // End copied code
 
@@ -110,11 +107,10 @@ void create_color(double value, double& red, double& green, double& blue) {
 
 class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
  private:
-  const size_t TEXTURE_SIZE = 1024;
+  const size_t kTextureSize = 1024;
 
   const ContactMarkersParams& params_;
   visualization_msgs::msg::MarkerArray* marker_array_{nullptr};
-  drake::math::RigidTransform<double> X_FG_{};
   std::vector<uint8_t> texture_;
   const std::function<std::string (const drake::geometry::ContactSurface<double>&)> contact_namer_;
 
@@ -125,16 +121,16 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
       const ContactMarkersParams& params,
       const std::function<std::string (const drake::geometry::ContactSurface<double>&)> contact_namer)
       : params_(params), contact_namer_(contact_namer) {
-    std::vector<uint8_t> image(TEXTURE_SIZE * 4);
+    std::vector<uint8_t> image(kTextureSize * 4);
     double red, green, blue;
-    for (size_t i = 0; i < TEXTURE_SIZE; i++) {
-      create_color(static_cast<double>(i) / TEXTURE_SIZE, red, green, blue);
+    for (size_t i = 0; i < kTextureSize; i++) {
+      create_color(static_cast<double>(i) / kTextureSize, red, green, blue);
       image[(i * 4) + 0] = (uint8_t)(red * 255.0);
       image[(i * 4) + 1] = (uint8_t)(green * 255.0);
       image[(i * 4) + 2] = (uint8_t)(blue * 255.0);
       image[(i * 4) + 3] = (uint8_t)(255);
     }
-    lodepng::encode(texture_, image, TEXTURE_SIZE, 1);
+    lodepng::encode(texture_, image, kTextureSize, 1);
   }
 
   ~ContactGeometryToMarkers() override = default;
@@ -278,14 +274,10 @@ class ContactMarkersSystem::ContactMarkersSystemPrivate {
   const ContactMarkersParams params;
   drake::systems::InputPortIndex graph_query_port_index;
   drake::systems::OutputPortIndex contact_markers_port_index;
-  mutable drake::geometry::GeometryVersion version;
 
   // A mapping from geometry IDs to per-body name data.
   std::unordered_map<drake::geometry::GeometryId, FullBodyName>
       geometry_id_to_body_name_map_;
-
-  // A mapping from body index values to body names.
-  std::vector<std::string> body_names_;
 };
 
 ContactMarkersSystem::ContactMarkersSystem(
@@ -310,19 +302,13 @@ ContactMarkersSystem::ContactMarkersSystem(
   // multibody/plant/contact_results_to_lcm.cc#L87-L120
   const int body_count = plant.num_bodies();
 
-  impl_->body_names_.reserve(body_count);
   const drake::geometry::SceneGraphInspector<double>& inspector =
     scene_graph.model_inspector();
   for (drake::multibody::BodyIndex i{0}; i < body_count; ++i) {
     const drake::multibody::Body<double >& body = plant.get_body(i);
-    using std::to_string;
-    impl_->body_names_.push_back(
-        body.name() + "(" + to_string(body.model_instance()) + ")");
     for (auto geometry_id : plant.GetCollisionGeometriesForBody(body)) {
       const std::string& model_name =
           plant.GetModelInstanceName(body.model_instance());
-      const bool body_name_is_unique =
-          plant.NumBodiesWithName(body.name()) == 1;
       // TODO(SeanCurtis-TRI): collision geometries can be added to SceneGraph
       //  after the plant has been finalized. Those geometries will not be found
       //  in this map. What *should* happen is that this should *also* be
@@ -333,11 +319,8 @@ ContactMarkersSystem::ContactMarkersSystem(
       //  geometry and it participated in collision, MultibodyPlant would have
       //  already thrown an exception in computing the contact. Until MbP gets
       //  out of the way, there's no reason to update here.
-      const int collision_count =
-          static_cast<int>(plant.GetCollisionGeometriesForBody(body).size());
       impl_->geometry_id_to_body_name_map_[geometry_id] = {
-          model_name, body.name(), inspector.GetName(geometry_id),
-          body_name_is_unique, collision_count};
+          model_name, body.name(), inspector.GetName(geometry_id)};
     }
   }
   // End copied code
@@ -346,13 +329,11 @@ ContactMarkersSystem::ContactMarkersSystem(
 ContactMarkersSystem::~ContactMarkersSystem() {}
 
 namespace {
-
 visualization_msgs::msg::Marker MakeDeleteAllMarker() {
   visualization_msgs::msg::Marker marker;
   marker.action = visualization_msgs::msg::Marker::DELETEALL;
   return marker;
 }
-
 }  // namespace
 
 void ContactMarkersSystem::CalcContactMarkers(
