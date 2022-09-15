@@ -150,27 +150,41 @@ int do_main() {
   plant.RegisterVisualGeometry(plant.world_body(), X_WQ,
                                 HalfSpace{}, "visual_wall", gray);
 
-  const RigidBody<double>& ball = plant.AddRigidBody("Ball", M_Bcm);
+  const RigidBody<double>& compliant_ball = plant.AddRigidBody("CompliantBall", M_Bcm);
+  const RigidBody<double>& rigid_ball = plant.AddRigidBody("RigidBall", M_Bcm);
 
-  // Add sphere geometry for the ball.
+  // Add sphere geometry for the balls.
   // Pose of sphere geometry S in body frame B.
   const RigidTransformd X_BS = RigidTransformd::Identity();
   // Set material properties for hydroelastics.
-  ProximityProperties ball_props;
-  AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
-                     &ball_props);
-  AddCompliantHydroelasticProperties(
-    FLAGS_resolution_hint, hydroelastic_modulus, &ball_props);
-  plant.RegisterCollisionGeometry(ball, X_BS, Sphere(radius), "collision",
-                                   std::move(ball_props));
+  {
+    ProximityProperties ball_props;
+    AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
+                       &ball_props);
+    AddCompliantHydroelasticProperties(
+      FLAGS_resolution_hint, hydroelastic_modulus, &ball_props);
+    plant.RegisterCollisionGeometry(compliant_ball, X_BS, Sphere(radius), "collision",
+                                     std::move(ball_props));
 
-  plant.RegisterVisualGeometry(
-    ball, X_BS, Sphere(radius), "visual", orange);
+    plant.RegisterVisualGeometry(
+      compliant_ball, X_BS, Sphere(radius), "visual", orange);
+  }
+  {
+    ProximityProperties ball_props;
+    AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
+                       &ball_props);
+    AddRigidHydroelasticProperties(radius, &ball_props);
+    plant.RegisterCollisionGeometry(rigid_ball, X_BS, Sphere(radius), "collision",
+                                     std::move(ball_props));
+
+    plant.RegisterVisualGeometry(
+      rigid_ball, X_BS, Sphere(radius), "visual", orange);
+  }
 
   // Gravity acting in the -z direction.
   plant.mutable_gravity_field().set_gravity_vector(-g * Vector3d::UnitZ());
 
-  plant.set_contact_model(ContactModel::kHydroelastic);
+  plant.set_contact_model(ContactModel::kHydroelasticWithFallback);
   plant.Finalize();
 
   auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
@@ -193,10 +207,18 @@ int do_main() {
   Context<double>& plant_context =
       diagram->GetMutableSubsystemContext(plant, diagram_context.get());
 
-  // Set the sphere's initial pose.
-  RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
-  RigidTransformd X_WB(R_WB, Vector3d(0.0, 0.0, 3.0));
-  plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("Ball"), X_WB);
+  // Set the initial poses for the balls.
+  {
+    RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
+    RigidTransformd X_WB(R_WB, Vector3d(0.0, 0.0, 3.0));
+    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("CompliantBall"), X_WB);
+  }
+
+  {
+    RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
+    RigidTransformd X_WB(R_WB, Vector3d(0.0, radius * 4, 3.0));
+    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("RigidBall"), X_WB);
+  }
 
   Simulator<double> simulator(*diagram, std::move(diagram_context));
 

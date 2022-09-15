@@ -139,12 +139,8 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
       const drake::multibody::ContactResults<double> & contact_results,
       visualization_msgs::msg::MarkerArray* marker_array) {
     DRAKE_ASSERT(nullptr != marker_array);
+    // TODO(sloretz) predict number of markers and marker_array_->markers.reserve(???)
     marker_array_ = marker_array;
-
-    // const int num_surfaces = static_cast<int>(surfaces.size());
-    // const int num_pairs = static_cast<int>(points.size());
-
-    // marker_array_->markers.reserve(num_surfaces + num_pairs);
 
     // Hydroelastic contacts:
     for (int i = 0; i < contact_results.num_hydroelastic_contacts(); ++i) {
