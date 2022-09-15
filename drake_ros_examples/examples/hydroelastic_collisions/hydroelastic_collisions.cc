@@ -80,13 +80,9 @@ using std::make_unique;
 DEFINE_double(simulation_time, 10.0,
               "Desired duration of the simulation in seconds.");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
-DEFINE_double(resolution_hint, 0.1,
+DEFINE_double(resolution_hint, 0.5,
               "Measure of typical mesh edge length in meters."
               " Smaller numbers produce a denser mesh");
-DEFINE_bool(rigid_cylinders, true,
-            "Set to true, the cylinders are given a rigid "
-            "hydroelastic representation");
-DEFINE_bool(hybrid, false, "Set to true to run hybrid hydroelastic");
 
 
 int do_main() {
@@ -163,7 +159,8 @@ int do_main() {
   ProximityProperties ball_props;
   AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
                      &ball_props);
-  AddCompliantHydroelasticProperties(radius, hydroelastic_modulus, &ball_props);
+  AddCompliantHydroelasticProperties(
+    FLAGS_resolution_hint, hydroelastic_modulus, &ball_props);
   plant.RegisterCollisionGeometry(ball, X_BS, Sphere(radius), "collision",
                                    std::move(ball_props));
 
@@ -206,7 +203,7 @@ int do_main() {
 
   auto & simulator_context = simulator.get_mutable_context();
 
-  simulator.get_mutable_integrator().set_maximum_step_size(0.002);
+  simulator.get_mutable_integrator().set_maximum_step_size(1.0 / 50.0);
   simulator.set_target_realtime_rate(FLAGS_real_time ? 1.f : 0.f);
   simulator.Initialize();
 
