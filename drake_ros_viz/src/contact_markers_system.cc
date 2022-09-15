@@ -142,9 +142,13 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
     // TODO(sloretz) predict number of markers and marker_array_->markers.reserve(???)
     marker_array_ = marker_array;
 
-    // Hydroelastic contacts:
+    for (int i = 0; i < contact_results.num_point_pair_contacts(); ++i) {
+      // Point contacts
+
+    }
+
     for (int i = 0; i < contact_results.num_hydroelastic_contacts(); ++i) {
-      // Translate Drake Contact Surface into ROS List of Triangles.
+      // Hydroelastic Contacts
       const drake::multibody::HydroelasticContactInfo<double>& hydroelastic_contact_info =
         contact_results.hydroelastic_contact_info(i);
       const drake::geometry::ContactSurface<double>& surface =
@@ -277,6 +281,9 @@ class ContactMarkersSystem::ContactMarkersSystemPrivate {
   // A mapping from geometry IDs to per-body name data.
   std::unordered_map<drake::geometry::GeometryId, FullBodyName>
       geometry_id_to_body_name_map_;
+
+  // A mapping from body index values to body names.
+  std::vector<std::string> body_names_;
 };
 
 ContactMarkersSystem::ContactMarkersSystem(
@@ -301,10 +308,13 @@ ContactMarkersSystem::ContactMarkersSystem(
   // multibody/plant/contact_results_to_lcm.cc#L87-L120
   const int body_count = plant.num_bodies();
 
+  impl_->body_names_.reserve(body_count);
   const drake::geometry::SceneGraphInspector<double>& inspector =
     scene_graph.model_inspector();
   for (drake::multibody::BodyIndex i{0}; i < body_count; ++i) {
     const drake::multibody::Body<double >& body = plant.get_body(i);
+    impl_->body_names_.push_back(
+        body.name() + "(" + std::to_string(body.model_instance()) + ")");
     for (auto geometry_id : plant.GetCollisionGeometriesForBody(body)) {
       const std::string& model_name =
           plant.GetModelInstanceName(body.model_instance());
