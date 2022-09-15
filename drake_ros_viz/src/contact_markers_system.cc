@@ -136,20 +136,23 @@ class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
   ~ContactGeometryToMarkers() override = default;
 
   void Populate(
-      const std::vector<drake::geometry::ContactSurface<double>>& surfaces,
-      const std::vector<drake::geometry::PenetrationAsPointPair<double>>&
-          points,
+      const drake::multibody::ContactResults<double> & contact_results,
       visualization_msgs::msg::MarkerArray* marker_array) {
     DRAKE_ASSERT(nullptr != marker_array);
     marker_array_ = marker_array;
 
-    const int num_surfaces = static_cast<int>(surfaces.size());
-    const int num_pairs = static_cast<int>(points.size());
+    // const int num_surfaces = static_cast<int>(surfaces.size());
+    // const int num_pairs = static_cast<int>(points.size());
 
-    marker_array_->markers.reserve(num_surfaces + num_pairs);
+    // marker_array_->markers.reserve(num_surfaces + num_pairs);
 
-    // Translate Drake Contact Surface into ROS List of Triangles.
-    for (const drake::geometry::ContactSurface<double>& surface : surfaces) {
+    // Hydroelastic contacts:
+    for (int i = 0; i < contact_results.num_hydroelastic_contacts(); ++i) {
+      // Translate Drake Contact Surface into ROS List of Triangles.
+      const drake::multibody::HydroelasticContactInfo<double>& hydroelastic_contact_info =
+        contact_results.hydroelastic_contact_info(i);
+      const drake::geometry::ContactSurface<double>& surface =
+        hydroelastic_contact_info.contact_surface();
       const std::string cname = contact_namer_(surface);
 
       visualization_msgs::msg::Marker face_msg;
@@ -272,7 +275,7 @@ class ContactMarkersSystem::ContactMarkersSystemPrivate {
       : params(std::move(_params)) {}
 
   const ContactMarkersParams params;
-  drake::systems::InputPortIndex graph_query_port_index;
+  drake::systems::InputPortIndex contact_results_port_index;
   drake::systems::OutputPortIndex contact_markers_port_index;
 
   // A mapping from geometry IDs to per-body name data.
@@ -285,10 +288,10 @@ ContactMarkersSystem::ContactMarkersSystem(
     const drake::geometry::SceneGraph<double>& scene_graph,
     ContactMarkersParams params
 ) : impl_(new ContactMarkersSystemPrivate(std::move(params))) {
-  impl_->graph_query_port_index =
+  impl_->contact_results_port_index =
       this->DeclareAbstractInputPort(
-              "graph_query",
-              drake::Value<drake::geometry::QueryObject<double>>{})
+            drake::systems::kUseDefaultName,
+            drake::Value<drake::multibody::ContactResults<double>>())
           .get_index();
 
   impl_->contact_markers_port_index =
@@ -342,20 +345,8 @@ void ContactMarkersSystem::CalcContactMarkers(
   output_value->markers.clear();
   output_value->markers.insert(output_value->markers.begin(),
                                MakeDeleteAllMarker());
-
-  const auto& query_object =
-      get_input_port(impl_->graph_query_port_index)
-          .Eval<drake::geometry::QueryObject<double>>(context);
-
-  std::vector<drake::geometry::ContactSurface<double>> surfaces;
-  std::vector<drake::geometry::PenetrationAsPointPair<double>> points;
-
-  if (impl_->params.use_strict_hydro_) {
-    surfaces = query_object.ComputeContactSurfaces(drake::geometry::HydroelasticContactRepresentation::kTriangle);
-  } else {
-    query_object.ComputeContactSurfacesWithFallback(drake::geometry::HydroelasticContactRepresentation::kTriangle, &surfaces, &points);
-  }
-
+  const auto& contact_results =
+      get_contact_results_port().template Eval<drake::multibody::ContactResults<double>>(context);
 
   auto contact_namer = [this](const drake::geometry::ContactSurface<double> & surface) -> std::string {
     const FullBodyName & name1 =
@@ -366,7 +357,7 @@ void ContactMarkersSystem::CalcContactMarkers(
   };
 
   ContactGeometryToMarkers(impl_->params, contact_namer)
-      .Populate(surfaces, points, output_value);
+      .Populate(contact_results, output_value);
 }
 
 const ContactMarkersParams& ContactMarkersSystem::params() const {
@@ -374,8 +365,8 @@ const ContactMarkersParams& ContactMarkersSystem::params() const {
 }
 
 const drake::systems::InputPort<double>&
-ContactMarkersSystem::get_graph_query_port() const {
-  return get_input_port(impl_->graph_query_port_index);
+ContactMarkersSystem::get_contact_results_port() const {
+  return get_input_port(impl_->contact_results_port_index);
 }
 
 const drake::systems::OutputPort<double>&
@@ -392,6 +383,7 @@ ContactMarkersSystem * ConnectContactResultsToRviz(
     const std::string & markers_topic,
     const rclcpp::QoS & markers_qos)
 {
+  // System that publishes ROS messages
   auto * markers_publisher = builder->AddSystem(
       drake_ros_core::RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
         markers_topic, markers_qos, ros));
@@ -401,8 +393,8 @@ ContactMarkersSystem * ConnectContactResultsToRviz(
       plant, scene_graph, params);
 
   builder->Connect(
-      scene_graph.get_query_output_port(),
-      contact_markers->get_graph_query_port());
+      plant.get_contact_results_output_port(),
+      contact_markers->get_contact_results_port());
 
   builder->Connect(
       contact_markers->get_markers_output_port(),
