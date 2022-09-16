@@ -62,6 +62,17 @@ struct FullBodyName {
 // End copied code
 
 std::string contact_name(
+    const std::string & name1, const std::string & name2)
+{
+
+  // Sort so names are consistent
+  if (name2 < name1) {
+    return name2 + "//" + name1;
+  }
+  return name1 + "//" + name2;
+}
+
+std::string contact_name(
     const FullBodyName & name1, const FullBodyName & name2)
 {
   auto make_full_name = [](const FullBodyName & name) -> std::string {
@@ -78,14 +89,7 @@ std::string contact_name(
     return full_name.str();
   };
 
-  std::string full_name1 = make_full_name(name1);
-  std::string full_name2 = make_full_name(name2);
-
-  // Sort so names are consistent
-  if (full_name2 < full_name1) {
-    return full_name2 + "//" + full_name1;
-  }
-  return full_name1 + "//" + full_name2;
+  return contact_name(make_full_name(name1), make_full_name(name2));
 }
 
 double calc_uv(double pressure, double min_pressure, double max_pressure) {
@@ -206,9 +210,79 @@ void ContactMarkersSystem::CalcContactMarkers(
   const auto& contact_results =
       get_contact_results_port().template Eval<drake::multibody::ContactResults<double>>(context);
 
+  const rclcpp::Duration kMarkerLifetime = rclcpp::Duration::from_nanoseconds(1e9);
+
+  const double kPointBallDiameter = 0.025;
+  const double kPointNormalLength = kPointBallDiameter * 4.0;
+
   for (int i = 0; i < contact_results.num_point_pair_contacts(); ++i) {
     // Point contacts
+    const drake::multibody::PointPairContactInfo<double>& contact_info =
+        contact_results.point_pair_contact_info(i);
 
+    const std::string cname = contact_name(
+        impl_->body_names.at(contact_info.bodyA_index()),
+        impl_->body_names.at(contact_info.bodyB_index()));
+
+    // Create a ball at the point of contact
+    visualization_msgs::msg::Marker ball_msg;
+    ball_msg.header.frame_id = impl_->params.origin_frame_name;
+    ball_msg.ns = "Pt|" + cname;
+    ball_msg.id = output_value->markers.size();
+    ball_msg.type = visualization_msgs::msg::Marker::SPHERE;
+    ball_msg.action = visualization_msgs::msg::Marker::ADD;
+
+    ball_msg.lifetime = kMarkerLifetime;
+    ball_msg.frame_locked = true;
+
+    const auto & color = impl_->params.default_color;
+    ball_msg.color.r = color.r();
+    ball_msg.color.g = color.g();
+    ball_msg.color.b = color.b();
+    ball_msg.color.a = color.a();
+
+    ball_msg.scale.x = kPointBallDiameter;
+    ball_msg.scale.y = kPointBallDiameter;
+    ball_msg.scale.z = kPointBallDiameter;
+
+    ball_msg.pose.position.x = contact_info.contact_point()[0];
+    ball_msg.pose.position.y = contact_info.contact_point()[1];
+    ball_msg.pose.position.z = contact_info.contact_point()[2];
+
+    output_value->markers.push_back(ball_msg);
+
+    // Create line representing contact normal
+    visualization_msgs::msg::Marker normal_msg;
+    normal_msg.header.frame_id = impl_->params.origin_frame_name;
+    normal_msg.ns = cname;
+    normal_msg.id = output_value->markers.size();
+    normal_msg.type = visualization_msgs::msg::Marker::LINE_STRIP;
+    normal_msg.action = visualization_msgs::msg::Marker::ADD;
+
+    normal_msg.lifetime = kMarkerLifetime;
+    normal_msg.frame_locked = true;
+
+    normal_msg.color.r = color.r();
+    normal_msg.color.g = color.g();
+    normal_msg.color.b = color.b();
+    normal_msg.color.a = color.a();
+
+    // Set line width
+    normal_msg.scale.x = kPointNormalLength / 20.0;
+
+    const auto & nhat_BA_W = contact_info.point_pair().nhat_BA_W;
+    // C = Center of contact, l = one of the end points of the normal
+    const auto p_Cl_W = kPointNormalLength / 2.0 * nhat_BA_W;
+
+    normal_msg.points.resize(2);
+    normal_msg.points.front().x = p_Cl_W.x() + contact_info.contact_point().x();
+    normal_msg.points.front().y = p_Cl_W.y() + contact_info.contact_point().y();
+    normal_msg.points.front().z = p_Cl_W.z() + contact_info.contact_point().z();
+    normal_msg.points.back().x = - p_Cl_W.x() + contact_info.contact_point().x();
+    normal_msg.points.back().y = - p_Cl_W.y() + contact_info.contact_point().y();
+    normal_msg.points.back().z = - p_Cl_W.z() + contact_info.contact_point().z();
+
+    output_value->markers.push_back(normal_msg);
   }
 
   for (int i = 0; i < contact_results.num_hydroelastic_contacts(); ++i) {
@@ -227,12 +301,12 @@ void ContactMarkersSystem::CalcContactMarkers(
 
     visualization_msgs::msg::Marker face_msg;
     face_msg.header.frame_id = impl_->params.origin_frame_name;
-    face_msg.ns = "Faces|" + cname;
+    face_msg.ns = cname;
     face_msg.id = output_value->markers.size();
     face_msg.type = visualization_msgs::msg::Marker::TRIANGLE_LIST;
     face_msg.action = visualization_msgs::msg::Marker::ADD;
 
-    face_msg.lifetime = rclcpp::Duration::from_nanoseconds(0);
+    face_msg.lifetime = kMarkerLifetime;
     face_msg.frame_locked = true;
 
     drake::geometry::Rgba color = impl_->params.default_color;
@@ -262,9 +336,9 @@ void ContactMarkersSystem::CalcContactMarkers(
     edge_msg.header.frame_id = impl_->params.origin_frame_name;
     edge_msg.type = visualization_msgs::msg::Marker::LINE_LIST;
     edge_msg.action = visualization_msgs::msg::Marker::ADD;
-    edge_msg.lifetime = rclcpp::Duration::from_nanoseconds(0);
+    edge_msg.lifetime = kMarkerLifetime;
     edge_msg.frame_locked = true;
-    edge_msg.ns = "Edges|" + cname;
+    edge_msg.ns = cname;
     edge_msg.id = 1;
     // Set the size of the individual markers (depends on scale)
     // edge_msg.scale = ToScale(edge_scale * scale);
