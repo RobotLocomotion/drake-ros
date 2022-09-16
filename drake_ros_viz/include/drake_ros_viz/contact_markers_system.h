@@ -91,6 +91,6 @@ ContactMarkersSystem * ConnectContactResultsToRviz(
     const drake::geometry::SceneGraph<double>& scene_graph,
     drake_ros_core::DrakeRos* ros,
     ContactMarkersParams params = {},
-    const std::string & markers_topic = "/hydroelastic_contact/mesh",
+    const std::string & markers_topic = "/contacts",
     const rclcpp::QoS & markers_qos = rclcpp::QoS(1));
 }  // namespace drake_ros_viz

@@ -91,7 +91,7 @@ int do_main() {
   drake_ros_core::init();
   auto ros_interface_system =
       builder.AddSystem<RosInterfaceSystem>(
-          std::make_unique<DrakeRos>("hydroelastic_collisions"));
+          std::make_unique<DrakeRos>("collisions"));
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
 
