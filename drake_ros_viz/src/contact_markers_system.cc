@@ -384,8 +384,8 @@ void ContactMarkersSystem::CalcContactMarkers(
     }
 
     // Color based on pressures.
-    for (size_t tri_index = 0; tri_index < (size_t)mesh_W.num_triangles();
-         tri_index++) {
+    for (size_t tri_index = 0;
+         tri_index < static_cast<size_t>(mesh_W.num_triangles()); tri_index++) {
       for (size_t vert_index = 0; vert_index < 3; vert_index++) {
         size_t arr_index = (tri_index * 3) + vert_index;
         double norm_data =

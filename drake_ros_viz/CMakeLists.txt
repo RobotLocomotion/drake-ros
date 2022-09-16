@@ -107,7 +107,7 @@ if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
 
   ament_clang_format(CONFIG_FILE .clang-format)
-  ament_cpplint()
+  ament_cpplint(EXCLUDE "include/lodepng/lodepng.h" "src/lodepng/lodepng.cpp")
 
   find_package(ament_cmake_gtest REQUIRED)
   find_package(test_msgs REQUIRED)
