@@ -17,9 +17,9 @@
 #include <optional>  // NOLINT(build/include_order)
 #include <string>
 
+#include "drake/multibody/plant/contact_results.h"
 #include <drake/geometry/geometry_roles.h>
 #include <drake/geometry/rgba.h>
-#include "drake/multibody/plant/contact_results.h"
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake_ros_core/drake_ros.h>
@@ -51,10 +51,9 @@ struct ContactMarkersParams {
 ///   visualization_msg::msg::MarkerArray message.
 class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
  public:
-  ContactMarkersSystem(
-    const drake::multibody::MultibodyPlant<double>& plant,
-    const drake::geometry::SceneGraph<double>& scene_graph,
-    ContactMarkersParams params = {});
+  ContactMarkersSystem(const drake::multibody::MultibodyPlant<double>& plant,
+                       const drake::geometry::SceneGraph<double>& scene_graph,
+                       ContactMarkersParams params = {});
   virtual ~ContactMarkersSystem();
 
   const ContactMarkersParams& params() const;
@@ -85,12 +84,11 @@ class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
 /// @param markers_qos The QoS settings to set on the ROS publisher for the
 ///  contact markers topic.
 /// @returns A created ContactMarkersSystem which has been added to the builder.
-ContactMarkersSystem * ConnectContactResultsToRviz(
+ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
-    drake_ros_core::DrakeRos* ros,
-    ContactMarkersParams params = {},
-    const std::string & markers_topic = "/contacts",
-    const rclcpp::QoS & markers_qos = rclcpp::QoS(1));
+    drake_ros_core::DrakeRos* ros, ContactMarkersParams params = {},
+    const std::string& markers_topic = "/contacts",
+    const rclcpp::QoS& markers_qos = rclcpp::QoS(1));
 }  // namespace drake_ros_viz

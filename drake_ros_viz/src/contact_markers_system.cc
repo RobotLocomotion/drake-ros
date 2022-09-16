@@ -21,8 +21,6 @@
 #include <utility>
 #include <vector>
 
-#include "drake_ros_viz/utilities/name_conventions.h"
-#include "drake_ros_viz/utilities/type_conversion.h"
 #include "lodepng/lodepng.h"
 #include <Eigen/Core>
 #include <builtin_interfaces/msg/time.hpp>
@@ -47,6 +45,9 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
+#include "drake_ros_viz/utilities/name_conventions.h"
+#include "drake_ros_viz/utilities/type_conversion.h"
+
 namespace drake_ros_viz {
 
 namespace {
@@ -61,10 +62,7 @@ struct FullBodyName {
 };
 // End copied code
 
-std::string contact_name(
-    const std::string & name1, const std::string & name2)
-{
-
+std::string contact_name(const std::string& name1, const std::string& name2) {
   // Sort so names are consistent
   if (name2 < name1) {
     return name2 + "//" + name1;
@@ -72,10 +70,8 @@ std::string contact_name(
   return name1 + "//" + name2;
 }
 
-std::string contact_name(
-    const FullBodyName & name1, const FullBodyName & name2)
-{
-  auto make_full_name = [](const FullBodyName & name) -> std::string {
+std::string contact_name(const FullBodyName& name1, const FullBodyName& name2) {
+  auto make_full_name = [](const FullBodyName& name) -> std::string {
     std::stringstream full_name;
     if (!name.model.empty()) {
       full_name << name.model << "::";
@@ -132,12 +128,12 @@ class ContactMarkersSystem::ContactMarkersSystemPrivate {
 ContactMarkersSystem::ContactMarkersSystem(
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
-    ContactMarkersParams params
-) : impl_(new ContactMarkersSystemPrivate(std::move(params))) {
+    ContactMarkersParams params)
+    : impl_(new ContactMarkersSystemPrivate(std::move(params))) {
   impl_->contact_results_port_index =
       this->DeclareAbstractInputPort(
-            drake::systems::kUseDefaultName,
-            drake::Value<drake::multibody::ContactResults<double>>())
+              drake::systems::kUseDefaultName,
+              drake::Value<drake::multibody::ContactResults<double>>())
           .get_index();
 
   impl_->contact_markers_port_index =
@@ -166,11 +162,11 @@ ContactMarkersSystem::ContactMarkersSystem(
 
   impl_->body_names.reserve(body_count);
   const drake::geometry::SceneGraphInspector<double>& inspector =
-    scene_graph.model_inspector();
+      scene_graph.model_inspector();
   for (drake::multibody::BodyIndex i{0}; i < body_count; ++i) {
-    const drake::multibody::Body<double >& body = plant.get_body(i);
-    impl_->body_names.push_back(
-        body.name() + "(" + std::to_string(body.model_instance()) + ")");
+    const drake::multibody::Body<double>& body = plant.get_body(i);
+    impl_->body_names.push_back(body.name() + "(" +
+                                std::to_string(body.model_instance()) + ")");
     for (auto geometry_id : plant.GetCollisionGeometriesForBody(body)) {
       const std::string& model_name =
           plant.GetModelInstanceName(body.model_instance());
@@ -208,9 +204,11 @@ void ContactMarkersSystem::CalcContactMarkers(
   output_value->markers.insert(output_value->markers.begin(),
                                MakeDeleteAllMarker());
   const auto& contact_results =
-      get_contact_results_port().template Eval<drake::multibody::ContactResults<double>>(context);
+      get_contact_results_port()
+          .template Eval<drake::multibody::ContactResults<double>>(context);
 
-  const rclcpp::Duration kMarkerLifetime = rclcpp::Duration::from_nanoseconds(1e9);
+  const rclcpp::Duration kMarkerLifetime =
+      rclcpp::Duration::from_nanoseconds(1e9);
 
   const double kPointBallDiameter = 0.025;
   const double kPointNormalLength = kPointBallDiameter * 4.0;
@@ -220,9 +218,9 @@ void ContactMarkersSystem::CalcContactMarkers(
     const drake::multibody::PointPairContactInfo<double>& contact_info =
         contact_results.point_pair_contact_info(i);
 
-    const std::string cname = contact_name(
-        impl_->body_names.at(contact_info.bodyA_index()),
-        impl_->body_names.at(contact_info.bodyB_index()));
+    const std::string cname =
+        contact_name(impl_->body_names.at(contact_info.bodyA_index()),
+                     impl_->body_names.at(contact_info.bodyB_index()));
 
     // Create a ball at the point of contact
     visualization_msgs::msg::Marker ball_msg;
@@ -235,7 +233,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     ball_msg.lifetime = kMarkerLifetime;
     ball_msg.frame_locked = true;
 
-    const auto & color = impl_->params.default_color;
+    const auto& color = impl_->params.default_color;
     ball_msg.color.r = color.r();
     ball_msg.color.g = color.g();
     ball_msg.color.b = color.b();
@@ -270,7 +268,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     // Set line width
     normal_msg.scale.x = kPointNormalLength / 20.0;
 
-    const auto & nhat_BA_W = contact_info.point_pair().nhat_BA_W;
+    const auto& nhat_BA_W = contact_info.point_pair().nhat_BA_W;
     // C = Center of contact, l = one of the end points of the normal
     const auto p_Cl_W = kPointNormalLength / 2.0 * nhat_BA_W;
 
@@ -278,24 +276,25 @@ void ContactMarkersSystem::CalcContactMarkers(
     normal_msg.points.front().x = p_Cl_W.x() + contact_info.contact_point().x();
     normal_msg.points.front().y = p_Cl_W.y() + contact_info.contact_point().y();
     normal_msg.points.front().z = p_Cl_W.z() + contact_info.contact_point().z();
-    normal_msg.points.back().x = - p_Cl_W.x() + contact_info.contact_point().x();
-    normal_msg.points.back().y = - p_Cl_W.y() + contact_info.contact_point().y();
-    normal_msg.points.back().z = - p_Cl_W.z() + contact_info.contact_point().z();
+    normal_msg.points.back().x = -p_Cl_W.x() + contact_info.contact_point().x();
+    normal_msg.points.back().y = -p_Cl_W.y() + contact_info.contact_point().y();
+    normal_msg.points.back().z = -p_Cl_W.z() + contact_info.contact_point().z();
 
     output_value->markers.push_back(normal_msg);
   }
 
   for (int i = 0; i < contact_results.num_hydroelastic_contacts(); ++i) {
     // Hydroelastic Contacts
-    const drake::multibody::HydroelasticContactInfo<double>& hydroelastic_contact_info =
-      contact_results.hydroelastic_contact_info(i);
+    const drake::multibody::HydroelasticContactInfo<double>&
+        hydroelastic_contact_info =
+            contact_results.hydroelastic_contact_info(i);
     const drake::geometry::ContactSurface<double>& surface =
-      hydroelastic_contact_info.contact_surface();
+        hydroelastic_contact_info.contact_surface();
 
-    const FullBodyName & name1 =
-      impl_->geometry_id_to_body_name_map.at(surface.id_M());
-    const FullBodyName & name2 =
-      impl_->geometry_id_to_body_name_map.at(surface.id_N());
+    const FullBodyName& name1 =
+        impl_->geometry_id_to_body_name_map.at(surface.id_M());
+    const FullBodyName& name2 =
+        impl_->geometry_id_to_body_name_map.at(surface.id_N());
 
     const std::string cname = contact_name(name1, name2);
 
@@ -424,31 +423,27 @@ ContactMarkersSystem::get_markers_output_port() const {
   return get_output_port(impl_->contact_markers_port_index);
 }
 
-ContactMarkersSystem * ConnectContactResultsToRviz(
+ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
-    drake_ros_core::DrakeRos* ros,
-    ContactMarkersParams params,
-    const std::string & markers_topic,
-    const rclcpp::QoS & markers_qos)
-{
+    drake_ros_core::DrakeRos* ros, ContactMarkersParams params,
+    const std::string& markers_topic, const rclcpp::QoS& markers_qos) {
   // System that publishes ROS messages
-  auto * markers_publisher = builder->AddSystem(
-      drake_ros_core::RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
-        markers_topic, markers_qos, ros));
+  auto* markers_publisher =
+      builder->AddSystem(drake_ros_core::RosPublisherSystem::Make<
+                         visualization_msgs::msg::MarkerArray>(
+          markers_topic, markers_qos, ros));
 
   // System that turns contact results into ROS Messages
-  ContactMarkersSystem * contact_markers = builder->AddSystem<ContactMarkersSystem>(
-      plant, scene_graph, params);
+  ContactMarkersSystem* contact_markers =
+      builder->AddSystem<ContactMarkersSystem>(plant, scene_graph, params);
 
-  builder->Connect(
-      plant.get_contact_results_output_port(),
-      contact_markers->get_contact_results_port());
+  builder->Connect(plant.get_contact_results_output_port(),
+                   contact_markers->get_contact_results_port());
 
-  builder->Connect(
-      contact_markers->get_markers_output_port(),
-      markers_publisher->get_input_port());
+  builder->Connect(contact_markers->get_markers_output_port(),
+                   markers_publisher->get_input_port());
 
   return contact_markers;
 }
