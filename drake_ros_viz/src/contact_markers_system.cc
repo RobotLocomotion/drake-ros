@@ -104,169 +104,6 @@ void create_color(double value, double& red, double& green, double& blue) {
     blue = std::clamp(1.0 - (value - 0.25) * 4.0, 0.0, 1.0);
   }
 }
-
-class ContactGeometryToMarkers : public drake::geometry::ShapeReifier {
- private:
-  const size_t kTextureSize = 1024;
-
-  const ContactMarkersParams& params_;
-  visualization_msgs::msg::MarkerArray* marker_array_{nullptr};
-  std::vector<uint8_t> texture_;
-  const std::function<std::string (const drake::geometry::ContactSurface<double>&)> contact_namer_;
-
- public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(ContactGeometryToMarkers)
-
-  explicit ContactGeometryToMarkers(
-      const ContactMarkersParams& params,
-      const std::function<std::string (const drake::geometry::ContactSurface<double>&)> contact_namer)
-      : params_(params), contact_namer_(contact_namer) {
-    std::vector<uint8_t> image(kTextureSize * 4);
-    double red, green, blue;
-    for (size_t i = 0; i < kTextureSize; i++) {
-      create_color(static_cast<double>(i) / kTextureSize, red, green, blue);
-      image[(i * 4) + 0] = (uint8_t)(red * 255.0);
-      image[(i * 4) + 1] = (uint8_t)(green * 255.0);
-      image[(i * 4) + 2] = (uint8_t)(blue * 255.0);
-      image[(i * 4) + 3] = (uint8_t)(255);
-    }
-    lodepng::encode(texture_, image, kTextureSize, 1);
-  }
-
-  ~ContactGeometryToMarkers() override = default;
-
-  void Populate(
-      const drake::multibody::ContactResults<double> & contact_results,
-      visualization_msgs::msg::MarkerArray* marker_array) {
-    DRAKE_ASSERT(nullptr != marker_array);
-    // TODO(sloretz) predict number of markers and marker_array_->markers.reserve(???)
-    marker_array_ = marker_array;
-
-    for (int i = 0; i < contact_results.num_point_pair_contacts(); ++i) {
-      // Point contacts
-
-    }
-
-    for (int i = 0; i < contact_results.num_hydroelastic_contacts(); ++i) {
-      // Hydroelastic Contacts
-      const drake::multibody::HydroelasticContactInfo<double>& hydroelastic_contact_info =
-        contact_results.hydroelastic_contact_info(i);
-      const drake::geometry::ContactSurface<double>& surface =
-        hydroelastic_contact_info.contact_surface();
-      const std::string cname = contact_namer_(surface);
-
-      visualization_msgs::msg::Marker face_msg;
-      face_msg.header.frame_id = params_.origin_frame_name;
-      face_msg.ns = "Faces|" + cname;
-      face_msg.id = marker_array_->markers.size();
-      face_msg.type = visualization_msgs::msg::Marker::TRIANGLE_LIST;
-      face_msg.action = visualization_msgs::msg::Marker::ADD;
-
-      face_msg.lifetime = rclcpp::Duration::from_nanoseconds(0);
-      face_msg.frame_locked = true;
-
-      drake::geometry::Rgba color = params_.default_color;
-      face_msg.color.r = color.r();
-      face_msg.color.g = color.g();
-      face_msg.color.b = color.b();
-      face_msg.color.a = color.a();
-
-      face_msg.scale.x = 1.0;
-      face_msg.scale.y = 1.0;
-      face_msg.scale.z = 1.0;
-
-      const drake::geometry::TriangleSurfaceMesh<double>& mesh_W =
-          surface.tri_mesh_W();
-      face_msg.points.clear();
-      face_msg.points.resize(mesh_W.num_triangles() * 3);
-      face_msg.colors.clear();
-      face_msg.colors.resize(mesh_W.num_triangles() * 3);
-      face_msg.uv_coordinates.clear();
-      face_msg.uv_coordinates.resize(mesh_W.num_triangles() * 3);
-
-      Eigen::VectorXd pressures;
-      pressures.resize(mesh_W.num_triangles() * 3);
-
-      // Make lines for the edges
-      visualization_msgs::msg::Marker edge_msg;
-      edge_msg.header.frame_id = params_.origin_frame_name;
-      edge_msg.type = visualization_msgs::msg::Marker::LINE_LIST;
-      edge_msg.action = visualization_msgs::msg::Marker::ADD;
-      edge_msg.lifetime = rclcpp::Duration::from_nanoseconds(0);
-      edge_msg.frame_locked = true;
-      edge_msg.ns = "Edges|" + cname;
-      edge_msg.id = 1;
-      // Set the size of the individual markers (depends on scale)
-      // edge_msg.scale = ToScale(edge_scale * scale);
-      edge_msg.scale.x = 0.01;
-      edge_msg.scale.y = 0.01;
-      edge_msg.scale.z = 1.0;
-
-      // Set the edge color
-      edge_msg.color.r = 1.0;
-      edge_msg.color.g = 1.0;
-      edge_msg.color.b = 1.0;
-      edge_msg.color.a = 1.0;
-
-      // Generate the surface markers for each mesh.
-      size_t index = 0;
-      const auto& field = surface.tri_e_MN();
-      for (int j = 0; j < mesh_W.num_triangles(); ++j) {
-        // Get the three vertices.
-        const auto& face = mesh_W.element(j);
-        const Eigen::Vector3d& vA = mesh_W.vertex(face.vertex(0));
-        const Eigen::Vector3d& vB = mesh_W.vertex(face.vertex(1));
-        const Eigen::Vector3d& vC = mesh_W.vertex(face.vertex(2));
-
-        face_msg.points.at(index + 0) = tf2::toMsg(vA);
-        face_msg.points.at(index + 1) = tf2::toMsg(vB);
-        face_msg.points.at(index + 2) = tf2::toMsg(vC);
-
-        for (size_t vert_index = 0; vert_index < 3; vert_index++) {
-          pressures[index + vert_index] =
-              field.EvaluateAtVertex(face.vertex(vert_index));
-        }
-
-        // 0->1
-        edge_msg.points.push_back(tf2::toMsg(vA));
-        edge_msg.points.push_back(tf2::toMsg(vB));
-        // 1->2
-        edge_msg.points.push_back(tf2::toMsg(vB));
-        edge_msg.points.push_back(tf2::toMsg(vC));
-        // 2->0
-        edge_msg.points.push_back(tf2::toMsg(vC));
-        edge_msg.points.push_back(tf2::toMsg(vA));
-
-        index += 3;
-      }
-
-      // Color based on pressures.
-      for (size_t tri_index = 0; tri_index < (size_t)mesh_W.num_triangles();
-           tri_index++) {
-        for (size_t vert_index = 0; vert_index < 3; vert_index++) {
-          size_t arr_index = (tri_index * 3) + vert_index;
-          double norm_data =
-              calc_uv(pressures(arr_index), 0.0, pressures.maxCoeff());
-
-          face_msg.colors.at(arr_index).r = 1.0;
-          face_msg.colors.at(arr_index).g = 1.0;
-          face_msg.colors.at(arr_index).b = 1.0;
-          face_msg.colors.at(arr_index).a = 1.0;
-          face_msg.uv_coordinates.at(arr_index).u = norm_data;
-          face_msg.uv_coordinates.at(arr_index).v = 0;
-        }
-      }
-
-      face_msg.texture.data = texture_;
-      face_msg.texture_resource = "embedded://heat_map.png";
-      face_msg.texture.format = "png";
-
-      marker_array_->markers.push_back(face_msg);
-      marker_array_->markers.push_back(edge_msg);
-    }
-  }
-};
-
 }  // namespace
 
 class ContactMarkersSystem::ContactMarkersSystemPrivate {
@@ -278,12 +115,14 @@ class ContactMarkersSystem::ContactMarkersSystemPrivate {
   drake::systems::InputPortIndex contact_results_port_index;
   drake::systems::OutputPortIndex contact_markers_port_index;
 
+  std::vector<uint8_t> texture;
+
   // A mapping from geometry IDs to per-body name data.
   std::unordered_map<drake::geometry::GeometryId, FullBodyName>
-      geometry_id_to_body_name_map_;
+      geometry_id_to_body_name_map;
 
   // A mapping from body index values to body names.
-  std::vector<std::string> body_names_;
+  std::vector<std::string> body_names;
 };
 
 ContactMarkersSystem::ContactMarkersSystem(
@@ -302,18 +141,31 @@ ContactMarkersSystem::ContactMarkersSystem(
                                       &ContactMarkersSystem::CalcContactMarkers)
           .get_index();
 
+  // Make a heatmap texture
+  const size_t kTextureSize = 1024;
+  std::vector<uint8_t> image(kTextureSize * 4);
+  double red, green, blue;
+  for (size_t i = 0; i < kTextureSize; i++) {
+    create_color(static_cast<double>(i) / kTextureSize, red, green, blue);
+    image[(i * 4) + 0] = (uint8_t)(red * 255.0);
+    image[(i * 4) + 1] = (uint8_t)(green * 255.0);
+    image[(i * 4) + 2] = (uint8_t)(blue * 255.0);
+    image[(i * 4) + 3] = (uint8_t)(255);
+  }
+  lodepng::encode(impl_->texture, image, kTextureSize, 1);
+
   // Mostly Copied from:
   // https://github.com/RobotLocomotion/drake/blob/
   // 8994f6809fb86d23438c3456ba086eebc737864d/
   // multibody/plant/contact_results_to_lcm.cc#L87-L120
   const int body_count = plant.num_bodies();
 
-  impl_->body_names_.reserve(body_count);
+  impl_->body_names.reserve(body_count);
   const drake::geometry::SceneGraphInspector<double>& inspector =
     scene_graph.model_inspector();
   for (drake::multibody::BodyIndex i{0}; i < body_count; ++i) {
     const drake::multibody::Body<double >& body = plant.get_body(i);
-    impl_->body_names_.push_back(
+    impl_->body_names.push_back(
         body.name() + "(" + std::to_string(body.model_instance()) + ")");
     for (auto geometry_id : plant.GetCollisionGeometriesForBody(body)) {
       const std::string& model_name =
@@ -328,7 +180,7 @@ ContactMarkersSystem::ContactMarkersSystem(
       //  geometry and it participated in collision, MultibodyPlant would have
       //  already thrown an exception in computing the contact. Until MbP gets
       //  out of the way, there's no reason to update here.
-      impl_->geometry_id_to_body_name_map_[geometry_id] = {
+      impl_->geometry_id_to_body_name_map[geometry_id] = {
           model_name, body.name(), inspector.GetName(geometry_id)};
     }
   }
@@ -354,16 +206,134 @@ void ContactMarkersSystem::CalcContactMarkers(
   const auto& contact_results =
       get_contact_results_port().template Eval<drake::multibody::ContactResults<double>>(context);
 
-  auto contact_namer = [this](const drake::geometry::ContactSurface<double> & surface) -> std::string {
-    const FullBodyName & name1 =
-      impl_->geometry_id_to_body_name_map_.at(surface.id_M());
-    const FullBodyName & name2 =
-      impl_->geometry_id_to_body_name_map_.at(surface.id_N());
-    return contact_name(name1, name2);
-  };
+  for (int i = 0; i < contact_results.num_point_pair_contacts(); ++i) {
+    // Point contacts
 
-  ContactGeometryToMarkers(impl_->params, contact_namer)
-      .Populate(contact_results, output_value);
+  }
+
+  for (int i = 0; i < contact_results.num_hydroelastic_contacts(); ++i) {
+    // Hydroelastic Contacts
+    const drake::multibody::HydroelasticContactInfo<double>& hydroelastic_contact_info =
+      contact_results.hydroelastic_contact_info(i);
+    const drake::geometry::ContactSurface<double>& surface =
+      hydroelastic_contact_info.contact_surface();
+
+    const FullBodyName & name1 =
+      impl_->geometry_id_to_body_name_map.at(surface.id_M());
+    const FullBodyName & name2 =
+      impl_->geometry_id_to_body_name_map.at(surface.id_N());
+
+    const std::string cname = contact_name(name1, name2);
+
+    visualization_msgs::msg::Marker face_msg;
+    face_msg.header.frame_id = impl_->params.origin_frame_name;
+    face_msg.ns = "Faces|" + cname;
+    face_msg.id = output_value->markers.size();
+    face_msg.type = visualization_msgs::msg::Marker::TRIANGLE_LIST;
+    face_msg.action = visualization_msgs::msg::Marker::ADD;
+
+    face_msg.lifetime = rclcpp::Duration::from_nanoseconds(0);
+    face_msg.frame_locked = true;
+
+    drake::geometry::Rgba color = impl_->params.default_color;
+    face_msg.color.r = color.r();
+    face_msg.color.g = color.g();
+    face_msg.color.b = color.b();
+    face_msg.color.a = color.a();
+
+    face_msg.scale.x = 1.0;
+    face_msg.scale.y = 1.0;
+    face_msg.scale.z = 1.0;
+
+    const drake::geometry::TriangleSurfaceMesh<double>& mesh_W =
+        surface.tri_mesh_W();
+    face_msg.points.clear();
+    face_msg.points.resize(mesh_W.num_triangles() * 3);
+    face_msg.colors.clear();
+    face_msg.colors.resize(mesh_W.num_triangles() * 3);
+    face_msg.uv_coordinates.clear();
+    face_msg.uv_coordinates.resize(mesh_W.num_triangles() * 3);
+
+    Eigen::VectorXd pressures;
+    pressures.resize(mesh_W.num_triangles() * 3);
+
+    // Make lines for the edges
+    visualization_msgs::msg::Marker edge_msg;
+    edge_msg.header.frame_id = impl_->params.origin_frame_name;
+    edge_msg.type = visualization_msgs::msg::Marker::LINE_LIST;
+    edge_msg.action = visualization_msgs::msg::Marker::ADD;
+    edge_msg.lifetime = rclcpp::Duration::from_nanoseconds(0);
+    edge_msg.frame_locked = true;
+    edge_msg.ns = "Edges|" + cname;
+    edge_msg.id = 1;
+    // Set the size of the individual markers (depends on scale)
+    // edge_msg.scale = ToScale(edge_scale * scale);
+    edge_msg.scale.x = 0.01;
+    edge_msg.scale.y = 0.01;
+    edge_msg.scale.z = 1.0;
+
+    // Set the edge color
+    edge_msg.color.r = 1.0;
+    edge_msg.color.g = 1.0;
+    edge_msg.color.b = 1.0;
+    edge_msg.color.a = 1.0;
+
+    // Generate the surface markers for each mesh.
+    size_t index = 0;
+    const auto& field = surface.tri_e_MN();
+    for (int j = 0; j < mesh_W.num_triangles(); ++j) {
+      // Get the three vertices.
+      const auto& face = mesh_W.element(j);
+      const Eigen::Vector3d& vA = mesh_W.vertex(face.vertex(0));
+      const Eigen::Vector3d& vB = mesh_W.vertex(face.vertex(1));
+      const Eigen::Vector3d& vC = mesh_W.vertex(face.vertex(2));
+
+      face_msg.points.at(index + 0) = tf2::toMsg(vA);
+      face_msg.points.at(index + 1) = tf2::toMsg(vB);
+      face_msg.points.at(index + 2) = tf2::toMsg(vC);
+
+      for (size_t vert_index = 0; vert_index < 3; vert_index++) {
+        pressures[index + vert_index] =
+            field.EvaluateAtVertex(face.vertex(vert_index));
+      }
+
+      // 0->1
+      edge_msg.points.push_back(tf2::toMsg(vA));
+      edge_msg.points.push_back(tf2::toMsg(vB));
+      // 1->2
+      edge_msg.points.push_back(tf2::toMsg(vB));
+      edge_msg.points.push_back(tf2::toMsg(vC));
+      // 2->0
+      edge_msg.points.push_back(tf2::toMsg(vC));
+      edge_msg.points.push_back(tf2::toMsg(vA));
+
+      index += 3;
+    }
+
+    // Color based on pressures.
+    for (size_t tri_index = 0; tri_index < (size_t)mesh_W.num_triangles();
+         tri_index++) {
+      for (size_t vert_index = 0; vert_index < 3; vert_index++) {
+        size_t arr_index = (tri_index * 3) + vert_index;
+        double norm_data =
+            calc_uv(pressures(arr_index), 0.0, pressures.maxCoeff());
+
+        face_msg.colors.at(arr_index).r = 1.0;
+        face_msg.colors.at(arr_index).g = 1.0;
+        face_msg.colors.at(arr_index).b = 1.0;
+        face_msg.colors.at(arr_index).a = 1.0;
+        face_msg.uv_coordinates.at(arr_index).u = norm_data;
+        face_msg.uv_coordinates.at(arr_index).v = 0;
+      }
+    }
+
+    face_msg.texture.data = impl_->texture;
+    face_msg.texture_resource = "embedded://heat_map.png";
+    face_msg.texture.format = "png";
+
+    output_value->markers.push_back(face_msg);
+    output_value->markers.push_back(edge_msg);
+  }
 }
 
 const ContactMarkersParams& ContactMarkersSystem::params() const {
