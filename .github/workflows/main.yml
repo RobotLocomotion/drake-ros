@@ -16,7 +16,7 @@ jobs:
     env:
       LD_LIBRARY_PATH: /opt/drake/lib
     steps:
-      - uses: ros-tooling/setup-ros@v0.2
+      - uses: ros-tooling/setup-ros@v0.4
         with:
           required-ros-distributions: galactic
       - name: Cope with Python 2 pollution
@@ -32,7 +32,7 @@ jobs:
     env:
       LD_LIBRARY_PATH: /opt/drake/lib
     steps:
-      - uses: ros-tooling/setup-ros@v0.2
+      - uses: ros-tooling/setup-ros@v0.4
       - name: Install dependencies to build ROS packages
         run: |
           sudo mkdir -p /opt/ros/humble
