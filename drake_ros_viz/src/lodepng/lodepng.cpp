@@ -1,3 +1,4 @@
+// clang-format off
 /*
 LodePNG version 20210627
 
