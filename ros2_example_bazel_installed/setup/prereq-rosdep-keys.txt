@@ -46,6 +46,7 @@ python3-lxml
 python3-mypy
 python3-netifaces
 python3-numpy
+python3-opencv
 python3-packaging
 python3-pkg-resources
 python3-psutil
