@@ -19,13 +19,14 @@
 #include <memory>
 #include <utility>
 
+#include "drake/multibody/plant/multibody_plant.h"
 #include <drake/common/value.h>
 #include <drake/geometry/drake_visualizer.h>
-#include <drake/geometry/kinematics_vector.h>
 #include <drake/geometry/geometry_frame.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/geometry/geometry_instance.h>
 #include <drake/geometry/geometry_roles.h>
+#include <drake/geometry/kinematics_vector.h>
 #include <drake/geometry/proximity_properties.h>
 #include <drake/geometry/query_object.h>
 #include <drake/geometry/query_results/contact_surface.h>
@@ -34,7 +35,6 @@
 #include <drake/lcm/drake_lcm.h>
 #include <drake/lcmt_contact_results_for_viz.hpp>
 #include <drake/math/rigid_transform.h>
-#include "drake/multibody/plant/multibody_plant.h"
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/continuous_state.h>
@@ -44,15 +44,14 @@
 #include <drake_ros_core/drake_ros.h>
 #include <drake_ros_core/ros_interface_system.h>
 #include <drake_ros_core/ros_publisher_system.h>
-#include <drake_ros_viz/rviz_visualizer.h>
 #include <drake_ros_viz/contact_markers_system.h>
+#include <drake_ros_viz/rviz_visualizer.h>
 #include <gflags/gflags.h>
-
 #include <visualization_msgs/msg/marker_array.hpp>
 
+using drake::geometry::AddCompliantHydroelasticProperties;
 using drake::geometry::AddContactMaterial;
 using drake::geometry::AddRigidHydroelasticProperties;
-using drake::geometry::AddCompliantHydroelasticProperties;
 using drake::geometry::HalfSpace;
 using drake::geometry::ProximityProperties;
 using drake::geometry::Sphere;
@@ -84,22 +83,20 @@ DEFINE_double(resolution_hint, 0.5,
               "Measure of typical mesh edge length in meters."
               " Smaller numbers produce a denser mesh");
 
-
 int do_main() {
   DiagramBuilder<double> builder;
 
   drake_ros_core::init();
-  auto ros_interface_system =
-      builder.AddSystem<RosInterfaceSystem>(
-          std::make_unique<DrakeRos>("collisions"));
+  auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
+      std::make_unique<DrakeRos>("collisions"));
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
 
-  const double radius = 0.5;   // m
-  const double mass = 10;      // kg
-  const double g = 9.81;        // m/s^2
+  const double radius = 0.5;  // m
+  const double mass = 10;     // kg
+  const double g = 9.81;      // m/s^2
 
-  const double hydroelastic_modulus = 1000;   // Pa
+  const double hydroelastic_modulus = 1000;  // Pa
   const double dissipation = 5.0;            // s/m
   const double friction_coefficient = 0.3;
 
@@ -119,38 +116,34 @@ int do_main() {
   const Vector4d orange(1.0, 0.55, 0.0, alpha);
 
   // Add a sloped half space
-  RigidTransformd X_WG(
-    RollPitchYawd(0.15, 0.0, 0.0),
-    Vector3d(0.0, 0.0, 0.0));
+  RigidTransformd X_WG(RollPitchYawd(0.15, 0.0, 0.0), Vector3d(0.0, 0.0, 0.0));
 
   ProximityProperties ground_props;
   AddRigidHydroelasticProperties(&ground_props);
-  AddContactMaterial(
-      dissipation, {} /* point stiffness */, surface_friction, &ground_props);
-  plant.RegisterCollisionGeometry(
-      plant.world_body(), X_WG, HalfSpace{}, "collision_ground",
-      std::move(ground_props));
+  AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
+                     &ground_props);
+  plant.RegisterCollisionGeometry(plant.world_body(), X_WG, HalfSpace{},
+                                  "collision_ground", std::move(ground_props));
   // Add visual for the ground.
-  plant.RegisterVisualGeometry(plant.world_body(), X_WG,
-                               HalfSpace{}, "visual_ground", gray);
+  plant.RegisterVisualGeometry(plant.world_body(), X_WG, HalfSpace{},
+                               "visual_ground", gray);
 
   // Add a vertical wall (Q)
-  RigidTransformd X_WQ(
-    RollPitchYawd(-1.570796, 0.0, 0.0),
-    Vector3d(0.0, -10.0, 0.0));
+  RigidTransformd X_WQ(RollPitchYawd(-1.570796, 0.0, 0.0),
+                       Vector3d(0.0, -10.0, 0.0));
 
   ProximityProperties wall_props;
   AddRigidHydroelasticProperties(&wall_props);
-  AddContactMaterial(
-      dissipation, {} /* point stiffness */, surface_friction, &wall_props);
-  plant.RegisterCollisionGeometry(
-      plant.world_body(), X_WQ, HalfSpace{}, "collision_wall",
-      std::move(wall_props));
+  AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
+                     &wall_props);
+  plant.RegisterCollisionGeometry(plant.world_body(), X_WQ, HalfSpace{},
+                                  "collision_wall", std::move(wall_props));
   // Add visual for the wall.
-  plant.RegisterVisualGeometry(plant.world_body(), X_WQ,
-                                HalfSpace{}, "visual_wall", gray);
+  plant.RegisterVisualGeometry(plant.world_body(), X_WQ, HalfSpace{},
+                               "visual_wall", gray);
 
-  const RigidBody<double>& compliant_ball = plant.AddRigidBody("CompliantBall", M_Bcm);
+  const RigidBody<double>& compliant_ball =
+      plant.AddRigidBody("CompliantBall", M_Bcm);
   const RigidBody<double>& rigid_ball = plant.AddRigidBody("RigidBall", M_Bcm);
 
   // Add sphere geometry for the balls.
@@ -161,24 +154,24 @@ int do_main() {
     ProximityProperties ball_props;
     AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
                        &ball_props);
-    AddCompliantHydroelasticProperties(
-      FLAGS_resolution_hint, hydroelastic_modulus, &ball_props);
-    plant.RegisterCollisionGeometry(compliant_ball, X_BS, Sphere(radius), "collision",
-                                     std::move(ball_props));
+    AddCompliantHydroelasticProperties(FLAGS_resolution_hint,
+                                       hydroelastic_modulus, &ball_props);
+    plant.RegisterCollisionGeometry(compliant_ball, X_BS, Sphere(radius),
+                                    "collision", std::move(ball_props));
 
-    plant.RegisterVisualGeometry(
-      compliant_ball, X_BS, Sphere(radius), "visual", orange);
+    plant.RegisterVisualGeometry(compliant_ball, X_BS, Sphere(radius), "visual",
+                                 orange);
   }
   {
     ProximityProperties ball_props;
     AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
                        &ball_props);
     AddRigidHydroelasticProperties(radius, &ball_props);
-    plant.RegisterCollisionGeometry(rigid_ball, X_BS, Sphere(radius), "collision",
-                                     std::move(ball_props));
+    plant.RegisterCollisionGeometry(rigid_ball, X_BS, Sphere(radius),
+                                    "collision", std::move(ball_props));
 
-    plant.RegisterVisualGeometry(
-      rigid_ball, X_BS, Sphere(radius), "visual", orange);
+    plant.RegisterVisualGeometry(rigid_ball, X_BS, Sphere(radius), "visual",
+                                 orange);
   }
 
   // Gravity acting in the -z direction.
@@ -195,9 +188,8 @@ int do_main() {
   builder.Connect(scene_graph.get_query_output_port(),
                   rviz_visualizer.get_graph_query_port());
 
-  ConnectContactResultsToRviz(
-      &builder, plant, scene_graph,
-      ros_interface_system->get_ros_interface());
+  ConnectContactResultsToRviz(&builder, plant, scene_graph,
+                              ros_interface_system->get_ros_interface());
 
   auto diagram = builder.Build();
 
@@ -211,18 +203,20 @@ int do_main() {
   {
     RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
     RigidTransformd X_WB(R_WB, Vector3d(0.0, 0.0, 3.0));
-    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("CompliantBall"), X_WB);
+    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("CompliantBall"),
+                          X_WB);
   }
 
   {
     RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
     RigidTransformd X_WB(R_WB, Vector3d(0.0, radius * 4, 3.0));
-    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("RigidBall"), X_WB);
+    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("RigidBall"),
+                          X_WB);
   }
 
   Simulator<double> simulator(*diagram, std::move(diagram_context));
 
-  auto & simulator_context = simulator.get_mutable_context();
+  auto& simulator_context = simulator.get_mutable_context();
 
   simulator.get_mutable_integrator().set_maximum_step_size(1.0 / 50.0);
   simulator.set_target_realtime_rate(FLAGS_real_time ? 1.f : 0.f);
