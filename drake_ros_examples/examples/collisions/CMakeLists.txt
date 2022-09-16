@@ -1,13 +1,13 @@
-add_executable(hydroelastic_collisions
-  hydroelastic_collisions.cc
+add_executable(collisions
+  collisions.cc
 )
-target_link_libraries(hydroelastic_collisions
+target_link_libraries(collisions
   drake::drake
   drake_ros_viz::drake_ros_viz
   gflags
 )
 install(
   TARGETS
-    hydroelastic_collisions
+    collisions
   DESTINATION lib/${PROJECT_NAME}
 )

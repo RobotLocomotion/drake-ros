@@ -55,13 +55,16 @@ Visualization Manager:
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        {}
+        DefaultModelInstance::CompliantBall::collision//DefaultModelInstance::RigidBall::collision: true
+        DefaultModelInstance::CompliantBall::collision//WorldModelInstance::WorldBody::collision_ground: true
+        Pt|RigidBall(1)//WorldBody(0): true
+        RigidBall(1)//WorldBody(0): true
       Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /hydroelastic_contact/mesh
+        Value: /contacts
       Value: true
     - Class: rviz_default_plugins/MarkerArray
       Enabled: false

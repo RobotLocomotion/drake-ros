@@ -1,22 +1,26 @@
-# Hydroelastic Collisions
+# Collisions
 
 ## Overview
 
-Both `iiwa_manipulator` and `iiwa_manipulator.py` enable RViz visualization of a static [`ManipulationStation`](https://github.com/RobotLocomotion/drake/tree/master/examples/manipulation_station) example.
-Publishes the following topics:
+This example shows how to visualize both point and hydroelastic contacts in RViz.
 
-* `/tf` (all scene frames)
-* `/scene_markers` (all scene geometries, including the robot model)
-* `/hyrdroelastic_contact/mesh` (contact marker array)
+It publishes the following topics:
+
+* `/contacts [visualization_msgs/msg/MarkerArray]` - Markers describing contacts
+* `/scene_markers/collision [visualization_msgs/msg/MarkerArray]` - all collision geometries
+* `/scene_markers/visual [visualization_msgs/msg/MarkerArray]` - all visual geometries
+* `/tf [tf2_msgs/msg/TFMessage]` - Frames and transforms
 
 ## How To
 
-Run the C++ `hydroelastic_collision` executable as explained [here](../../README.md#running).
-
-Run RViz in a different terminal with your ROS installation sourced to visualize the station:
+Run the C++ `collisions` executable in the `drake_ros_examples` package.
 
 ```
-ros2 run rviz2 rviz2 -d hydroelastic_collision.rviz
+ros2 run drake_ros_examples collisions
 ```
 
+Run RViz in a different terminal with your ROS installation sourced to visualize.
 
+```
+rviz2 -d collisions.rviz
+```
