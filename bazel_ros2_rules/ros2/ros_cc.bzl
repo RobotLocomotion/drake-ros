@@ -71,7 +71,7 @@ def ros_cc_binary(
     kwargs.update(
         srcs = [shim_name],
         data = [":" + noshim_name],
-        deps = ["@bazel_tools//tools/cpp/runfiles"],
+        deps = ["@bazel_ros2_rules//ros2:dload_shim_cc"],
         tags = ["nolint"] + kwargs.get("tags", []),
     )
     cc_binary_rule(name = name, **kwargs)
@@ -128,7 +128,7 @@ def ros_cc_test(
     kwargs.update(
         srcs = [shim_name],
         data = [":" + noshim_name],
-        deps = ["@bazel_tools//tools/cpp/runfiles"],
+        deps = ["@bazel_ros2_rules//ros2:dload_shim_cc"],
         tags = ["nolint"] + kwargs.get("tags", []),
     )
     cc_test_rule(name = name, **kwargs)
