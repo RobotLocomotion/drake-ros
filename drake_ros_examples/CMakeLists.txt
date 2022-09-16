@@ -15,7 +15,7 @@ find_package(drake REQUIRED)
 find_package(drake_ros_core REQUIRED)
 find_package(drake_ros_viz REQUIRED)
 
-add_subdirectory(examples/hydroelastic_collisions)
+add_subdirectory(examples/collisions)
 add_subdirectory(examples/iiwa_manipulator)
 add_subdirectory(examples/multirobot)
 add_subdirectory(examples/rs_flip_flop)
