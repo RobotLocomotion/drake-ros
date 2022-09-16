@@ -33,7 +33,7 @@ struct ContactMarkersParams {
   std::string origin_frame_name{"world"};
 
   /// Default marker color if no ("phong", "diffuse") property is found.
-  drake::geometry::Rgba default_color{0.6, 1.0, 0.6, 1.0};
+  drake::geometry::Rgba default_color{0.6, 1.0, 0.6, 0.35};
 };
 
 /// System for visualizing contacts as a ROS markers array.
