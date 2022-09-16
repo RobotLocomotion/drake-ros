@@ -9,22 +9,32 @@ on:
       - main
       - develop
 jobs:
-  test_against_galactic:
+  test_against_debs:
+    strategy:
+      matrix:
+        include:
+          - os_code_name: jammy
+            ros_distro: rolling
+          - os_code_name: jammy
+            ros_distro: humble
+          - os_code_name: focal
+            ros_distro: galactic
+    name: test_against_${{matrix.ros_distro}}_debs
     runs-on: ubuntu-latest
     container:
-      image: robotlocomotion/drake:focal
+      image: robotlocomotion/drake:${{matrix.os_code_name}}
     env:
       LD_LIBRARY_PATH: /opt/drake/lib
     steps:
       - uses: ros-tooling/setup-ros@v0.4
         with:
-          required-ros-distributions: galactic
+          required-ros-distributions: ${{matrix.ros_distro}}
       - name: Cope with Python 2 pollution
         run: apt-get update && apt-get install -y python-is-python3
       - name: Build and test all packages
         uses: ros-tooling/action-ros-ci@v0.2
         with:
-          target-ros2-distro: galactic
+          target-ros2-distro: ${{matrix.ros_distro}}
   test_against_humble:
     runs-on: ubuntu-latest
     container:
