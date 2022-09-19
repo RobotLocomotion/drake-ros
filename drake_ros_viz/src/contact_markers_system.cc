@@ -225,7 +225,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     // Create a ball at the point of contact
     visualization_msgs::msg::Marker ball_msg;
     ball_msg.header.frame_id = impl_->params.origin_frame_name;
-    ball_msg.ns = "Pt|" + cname;
+    ball_msg.ns = cname;
     ball_msg.id = output_value->markers.size();
     ball_msg.type = visualization_msgs::msg::Marker::SPHERE;
     ball_msg.action = visualization_msgs::msg::Marker::ADD;
@@ -406,6 +406,12 @@ void ContactMarkersSystem::CalcContactMarkers(
 
     output_value->markers.push_back(face_msg);
     output_value->markers.push_back(edge_msg);
+  }
+
+  const builtin_interfaces::msg::Time stamp =
+      rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
+  for (visualization_msgs::msg::Marker& marker : output_value->markers) {
+    marker.header.stamp = stamp;
   }
 }
 
