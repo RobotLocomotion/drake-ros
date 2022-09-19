@@ -13,6 +13,8 @@
 // limitations under the License.
 #pragma once
 
+#include <drake_ros_viz/default_params.h>
+
 #include <memory>
 #include <unordered_set>
 
@@ -26,12 +28,10 @@ namespace drake_ros_viz {
 struct RvizVisualizerParams {
   /// Publish triggers for scene markers and tf broadcasting.
   std::unordered_set<drake::systems::TriggerType> publish_triggers{
-      drake::systems::TriggerType::kForced,
-      drake::systems::TriggerType::kPeriodic};
+    kDefaultPublishTriggers};
 
   /// Period for periodic scene markers and tf broadcasting.
-  /// The default frequency is 20 Hz.
-  double publish_period{0.05};
+  double publish_period{kDefaultPublishPeriod};
 
   /// Whether to perform tf broadcasting or not.
   bool publish_tf{true};

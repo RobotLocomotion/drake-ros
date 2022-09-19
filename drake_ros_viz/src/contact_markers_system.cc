@@ -433,17 +433,18 @@ ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
-    drake_ros_core::DrakeRos* ros, ContactMarkersParams params,
-    const std::string& markers_topic, const rclcpp::QoS& markers_qos) {
+    drake_ros_core::DrakeRos* ros, ContactConnectionParams params) {
   // System that publishes ROS messages
   auto* markers_publisher =
       builder->AddSystem(drake_ros_core::RosPublisherSystem::Make<
                          visualization_msgs::msg::MarkerArray>(
-          markers_topic, markers_qos, ros));
+          params.markers_topic, params.markers_qos, ros,
+          params.publish_triggers, params.publish_period));
 
   // System that turns contact results into ROS Messages
   ContactMarkersSystem* contact_markers =
-      builder->AddSystem<ContactMarkersSystem>(plant, scene_graph, params);
+      builder->AddSystem<ContactMarkersSystem>(
+          plant, scene_graph, params.contact_markers_params);
 
   builder->Connect(plant.get_contact_results_output_port(),
                    contact_markers->get_contact_results_port());

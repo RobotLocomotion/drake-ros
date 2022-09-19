@@ -23,6 +23,7 @@
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake_ros_core/drake_ros.h>
+#include <drake_ros_viz/default_params.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 namespace drake_ros_viz {
@@ -73,6 +74,19 @@ class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
   std::unique_ptr<ContactMarkersSystemPrivate> impl_;
 };
 
+struct ContactConnectionParams {
+  ContactMarkersParams contact_markers_params;
+
+  std::unordered_set<drake::systems::TriggerType> publish_triggers{
+    kDefaultPublishTriggers};
+
+  double publish_period{kDefaultPublishPeriod};
+
+  const std::string markers_topic{"/contacts"};
+
+  rclcpp::QoS markers_qos{kDefaultMarkersQos};
+};
+
 /// Publish contacts from a multibody plant for visualization in RViz.
 ///
 /// @param builder The diagram builder this method should add systems to.
@@ -88,7 +102,5 @@ ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
-    drake_ros_core::DrakeRos* ros, ContactMarkersParams params = {},
-    const std::string& markers_topic = "/contacts",
-    const rclcpp::QoS& markers_qos = rclcpp::QoS(1));
+    drake_ros_core::DrakeRos* ros, ContactConnectionParams = {});
 }  // namespace drake_ros_viz
