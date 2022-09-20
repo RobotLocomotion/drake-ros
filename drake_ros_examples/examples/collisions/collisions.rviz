@@ -57,7 +57,6 @@ Visualization Manager:
       Namespaces:
         DefaultModelInstance::CompliantBall::collision//DefaultModelInstance::RigidBall::collision: true
         DefaultModelInstance::CompliantBall::collision//WorldModelInstance::WorldBody::collision_ground: true
-        Pt|RigidBall(1)//WorldBody(0): true
         RigidBall(1)//WorldBody(0): true
       Topic:
         Depth: 5
@@ -136,7 +135,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.7141189575195312
+      Distance: 4.644041061401367
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -146,15 +145,15 @@ Visualization Manager:
         X: 0
         Y: 0
         Z: 0
-      Focal Shape Fixed Size: true
+      Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.21479704976081848
-      Target Frame: DefaultModelInstance/RigidBall/26
+      Pitch: 0.7853981852531433
+      Target Frame: DefaultModelInstance/CompliantBall/25
       Value: Orbit (rviz)
-      Yaw: 6.22857141494751
+      Yaw: 0.7853981852531433
     Saved: ~
 Window Geometry:
   Displays:
