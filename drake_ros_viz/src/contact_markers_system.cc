@@ -72,6 +72,15 @@ void convert_color(
   color_out.a = color.a();
 }
 
+void convert_vector3d(
+  const Eigen::Vector3d &point,
+  geometry_msgs::msg::Point &point_out)
+{
+  point_out.x = point.x();
+  point_out.y = point.y();
+  point_out.z = point.z();
+}
+
 std::string contact_name(const std::string& name1, const std::string& name2) {
   // Sort so names are consistent
   if (name2 < name1) {
@@ -269,16 +278,21 @@ void ContactMarkersSystem::CalcContactMarkers(
     normal_msg.scale.x = kPointNormalLength / 20.0;
 
     const auto& nhat_BA_W = contact_info.point_pair().nhat_BA_W;
-    // C = Center of contact, l = one of the end points of the normal
-    const auto p_Cl_W = kPointNormalLength / 2.0 * nhat_BA_W;
+    // C = Center of contact in world frame
+    const auto p_WC = contact_info.contact_point();
+    // L = an end point of a line segment visualizing nhat_BA_W and nhat_AB_W
+    const auto p_CL_W = kPointNormalLength / 2.0 * nhat_BA_W;
 
-    normal_msg.points.resize(2);
-    normal_msg.points.front().x = p_Cl_W.x() + contact_info.contact_point().x();
-    normal_msg.points.front().y = p_Cl_W.y() + contact_info.contact_point().y();
-    normal_msg.points.front().z = p_Cl_W.z() + contact_info.contact_point().z();
-    normal_msg.points.back().x = -p_Cl_W.x() + contact_info.contact_point().x();
-    normal_msg.points.back().y = -p_Cl_W.y() + contact_info.contact_point().y();
-    normal_msg.points.back().z = -p_Cl_W.z() + contact_info.contact_point().z();
+    const auto p_WStart = p_WC + p_CL_W;
+    const auto p_WEnd = p_WC - p_CL_W;
+
+    geometry_msgs::msg::Point start;
+    geometry_msgs::msg::Point end;
+    convert_vector3d(p_WStart, start);
+    convert_vector3d(p_WEnd, end);
+
+    normal_msg.points.push_back(start);
+    normal_msg.points.push_back(end);
 
     output_value->markers.push_back(normal_msg);
   }
