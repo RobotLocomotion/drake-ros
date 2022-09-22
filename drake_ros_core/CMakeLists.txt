@@ -85,6 +85,22 @@ install(
 )
 ### End Python bindings
 
+### Drake library path environment hook
+if(NOT WIN32)
+  get_target_property(DRAKE_LIBRARY drake::drake LOCATION)
+  get_filename_component(DRAKE_LIBRARY_DIR ${DRAKE_LIBRARY} DIRECTORY)
+  set(LIBRARY_PATH_HOOK "${AMENT_PACKAGE_TEMPLATE_DIR}/environment_hook/library_path.sh")
+  if(APPLE)
+    set(LIBRARY_PATH_ENV_VAR "DYLD_LIBRARY_PATH")
+  else()
+    set(LIBRARY_PATH_ENV_VAR "LD_LIBRARY_PATH")
+  endif()
+  set(
+    AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
+    "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
+  ament_environment_hooks("env-hooks/drake_library_path.sh.in")
+endif()
+
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   find_package(ament_cmake_cpplint REQUIRED)

@@ -1,0 +1,1 @@
+ament_prepend_unique_value "@LIBRARY_PATH_ENV_VAR@" "@DRAKE_LIBRARY_DIR@"
