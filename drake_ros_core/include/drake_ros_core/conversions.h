@@ -15,10 +15,9 @@
 #pragma once
 
 #include <Eigen/Geometry>
+#include <drake/common/eigen_types.h>
 #include <drake/math/rigid_transform.h>
-#include <drake/multibody/math/spatial_acceleration.h>
-#include <drake/multibody/math/spatial_force.h>
-#include <drake/multibody/math/spatial_velocity.h>
+#include <drake/multibody/math/spatial_algebra.h>
 #include <geometry_msgs/msg/accel.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
@@ -66,41 +65,41 @@ drake::math::RigidTransformd ros_transform_to_drake_transform(
 geometry_msgs::msg::Transform drake_transform_to_ros_transform(
     const drake::math::RigidTransformd& transform);
 
-Eigen::Vector6d ros_twist_to_eigen_vector6d(
+drake::Vector6d ros_twist_to_eigen_vector6d(
     const geometry_msgs::msg::Twist& twist);
 
 geometry_msgs::msg::Twist eigen_vector6d_to_ros_twist(
-    const Eigen::Vector6d& vector);
+    const drake::Vector6d& vector);
 
-drake::multibody::SpatialVelocity ros_twist_to_drake_velocity(
+drake::multibody::SpatialVelocity<double> ros_twist_to_drake_velocity(
     const geometry_msgs::msg::Twist& twist);
 
 geometry_msgs::msg::Twist drake_velocity_to_ros_twist(
-    const drake::multibody::SpatialVelocity& velocity);
+    const drake::multibody::SpatialVelocity<double>& velocity);
 
-Eigen::Vector6d ros_accel_to_eigen_vector6d(
+drake::Vector6d ros_accel_to_eigen_vector6d(
     const geometry_msgs::msg::Accel& accel);
 
 geometry_msgs::msg::Accel eigen_vector6d_to_ros_accel(
-    const Eigen::Vector6d& vector);
+    const drake::Vector6d& vector);
 
-drake::multibody::SpatialAcceleration ros_accel_to_drake_accel(
+drake::multibody::SpatialAcceleration<double> ros_accel_to_drake_accel(
     const geometry_msgs::msg::Accel& accel);
 
 geometry_msgs::msg::Accel drake_accel_to_ros_accel(
-    const drake::multibody::SpatialVelocity& accel);
+    const drake::multibody::SpatialAcceleration<double>& accel);
 
-Eigen::Vector6d ros_wrench_to_eigen_vector6d(
+drake::Vector6d ros_wrench_to_eigen_vector6d(
     const geometry_msgs::msg::Wrench& wrench);
 
-geometrry_msgs::msg::Wrench eigen_vector6d_to_ros_wrench(
-    const Eigen::Vector6d& vector);
+geometry_msgs::msg::Wrench eigen_vector6d_to_ros_wrench(
+    const drake::Vector6d& vector);
 
-drake::multibody::SpatialForce ros_wrench_to_drake_force(
+drake::multibody::SpatialForce<double> ros_wrench_to_drake_force(
     const geometry_msgs::msg::Wrench& wrench);
 
 geometry_msgs::msg::Wrench drake_force_to_ros_wrench(
-    const drake::multibody::SpatialForce& force);
+    const drake::multibody::SpatialForce<double>& force);
 
 }  // namespace conversions
 }  // namespace drake_ros_core
