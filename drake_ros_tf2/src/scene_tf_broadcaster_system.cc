@@ -50,8 +50,7 @@ SceneTfBroadcasterSystem::SceneTfBroadcasterSystem(
                   scene_tf_publisher->get_input_port());
 
   impl_->graph_query_port_index = builder.ExportInput(
-    impl_->scene_tf->get_graph_query_input_port(),
-    "graph_query");
+      impl_->scene_tf->get_graph_query_input_port(), "graph_query");
 
   builder.BuildInto(this);
 }

@@ -27,10 +27,8 @@ std::string GetTfFrameName(
     const drake::multibody::MultibodyPlant<double>* plant,
     const drake::geometry::FrameId& frame_id) {
   return internal::CalcTfFrameName(
-      plant->GetModelInstanceName(body.model_instance()),
-      body.name(),
-      body.index(),
-      frame_id.get_value());
+      plant->GetModelInstanceName(body.model_instance()), body.name(),
+      body.index(), frame_id.get_value());
 }
 
 std::string GetTfFrameName(

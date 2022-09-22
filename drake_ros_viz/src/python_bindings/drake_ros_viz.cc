@@ -58,6 +58,7 @@ PYBIND11_MODULE(drake_ros_viz, m) {
            py::arg("params") = RvizVisualizerParams{})
       .def("RegisterMultibodyPlant", &RvizVisualizer::RegisterMultibodyPlant)
       .def("ComputeFrameHierarchy", &RvizVisualizer::ComputeFrameHierarchy)
-      .def("get_graph_query_input_port", &RvizVisualizer::get_graph_query_input_port,
+      .def("get_graph_query_input_port",
+           &RvizVisualizer::get_graph_query_input_port,
            py::return_value_policy::reference_internal);
 }

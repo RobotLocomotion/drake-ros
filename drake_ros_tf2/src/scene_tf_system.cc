@@ -91,7 +91,8 @@ void SceneTfSystem::ComputeFrameHierarchy() {
 
       auto& parent_body = joint.parent_body();
       auto parent_body_index = parent_body.index();
-      auto parent_body_frame_id = plant->GetBodyFrameIdOrThrow(parent_body_index);
+      auto parent_body_frame_id =
+          plant->GetBodyFrameIdOrThrow(parent_body_index);
 
       auto& child_body = joint.child_body();
       auto child_body_index = child_body.index();
@@ -101,23 +102,16 @@ void SceneTfSystem::ComputeFrameHierarchy() {
       if (joint.parent_body().name() == plant->world_body().name()) {
         transform.header.frame_id = "world";
       } else {
-        transform.header.frame_id = GetTfFrameName(
-          joint.parent_body(),
-          plant,
-          parent_body_frame_id);
+        transform.header.frame_id =
+            GetTfFrameName(joint.parent_body(), plant, parent_body_frame_id);
       }
-      transform.child_frame_id = GetTfFrameName(
-        joint.child_body(),
-        plant,
-        child_body_frame_id);
+      transform.child_frame_id =
+          GetTfFrameName(joint.child_body(), plant, child_body_frame_id);
 
       impl_->parent_frames_map.insert(
-        {child_body_frame_id,
-        SceneTfSystem::Impl::Frame({parent_body_frame_id,
-           parent_body_index,
-           joint.parent_body().name(),
-           transform})
-        });
+          {child_body_frame_id, SceneTfSystem::Impl::Frame(
+                                    {parent_body_frame_id, parent_body_index,
+                                     joint.parent_body().name(), transform})});
     }
   }
 }
@@ -138,19 +132,19 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
       if (frame_id == inspector.world_frame_id()) {
         continue;
       }
-      if (impl_->parent_frames_map.find(frame_id) != impl_->parent_frames_map.end()) {
+      if (impl_->parent_frames_map.find(frame_id) !=
+          impl_->parent_frames_map.end()) {
         auto& parent_frame = impl_->parent_frames_map[frame_id];
         parent_frame.X_PC.header.stamp =
-          rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
+            rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
         auto X_WP = query_object.GetPoseInParent(parent_frame.id);
         auto X_WC = query_object.GetPoseInParent(frame_id);
-        parent_frame.X_PC.transform =
-            ToTransformMsg(X_WP.inverse() * X_WC);
+        parent_frame.X_PC.transform = ToTransformMsg(X_WP.inverse() * X_WC);
         output_value->transforms.push_back(parent_frame.X_PC);
       } else {
         geometry_msgs::msg::TransformStamped transform;
         transform.header.stamp =
-          rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
+            rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
 
         transform.header.frame_id = GetTfFrameName(
             inspector, impl_->plants, inspector.GetParentFrame(frame_id));
