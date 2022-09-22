@@ -207,9 +207,6 @@ void ContactMarkersSystem::CalcContactMarkers(
       get_contact_results_port()
           .template Eval<drake::multibody::ContactResults<double>>(context);
 
-  const rclcpp::Duration kMarkerLifetime =
-      rclcpp::Duration::from_nanoseconds(1e9);
-
   const double kPointBallDiameter = 0.025;
   const double kPointNormalLength = kPointBallDiameter * 4.0;
 
