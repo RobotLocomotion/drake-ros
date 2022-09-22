@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-#include <drake_ros_viz/default_params.h>
+#include <drake_ros_viz/defaults.h>
 
 #include <memory>
 #include <unordered_set>

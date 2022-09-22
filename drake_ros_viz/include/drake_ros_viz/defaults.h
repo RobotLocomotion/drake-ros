@@ -32,4 +32,7 @@ const double kDefaultPublishPeriod{1.0 / 32.0};
 
 /// Quality of service settings for markers topics
 const rclcpp::QoS kDefaultMarkersQos(1);
+
+/// Quality of service settings for markers topics
+const rclcpp::Duration kMarkerLifetime{rclcpp::Duration::from_nanoseconds(1e9)};
 }  // namespace drake_ros_viz

@@ -37,6 +37,7 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include "drake_ros_viz/name_conventions.h"
+#include "drake_ros_viz/defaults.h"
 
 namespace drake_ros_viz {
 
@@ -82,7 +83,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     prototype_marker_.ns = marker_namespace;
     prototype_marker_.id = marker_id;
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
-    prototype_marker_.lifetime = rclcpp::Duration::from_nanoseconds(0);
+    prototype_marker_.lifetime = kMarkerLifetime;
     prototype_marker_.frame_locked = true;
 
     const drake::geometry::GeometryProperties* props =

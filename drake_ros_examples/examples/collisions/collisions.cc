@@ -19,7 +19,6 @@
 #include <memory>
 #include <utility>
 
-#include "drake/multibody/plant/multibody_plant.h"
 #include <drake/common/value.h>
 #include <drake/geometry/drake_visualizer.h>
 #include <drake/geometry/geometry_frame.h>
@@ -35,6 +34,8 @@
 #include <drake/lcm/drake_lcm.h>
 #include <drake/lcmt_contact_results_for_viz.hpp>
 #include <drake/math/rigid_transform.h>
+#include <drake/multibody/plant/contact_results_to_lcm.h>
+#include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/continuous_state.h>
@@ -83,12 +84,11 @@ DEFINE_double(resolution_hint, 0.5,
               "Measure of typical mesh edge length in meters."
               " Smaller numbers produce a denser mesh");
 
+DEFINE_bool(use_drake_visualizer, false,
+              "Use drake-visualizer instead of RViz.");
+
 int do_main() {
   DiagramBuilder<double> builder;
-
-  drake_ros_core::init();
-  auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
-      std::make_unique<DrakeRos>("collisions"));
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
 
@@ -180,16 +180,28 @@ int do_main() {
   plant.set_contact_model(ContactModel::kHydroelasticWithFallback);
   plant.Finalize();
 
-  auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
-      ros_interface_system->get_ros_interface());
+  if (FLAGS_use_drake_visualizer) {
+    //Visualize with drake-visualizer
+    drake::geometry::DrakeVisualizerd::AddToBuilder(&builder, scene_graph);
+    drake::multibody::ConnectContactResultsToDrakeVisualizer(
+        &builder, plant, scene_graph);
+  } else {
+    // Visualize with RViz
+    drake_ros_core::init();
+    auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
+        std::make_unique<DrakeRos>("collisions"));
 
-  rviz_visualizer.RegisterMultibodyPlant(&plant);
+    auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
+        ros_interface_system->get_ros_interface());
 
-  builder.Connect(scene_graph.get_query_output_port(),
-                  rviz_visualizer.get_graph_query_port());
+    rviz_visualizer.RegisterMultibodyPlant(&plant);
 
-  ConnectContactResultsToRviz(&builder, plant, scene_graph,
-                              ros_interface_system->get_ros_interface());
+    builder.Connect(scene_graph.get_query_output_port(),
+                    rviz_visualizer.get_graph_query_port());
+
+    ConnectContactResultsToRviz(&builder, plant, scene_graph,
+                                ros_interface_system->get_ros_interface());
+  }
 
   auto diagram = builder.Build();
 
