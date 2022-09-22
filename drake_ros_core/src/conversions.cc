@@ -283,7 +283,7 @@ geometry_msgs::msg::Wrench eigen_vector6d_to_ros_wrench(
   result.force.y = vector[1];
   result.force.z = vector[2];
   result.torque.x = vector[3];
-  result.torque.y = vector[5];
+  result.torque.y = vector[4];
   result.torque.z = vector[5];
   return result;
 }
