@@ -62,6 +62,16 @@ struct FullBodyName {
 };
 // End copied code
 
+void convert_color(
+  const drake::geometry::Rgba &color,
+  std_msgs::msg::ColorRGBA &color_out)
+{
+  color_out.r = color.r();
+  color_out.g = color.g();
+  color_out.b = color.b();
+  color_out.a = color.a();
+}
+
 std::string contact_name(const std::string& name1, const std::string& name2) {
   // Sort so names are consistent
   if (name2 < name1) {
@@ -230,11 +240,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     ball_msg.lifetime = kMarkerLifetime;
     ball_msg.frame_locked = true;
 
-    const auto& color = impl_->params.default_color;
-    ball_msg.color.r = color.r();
-    ball_msg.color.g = color.g();
-    ball_msg.color.b = color.b();
-    ball_msg.color.a = color.a();
+    convert_color(impl_->params.default_color, ball_msg.color);
 
     ball_msg.scale.x = kPointBallDiameter;
     ball_msg.scale.y = kPointBallDiameter;
@@ -257,10 +263,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     normal_msg.lifetime = kMarkerLifetime;
     normal_msg.frame_locked = true;
 
-    normal_msg.color.r = color.r();
-    normal_msg.color.g = color.g();
-    normal_msg.color.b = color.b();
-    normal_msg.color.a = color.a();
+    convert_color(impl_->params.default_color, normal_msg.color);
 
     // Set line width
     normal_msg.scale.x = kPointNormalLength / 20.0;
@@ -305,11 +308,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     face_msg.lifetime = kMarkerLifetime;
     face_msg.frame_locked = true;
 
-    drake::geometry::Rgba color = impl_->params.default_color;
-    face_msg.color.r = color.r();
-    face_msg.color.g = color.g();
-    face_msg.color.b = color.b();
-    face_msg.color.a = color.a();
+    convert_color(impl_->params.default_color, face_msg.color);
 
     face_msg.scale.x = 1.0;
     face_msg.scale.y = 1.0;
