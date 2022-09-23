@@ -50,6 +50,20 @@ ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_runtime_c)
 ament_export_dependencies(rosidl_typesupport_cpp)
 
+### Drake library path environment hook
+get_target_property(DRAKE_LIBRARY drake::drake LOCATION)
+get_filename_component(DRAKE_LIBRARY_DIR ${DRAKE_LIBRARY} DIRECTORY)
+if(APPLE)
+  set(LIBRARY_PATH_ENV_VAR "DYLD_LIBRARY_PATH")
+else()
+  set(LIBRARY_PATH_ENV_VAR "LD_LIBRARY_PATH")
+endif()
+set(
+  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
+  "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
+ament_environment_hooks("env-hooks/drake_library_path.sh.in")
+
+# Nominal ament install directives
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

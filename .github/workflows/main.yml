@@ -23,8 +23,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: robotlocomotion/drake:${{matrix.os_code_name}}
-    env:
-      LD_LIBRARY_PATH: /opt/drake/lib
     steps:
       - uses: ros-tooling/setup-ros@v0.4
         with:
@@ -39,8 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: robotlocomotion/drake:focal
-    env:
-      LD_LIBRARY_PATH: /opt/drake/lib
     steps:
       - uses: ros-tooling/setup-ros@v0.4
       - name: Install dependencies to build ROS packages
