@@ -63,6 +63,7 @@ set(
   "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
 ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
+# Nominal ament install directives
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
