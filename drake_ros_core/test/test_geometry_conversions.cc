@@ -14,9 +14,9 @@
 
 #include <gtest/gtest.h>
 
-#include "drake_ros_core/conversions.h"
+#include "drake_ros_core/geometry_conversions.h"
 
-TEST(DrakeRosConversions, point) {
+TEST(DrakeRosGeometryConversions, point) {
   geometry_msgs::msg::Point point;
   point.x = 1.0f;
   point.y = 2.0f;
@@ -28,7 +28,7 @@ TEST(DrakeRosConversions, point) {
           drake_ros_core::conversions::ros_point_to_eigen_vector3d(point)));
 }
 
-TEST(DrakeRosConversions, Quaternion) {
+TEST(DrakeRosGeometryConversions, Quaternion) {
   geometry_msgs::msg::Quaternion quat;
   quat.x = 0.1f;
   quat.y = 0.2f;
@@ -40,7 +40,7 @@ TEST(DrakeRosConversions, Quaternion) {
                 drake_ros_core::conversions::ros_quat_to_eigen_quat(quat)));
 }
 
-TEST(DrakeRosConversions, Pose) {
+TEST(DrakeRosGeometryConversions, Pose) {
   geometry_msgs::msg::Pose pose;
   pose.position.x = 1.0f;
   pose.position.y = 2.0f;
@@ -60,7 +60,7 @@ TEST(DrakeRosConversions, Pose) {
           drake_ros_core::conversions::ros_pose_to_drake_transform(pose)));
 }
 
-TEST(DrakeRosConversions, Transform) {
+TEST(DrakeRosGeometryConversions, Transform) {
   geometry_msgs::msg::Transform transform;
   transform.translation.x = 1.0f;
   transform.translation.y = 2.0f;
@@ -80,7 +80,7 @@ TEST(DrakeRosConversions, Transform) {
                     transform)));
 }
 
-TEST(DrakeRosConversions, Twist) {
+TEST(DrakeRosGeometryConversions, Twist) {
   geometry_msgs::msg::Twist twist;
   twist.linear.x = 1.0f;
   twist.linear.y = 2.0f;
@@ -99,7 +99,7 @@ TEST(DrakeRosConversions, Twist) {
           drake_ros_core::conversions::ros_twist_to_drake_velocity(twist)));
 }
 
-TEST(DrakeRosConversions, Acceleration) {
+TEST(DrakeRosGeometryConversions, Acceleration) {
   geometry_msgs::msg::Accel accel;
   accel.linear.x = 1.0f;
   accel.linear.y = 2.0f;
@@ -117,7 +117,7 @@ TEST(DrakeRosConversions, Acceleration) {
                 drake_ros_core::conversions::ros_accel_to_drake_accel(accel)));
 }
 
-TEST(DrakeRosConversions, Wrench) {
+TEST(DrakeRosGeometryConversions, Wrench) {
   geometry_msgs::msg::Wrench wrench;
   wrench.force.x = 1.0f;
   wrench.force.y = 2.0f;
