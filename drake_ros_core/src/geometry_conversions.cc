@@ -73,7 +73,7 @@ geometry_msgs::msg::Pose Isometry3dToRosPose(
   return result;
 }
 
-drake::math::RigidTransformd RosPoseToTransform(
+drake::math::RigidTransformd RosPoseToRigidTransform(
     const geometry_msgs::msg::Pose& pose) {
   drake::math::RigidTransformd result;
   Eigen::Quaterniond orientation(pose.orientation.w, pose.orientation.x,
@@ -85,7 +85,7 @@ drake::math::RigidTransformd RosPoseToTransform(
   return result;
 }
 
-geometry_msgs::msg::Pose TransformToRosPose(
+geometry_msgs::msg::Pose RigidTransformToRosPose(
     const drake::math::RigidTransformd& transform) {
   geometry_msgs::msg::Pose result;
   result.position.x = transform.translation()[0];
@@ -125,7 +125,7 @@ geometry_msgs::msg::Transform Isometry3dToRosTransform(
   return result;
 }
 
-drake::math::RigidTransformd RosTransformToTransform(
+drake::math::RigidTransformd RosTransformToRigidTransform(
     const geometry_msgs::msg::Transform& transform) {
   drake::math::RigidTransformd result;
   Eigen::Quaterniond orientation(transform.rotation.w, transform.rotation.x,
@@ -137,7 +137,7 @@ drake::math::RigidTransformd RosTransformToTransform(
   return result;
 }
 
-geometry_msgs::msg::Transform TransformToRosTransform(
+geometry_msgs::msg::Transform RigidTransformToRosTransform(
     const drake::math::RigidTransformd& transform) {
   geometry_msgs::msg::Transform result;
   result.translation.x = transform.translation()[0];
