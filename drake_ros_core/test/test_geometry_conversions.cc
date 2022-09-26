@@ -16,28 +16,28 @@
 
 #include "drake_ros_core/geometry_conversions.h"
 
-TEST(DrakeRosGeometryConversions, point) {
+TEST(GeometryConversions, point) {
   geometry_msgs::msg::Point point;
   point.x = 1.0f;
   point.y = 2.0f;
   point.z = 3.0f;
 
-  EXPECT_EQ(point, drake_ros_core::EigenVector3dToRosPoint(
-                       drake_ros_core::RosPointToEigenVector3d(point)));
+  EXPECT_EQ(point, drake_ros_core::Vector3dToRosPoint(
+                       drake_ros_core::RosPointToVector3d(point)));
 }
 
-TEST(DrakeRosGeometryConversions, Quaternion) {
+TEST(GeometryConversions, Quaternion) {
   geometry_msgs::msg::Quaternion quat;
   quat.x = 0.1f;
   quat.y = 0.2f;
   quat.z = 0.3f;
   quat.w = 0.4f;
 
-  EXPECT_EQ(quat, drake_ros_core::EigenQuatToRosQuat(
-                      drake_ros_core::RosQuatToEigenQuat(quat)));
+  EXPECT_EQ(quat,
+            drake_ros_core::QuatToRosQuat(drake_ros_core::RosQuatToQuat(quat)));
 }
 
-TEST(DrakeRosGeometryConversions, Pose) {
+TEST(GeometryConversions, Pose) {
   geometry_msgs::msg::Pose pose;
   pose.position.x = 1.0f;
   pose.position.y = 2.0f;
@@ -47,13 +47,13 @@ TEST(DrakeRosGeometryConversions, Pose) {
   pose.orientation.z = 0.3f;
   pose.orientation.w = 0.4f;
 
-  EXPECT_EQ(pose, drake_ros_core::EigenIsometry3dToRosPose(
-                      drake_ros_core::RosPoseToEigenIsometry3d(pose)));
-  EXPECT_EQ(pose, drake_ros_core::DrakeTransformToRosPose(
-                      drake_ros_core::RosPoseToDrakeTransform(pose)));
+  EXPECT_EQ(pose, drake_ros_core::Isometry3dToRosPose(
+                      drake_ros_core::RosPoseToIsometry3d(pose)));
+  EXPECT_EQ(pose, drake_ros_core::TransformToRosPose(
+                      drake_ros_core::RosPoseToTransform(pose)));
 }
 
-TEST(DrakeRosGeometryConversions, Transform) {
+TEST(GeometryConversions, Transform) {
   geometry_msgs::msg::Transform transform;
   transform.translation.x = 1.0f;
   transform.translation.y = 2.0f;
@@ -64,14 +64,13 @@ TEST(DrakeRosGeometryConversions, Transform) {
   transform.rotation.w = 0.4f;
 
   EXPECT_EQ(transform,
-            drake_ros_core::EigenIsometry3dToRosTransform(
-                drake_ros_core::RosTransformToEigenIsometry3d(transform)));
-  EXPECT_EQ(transform,
-            drake_ros_core::DrakeTransformToRosTransform(
-                drake_ros_core::RosTransformToDrakeTransform(transform)));
+            drake_ros_core::Isometry3dToRosTransform(
+                drake_ros_core::RosTransformToIsometry3d(transform)));
+  EXPECT_EQ(transform, drake_ros_core::TransformToRosTransform(
+                           drake_ros_core::RosTransformToTransform(transform)));
 }
 
-TEST(DrakeRosGeometryConversions, Twist) {
+TEST(GeometryConversions, Twist) {
   geometry_msgs::msg::Twist twist;
   twist.linear.x = 1.0f;
   twist.linear.y = 2.0f;
@@ -80,13 +79,13 @@ TEST(DrakeRosGeometryConversions, Twist) {
   twist.angular.y = 5.0f;
   twist.angular.z = 6.0f;
 
-  EXPECT_EQ(twist, drake_ros_core::EigenVector6dToRosTwist(
-                       drake_ros_core::RosTwistToEigenVector6d(twist)));
-  EXPECT_EQ(twist, drake_ros_core::DrakeVelocityToRosTwist(
-                       drake_ros_core::RosTwistToDrakeVelocity(twist)));
+  EXPECT_EQ(twist, drake_ros_core::Vector6dToRosTwist(
+                       drake_ros_core::RosTwistToVector6d(twist)));
+  EXPECT_EQ(twist, drake_ros_core::VelocityToRosTwist(
+                       drake_ros_core::RosTwistToVelocity(twist)));
 }
 
-TEST(DrakeRosGeometryConversions, Acceleration) {
+TEST(GeometryConversions, Acceleration) {
   geometry_msgs::msg::Accel accel;
   accel.linear.x = 1.0f;
   accel.linear.y = 2.0f;
@@ -95,13 +94,13 @@ TEST(DrakeRosGeometryConversions, Acceleration) {
   accel.angular.y = 5.0f;
   accel.angular.z = 6.0f;
 
-  EXPECT_EQ(accel, drake_ros_core::EigenVector6dToRosAccel(
-                       drake_ros_core::RosAccelToEigenVector6d(accel)));
-  EXPECT_EQ(accel, drake_ros_core::DrakeAccelToRosAccel(
-                       drake_ros_core::RosAccelToDrakeAccel(accel)));
+  EXPECT_EQ(accel, drake_ros_core::Vector6dToRosAccel(
+                       drake_ros_core::RosAccelToVector6d(accel)));
+  EXPECT_EQ(accel, drake_ros_core::AccelToRosAccel(
+                       drake_ros_core::RosAccelToAccel(accel)));
 }
 
-TEST(DrakeRosGeometryConversions, Wrench) {
+TEST(GeometryConversions, Wrench) {
   geometry_msgs::msg::Wrench wrench;
   wrench.force.x = 1.0f;
   wrench.force.y = 2.0f;
@@ -110,8 +109,8 @@ TEST(DrakeRosGeometryConversions, Wrench) {
   wrench.torque.y = 5.0f;
   wrench.torque.z = 6.0f;
 
-  EXPECT_EQ(wrench, drake_ros_core::EigenVector6dToRosWrench(
-                        drake_ros_core::RosWrenchToEigenVector6d(wrench)));
-  EXPECT_EQ(wrench, drake_ros_core::DrakeForceToRosWrench(
-                        drake_ros_core::RosWrenchToDrakeForce(wrench)));
+  EXPECT_EQ(wrench, drake_ros_core::Vector6dToRosWrench(
+                        drake_ros_core::RosWrenchToVector6d(wrench)));
+  EXPECT_EQ(wrench, drake_ros_core::ForceToRosWrench(
+                        drake_ros_core::RosWrenchToForce(wrench)));
 }

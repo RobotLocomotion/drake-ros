@@ -28,72 +28,66 @@
 
 namespace drake_ros_core {
 
-Eigen::Vector3d RosPointToEigenVector3d(const geometry_msgs::msg::Point& point);
+Eigen::Vector3d RosPointToVector3d(const geometry_msgs::msg::Point& point);
 
-geometry_msgs::msg::Point EigenVector3dToRosPoint(const Eigen::Vector3d& point);
+geometry_msgs::msg::Point Vector3dToRosPoint(const Eigen::Vector3d& point);
 
-Eigen::Quaternion<double> RosQuatToEigenQuat(
+Eigen::Quaternion<double> RosQuatToQuat(
     const geometry_msgs::msg::Quaternion& quat);
 
-geometry_msgs::msg::Quaternion EigenQuatToRosQuat(
+geometry_msgs::msg::Quaternion QuatToRosQuat(
     const Eigen::Quaternion<double>& quat);
 
-Eigen::Isometry3d RosPoseToEigenIsometry3d(
+Eigen::Isometry3d RosPoseToIsometry3d(const geometry_msgs::msg::Pose& pose);
+
+geometry_msgs::msg::Pose Isometry3dToRosPose(const Eigen::Isometry3d& isometry);
+
+drake::math::RigidTransformd RosPoseToTransform(
     const geometry_msgs::msg::Pose& pose);
 
-geometry_msgs::msg::Pose EigenIsometry3dToRosPose(
-    const Eigen::Isometry3d& isometry);
-
-drake::math::RigidTransformd RosPoseToDrakeTransform(
-    const geometry_msgs::msg::Pose& pose);
-
-geometry_msgs::msg::Pose DrakeTransformToRosPose(
+geometry_msgs::msg::Pose TransformToRosPose(
     const drake::math::RigidTransformd& transform);
 
-Eigen::Isometry3d RosTransformToEigenIsometry3d(
+Eigen::Isometry3d RosTransformToIsometry3d(
     const geometry_msgs::msg::Transform& transform);
 
-geometry_msgs::msg::Transform EigenIsometry3dToRosTransform(
+geometry_msgs::msg::Transform Isometry3dToRosTransform(
     const Eigen::Isometry3d& isometry);
 
-drake::math::RigidTransformd RosTransformToDrakeTransform(
+drake::math::RigidTransformd RosTransformToTransform(
     const geometry_msgs::msg::Transform& transform);
 
-geometry_msgs::msg::Transform DrakeTransformToRosTransform(
+geometry_msgs::msg::Transform TransformToRosTransform(
     const drake::math::RigidTransformd& transform);
 
-drake::Vector6d RosTwistToEigenVector6d(const geometry_msgs::msg::Twist& twist);
+drake::Vector6d RosTwistToVector6d(const geometry_msgs::msg::Twist& twist);
 
-geometry_msgs::msg::Twist EigenVector6dToRosTwist(
-    const drake::Vector6d& vector);
+geometry_msgs::msg::Twist Vector6dToRosTwist(const drake::Vector6d& vector);
 
-drake::multibody::SpatialVelocity<double> RosTwistToDrakeVelocity(
+drake::multibody::SpatialVelocity<double> RosTwistToVelocity(
     const geometry_msgs::msg::Twist& twist);
 
-geometry_msgs::msg::Twist DrakeVelocityToRosTwist(
+geometry_msgs::msg::Twist VelocityToRosTwist(
     const drake::multibody::SpatialVelocity<double>& velocity);
 
-drake::Vector6d RosAccelToEigenVector6d(const geometry_msgs::msg::Accel& accel);
+drake::Vector6d RosAccelToVector6d(const geometry_msgs::msg::Accel& accel);
 
-geometry_msgs::msg::Accel EigenVector6dToRosAccel(
-    const drake::Vector6d& vector);
+geometry_msgs::msg::Accel Vector6dToRosAccel(const drake::Vector6d& vector);
 
-drake::multibody::SpatialAcceleration<double> RosAccelToDrakeAccel(
+drake::multibody::SpatialAcceleration<double> RosAccelToAccel(
     const geometry_msgs::msg::Accel& accel);
 
-geometry_msgs::msg::Accel DrakeAccelToRosAccel(
+geometry_msgs::msg::Accel AccelToRosAccel(
     const drake::multibody::SpatialAcceleration<double>& accel);
 
-drake::Vector6d RosWrenchToEigenVector6d(
+drake::Vector6d RosWrenchToVector6d(const geometry_msgs::msg::Wrench& wrench);
+
+geometry_msgs::msg::Wrench Vector6dToRosWrench(const drake::Vector6d& vector);
+
+drake::multibody::SpatialForce<double> RosWrenchToForce(
     const geometry_msgs::msg::Wrench& wrench);
 
-geometry_msgs::msg::Wrench EigenVector6dToRosWrench(
-    const drake::Vector6d& vector);
-
-drake::multibody::SpatialForce<double> RosWrenchToDrakeForce(
-    const geometry_msgs::msg::Wrench& wrench);
-
-geometry_msgs::msg::Wrench DrakeForceToRosWrench(
+geometry_msgs::msg::Wrench ForceToRosWrench(
     const drake::multibody::SpatialForce<double>& force);
 
 }  // namespace drake_ros_core
