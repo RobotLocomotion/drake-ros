@@ -26,7 +26,7 @@ if(NOT Eigen3_FOUND)
 endif()
 
 add_library(drake_ros_core
-  src/conversions.cc
+  src/geometry_conversions.cc
   src/drake_ros.cc
   src/publisher.cc
   src/ros_interface_system.cc
@@ -149,8 +149,8 @@ if(BUILD_TESTING)
     drake_ros_core
   )
 
-  ament_add_gtest(test_conversions test/test_conversions.cc)
-  taRget_link_libraries(test_conversions drake_ros_core)
+  ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
+  taRget_link_libraries(test_geometry_conversions drake_ros_core)
 endif()
 
 ament_package()
