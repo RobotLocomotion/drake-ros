@@ -16,6 +16,9 @@
 
 #include "drake_ros_core/geometry_conversions.h"
 
+namespace drake_ros_core {
+namespace {
+
 TEST(GeometryConversions, point) {
   geometry_msgs::msg::Point point;
   point.x = 1.0f;
@@ -115,3 +118,6 @@ TEST(GeometryConversions, Wrench) {
   EXPECT_EQ(wrench, drake_ros_core::ForceToRosWrench(
                         drake_ros_core::RosWrenchToForce(wrench)));
 }
+
+}  // namespace
+}  // namespace drake_ros_core
