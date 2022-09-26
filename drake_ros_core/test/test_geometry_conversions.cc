@@ -49,8 +49,8 @@ TEST(GeometryConversions, Pose) {
 
   EXPECT_EQ(pose, drake_ros_core::Isometry3dToRosPose(
                       drake_ros_core::RosPoseToIsometry3d(pose)));
-  EXPECT_EQ(pose, drake_ros_core::TransformToRosPose(
-                      drake_ros_core::RosPoseToTransform(pose)));
+  EXPECT_EQ(pose, drake_ros_core::RigidTransformToRosPose(
+                      drake_ros_core::RosPoseToRigidTransform(pose)));
 }
 
 TEST(GeometryConversions, Transform) {
@@ -66,8 +66,9 @@ TEST(GeometryConversions, Transform) {
   EXPECT_EQ(transform,
             drake_ros_core::Isometry3dToRosTransform(
                 drake_ros_core::RosTransformToIsometry3d(transform)));
-  EXPECT_EQ(transform, drake_ros_core::TransformToRosTransform(
-                           drake_ros_core::RosTransformToTransform(transform)));
+  EXPECT_EQ(transform,
+            drake_ros_core::RigidTransformToRosTransform(
+                drake_ros_core::RosTransformToRigidTransform(transform)));
 }
 
 TEST(GeometryConversions, Twist) {

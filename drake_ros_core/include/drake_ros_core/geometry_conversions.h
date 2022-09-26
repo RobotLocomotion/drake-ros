@@ -42,10 +42,10 @@ Eigen::Isometry3d RosPoseToIsometry3d(const geometry_msgs::msg::Pose& pose);
 
 geometry_msgs::msg::Pose Isometry3dToRosPose(const Eigen::Isometry3d& isometry);
 
-drake::math::RigidTransformd RosPoseToTransform(
+drake::math::RigidTransformd RosPoseToRigidTransform(
     const geometry_msgs::msg::Pose& pose);
 
-geometry_msgs::msg::Pose TransformToRosPose(
+geometry_msgs::msg::Pose RigidTransformToRosPose(
     const drake::math::RigidTransformd& transform);
 
 Eigen::Isometry3d RosTransformToIsometry3d(
@@ -54,10 +54,10 @@ Eigen::Isometry3d RosTransformToIsometry3d(
 geometry_msgs::msg::Transform Isometry3dToRosTransform(
     const Eigen::Isometry3d& isometry);
 
-drake::math::RigidTransformd RosTransformToTransform(
+drake::math::RigidTransformd RosTransformToRigidTransform(
     const geometry_msgs::msg::Transform& transform);
 
-geometry_msgs::msg::Transform TransformToRosTransform(
+geometry_msgs::msg::Transform RigidTransformToRosTransform(
     const drake::math::RigidTransformd& transform);
 
 drake::Vector6d RosTwistToVector6d(const geometry_msgs::msg::Twist& twist);
