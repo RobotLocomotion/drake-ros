@@ -27,7 +27,6 @@
 #include <geometry_msgs/msg/wrench.hpp>
 
 namespace drake_ros_core {
-namespace conversions {
 
 Eigen::Vector3d ros_point_to_eigen_vector3d(
     const geometry_msgs::msg::Point& point);
@@ -101,5 +100,4 @@ drake::multibody::SpatialForce<double> ros_wrench_to_drake_force(
 geometry_msgs::msg::Wrench drake_force_to_ros_wrench(
     const drake::multibody::SpatialForce<double>& force);
 
-}  // namespace conversions
 }  // namespace drake_ros_core

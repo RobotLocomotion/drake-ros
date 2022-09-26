@@ -15,7 +15,6 @@
 #include "drake_ros_core/geometry_conversions.h"
 
 namespace drake_ros_core {
-namespace conversions {
 
 Eigen::Vector3d ros_point_to_eigen_vector3d(
     const geometry_msgs::msg::Point& point) {
@@ -287,5 +286,4 @@ geometry_msgs::msg::Wrench drake_force_to_ros_wrench(
   return result;
 }
 
-}  // namespace conversions
 }  // namespace drake_ros_core
