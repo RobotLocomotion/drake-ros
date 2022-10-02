@@ -60,7 +60,10 @@ class SceneTfBroadcasterSystem : public drake::systems::Diagram<double> {
   void RegisterMultibodyPlant(
       const drake::multibody::MultibodyPlant<double>* plant);
 
-  const drake::systems::InputPort<double>& get_graph_query_port() const;
+  /** Forwarded to SceneTfSystem::ComputeFrameHierarchy(). */
+  void ComputeFrameHierarchy();
+
+  const drake::systems::InputPort<double>& get_graph_query_input_port() const;
 
  private:
   class Impl;

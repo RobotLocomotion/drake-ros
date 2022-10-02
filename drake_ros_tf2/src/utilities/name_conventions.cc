@@ -23,6 +23,15 @@
 namespace drake_ros_tf2 {
 
 std::string GetTfFrameName(
+    const drake::multibody::Body<double>& body,
+    const drake::multibody::MultibodyPlant<double>* plant,
+    const drake::geometry::FrameId& frame_id) {
+  return internal::CalcTfFrameName(
+      plant->GetModelInstanceName(body.model_instance()), body.name(),
+      body.index(), frame_id.get_value());
+}
+
+std::string GetTfFrameName(
     const drake::geometry::SceneGraphInspector<double>& inspector,
     const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>&
         plants,
@@ -32,7 +41,6 @@ std::string GetTfFrameName(
     return "world";
   }
 
-  std::stringstream ss;
   for (auto* plant : plants) {
     const drake::multibody::Body<double>* body =
         plant->GetBodyFromFrameId(frame_id);

@@ -76,9 +76,10 @@ int main() {
 
   rviz_visualizer->RegisterMultibodyPlant(
       &manipulation_station->get_multibody_plant());
+  rviz_visualizer->ComputeFrameHierarchy();
 
   builder.Connect(manipulation_station->GetOutputPort("query_object"),
-                  rviz_visualizer->get_graph_query_port());
+                  rviz_visualizer->get_graph_query_input_port());
 
   auto diagram = builder.Build();
   auto context = diagram->CreateDefaultContext();

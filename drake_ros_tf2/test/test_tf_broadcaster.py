@@ -81,7 +81,7 @@ def test_nominal_case():
 
     builder.Connect(
         scene_graph.get_query_output_port(),
-        scene_tf_broadcaster.get_graph_query_port())
+        scene_tf_broadcaster.get_graph_query_input_port())
 
     diagram = builder.Build()
     context = diagram.CreateDefaultContext()

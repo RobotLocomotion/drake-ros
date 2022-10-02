@@ -130,7 +130,7 @@ class DrakeTestSystem:
             self.manipulation_station.get_multibody_plant())
         builder.Connect(
             self.manipulation_station.GetOutputPort('query_object'),
-            rviz_visualizer.get_graph_query_port()
+            rviz_visualizer.get_graph_query_input_port()
         )
 
         self.diagram = builder.Build()

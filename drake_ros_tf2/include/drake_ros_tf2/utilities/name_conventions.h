@@ -56,4 +56,8 @@ std::string GetTfFrameName(
         plants,
     const drake::geometry::GeometryId& geometry_id);
 
+std::string GetTfFrameName(
+    const drake::multibody::Body<double>& body,
+    const drake::multibody::MultibodyPlant<double>* plant,
+    const drake::geometry::FrameId& frame_id);
 }  // namespace drake_ros_tf2
