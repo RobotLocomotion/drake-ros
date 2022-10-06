@@ -14,7 +14,7 @@
 #pragma once
 
 #include <drake_ros_core/clock_system.h>
-#include <drake_ros_core/ros_publisher.h>
+#include <drake_ros_core/ros_publisher_system.h>
 
 #include <rosgraph_msgs/msg/clock.hpp>
 
@@ -27,13 +27,13 @@ void AddClockPublisher(
       RosPublisherSystem::kDefaultTriggerTypes,
     double publish_period = 0.0)
 {
-  auto* clock_system = builder->AddSystem<ClockPublisher>();
+  auto* clock_system = builder->AddSystem<ClockSystem>();
 
-  auto* pub_system = builder.AddSystem(
-    RosPublisher::Make<rosgraph_msgs::msg::Clock>(
-      topic_name, qos, publish_triggers, publish_period));
+  auto* pub_system = builder->AddSystem(
+    RosPublisherSystem::Make<rosgraph_msgs::msg::Clock>(
+      topic_name, qos, ros, publish_triggers, publish_period));
 
-  builder.Connect(
+  builder->Connect(
     clock_system->get_output_port(),
     pub_system->get_input_port());
 }
