@@ -19,6 +19,7 @@ find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 
 add_library(drake_ros_core
+  src/clock_system.cc
   src/drake_ros.cc
   src/publisher.cc
   src/ros_interface_system.cc
