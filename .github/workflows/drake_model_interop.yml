@@ -26,4 +26,4 @@ jobs:
         run: sudo apt-get install xvfb
       - name: Download, convert and test models
         shell: bash
-        run: xvfb-run --auto-servernum bash ./setup/ci_tests.sh
+        run: xvfb-run --auto-servernum python ./setup/ci_tests.py

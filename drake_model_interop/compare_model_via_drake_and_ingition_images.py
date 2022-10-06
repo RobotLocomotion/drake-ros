@@ -138,8 +138,7 @@ def generate_sdf(model, poses_file, random, file_name, render_camera_core):
                 <sensor name="camera" type="camera">
                     <camera>
                         <horizontal_fov>
-                                {2*math.atan(render_camera_core.intrinsics().width()/
-                                             (2*render_camera_core.intrinsics().focal_x()))}
+                          {render_camera_core.intrinsics().fov_x()}
                         </horizontal_fov>
                         <image>
                             <width>{render_camera_core.intrinsics().width()}</width>
@@ -174,7 +173,7 @@ def perform_iou_testing(
     drake_visualizer,
 ):
 
-    random_poses = {}
+    random_joint_rotations = {}
     # Read camera translation calculated and applied on gazebo
     # we read the random positions file as it contains everything:
     with open(
@@ -182,22 +181,19 @@ def perform_iou_testing(
         "r",
     ) as datafile:
         for line in datafile:
-            if line.startswith("Translation:"):
-                line_split = line.split(" ")
+            line_split = line.split(" ")
+            if line_split[0] == "Translation:":
                 # we make the value negative since gazebo moved the robot
                 # and in drakewe move the camera
                 trans_x = float(line_split[1])
                 trans_y = float(line_split[2])
                 trans_z = float(line_split[3])
-            elif line.startswith("Scaling:"):
-                line_split = line.split(" ")
+            elif line_split[0] == "Scaling:":
                 scaling = float(line_split[1])
+            # If it's not the translation or the scaling it corresponds to
+            # the rotation of a joint in the form: "JointName: rotationvalue"
             else:
-                line_split = line.split(" ")
-                if line_split[1] == "nan":
-                    random_poses[line_split[0][:-1]] = 0
-                else:
-                    random_poses[line_split[0][:-1]] = float(line_split[1])
+                random_joint_rotations[line_split[0][:-1]] = float(line_split[1])
 
     builder = DiagramBuilder()
     plant, scene_graph = AddMultibodyPlantSceneGraph(builder, 0.0)
@@ -271,8 +267,8 @@ def perform_iou_testing(
         )
 
     if randomize_poses:
-        joint_positions = [0] * dofs
-        for joint_name, pose in random_poses.items():
+        joint_positions = [0] * plant.num_positions()
+        for joint_name, pose in random_joint_rotations.items():
             # check if NaN
             if pose != pose:
                 pose = 0

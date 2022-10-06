@@ -1,16 +1,1 @@
-# Following adapted from a portion of TRI Anzu code.
-# Jupyter, for interactive workflows.
-jupyter == 1.0.0
-jupyterlab == 3.0.3
-# - The `jupyter` package does not strictly fix upstream packages, and there are
-# discrepancies between `matplotlib` and some of the IPython code. For now,
-# we fix these according to a working version of `info-req.txt` in older archives.
-ipykernel == 5.4.3
-ipywidgets == 7.6.3
-notebook == 6.1.6
-widgetsnbextension == 3.5.1
-# TODO(eric, andres): Remove this once the following issue is resolved:
-# https://github.com/ipython/ipython/issues/12740
-jedi == 0.17.2
-drake == 1.3.0
-lxml==4.5.0
+drake == 1.8.0

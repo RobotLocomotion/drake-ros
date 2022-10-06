@@ -297,9 +297,6 @@ def main():
     source_tree = parent_dir(abspath(__file__), count=1)
     cd(source_tree)
 
-    print(pyassimp.__file__)
-    print(pyassimp.core._assimp_lib.dll)
-
     cd(args.model_directory)
     print(f"[ Convert Meshes for Drake :( ]")
     for dae_file in find_mesh_files(".", ".dae"):
@@ -334,13 +331,12 @@ def main():
         print()
 
         urdf_files = []
-        # Start a roscore, 'cause blech.
+        # Start a roscore.
         roscore = CapturedProcess(
             ["roscore", "-p", "11321"],
             on_new_text=bind_print_prefixed("[roscore] "),
         )
         with closing(roscore):
-            # Blech.
             while "started core service" not in roscore.output.get_text():
                 assert roscore.poll() is None
 
@@ -348,7 +344,6 @@ def main():
                 shell(f"roslaunch ur_description load_{flavor}.launch")
                 urdf_file = f"urdf/{flavor}.urdf"
                 output = subshell(f"rosparam get /robot_description")
-                # Blech : (
                 content = yaml.load(output)
                 content = replace_text_to_obj(content, ".stl")
                 content = replace_text_to_obj(content, ".dae")
