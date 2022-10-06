@@ -54,7 +54,7 @@ int main() {
           drake_ros_tf2::SceneTfBroadcasterParams{
               {drake::systems::TriggerType::kForced}, 0., "/tf"});
   builder.Connect(scene_graph.get_query_output_port(),
-                  scene_tf_broadcaster->get_graph_query_port());
+                  scene_tf_broadcaster->get_graph_query_input_port());
 
   // Add a system to output the visualisation markers for rviz
   auto scene_visualizer = builder.AddSystem<drake_ros_viz::RvizVisualizer>(
@@ -62,7 +62,7 @@ int main() {
       drake_ros_viz::RvizVisualizerParams{
           {drake::systems::TriggerType::kForced}, 0., true});
   builder.Connect(scene_graph.get_query_output_port(),
-                  scene_visualizer->get_graph_query_port());
+                  scene_visualizer->get_graph_query_input_port());
 
   // Prepare to load the robot model
   auto parser = drake::multibody::Parser(&plant);
