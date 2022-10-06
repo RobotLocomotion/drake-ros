@@ -316,9 +316,9 @@ def main():
     else:
         print("Found URDF as description file, translating through ros launch")
         cd(source_tree)
-        cd("repos/universal_robot")
+        cd(args.model_directory)
         if "ROS_DISTRO" not in os.environ:
-            raise UserError("Please run under `./ros_setup.bash`, or whatevs")
+            raise UserError("Please run under `source /opt/ros/noetic/setup.bash`")
 
         # Use URI that is unlikely to be used.
         os.environ["ROS_MASTER_URI"] = "http://localhost:11321"

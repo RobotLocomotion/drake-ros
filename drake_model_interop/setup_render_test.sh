@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 
 if [[ $# -lt 2 || $# -gt 6 ]]; then
     echo "Please provide path to model directory and model file name."
@@ -29,5 +29,6 @@ if [[ $# -gt 2 ]]; then
     ./compare_model_via_drake_and_ingition_images.py $@ --temp_directory "$temp_directory"
 else
     set -x
-    ./ros_setup.bash ./format_model_and_generate_manifest.py $@
+    source /opt/ros/noetic/setup.bash
+    ./format_model_and_generate_manifest.py $@
 fi
