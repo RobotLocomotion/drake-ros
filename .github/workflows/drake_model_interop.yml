@@ -23,7 +23,7 @@ jobs:
       - name: Install prerequisites
         run: yes | ./setup/install_prereqs.sh
       - name: Install xvfb
-        run: sudo apt-get install xvfb
+        run: sudo apt-get install xvfb python3
       - name: Download, convert and test models
         shell: bash
-        run: xvfb-run --auto-servernum python ./setup/ci_tests.py
+        run: xvfb-run --auto-servernum python3 ./setup/ci_tests.py
