@@ -23,6 +23,7 @@ find_package(geometry_msgs REQUIRED)
 
 
 add_library(drake_ros_core
+  src/clock_system.cc
   src/drake_ros.cc
   src/geometry_conversions.cc
   src/publisher.cc
