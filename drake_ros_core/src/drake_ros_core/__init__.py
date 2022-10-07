@@ -72,31 +72,6 @@ def _make_ros_subscriber_system(
 RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 
-# def add_clock_publisher(
-#     builder, ros_interface,
-#     topic_name="/clock",
-#     qos=None,
-#     publish_triggers={
-#         TriggerType.kPerStep,
-#         TriggerType.kForced},
-#     publish_period=0.0
-# ):
-#     if qos is None:
-#         qos = rclpy.qos.QoSProfile(
-#             depth=1,
-#             reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT)
-# 
-#     clock_sys = builder.AddSystem(ClockSystem())
-# 
-#     pub_sys = builder.AddSystem(RosPublisherSystem.Make(
-#         rosgraph_msgs.msg.Clock, topic_name, qos, ros_interface,
-#         publish_triggers, publish_period))
-# 
-#     builder.Connect(
-#         clock_sys.get_output_port(),
-#         pub_sys.get_input_port());
-
-
 __all__ = [
     'add_clock_publisher',
     'ClockSystem',
