@@ -14,8 +14,14 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <tuple>
+#include <unordered_set>
 
+#include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
+#include <drake_ros_core/ros_publisher_system.h>
+#include <rclcpp/qos.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
 
 namespace drake_ros_core {
@@ -28,6 +34,16 @@ class ClockSystem : public drake::systems::LeafSystem<double> {
   ClockSystem();
 
   ~ClockSystem() override;
+
+  /** Add a ClockSystem and RosPublisherSystem to a diagram builder.
+   */
+  static std::tuple<ClockSystem*, RosPublisherSystem*> AddToBuilder(
+      drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
+      const std::string& topic_name = "/clock",
+      const rclcpp::QoS& qos = rclcpp::ClockQoS(),
+      const std::unordered_set<drake::systems::TriggerType>& publish_triggers =
+          RosPublisherSystem::kDefaultTriggerTypes,
+      double publish_period = 0.0);
 
  protected:
   void CalcClock(const drake::systems::Context<double>& context,
