@@ -59,7 +59,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
       [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
          const std::string& topic_name, const drake_ros_core::QoS& qos,
          const std::unordered_set<drake::systems::TriggerType>& pub_triggers,
-         double publish_period = 0.0) {
+         double publish_period) {
         AddClockPublisher(
           builder, ros, topic_name, qos, pub_triggers, publish_period);
       },
