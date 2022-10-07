@@ -74,7 +74,6 @@ RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 __all__ = [
     'add_clock_publisher',
-    'ClockSystem',
     'DrakeRosInterface',
     'init',
     'PySerializer',
