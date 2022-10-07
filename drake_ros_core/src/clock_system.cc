@@ -15,4 +15,4 @@ void ClockSystem::CalcClock(const drake::systems::Context<double>& context,
   rclcpp::Time now;
   now += rclcpp::Duration::from_seconds(context.get_time());
   output_value->clock = now;
-};
+}
