@@ -48,7 +48,7 @@ if __name__ == '__main__':
     )
     builder.Connect(
         scene_graph.get_query_output_port(),
-        scene_tf_broadcaster.get_graph_query_port())
+        scene_tf_broadcaster.get_graph_query_input_port())
 
     # Add a system to output the visualisation markers for rviz
     scene_visualizer = builder.AddSystem(
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     )
     builder.Connect(
         scene_graph.get_query_output_port(),
-        scene_visualizer.get_graph_query_port())
+        scene_visualizer.get_graph_query_input_port())
 
     # Prepare to load the robot model
     parser = Parser(plant)
