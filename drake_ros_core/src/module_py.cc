@@ -102,18 +102,16 @@ PYBIND11_MODULE(_drake_ros_core, m) {
          const std::string& topic_name, const drake_ros_core::QoS& qos,
          const std::unordered_set<drake::systems::TriggerType>& pub_triggers,
          double publish_period) {
-        AddClockPublisher(
-          builder, ros, topic_name, qos, pub_triggers, publish_period);
+        AddClockPublisher(builder, ros, topic_name, qos, pub_triggers,
+                          publish_period);
       },
-      py::arg("builder"), py::arg("ros"),
-      py::kw_only(),
+      py::arg("builder"), py::arg("ros"), py::kw_only(),
       py::arg("topic_name") = std::string{"/clock"},
       py::arg("qos") = drake_ros_core::QoS(rclcpp::ClockQoS()),
       py::arg("publish_triggers") =
-        std::unordered_set<drake::systems::TriggerType>{
-          RosPublisherSystem::kDefaultTriggerTypes},
-      py::arg("publish_period") = 0.0
-      );
+          std::unordered_set<drake::systems::TriggerType>{
+              RosPublisherSystem::kDefaultTriggerTypes},
+      py::arg("publish_period") = 0.0);
 
   m.def(
       "init",
