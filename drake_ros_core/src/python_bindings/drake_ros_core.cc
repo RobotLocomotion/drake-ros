@@ -19,7 +19,9 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <rclcpp/qos.hpp>
 
+#include "drake_ros_core/add_clock_publisher.h"
 #include "drake_ros_core/drake_ros.h"
 #include "drake_ros_core/ros_interface_system.h"
 #include "drake_ros_core/ros_publisher_system.h"
@@ -30,6 +32,7 @@ namespace py = pybind11;
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
 
+using drake_ros_core::AddClockPublisher;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::PySerializerInterface;
 using drake_ros_core::RosInterfaceSystem;
@@ -50,6 +53,36 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // C++ docstrings. Consider using mkdoc to keep
   // them in sync, like pydrake does.
   py::class_<DrakeRos>(m, "DrakeRos");
+
+  // py::class_<ClockSystem, LeafSystem<double>>(m, "ClockSystem")
+  //     .def(py::init([](){
+  //           return std::make_unique<ClockSystem>();
+  //     }));
+
+  m.def(
+      "add_clock_publisher",
+      [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros//,
+          ){
+         // const std::string& topic_name,
+         // const rclcpp::QoS& qos,
+         // const std::unordered_set<drake::systems::TriggerType>& pub_trigers,
+         // double publish_period = 0.0){
+
+        AddClockPublisher(builder, ros);
+      },
+      // py::overload_cast<drake::systems::DiagramBuilder<double>*, DrakeRos*,
+      //   const std::string&, const rclcpp::QoS&,
+      //   const std::unordered_set<drake::systems::TriggerType>&, double>(
+      //     &AddClockPublisher),
+      py::arg("builder"), py::arg("ros")//,
+      // py::kw_only(),
+      // py::arg("topic_name"),// = std::string{"/clock"},
+      // py::arg("qos"),// = drake_ros_core::QoS(rclcpp::ClockQoS()),
+      // py::arg("publish_triggers"),// =
+      //   std::unordered_set<drake::systems::TriggerType>{
+      //     RosPublisherSystem::kDefaultTriggerTypes},
+      // py::arg("publish_period")// = 0.0
+      );
 
   m.def(
       "init",

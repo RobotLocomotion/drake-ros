@@ -4,10 +4,6 @@
 
 using drake_ros_core::ClockSystem;
 
-// class ClockSystem::Impl {
-// 
-// };
-
 ClockSystem::ClockSystem()
 {
   DeclareAbstractOutputPort("clock", &ClockSystem::CalcClock);
