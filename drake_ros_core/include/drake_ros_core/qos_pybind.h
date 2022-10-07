@@ -26,6 +26,8 @@ namespace drake_ros_core {
 class QoS : public rclcpp::QoS {
  public:
   QoS() : rclcpp::QoS(1) {}
+
+  explicit QoS(const rclcpp::QoS& other) : rclcpp::QoS(other) {}
 };
 }  // namespace drake_ros_core
 
@@ -76,6 +78,9 @@ struct type_caster<drake_ros_core::QoS> {
     value.deadline(rclcpp::Duration::from_nanoseconds(
         source.attr("deadline").attr("nanoseconds").cast<int64_t>()));
 
+    value.liveliness(static_cast<rmw_qos_liveliness_policy_t>(
+        source.attr("liveliness").cast<ssize_t>()));
+
     value.liveliness_lease_duration(rclcpp::Duration::from_nanoseconds(
         source.attr("liveliness_lease_duration")
             .attr("nanoseconds")
@@ -87,13 +92,40 @@ struct type_caster<drake_ros_core::QoS> {
     return true;
   }
 
-  // Convert from Python QoS to rclpy.qos.QoSProfile
+  // Convert from drake_ros_core::QoS to rclpy.qos.QoSProfile
   static handle cast(drake_ros_core::QoS src, return_value_policy policy,
                      handle parent) {
-    (void)src;
     (void)policy;
     (void)parent;
-    Py_RETURN_NOTIMPLEMENTED;
+
+    const auto& rmw_qos = src.get_rmw_qos_profile();
+
+    object duration = module::import("rclpy.duration").attr("Duration");
+
+    object lifespan_duration = duration(
+        py::arg("seconds") = rmw_qos.lifespan.sec,
+        py::arg("nanoseconds") = rmw_qos.lifespan.nsec);
+
+    object deadline_duration = duration(
+        py::arg("seconds") = rmw_qos.deadline.sec,
+        py::arg("nanoseconds") = rmw_qos.deadline.nsec);
+
+    object liveliness_lease_duration = duration(
+        py::arg("seconds") = rmw_qos.liveliness_lease_duration.sec,
+        py::arg("nanoseconds") = rmw_qos.liveliness_lease_duration.nsec);
+
+    object instance = module::import("rclpy.qos").attr("QoSProfile")(
+      py::arg("history") = static_cast<ssize_t>(rmw_qos.history),
+      py::arg("depth") = static_cast<size_t>(rmw_qos.depth),
+      py::arg("reliability") = static_cast<ssize_t>(rmw_qos.reliability),
+      py::arg("durability") = static_cast<ssize_t>(rmw_qos.durability),
+      py::arg("lifespan") = lifespan_duration,
+      py::arg("deadline") = deadline_duration,
+      py::arg("liveliness") = static_cast<ssize_t>(rmw_qos.liveliness),
+      py::arg("liveliness_lease_duration") = liveliness_lease_duration,
+      py::arg("avoid_ros_namespace_conventions") = rmw_qos.avoid_ros_namespace_conventions);
+    instance.inc_ref();
+    return instance;
   }
 };
 }  // namespace detail

@@ -13,9 +13,10 @@
 // limitations under the License.
 #pragma once
 
+#include <drake/systems/framework/diagram_builder.h>
 #include <drake_ros_core/clock_system.h>
 #include <drake_ros_core/ros_publisher_system.h>
-
+#include <rclcpp/qos.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
 
 namespace drake_ros_core {

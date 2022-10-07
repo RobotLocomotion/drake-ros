@@ -1,5 +1,6 @@
 """Python wrapper for drake_ros_core."""
 
+from _drake_ros_core import add_clock_publisher
 from _drake_ros_core import init
 from _drake_ros_core import RosInterfaceSystem
 from _drake_ros_core import RosPublisherSystem
@@ -13,6 +14,9 @@ from pydrake.systems.framework import TriggerType
 from rclpy.serialization import serialize_message
 from rclpy.serialization import deserialize_message
 from rclpy.type_support import check_for_type_support
+import rclpy.qos
+
+import rosgraph_msgs.msg
 
 
 class PySerializer(SerializerInterface):
@@ -68,7 +72,34 @@ def _make_ros_subscriber_system(
 RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 
+# def add_clock_publisher(
+#     builder, ros_interface,
+#     topic_name="/clock",
+#     qos=None,
+#     publish_triggers={
+#         TriggerType.kPerStep,
+#         TriggerType.kForced},
+#     publish_period=0.0
+# ):
+#     if qos is None:
+#         qos = rclpy.qos.QoSProfile(
+#             depth=1,
+#             reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT)
+# 
+#     clock_sys = builder.AddSystem(ClockSystem())
+# 
+#     pub_sys = builder.AddSystem(RosPublisherSystem.Make(
+#         rosgraph_msgs.msg.Clock, topic_name, qos, ros_interface,
+#         publish_triggers, publish_period))
+# 
+#     builder.Connect(
+#         clock_sys.get_output_port(),
+#         pub_sys.get_input_port());
+
+
 __all__ = [
+    'add_clock_publisher',
+    'ClockSystem',
     'DrakeRosInterface',
     'init',
     'PySerializer',

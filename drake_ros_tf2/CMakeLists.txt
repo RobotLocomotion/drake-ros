@@ -81,6 +81,9 @@ target_include_directories(py_drake_ros_tf2
 
 # Sets PYTHON_INSTALL_DIR
 ament_get_python_install_dir(python_install_dir)
+# Manually register the environment hook because we didn't use an ament
+# function to install the python module
+_ament_cmake_python_register_environment_hook()
 
 install(
   TARGETS py_drake_ros_tf2

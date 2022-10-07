@@ -32,9 +32,5 @@ class ClockSystem : public drake::systems::LeafSystem<double> {
  protected:
   void CalcClock(const drake::systems::Context<double>& context,
                  rosgraph_msgs::msg::Clock* output_value) const;
-
- private:
-  // struct Impl;
-  // std::unique_ptr<Impl> impl_;
 };
 }  // namespace drake_ros_core
