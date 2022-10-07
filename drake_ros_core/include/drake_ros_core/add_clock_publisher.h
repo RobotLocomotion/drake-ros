@@ -13,6 +13,9 @@
 // limitations under the License.
 #pragma once
 
+#include <string>
+#include <unordered_set>
+
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake_ros_core/clock_system.h>
 #include <drake_ros_core/ros_publisher_system.h>
