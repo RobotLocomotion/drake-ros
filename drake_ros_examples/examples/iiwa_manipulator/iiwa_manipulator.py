@@ -16,7 +16,7 @@
 import numpy as np
 
 import drake_ros_core
-from drake_ros_core import add_clock_publisher
+from drake_ros_core import ClockSystem
 from drake_ros_core import RosInterfaceSystem
 from drake_ros_viz import RvizVisualizer
 
@@ -32,7 +32,7 @@ def main():
 
     drake_ros_core.init()
     ros_interface_system = builder.AddSystem(RosInterfaceSystem("iiwa_manipulator_node"))
-    add_clock_publisher(builder, ros_interface_system.get_ros_interface())
+    ClockSystem.AddToBuilder(builder, ros_interface_system.get_ros_interface())
 
     manipulation_station = builder.AddSystem(ManipulationStation())
     manipulation_station.SetupClutterClearingStation()
