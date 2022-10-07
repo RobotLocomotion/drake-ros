@@ -22,13 +22,13 @@
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
-#include <drake_ros_core/add_clock_publisher.h>
+#include <drake_ros_core/clock_system.h>
 #include <drake_ros_core/drake_ros.h>
 #include <drake_ros_core/ros_interface_system.h>
 #include <drake_ros_tf2/scene_tf_broadcaster_system.h>
 #include <drake_ros_viz/rviz_visualizer.h>
 
-using drake_ros_core::AddClockPublisher;
+using drake_ros_core::ClockSystem;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
 
@@ -44,7 +44,8 @@ int main() {
   // Create a Drake system to interface with ROS
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("multirobot_node"));
-  AddClockPublisher(&builder, ros_interface_system->get_ros_interface());
+  ClockSystem::AddToBuilder(&builder,
+                            ros_interface_system->get_ros_interface());
 
   // Add a multibody plant and a scene graph to hold the robots
   auto [plant, scene_graph] =

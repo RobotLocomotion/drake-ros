@@ -1,6 +1,6 @@
 """Python wrapper for drake_ros_core."""
 
-from _drake_ros_core import add_clock_publisher
+from _drake_ros_core import ClockSystem
 from _drake_ros_core import init
 from _drake_ros_core import RosInterfaceSystem
 from _drake_ros_core import RosPublisherSystem
@@ -73,7 +73,7 @@ RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 
 __all__ = [
-    'add_clock_publisher',
+    'ClockSystem',
     'DrakeRosInterface',
     'init',
     'PySerializer',

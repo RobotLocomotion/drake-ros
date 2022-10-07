@@ -19,7 +19,7 @@
 #include <pybind11/stl.h>
 #include <rclcpp/qos.hpp>
 
-#include "drake_ros_core/add_clock_publisher.h"
+#include "drake_ros_core/clock_system.h"
 #include "drake_ros_core/drake_ros.h"
 #include "drake_ros_core/qos_pybind.h"
 #include "drake_ros_core/ros_interface_system.h"
@@ -96,22 +96,33 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // them in sync, like pydrake does.
   py::class_<DrakeRos>(m, "DrakeRos");
 
-  m.def(
-      "add_clock_publisher",
-      [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
-         const std::string& topic_name, const drake_ros_core::QoS& qos,
-         const std::unordered_set<drake::systems::TriggerType>& pub_triggers,
-         double publish_period) {
-        AddClockPublisher(builder, ros, topic_name, qos, pub_triggers,
-                          publish_period);
-      },
-      py::arg("builder"), py::arg("ros"), py::kw_only(),
-      py::arg("topic_name") = std::string{"/clock"},
-      py::arg("qos") = drake_ros_core::QoS(rclcpp::ClockQoS()),
-      py::arg("publish_triggers") =
-          std::unordered_set<drake::systems::TriggerType>{
-              RosPublisherSystem::kDefaultTriggerTypes},
-      py::arg("publish_period") = 0.0);
+  py::class_<ClockSystem, LeafSystem<double>>(m, "ClockSystem")
+      .def_static(
+          "AddToBuilder",
+          [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
+             const std::string& topic_name, const drake_ros_core::QoS& qos,
+             const std::unordered_set<drake::systems::TriggerType>&
+                 pub_triggers,
+             double publish_period) {
+            auto [clock_system, pub_system] = ClockSystem::AddToBuilder(
+                builder, ros, topic_name, qos, pub_triggers, publish_period);
+
+            using py_rvp = pybind11::return_value_policy;
+            py::object py_builder = py::cast(builder, py_rvp::reference);
+            py::list result;
+            result.append(
+                py::cast(clock_system, py_rvp::reference_internal, py_builder));
+            result.append(
+                py::cast(pub_system, py_rvp::reference_internal, py_builder));
+            return result;
+          },
+          py::arg("builder"), py::arg("ros"), py::kw_only(),
+          py::arg("topic_name") = std::string{"/clock"},
+          py::arg("qos") = drake_ros_core::QoS(rclcpp::ClockQoS()),
+          py::arg("publish_triggers") =
+              std::unordered_set<drake::systems::TriggerType>{
+                  RosPublisherSystem::kDefaultTriggerTypes},
+          py::arg("publish_period") = 0.0);
 
   m.def(
       "init",
