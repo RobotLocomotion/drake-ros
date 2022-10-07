@@ -25,17 +25,15 @@ void AddClockPublisher(
     const std::string& topic_name = "/clock",
     const rclcpp::QoS& qos = rclcpp::ClockQoS(),
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers =
-      RosPublisherSystem::kDefaultTriggerTypes,
-    double publish_period = 0.0)
-{
+        RosPublisherSystem::kDefaultTriggerTypes,
+    double publish_period = 0.0) {
   auto* clock_system = builder->AddSystem<ClockSystem>();
 
-  auto* pub_system = builder->AddSystem(
-    RosPublisherSystem::Make<rosgraph_msgs::msg::Clock>(
-      topic_name, qos, ros, publish_triggers, publish_period));
+  auto* pub_system =
+      builder->AddSystem(RosPublisherSystem::Make<rosgraph_msgs::msg::Clock>(
+          topic_name, qos, ros, publish_triggers, publish_period));
 
-  builder->Connect(
-    clock_system->get_output_port(),
-    pub_system->get_input_port());
+  builder->Connect(clock_system->get_output_port(),
+                   pub_system->get_input_port());
 }
 }  // namespace drake_ros_core

@@ -4,14 +4,11 @@
 
 using drake_ros_core::ClockSystem;
 
-ClockSystem::ClockSystem()
-{
+ClockSystem::ClockSystem() {
   DeclareAbstractOutputPort("clock", &ClockSystem::CalcClock);
 }
 
-ClockSystem::~ClockSystem()
-{
-}
+ClockSystem::~ClockSystem() {}
 
 void ClockSystem::CalcClock(const drake::systems::Context<double>& context,
                             rosgraph_msgs::msg::Clock* output_value) const {
