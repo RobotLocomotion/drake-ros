@@ -44,6 +44,7 @@ cc_library(
         "@drake//common:essential",
         "@drake//math:geometric_transform",
         "@drake//multibody/math:spatial_algebra",
+        "@drake//systems/framework:diagram_builder",
         "@drake//systems/framework:leaf_system",
         "@eigen",
         "@ros2//:geometry_msgs_cc",
