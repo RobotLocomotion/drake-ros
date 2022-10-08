@@ -21,6 +21,7 @@ cc_library(
   strip_include_prefix = "include",
   srcs = glob(["src/*.cc", "src/*.h"]),
   deps = [
+    "@drake//systems/framework:diagram_builder",
     "@drake//systems/framework:leaf_system",
     "@ros2//:rclcpp_cc",
     "@ros2//:rosidl_runtime_c_cc",
