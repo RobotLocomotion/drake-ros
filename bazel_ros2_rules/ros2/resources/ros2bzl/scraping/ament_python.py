@@ -62,7 +62,7 @@ def collect_ament_python_package_direct_properties(
                                 dependency_name, dependency_metadata)
                     dependency_properties = ament_cmake_cache[dependency_name]
                     dependency_libraries.extend(
-                        dependency_properties['link_libraries']
+                        dependency_properties.link_libraries
                     )
             if 'py' in dependency_metadata.get('langs', []):
                 if dependency_name not in ament_python_cache:

@@ -63,9 +63,9 @@ def configure_package_cc_library(
     name, metadata, properties, dependencies, sandbox
 ):
     target_name = cc_name(name, metadata)
-    libraries = [sandbox(library) for library in properties['link_libraries']]
+    libraries = [sandbox(library) for library in properties.link_libraries]
     include_directories = [
-        sandbox(include) for include in properties['include_directories']]
+        sandbox(include) for include in properties.include_directories]
     local_includes = [
         include for include in include_directories
         if not os.path.isabs(include)]
@@ -81,11 +81,11 @@ def configure_package_cc_library(
         '-isystem ' + include
         for include in include_directories
         if os.path.isabs(include)]
-    copts.extend(properties['compile_flags'])
-    defines = properties['defines']
+    copts.extend(properties.compile_flags)
+    defines = properties.defines
 
-    linkopts = properties['link_flags']
-    for link_directory in properties['link_directories']:
+    linkopts = properties.link_flags
+    for link_directory in properties.link_directories:
         link_directory = sandbox(link_directory)
         if not link_directory:
             continue

@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 
 import cmake_tools
 from ros2bzl.resources import path_to_resource
+from ros2bzl.scraping.properties import CcProperties
 from ros2bzl.scraping.system import find_library_path
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_include
@@ -13,7 +14,7 @@ from ros2bzl.scraping.system import is_system_library
 
 def collect_ament_cmake_shared_library_codemodel(
     codemodel, additional_libraries
-):
+) -> CcProperties:
     assert codemodel['type'] == 'SHARED_LIBRARY'
 
     link_flags = []
@@ -113,14 +114,12 @@ def collect_ament_cmake_shared_library_codemodel(
                 continue
             compile_flags.append(flag)
 
-    return {
-        'include_directories': include_directories,
-        'compile_flags': compile_flags,
-        'defines': defines,
-        'link_directories': [],  # no directories in codemodel?
-        'link_libraries': link_libraries,
-        'link_flags': link_flags
-    }
+    return CcProperties(
+        include_directories = include_directories,
+        compile_flags = compile_flags,
+        defines = defines,
+        link_libraries = link_libraries,
+        link_flags = link_flags)
 
 
 def collect_ament_cmake_package_properties(name, metadata):
@@ -191,7 +190,7 @@ def collect_ament_cmake_package_direct_properties(
         ament_cmake_cache[name] = \
             collect_ament_cmake_package_properties(name, metadata)
 
-    properties = dict(ament_cmake_cache[name])
+    properties = ament_cmake_cache[name]
     for dependency_name, dependency_metadata in dependencies.items():
         if dependency_metadata.get('build_type') != 'ament_cmake':
             continue
@@ -202,31 +201,31 @@ def collect_ament_cmake_package_direct_properties(
         dependency_properties = ament_cmake_cache[dependency_name]
 
         # Remove duplicates maintaining order.
-        properties['compile_flags'] = [
-            flags for flags in properties['compile_flags']
-            if flags not in dependency_properties['compile_flags']
-        ]
-        properties['defines'] = [
-            flags for flags in properties['defines']
-            if flags not in dependency_properties['defines']
-        ]
-        properties['link_flags'] = [
-            flags for flags in properties['link_flags']
-            if flags not in dependency_properties['link_flags']
-        ]
-        properties['link_libraries'] = [
-            library for library in properties['link_libraries']
-            if library not in dependency_properties['link_libraries']
-        ]
+        properties.compile_flags = tuple([
+            flags for flags in properties.compile_flags
+            if flags not in dependency_properties.compile_flags
+        ])
+        properties.defines = tuple([
+            flags for flags in properties.defines
+            if flags not in dependency_properties.defines
+        ])
+        properties.link_flags = tuple([
+            flags for flags in properties.link_flags
+            if flags not in dependency_properties.link_flags
+        ])
+        properties.link_libraries = tuple([
+            library for library in properties.link_libraries
+            if library not in dependency_properties.link_libraries
+        ])
         deduplicated_include_directories = []
-        for directory in properties['include_directories']:
-            if directory in dependency_properties['include_directories']:
+        for directory in properties.include_directories:
+            if directory in dependency_properties.include_directories:
                 # We may be dealing with a merge install.
                 # Try leverage REP-122.
                 if not os.path.exists(os.path.join(directory, name)):
                     continue
             deduplicated_include_directories.append(directory)
-        properties['include_directories'] = deduplicated_include_directories
+        properties.include_directories = tuple(deduplicated_include_directories)
         # Do not deduplicate link directories in case we're dealing with
         # merge installs.
 

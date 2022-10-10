@@ -23,8 +23,6 @@ import ros2bzl.sandboxing as sandboxing
 
 from ros2bzl.scraping.ament_cmake \
     import collect_ament_cmake_package_direct_properties
-from ros2bzl.scraping.ament_cmake \
-    import collect_ament_cmake_package_properties
 from ros2bzl.scraping.ament_cmake import precache_ament_cmake_properties
 from ros2bzl.scraping.ament_python \
     import collect_ament_python_package_direct_properties
