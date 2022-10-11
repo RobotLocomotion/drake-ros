@@ -1,6 +1,19 @@
 from typing import Tuple
 
 
+def _init_helper(instance, kwargs):
+    for name in instance.__slots__:
+        setattr(instance, name, tuple())
+    for key, value in kwargs.items():
+        if key not in instance.__slots__:
+            raise TypeError(f'Unexpected keyword argument {key}')
+        if not value:
+            value = tuple()
+        else:
+            value = tuple(value)
+        setattr(instance, key, value)
+
+
 class CcProperties:
 
     __slots__ = (
@@ -20,13 +33,20 @@ class CcProperties:
     link_directories: Tuple[str]
 
     def __init__(self, **kwargs):
-        for name in self.__slots__:
-            setattr(self, name, tuple())
-        for key, value in kwargs.items():
-            if key not in self.__slots__:
-                raise TypeError(f'Unexpected keyword argument {key}')
-            if not value:
-                value = tuple()
-            else:
-                value = tuple(value)
-            setattr(self, key, value)
+        _init_helper(self, kwargs)
+
+
+class PyProperties:
+
+    __slots__ = (
+        'cc_extensions',
+        'cc_libraries',
+        'python_packages',
+    )
+
+    cc_extensions: Tuple[str]
+    cc_libraries: Tuple[str]
+    python_packages: Tuple[Tuple[str, str]]
+
+    def __init__(self, **kwargs):
+        _init_helper(self, kwargs)
