@@ -7,7 +7,7 @@ import shutil
 import subprocess
 
 from .packages import get_packages_with_prefixes
-from .server_mode import server_mode
+from .file_api import get_cmake_codemodel
 
 
 def configure_file(src, dest, subs):
