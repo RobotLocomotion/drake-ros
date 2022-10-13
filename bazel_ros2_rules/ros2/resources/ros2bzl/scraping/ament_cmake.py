@@ -92,7 +92,8 @@ def collect_ament_cmake_shared_library_codemodel(
 
     defines = []
     ignored_defines = [
-        target.name + '_EXPORTS'  # modern CMake specific
+        # CMake always creates this to help with Win32 dllimport/export macros
+        target.name + '_EXPORTS'
     ]
     for define in target.defines:
         if define in ignored_defines:

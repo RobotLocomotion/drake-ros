@@ -44,8 +44,6 @@ class Target:
         self.name = target_data['name']
         self.target_type = target_data['type']
         if 'compileGroups' in target_data:
-            # raise ValueError(json.dumps(target_data, indent=4))
-
             assert len(target_data['compileGroups']) == 1
             compile_group = target_data['compileGroups'][0]
 
@@ -122,11 +120,10 @@ def get_cmake_codemodel(project_path: Path, build_path: Path):
     # Make a shared stateless query for the codemodel
     query_path.joinpath('codemodel-v2').touch()
 
-    # TODO invoke CMake
     args = ['cmake', str(project_path)]
     subprocess.run(args, cwd=str(build_path))
 
-    # There really should only ever be one, but just in case the latest is the
+    # There should only be one file, but just in case the latest is the
     # largest file in lexicographic order.
     reply_path = api_path.joinpath('reply')
     latest_reply = sorted(reply_path.glob('index-*.json'))[-1]
