@@ -5,6 +5,7 @@ from typing import List
 
 
 class Target:
+    """Represents a CMake target like a shared library or executable."""
 
     __slots__ = (
         'name',
@@ -78,6 +79,7 @@ class Target:
 
 
 class CodeModel:
+    """Represents CMake's codemodel v2 from the file API."""
 
     __slots__ = (
         'targets',
