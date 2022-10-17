@@ -63,9 +63,9 @@ def configure_package_cc_library(
     name, metadata, properties, dependencies, sandbox
 ):
     target_name = cc_name(name, metadata)
-    libraries = [sandbox(library) for library in properties['link_libraries']]
+    libraries = [sandbox(library) for library in properties.link_libraries]
     include_directories = [
-        sandbox(include) for include in properties['include_directories']]
+        sandbox(include) for include in properties.include_directories]
     local_includes = [
         include for include in include_directories
         if not os.path.isabs(include)]
@@ -81,11 +81,11 @@ def configure_package_cc_library(
         '-isystem ' + include
         for include in include_directories
         if os.path.isabs(include)]
-    copts.extend(properties['compile_flags'])
-    defines = properties['defines']
+    copts.extend(properties.compile_flags)
+    defines = properties.defines
 
-    linkopts = properties['link_flags']
-    for link_directory in properties['link_directories']:
+    linkopts = properties.link_flags
+    for link_directory in properties.link_directories:
         link_directory = sandbox(link_directory)
         if not link_directory:
             continue
@@ -149,9 +149,9 @@ def configure_package_py_library(
     name, metadata, properties, dependencies, sandbox
 ):
     target_name = py_name(name, metadata)
-    eggs = [sandbox(egg_path) for egg_path, _ in properties['python_packages']]
+    eggs = [sandbox(egg_path) for egg_path, _ in properties.python_packages]
     tops = [
-        sandbox(top_level) for _, top_level in properties['python_packages']]
+        sandbox(top_level) for _, top_level in properties.python_packages]
     imports = [os.path.dirname(egg) for egg in eggs]
 
     template = 'templates/package_py_library.bazel.tpl'
@@ -174,7 +174,7 @@ def configure_package_py_library(
     if 'cc' in metadata.get('langs', []):
         data.append(cc_label(name, metadata))
 
-    if 'cc_extensions' in properties:
+    if properties.cc_extensions:
         # Bring in C/C++ dependencies
         cc_deps = [
             cc_label(dependency_name, dependency_metadata)
@@ -182,12 +182,12 @@ def configure_package_py_library(
             if 'cc' in dependency_metadata.get('langs', [])
         ]
         # Expose C/C++ libraries if any
-        if 'cc_libraries' in properties:
+        if properties.cc_libraries:
             template = 'templates/package_py_library_with_cc_libs.bazel.tpl'
             config.update({
                 'cc_name': c_name("_" + target_name, metadata),
                 'cc_libs': [
-                    sandbox(lib) for lib in properties['cc_libraries']],
+                    sandbox(lib) for lib in properties.cc_libraries],
                 'cc_deps': cc_deps
             })
             data.append(c_label("_" + target_name, metadata))
@@ -195,7 +195,7 @@ def configure_package_py_library(
             data.extend(cc_deps)
         # Prepare runfiles to support dynamic loading
         cc_extensions = [
-            sandbox(extension) for extension in properties['cc_extensions']]
+            sandbox(extension) for extension in properties.cc_extensions]
         data.extend(cc_extensions)
 
     # Add in plugins, if any
