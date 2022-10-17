@@ -19,6 +19,7 @@
 
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
+  <depend>rosgraph_msgs</depend>
   <depend>rosidl_runtime_c</depend>
   <depend>rosidl_typesupport_cpp</depend>
   <depend>geometry_msgs</depend>
