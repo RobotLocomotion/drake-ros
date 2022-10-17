@@ -102,7 +102,7 @@ class CodeModel:
             self.targets.append(Target(target_file))
 
 
-def get_cmake_codemodel(project_path: Path, build_path: Path):
+def get_cmake_codemodel(project_path: Path, build_path: Path) -> CodeModel:
     """
     Use the cmake-file-api to get information about the code model of a CMake
     project.
