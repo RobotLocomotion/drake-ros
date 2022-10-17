@@ -1,6 +1,11 @@
 from typing import Tuple
 
 
+"""
+Contains classes which describe how to use Python and C++ libraries.
+"""
+
+
 def _init_helper(instance, kwargs):
     for name in instance.__slots__:
         setattr(instance, name, tuple())
