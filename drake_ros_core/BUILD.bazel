@@ -49,6 +49,7 @@ cc_library(
         "@eigen",
         "@ros2//:geometry_msgs_cc",
         "@ros2//:rclcpp_cc",
+        "@ros2//:rosgraph_msgs_cc",
         "@ros2//:rosidl_runtime_c_cc",
         "@ros2//:rosidl_typesupport_cpp_cc",
     ],
