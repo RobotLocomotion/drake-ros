@@ -15,6 +15,7 @@ find_package(drake REQUIRED)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
+find_package(rosgraph_msgs REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 
@@ -31,6 +32,7 @@ add_library(drake_ros_core
 target_link_libraries(drake_ros_core PUBLIC
     drake::drake
     rclcpp::rclcpp
+    ${rosgraph_msgs_TARGETS}
     rosidl_runtime_c::rosidl_runtime_c
     rosidl_typesupport_cpp::rosidl_typesupport_cpp
 )
