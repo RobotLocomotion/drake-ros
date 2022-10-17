@@ -24,6 +24,7 @@ cc_library(
     "@drake//systems/framework:diagram_builder",
     "@drake//systems/framework:leaf_system",
     "@ros2//:rclcpp_cc",
+    "@ros2//:rosgraph_msgs_cc",
     "@ros2//:rosidl_runtime_c_cc",
     "@ros2//:rosidl_typesupport_cpp_cc",
   ],
