@@ -26,8 +26,8 @@ if(NOT Eigen3_FOUND)
 endif()
 
 add_library(drake_ros_core
-  src/geometry_conversions.cc
   src/drake_ros.cc
+  src/geometry_conversions.cc
   src/publisher.cc
   src/ros_interface_system.cc
   src/ros_publisher_system.cc
@@ -35,13 +35,13 @@ add_library(drake_ros_core
   src/subscription.cc
 )
 
-target_link_libraries(drake_ros_core PUBLIC
-    drake::drake
-    rclcpp::rclcpp
-    rosidl_runtime_c::rosidl_runtime_c
-    rosidl_typesupport_cpp::rosidl_typesupport_cpp
-    Eigen3::Eigen
-    ${geometry_msgs_TARGETS}
+ament_target_dependencies(drake_ros_core
+  Eigen3
+  drake
+  geometry_msgs
+  rclcpp
+  rosidl_runtime_c
+  rosidl_typesupport_cpp
 )
 
 target_include_directories(drake_ros_core
@@ -56,10 +56,10 @@ ament_export_libraries(drake_ros_core)
 ament_export_targets(${PROJECT_NAME})
 
 ament_export_dependencies(drake)
+ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_runtime_c)
 ament_export_dependencies(rosidl_typesupport_cpp)
-ament_export_dependencies(geometry_msgs)
 
 ### Drake library path environment hook
 get_target_property(DRAKE_LIBRARY drake::drake LOCATION)
@@ -130,6 +130,8 @@ if(BUILD_TESTING)
     # We do not expose `rmw_isoliation` via CMake.
     _TEST_DISABLE_RMW_ISOLATION
   )
+  # N.B. We cannot use `ament_target_dependencies` because we cannot access this
+  # package's exported ament target.
   target_link_libraries(test_pub_sub
     drake::drake
     drake_ros_core
@@ -150,7 +152,7 @@ if(BUILD_TESTING)
   )
 
   ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
-  taRget_link_libraries(test_geometry_conversions drake_ros_core)
+  target_link_libraries(test_geometry_conversions drake_ros_core)
 endif()
 
 ament_package()
