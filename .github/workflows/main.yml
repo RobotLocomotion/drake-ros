@@ -1,0 +1,69 @@
+name: drake-ros continuous integration
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+jobs:
+  test_against_debs:
+    strategy:
+      matrix:
+        include:
+          - os_code_name: jammy
+            ros_distro: rolling
+          - os_code_name: jammy
+            ros_distro: humble
+          - os_code_name: focal
+            ros_distro: galactic
+    name: test_against_${{matrix.ros_distro}}_debs
+    runs-on: ubuntu-latest
+    container:
+      image: robotlocomotion/drake:${{matrix.os_code_name}}
+    steps:
+      - uses: ros-tooling/setup-ros@v0.4
+        with:
+          required-ros-distributions: ${{matrix.ros_distro}}
+      - name: Cope with Python 2 pollution
+        run: apt-get update && apt-get install -y python-is-python3
+      - name: Build and test all packages
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          target-ros2-distro: ${{matrix.ros_distro}}
+  test_against_archive:
+    strategy:
+      matrix:
+        include:
+          - os_code_name: focal
+            ros_distro: rolling
+          - os_code_name: focal
+            ros_distro: humble
+    name: test_against_${{matrix.ros_distro}}_archive
+    runs-on: ubuntu-latest
+    container:
+      image: robotlocomotion/drake:${{matrix.os_code_name}}
+    steps:
+      - uses: ros-tooling/setup-ros@v0.4
+      - name: Install dependencies to build ROS packages
+        run: |
+          sudo mkdir -p /opt/ros/${{matrix.ros_distro}}
+          wget -q https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci-CHECKSUM
+          wget -q http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci.tar.bz2
+          sha256sum -c ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci-CHECKSUM
+          sudo tar xf ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/${{matrix.ros_distro}}
+          sed -i 's|/tmp/ws/install_isolated|/opt/ros/${{matrix.ros_distro}}|g' /opt/ros/${{matrix.ros_distro}}/setup.sh
+          rm ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci.tar.bz2
+          # TODO(sloretz) Use bazel_ros2_rules/ros2/compute_system_rosdeps.py to de-duplicate rosdep invocation knowledge
+          rosdep update && rosdep install --from-paths /opt/ros/${{matrix.ros_distro}}/share --ignore-src -y \
+            -t exec -t buildtool_export -t build_export \
+            --skip-keys "cyclonedds fastcdr fastrtps rmw_connextdds rmw_cyclonedds_cpp rmw_fastrtps_dynamic_cpp rti-connext-dds-5.3.1 urdfdom_headers iceoryx_binding_c rosidl_typesupport_fastrtps_c rosidl_typesupport_fastrtps_cpp"
+
+      - name: Cope with Python 2 pollution
+        run: apt-get update && apt-get install -y python-is-python3
+      - name: Build and test all packages
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          target-ros2-distro: ${{matrix.ros_distro}}
