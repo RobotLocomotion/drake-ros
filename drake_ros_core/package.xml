@@ -9,7 +9,13 @@
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
-  <buildtool_depend>eigen</buildtool_depend>
+  <!--
+  eigen3_cmake_module is needed to workaround Eigen's inability to forward
+  its headers as transitive dependency. For more details, see:
+  https://github.com/ros2/eigen3_cmake_module
+  -->
+  <buildtool_depend>eigen3_cmake_module</buildtool_depend>
+  <build_depend>eigen</build_depend>
 
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
@@ -26,5 +32,7 @@
 
   <export>
     <build_type>ament_cmake</build_type>
+    <buildtool_export_depend>eigen3_cmake_module</buildtool_export_depend>
+    <build_export_depend>eigen</build_export_depend>
   </export>
 </package>

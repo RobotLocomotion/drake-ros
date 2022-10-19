@@ -12,6 +12,8 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
@@ -19,11 +21,6 @@ find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-# Work around broken find module in AlmaLinux/RHEL eigen3-devel from PowerTools repo
-find_package(Eigen3 QUIET NO_MODULE)
-if(NOT Eigen3_FOUND)
-  find_package(Eigen3 REQUIRED)
-endif()
 
 add_library(drake_ros_core
   src/drake_ros.cc
@@ -56,6 +53,8 @@ ament_export_libraries(drake_ros_core)
 ament_export_targets(${PROJECT_NAME})
 
 ament_export_dependencies(drake)
+ament_export_dependencies(eigen3_cmake_module)
+ament_export_dependencies(Eigen3)
 ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_runtime_c)
