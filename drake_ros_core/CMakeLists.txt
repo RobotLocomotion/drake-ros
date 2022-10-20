@@ -12,14 +12,19 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+
 
 add_library(drake_ros_core
   src/drake_ros.cc
+  src/geometry_conversions.cc
   src/publisher.cc
   src/ros_interface_system.cc
   src/ros_publisher_system.cc
@@ -28,10 +33,12 @@ add_library(drake_ros_core
 )
 
 target_link_libraries(drake_ros_core PUBLIC
-    drake::drake
-    rclcpp::rclcpp
-    rosidl_runtime_c::rosidl_runtime_c
-    rosidl_typesupport_cpp::rosidl_typesupport_cpp
+  Eigen3::Eigen
+  drake::drake
+  ${geometry_msgs_TARGETS}
+  rclcpp::rclcpp
+  rosidl_runtime_c::rosidl_runtime_c
+  rosidl_typesupport_cpp::rosidl_typesupport_cpp
 )
 
 target_include_directories(drake_ros_core
@@ -46,6 +53,9 @@ ament_export_libraries(drake_ros_core)
 ament_export_targets(${PROJECT_NAME})
 
 ament_export_dependencies(drake)
+ament_export_dependencies(eigen3_cmake_module)
+ament_export_dependencies(Eigen3)
+ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_runtime_c)
 ament_export_dependencies(rosidl_typesupport_cpp)
@@ -137,6 +147,9 @@ if(BUILD_TESTING)
   target_link_libraries(test_drake_ros
     drake_ros_core
   )
+
+  ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
+  target_link_libraries(test_geometry_conversions drake_ros_core)
 endif()
 
 ament_package()
