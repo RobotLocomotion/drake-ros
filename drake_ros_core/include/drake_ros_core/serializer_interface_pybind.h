@@ -20,11 +20,12 @@
 #include <pybind11/eval.h>
 #include <pybind11/pybind11.h>
 
+#include "drake_ros_core/drake_ros_pybind.h"
 #include "drake_ros_core/serializer_interface.h"
 
-namespace py = pybind11;
-
 namespace drake_ros_core {
+namespace drake_ros_core_py {
+
 // A (de)serialization interface implementation for Python ROS messages
 // that can be overriden from Python itself.
 class PySerializerInterface : public py::wrapper<SerializerInterface> {
@@ -72,4 +73,6 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
                            serialized_message_bytes, abstract_value);
   }
 };
+
+}  // namespace drake_ros_core_py
 }  // namespace drake_ros_core
