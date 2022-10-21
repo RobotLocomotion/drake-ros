@@ -17,6 +17,7 @@ defaults:
 
 jobs:
   build_and_test:
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: block ci')"
     runs-on: ubuntu-latest
     container:
       image: ros:noetic-ros-base-focal
