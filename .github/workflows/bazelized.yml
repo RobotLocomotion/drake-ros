@@ -1,3 +1,6 @@
+# DNM Disabled CI using ./github/disable-ci
+¡¡¡purposeful syntax error!!!
+
 name: Bazel ROS Continuous Integration
 
 on:
