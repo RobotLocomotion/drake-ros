@@ -18,6 +18,8 @@
 #include <pybind11/pybind11.h>
 #include <rclcpp/qos.hpp>
 
+#include "drake_ros_core/drake_ros_core_pybind.h"
+
 namespace drake_ros_core {
 // Thin wrapper that adds a default constructor, since rclcpp::QoS deletes
 // its own and PYBIND11_TYPE_CASTER requires one.

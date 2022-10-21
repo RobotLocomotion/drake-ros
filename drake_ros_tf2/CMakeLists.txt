@@ -68,13 +68,13 @@ install(
 # Python bindings
 ###
 pybind11_add_module(py_drake_ros_tf2 SHARED
-  src/python_bindings/drake_ros_tf2.cc
+  src/module_py.cc
 )
 set_target_properties(py_drake_ros_tf2 PROPERTIES OUTPUT_NAME "drake_ros_tf2")
 target_link_libraries(py_drake_ros_tf2 PRIVATE drake_ros_tf2)
 target_include_directories(py_drake_ros_tf2
   PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
 # Sets PYTHON_INSTALL_DIR

@@ -92,13 +92,13 @@ ament_python_install_package(
 # Python bindings
 ###
 pybind11_add_module(drake_ros_core_py SHARED
-  src/python_bindings/drake_ros_core.cc
+  src/module_py.cc
 )
 target_link_libraries(drake_ros_core_py PRIVATE drake_ros_core)
 set_target_properties(drake_ros_core_py PROPERTIES OUTPUT_NAME "_drake_ros_core")
 target_include_directories(drake_ros_core_py
   PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
 ament_get_python_install_dir(python_install_dir)

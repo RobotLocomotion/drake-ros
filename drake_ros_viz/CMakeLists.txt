@@ -74,13 +74,13 @@ install(
 # Python bindings
 ###
 pybind11_add_module(py_drake_ros_viz SHARED
-  src/python_bindings/drake_ros_viz.cc
+  src/module_py.cc
 )
 set_target_properties(py_drake_ros_viz PROPERTIES OUTPUT_NAME "drake_ros_viz")
 target_link_libraries(py_drake_ros_viz PRIVATE drake_ros_viz)
 target_include_directories(py_drake_ros_viz
   PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/python_bindings>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
 # Sets PYTHON_INSTALL_DIR
