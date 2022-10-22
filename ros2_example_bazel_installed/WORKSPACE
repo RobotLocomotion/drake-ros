@@ -46,8 +46,9 @@ ROS2_PACKAGES = [
     "rclpy",
     "ros2cli",
     "ros2cli_common_extensions",
-    # RMW implementations
-    # Uncomment one and only one to change implementations
+] + [
+    # These are possible RMW implementations. Uncomment one and only one to
+    # change implementations
     "rmw_cyclonedds_cpp",
     # "rmw_fastrtps_cpp",
 ]
