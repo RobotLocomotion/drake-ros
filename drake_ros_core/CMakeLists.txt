@@ -74,23 +74,10 @@ set(
 ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
 ### Python module path environment hook for pydrake
-find_package(PythonInterp ${PYTHON_VERSION} REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+ament_get_python_install_dir(PYTHON_INSTALL_DIR)
 get_filename_component(DRAKE_INSTALL_PREFIX ${DRAKE_LIBRARY_DIR} DIRECTORY)
-set(_python_code
-  "import sysconfig"
-  "print(sysconfig.get_path('purelib', vars={'base': '${DRAKE_INSTALL_PREFIX}'}))"
-)
-execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" "-c" "${_python_code}"
-  OUTPUT_VARIABLE PYDRAKE_PYTHONPATH
-  RESULT_VARIABLE _result
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-if(NOT _result EQUAL 0)
-  message(FATAL_ERROR
-    "execute_process(${_python_interpreter} -c '${_python_code}') returned "
-    "error code ${_result}")
-endif()
+get_filename_component(PYDRAKE_PYTHONPATH ${DRAKE_INSTALL_PREFIX}/${PYTHON_INSTALL_DIR} ABSOLUTE)
 set(
   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
   "prepend-non-duplicate;PYTHONPATH;${PYDRAKE_PYTHONPATH}")

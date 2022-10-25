@@ -15,6 +15,7 @@
   https://github.com/ros2/eigen3_cmake_module
   -->
   <buildtool_depend>eigen3_cmake_module</buildtool_depend>
+  <build_depend>ament_cmake_python</build_depend>
   <build_depend>eigen</build_depend>
 
   <depend>rclcpp</depend>
