@@ -174,7 +174,7 @@ def configure_package_py_library(
     if 'cc' in metadata.get('langs', []):
         data.append(cc_label(name, metadata))
 
-    if properties.cc_extensions:
+    if properties.cc_extensions or properties.cc_libraries:
         # Bring in C/C++ dependencies
         cc_deps = [
             cc_label(dependency_name, dependency_metadata)
