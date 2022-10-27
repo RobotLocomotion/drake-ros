@@ -18,16 +18,16 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "drake_ros_tf2/drake_ros_tf2_pybind.h"
 #include "drake_ros_tf2/scene_tf_broadcaster_system.h"
 
-namespace py = pybind11;
+namespace drake_ros_tf2 {
+namespace drake_ros_tf2_py {
+namespace {
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
-
 using drake_ros_core::DrakeRos;
-using drake_ros_tf2::SceneTfBroadcasterParams;
-using drake_ros_tf2::SceneTfBroadcasterSystem;
 
 PYBIND11_MODULE(drake_ros_tf2, m) {
   m.doc() = "Python wrapper for drake_ros_tf2";
@@ -68,3 +68,7 @@ PYBIND11_MODULE(drake_ros_tf2, m) {
            &SceneTfBroadcasterSystem::get_graph_query_input_port,
            py::return_value_policy::reference_internal);
 }
+
+}  // namespace
+}  // namespace drake_ros_tf2_py
+}  // namespace drake_ros_tf2

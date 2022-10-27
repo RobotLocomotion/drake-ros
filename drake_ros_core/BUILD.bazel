@@ -14,12 +14,20 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
 
+PYBIND_EXCLUDES = ["**/*_py.cc", "**/*_pybind.h"]
+
 # TODO(sloretz) more granular targets for static linking
 cc_library(
   name = "drake_ros_core",
-  hdrs = glob(["include/**/*.h"]),
+  hdrs = glob(
+    ["include/**/*.h"],
+    exclude = PYBIND_EXCLUDES,
+  ),
   strip_include_prefix = "include",
-  srcs = glob(["src/*.cc", "src/*.h"]),
+  srcs = glob(
+    ["src/*.cc", "src/*.h"],
+    exclude = PYBIND_EXCLUDES,
+  ),
   deps = [
     "@drake//common:essential",
     "@drake//math:geometric_transform",
