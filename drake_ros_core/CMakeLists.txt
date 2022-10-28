@@ -74,13 +74,9 @@ set(
 ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
 ### Python module path environment hook for pydrake
-find_package(ament_cmake_python REQUIRED)
-ament_get_python_install_dir(PYTHON_INSTALL_DIR)
-get_filename_component(DRAKE_INSTALL_PREFIX ${DRAKE_LIBRARY_DIR} DIRECTORY)
-get_filename_component(PYDRAKE_PYTHONPATH ${DRAKE_INSTALL_PREFIX}/${PYTHON_INSTALL_DIR} ABSOLUTE)
 set(
   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
-  "prepend-non-duplicate;PYTHONPATH;${PYDRAKE_PYTHONPATH}")
+  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
 ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
 
 # Nominal ament install directives
