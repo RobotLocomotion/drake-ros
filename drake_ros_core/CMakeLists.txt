@@ -73,6 +73,12 @@ set(
   "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
 ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
+### Python module path environment hook for pydrake
+set(
+  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
+  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
+ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
+
 # Nominal ament install directives
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
