@@ -38,7 +38,8 @@ def system_link_dirs():
     ).stdout.strip()
 
     for directory in re.findall(r'SEARCH_DIR\("=([^=]+)"\)', output):
-        link_dirs.add(directory)
+        if os.path.isdir(directory):
+            link_dirs.add(directory)
     # Filter empty strings
     return tuple([d for d in link_dirs if d])
 
@@ -55,8 +56,9 @@ def system_shared_lib_dirs():
         encoding='utf8'
     ).stdout.strip()
 
-    for directory in re.findall(r'([^:\t\n]+):', output):
-        lib_dirs.add(directory)
+    for directory in re.findall(r'(/[^:\t\n]+):', output):
+        if os.path.isdir(directory):
+            lib_dirs.add(directory)
     # Workaround Singularity redirects, e.g. for `--nv`.
     lib_dirs.add("/.singularity.d/libs")
     # Filter empty strings
