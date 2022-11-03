@@ -7,6 +7,12 @@ cmake_minimum_required(VERSION 3.5)
 project(@NAME@ C CXX)
 
 find_package(ament_cmake REQUIRED)
+
+# TODO(sloretz) Remove when fixed upstream
+if("@PACKAGE@" STREQUAL "rviz_ogre_vendor")
+  set(CMAKE_FIND_LIBRARY_PREFIXES ";lib")
+endif()
+
 find_package(@PACKAGE@ REQUIRED)
 
 file(WRITE empty.cc "")
