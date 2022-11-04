@@ -38,4 +38,5 @@ Source your workspace.
 
 - [RS flip flop](./examples/rs_flip_flop): a latch with a ROS 2 topic interface.
 - [IIWA manipulator](./examples/iiwa_manipulator): an RViz visualization of a static IIWA arm.
-- [Multiple robots](./examples/multirobot): an RViz visualisation of an array of Kuka LBR iiwa manipulators.
+- [Multiple robots](./examples/multirobot): an RViz visualization of an array of Kuka LBR iiwa manipulators.
+- [UFO](./examples/multirobot): an RViz visualization of a flying object controlled with the Drake systems framework and commandedusing RViz.
