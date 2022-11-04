@@ -112,13 +112,13 @@ void AddFlyingSaucer(MultibodyPlantd* plant) {
   const RigidBodyd& flying_saucer = plant->AddRigidBody("FlyingSaucer", M_Ccm);
 
   plant->RegisterCollisionGeometry(flying_saucer, X_SS, saucer_geom,
-                                  "collision_saucer", saucer_props);
+                                   "collision_saucer", saucer_props);
   plant->RegisterVisualGeometry(flying_saucer, X_SS, saucer_geom,
-                               "visual_saucer", kGray);
+                                "visual_saucer", kGray);
   plant->RegisterCollisionGeometry(flying_saucer, X_SL, lookout_geom,
-                                  "collision_lookout", lookout_props);
+                                   "collision_lookout", lookout_props);
   plant->RegisterVisualGeometry(flying_saucer, X_SL, lookout_geom,
-                               "visual_lookout", kTranslucentOrange);
+                                "visual_lookout", kTranslucentOrange);
 }
 
 /// Adds Ground geometry to the world in the multibody plant.
@@ -138,9 +138,9 @@ void AddGround(MultibodyPlantd* plant) {
   AddContactMaterial(kDissipation, {} /* point stiffness */, kSurfaceFriction,
                      &ground_props);
   plant->RegisterCollisionGeometry(plant->world_body(), X_WG, HalfSpace{},
-                                  "collision_ground", std::move(ground_props));
+                                   "collision_ground", std::move(ground_props));
   plant->RegisterVisualGeometry(plant->world_body(), X_WG, HalfSpace{},
-                               "visual_ground", kGreen);
+                                "visual_ground", kGreen);
 }
 
 class SplitRigidTransform : public LeafSystemd {
@@ -498,7 +498,7 @@ int main() {
 
   std::unique_ptr<Diagramd> diagram = BuildSimulation();
   std::unique_ptr<Contextd> diagram_context =
-    SetInitialConditions(diagram.get());
+      SetInitialConditions(diagram.get());
 
   RunSimulation(diagram.get(), std::move(diagram_context));
 
