@@ -23,7 +23,8 @@ Run the `ufo` executable.
 ros2 run drake_ros_examples ufo
 ```
 
-Run RViz in a different terminal with your ROS installation sourced to visualize the station.
+Run RViz in a different terminal with your ROS installation sourced to visualize
+the station.
 
 ```
 ros2 run rviz2 rviz2 -d ufo.rviz
