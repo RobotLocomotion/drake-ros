@@ -391,7 +391,7 @@ std::unique_ptr<Diagramd> BuildSimulation() {
   return builder.Build();
 }
 
-std::unique_ptr<Contextd> SetInitialConditions(Diagramd* diagram) {
+std::unique_ptr<Contextd> CreateInitialConditions(Diagramd* diagram) {
   std::unique_ptr<Contextd> diagram_context = diagram->CreateDefaultContext();
 
   const Systemd& plant_system = diagram->GetSubsystemByName("plant");
@@ -400,9 +400,6 @@ std::unique_ptr<Contextd> SetInitialConditions(Diagramd* diagram) {
   Contextd& plant_context =
       diagram->GetMutableSubsystemContext(plant, diagram_context.get());
 
-  RigidTransformd X_WS(RollPitchYawd(0.0, 0.0, 0.0), Vector3d(0.0, 0.0, 0.0));
-  plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("spacecraft"),
-                        X_WS);
   return diagram_context;
 }
 
@@ -427,7 +424,7 @@ int main() {
 
   std::unique_ptr<Diagramd> diagram = BuildSimulation();
   std::unique_ptr<Contextd> diagram_context =
-      SetInitialConditions(diagram.get());
+    CreateInitialConditions(diagram.get());
 
   RunSimulation(diagram.get(), std::move(diagram_context));
 
