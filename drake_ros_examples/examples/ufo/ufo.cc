@@ -1,6 +1,9 @@
+#include <filesystem>
 #include <vector>
 
+#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <drake/geometry/proximity_properties.h>
+#include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/externally_applied_spatial_force.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/analysis/simulator.h>
@@ -18,28 +21,19 @@
 #include <drake_ros_viz/rviz_visualizer.h>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
-using drake::geometry::AddContactMaterial;
-using drake::geometry::Ellipsoid;
-using drake::geometry::HalfSpace;
-using drake::geometry::ProximityProperties;
-using drake::geometry::Sphere;
 using drake::multibody::BodyIndex;
+using drake::multibody::Parser;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
 using drake_ros_core::RosSubscriberSystem;
-using drake_ros_tf2::SceneTfBroadcasterParams;
 using drake_ros_tf2::SceneTfBroadcasterSystem;
 using drake_ros_viz::RvizVisualizer;
-using drake_ros_viz::RvizVisualizerParams;
 using Eigen::Quaterniond;
 using Eigen::Vector3d;
-using Eigen::Vector4d;
-using Eigen::VectorXd;
 
 using BasicVectord = drake::systems::BasicVector<double>;
 using ConstantVectorSourced = drake::systems::ConstantVectorSource<double>;
 using Contextd = drake::systems::Context<double>;
-using CoulombFrictiond = drake::multibody::CoulombFriction<double>;
 using Diagramd = drake::systems::Diagram<double>;
 using DiagramBuilderd = drake::systems::DiagramBuilder<double>;
 using ExternallyAppliedSpatialForced =
@@ -48,99 +42,34 @@ using LeafSystemd = drake::systems::LeafSystem<double>;
 using MultibodyPlantd = drake::multibody::MultibodyPlant<double>;
 using Multiplexerd = drake::systems::Multiplexer<double>;
 using PidControllerd = drake::systems::controllers::PidController<double>;
-using RigidBodyd = drake::multibody::RigidBody<double>;
 using RigidTransformd = drake::math::RigidTransform<double>;
 using RollPitchYawd = drake::math::RollPitchYaw<double>;
-using RotationMatrixd = drake::math::RotationMatrix<double>;
 using Simulatord = drake::systems::Simulator<double>;
 using SpatialForced = drake::multibody::SpatialForce<double>;
-using SpatialInertiad = drake::multibody::SpatialInertia<double>;
 using StateInterpolatorWithDiscreteDerivatived =
     drake::systems::StateInterpolatorWithDiscreteDerivative<double>;
 using Systemd = drake::systems::System<double>;
-using UnitInertiad = drake::multibody::UnitInertia<double>;
 
 /// Adds body named FlyingSaucer to the multibody plant.
 void AddFlyingSaucer(MultibodyPlantd* plant) {
-  const double kSaucerRadius = 2.5;
-  const double kSaucerThickness = 1.0;
-  const double kLookoutRadius = kSaucerThickness * 0.99;
-
-  const double kA = kSaucerRadius;
-  const double kB = kSaucerRadius;
-  const double kC = kSaucerThickness / 2.0;
-
-  const double kSaucerMass = 1000.0;
-  const double kLookoutMass = kSaucerMass * 0.1;
-
-  auto G_Scm = UnitInertiad::SolidEllipsoid(kA, kB, kC);
-  auto G_Lcm = UnitInertiad::HollowSphere(kLookoutRadius);
-
-  auto M_Scm = SpatialInertiad(kSaucerMass, Vector3d::Zero(), G_Scm);
-  auto M_Lcm = SpatialInertiad(kLookoutMass, Vector3d::Zero(), G_Lcm);
-
-  const double kDissipation = 5.0;  // s/m
-  const double kFrictionCoefficient = 0.3;
-
-  const CoulombFrictiond kSurfaceFriction(
-      kFrictionCoefficient /* static friction */,
-      kFrictionCoefficient /* dynamic friction */);
-
-  const Vector4d kGray(0.5, 0.5, 0.5, 1);
-  const Vector4d kTranslucentOrange(1.0, 0.55, 0.0, 0.35);
-
-  auto saucer_geom = Ellipsoid(kA, kB, kC);
-  auto lookout_geom = Sphere(kLookoutRadius);
-
-  ProximityProperties saucer_props;
-  ProximityProperties lookout_props;
-
-  AddContactMaterial(kDissipation, {} /* point stiffness */, kSurfaceFriction,
-                     &saucer_props);
-  AddContactMaterial(kDissipation, {} /* point stiffness */, kSurfaceFriction,
-                     &lookout_props);
-
-  const RigidTransformd X_SS;  // identity
-  // Lookout in Saucer frame
-  const RigidTransformd X_SL(RollPitchYawd(0.0, 0.0, 0.0),
-                             Vector3d(0.0, 0.0, kC));
-
-  // Combined Spatial Inertia
-  auto M_Ccm{M_Scm};
-  M_Ccm += M_Lcm.Shift(X_SL.translation());
-
-  const RigidBodyd& flying_saucer = plant->AddRigidBody("FlyingSaucer", M_Ccm);
-
-  plant->RegisterCollisionGeometry(flying_saucer, X_SS, saucer_geom,
-                                   "collision_saucer", saucer_props);
-  plant->RegisterVisualGeometry(flying_saucer, X_SS, saucer_geom,
-                                "visual_saucer", kGray);
-  plant->RegisterCollisionGeometry(flying_saucer, X_SL, lookout_geom,
-                                   "collision_lookout", lookout_props);
-  plant->RegisterVisualGeometry(flying_saucer, X_SL, lookout_geom,
-                                "visual_lookout", kTranslucentOrange);
+  auto parser = Parser(plant);
+  std::filesystem::path pkg_share_dir{
+    ament_index_cpp::get_package_share_directory("drake_ros_examples")
+  };
+  const char * kUfoPath = "models/ufo.sdf";
+  std::string model_file_path = (pkg_share_dir / kUfoPath).string();
+  parser.AddModelFromFile(model_file_path, "spacecraft");
 }
 
 /// Adds Ground geometry to the world in the multibody plant.
 void AddGround(MultibodyPlantd* plant) {
-  const double kDissipation = 5.0;  // s/m
-  const double kFrictionCoefficient = 0.3;
-
-  const CoulombFrictiond kSurfaceFriction(
-      kFrictionCoefficient /* static friction */,
-      kFrictionCoefficient /* dynamic friction */);
-
-  const Vector4d kGreen(0.0, 0.5, 0.0, 1);
-
-  RigidTransformd X_WG;  // identity
-
-  ProximityProperties ground_props;
-  AddContactMaterial(kDissipation, {} /* point stiffness */, kSurfaceFriction,
-                     &ground_props);
-  plant->RegisterCollisionGeometry(plant->world_body(), X_WG, HalfSpace{},
-                                   "collision_ground", std::move(ground_props));
-  plant->RegisterVisualGeometry(plant->world_body(), X_WG, HalfSpace{},
-                                "visual_ground", kGreen);
+  auto parser = Parser(plant);
+  std::filesystem::path pkg_share_dir{
+    ament_index_cpp::get_package_share_directory("drake_ros_examples")
+  };
+  const char * kGroundPath = "models/ground.sdf";
+  std::string model_file_path = (pkg_share_dir / kGroundPath).string();
+  parser.AddModelFromFile(model_file_path, "ground");
 }
 
 class SplitRigidTransform : public LeafSystemd {
@@ -416,7 +345,7 @@ std::unique_ptr<Diagramd> BuildSimulation() {
 
   // Glue controller to multibody plant
   // Get saucer poses X_WS to controller
-  const BodyIndex ufo_index = plant.GetBodyByName("FlyingSaucer").index();
+  const BodyIndex ufo_index = plant.GetBodyByName("spacecraft").index();
   auto* body_pose_at_index = builder.AddSystem<BodyPoseAtIndex>(ufo_index);
   builder.Connect(
       plant.get_body_poses_output_port(),
@@ -472,7 +401,7 @@ std::unique_ptr<Contextd> SetInitialConditions(Diagramd* diagram) {
       diagram->GetMutableSubsystemContext(plant, diagram_context.get());
 
   RigidTransformd X_WS(RollPitchYawd(0.0, 0.0, 0.0), Vector3d(0.0, 0.0, 0.0));
-  plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("FlyingSaucer"),
+  plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("spacecraft"),
                         X_WS);
   return diagram_context;
 }
