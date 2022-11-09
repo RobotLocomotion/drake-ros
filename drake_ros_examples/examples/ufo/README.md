@@ -2,7 +2,7 @@
 
 ## Overview
 
-The UFO example shows how to use Drake-ROS and the Drake systems framework to
+The UFO example shows how to use Drake ROS and the Drake systems framework to
 enable controlling a flying object with RViz.
 
 It publishes the following topics:
