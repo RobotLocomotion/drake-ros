@@ -10,6 +10,7 @@
 #include <drake/systems/controllers/pid_controller.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/primitives/adder.h>
 #include <drake/systems/primitives/constant_value_source.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/primitives/discrete_derivative.h>
@@ -22,6 +23,7 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
 using drake::multibody::BodyIndex;
+using drake::multibody::ModelInstanceIndex;
 using drake::multibody::Parser;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -31,7 +33,9 @@ using drake_ros_viz::RvizVisualizer;
 using Eigen::Quaterniond;
 using Eigen::Vector3d;
 
+using Adderd = drake::systems::Adder<double>;
 using BasicVectord = drake::systems::BasicVector<double>;
+using Bodyd = drake::multibody::Body<double>;
 using ConstantVectorSourced = drake::systems::ConstantVectorSource<double>;
 using Contextd = drake::systems::Context<double>;
 using Diagramd = drake::systems::Diagram<double>;
@@ -51,14 +55,14 @@ using StateInterpolatorWithDiscreteDerivatived =
 using Systemd = drake::systems::System<double>;
 
 /// Adds body named FlyingSaucer to the multibody plant.
-void AddFlyingSaucer(MultibodyPlantd* plant) {
+ModelInstanceIndex AddFlyingSaucer(MultibodyPlantd* plant) {
   auto parser = Parser(plant);
   std::filesystem::path pkg_share_dir{
     ament_index_cpp::get_package_share_directory("drake_ros_examples")
   };
   const char * kUfoPath = "models/ufo.sdf";
   std::string model_file_path = (pkg_share_dir / kUfoPath).string();
-  parser.AddModelFromFile(model_file_path, "spacecraft");
+  return parser.AddModelFromFile(model_file_path, "spacecraft");
 }
 
 /// Adds Ground geometry to the world in the multibody plant.
@@ -132,7 +136,15 @@ class UnsplitSpatialForce : public LeafSystemd {
   }
 };
 
-std::unique_ptr<Diagramd> CreateSaucerController() {
+/// Create a controller for the flying saucer
+/// \param[in] saucer_mass Mass of spacecraft in kg for gravity feedforward
+///   controller.
+/// \param[in] gravity_vector Acceleration due to gravity expressed in world
+///   frame. This assumes a flat planet with gravity that is constant
+///   regardless of altitude.
+std::unique_ptr<Diagramd> CreateSaucerController(
+  double saucer_mass, Vector3d gravity_vector)
+{
   // X_WS = Pose of saucer in world frame
   // X_WT = Target saucer pose in world frame
   // p_WS = Current saucer position in world frame
@@ -183,18 +195,30 @@ std::unique_ptr<Diagramd> CreateSaucerController() {
   builder.Connect(zero_vector3->get_output_port(),
                   target_position_mux->get_input_port(1));
 
+  // Gravity feedforward
+  // output: Vector3d f_S_W
+  auto antigravity =
+      builder.AddSystem<ConstantVectorSourced>(
+          -1 * saucer_mass * gravity_vector);
+
   // Forces PidController
   // input: estimated state Vector3d p_WS concatenated with v_WS
   // input: desired state Vector3d p_WT concatenated with v_WT
   // output: Vector3d f_S_W
   // Gains picked through trial and error
   auto* forces_pid_controller = builder.AddSystem<PidControllerd>(
-      Vector3d{100.0f, 100.0f, 2500.0f}, Vector3d{0.0f, 0.0f, 50.0f},
-      Vector3d{500.0f, 500.0f, 500.0f});
+      Vector3d{100.0f, 0.0f, 2500.0f}, Vector3d{0.0f, 0.0f, 50.0f},
+      Vector3d{500.0f, 0.0f, 500.0f});
   builder.Connect(current_position_interp->get_output_port(),
                   forces_pid_controller->get_input_port_estimated_state());
   builder.Connect(target_position_mux->get_output_port(),
                   forces_pid_controller->get_input_port_desired_state());
+
+  auto force_adder = builder.AddSystem<Adderd>(2, 3);
+  builder.Connect(antigravity->get_output_port(),
+                  force_adder->get_input_port(0));
+  builder.Connect(forces_pid_controller->get_output_port_control(),
+                  force_adder->get_input_port(1));
 
   // Output Glue
   // input: Vector3d f_S_W
@@ -202,7 +226,7 @@ std::unique_ptr<Diagramd> CreateSaucerController() {
   // output: SpacialForce F_S_W
   auto* spatial_force_combiner = builder.AddSystem<UnsplitSpatialForce>();
   builder.Connect(
-      forces_pid_controller->get_output_port_control(),
+      force_adder->get_output_port(),
       spatial_force_combiner->GetInputPort(UnsplitSpatialForce::kForcesPort));
   builder.Connect(
       zero_vector3->get_output_port(),
@@ -338,11 +362,15 @@ std::unique_ptr<Diagramd> BuildSimulation() {
       drake::multibody::AddMultibodyPlantSceneGraph(&builder, 0.001);
 
   AddGround(&plant);
-  AddFlyingSaucer(&plant);
+  ModelInstanceIndex saucer_idx = AddFlyingSaucer(&plant);
 
   plant.Finalize();
 
-  auto* ufo_controller = builder.AddSystem(CreateSaucerController());
+  const Bodyd& saucer_body = plant.GetUniqueFreeBaseBodyOrThrow(saucer_idx);
+
+  auto* ufo_controller = builder.AddSystem(
+      CreateSaucerController(saucer_body.default_mass(),
+                             plant.gravity_field().gravity_vector()));
 
   // Glue controller to multibody plant
   // Get saucer poses X_WS to controller
@@ -394,13 +422,6 @@ std::unique_ptr<Diagramd> BuildSimulation() {
 
 std::unique_ptr<Contextd> CreateInitialConditions(Diagramd* diagram) {
   std::unique_ptr<Contextd> diagram_context = diagram->CreateDefaultContext();
-
-  const Systemd& plant_system = diagram->GetSubsystemByName("plant");
-  const MultibodyPlantd& plant =
-      dynamic_cast<const MultibodyPlantd&>(plant_system);
-  Contextd& plant_context =
-      diagram->GetMutableSubsystemContext(plant, diagram_context.get());
-
   return diagram_context;
 }
 
