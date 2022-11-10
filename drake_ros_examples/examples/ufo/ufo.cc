@@ -184,9 +184,10 @@ std::unique_ptr<Diagramd> CreateSaucerController() {
                   target_position_mux->get_input_port(1));
 
   // Forces PidController
-  //  input: estimated state Vector3d p_WS concatenated with v_WS
-  //  input: desired state Vector3d p_WT concatenated with v_WT
-  //  output: Vector3d f_S_W
+  // input: estimated state Vector3d p_WS concatenated with v_WS
+  // input: desired state Vector3d p_WT concatenated with v_WT
+  // output: Vector3d f_S_W
+  // Gains picked through trial and error
   auto* forces_pid_controller = builder.AddSystem<PidControllerd>(
       Vector3d{100.0f, 100.0f, 2500.0f}, Vector3d{0.0f, 0.0f, 50.0f},
       Vector3d{500.0f, 500.0f, 500.0f});
