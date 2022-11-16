@@ -129,7 +129,7 @@ int main() {
   while (true) {
     simulator->AdvanceTo(simulator_context.get_time() + 0.1);
     // At each time step, trigger the publication of the diagram's outputs
-    diagram->Publish(simulator_context);
+    diagram->ForcedPublish(simulator_context);
   }
 
   return 0;

@@ -101,7 +101,7 @@ TEST(SceneTfBroadcasting, NominalCase) {
   const auto time = rclcpp::Time() + rclcpp::Duration::from_seconds(13.);
 
   context->SetTime(time.seconds());
-  diagram->Publish(*context);
+  diagram->ForcedPublish(*context);
   rclcpp::spin_some(node);
 
   EXPECT_TRUE(buffer.canTransform("world", "odom", time));
