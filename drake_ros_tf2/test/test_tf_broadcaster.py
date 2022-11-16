@@ -96,7 +96,7 @@ def test_nominal_case():
     stamp = time.to_msg()
 
     context.SetTime(time.nanoseconds / 1e9)
-    diagram.Publish(context)
+    diagram.ForcedPublish(context)
 
     future = buffer_.wait_for_transform_async('world', 'odom', time)
     rclpy.spin_until_future_complete(node, future, timeout_sec=2)
