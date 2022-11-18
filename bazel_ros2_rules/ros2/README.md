@@ -1,4 +1,4 @@
-## Infrastructure to use ROS 2 from a Bazel workspace
+# Infrastructure to use ROS 2 from a Bazel Workspace
 
 This package encapsulates all the machinery to pull a ROS 2 workspace install
 space or a subset thereof as a Bazel repository. Both system-installed binary
@@ -25,7 +25,7 @@ This rule heavily relies on two Python packages:
   build configuration of pre-installed CMake projects for Bazel packages to
   depend on.
 
-### Repository layout
+## Repository Layout
 
 A ROS 2 local repository has the following layout:
 
@@ -44,7 +44,7 @@ A ROS 2 local repository has the following layout:
 Note that all files and subdirectories that are mere implementation details
 have been excluded from this layout.
 
-#### Targets
+### Targets
 
 For each package in the underlying ROS 2 workspace install space, depending on
 the artifacts it generates, the following targets may be found at the root
@@ -77,7 +77,7 @@ the artifacts it generates, the following targets may be found at the root
   sourcing the workspace install space). These executables are exposed as
   Python binaries for simplicty.
 
-#### Rules
+### Rules
 
 To build C++ binaries and tests that depend on ROS 2, `ros_cc_binary` and
 `ros_cc_test` rules are available in the `ros_cc.bzl` file. These rules,
@@ -103,7 +103,7 @@ the same file. By default, these naming conventions allow downstream
 `rosidl_interfaces_group` rules to depend on upstream `rosidl_interface_group`
 rules.
 
-#### Tools
+### Tools
 
 The `rmw_isolation` subpackage provides C++ and Python `isolate_rmw_by_path`
 APIs to enforce RMW network isolation. To that end, a unique path must be
@@ -114,7 +114,7 @@ provided (such as Bazel's `$TEST_TMPDIR`).
   Tier 1 `rmw` implementations only. Collision rates are below 1% but not null.
   Use with care.
 
-#### Metadata
+### Metadata
 
 The `distro.bzl` file bears relevant ROS 2 workspace metadata for rules, tools,
 and downstream packages to use.

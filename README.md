@@ -7,10 +7,13 @@
 The intended function of this repository is to provide the following ROS 2
 capability:
 
- - API for integration between Drake and ROS 2 components
- - Bazel Starlark macros and tooling to enable ingesting (already built) ROS 2
-   workspaces from either installed locations or tarballs.
- - Examples for using these APIs and Bazel macros.
+- API for integration between Drake and ROS 2 components. See the
+  `drake_ros_*` packages.
+- Bazel Starlark macros and tooling to enable ingesting (already built) ROS 2
+  workspaces from either installed locations or tarballs in
+  [`bazel_ros2_rules`](./bazel_ros2_rules).
+- Examples for using these APIs and Bazel macros in
+  [`ros2_example_bazel_installed`](./ros2_example_bazel_installed).
 
 In addition to ROS 2, this repository also provides some tools for interacting
 with the Gazebo and broader ROS ecosystem:
