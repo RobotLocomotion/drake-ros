@@ -13,6 +13,7 @@ if("@PACKAGE@" STREQUAL "rviz_ogre_vendor")
   set(CMAKE_FIND_LIBRARY_PREFIXES ";lib")
 endif()
 
+
 find_package(@PACKAGE@ REQUIRED)
 
 file(WRITE empty.cc "")
@@ -37,6 +38,11 @@ if("@PACKAGE@" STREQUAL "rviz_ogre_vendor")
   )
   file(GLOB ogre_plugin_libraries "${OGRE_PLUGIN_DIR}/*.so*")
   target_link_libraries(${PROJECT_NAME} ${ogre_plugin_libraries})
+elseif("@PACKAGE@" STREQUAL "console_bridge_vendor")
+  # TODO(sloretz) How to get targets from externalproject_add based vendor
+  # packages?
+  find_package(console_bridge REQUIRED)
+  target_link_libraries(${PROJECT_NAME} console_bridge::console_bridge)
 else()
   ament_target_dependencies(${PROJECT_NAME} @PACKAGE@)
   # TODO(hidmic): figure out why this is sometimes necessary
