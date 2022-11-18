@@ -47,6 +47,7 @@ ROS2_PACKAGES = [
     "ros2cli",
     "ros2cli_common_extensions",
     "tf2_py",
+    "console_bridge_vendor",
 ] + [
     # These are possible RMW implementations. Uncomment one and only one to
     # change implementations
