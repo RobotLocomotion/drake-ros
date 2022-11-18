@@ -118,3 +118,37 @@ provided (such as Bazel's `$TEST_TMPDIR`).
 
 The `distro.bzl` file bears relevant ROS 2 workspace metadata for rules, tools,
 and downstream packages to use.
+
+## Alternatives
+
+### `ApexAI/rules_ros`
+
+[`ApexAI/rules_ros`](https://github.com/ApexAI/rules_ros) is another great
+method of ingesting ROS 2 into a Bazel-ified workflow. At present, it has a
+[`vcstool`](https://github.com/dirk-thomas/vcstool)-like manifest of
+repositories that will be used to fetch packages and build them from source.
+
+The benefit from this approach is being able to fully control the source build,
+configuration flags, etc., for ensuring a build is consistent and easily
+reconfigurable.
+
+The (present) possible con to this approach is scalability. You must presently
+provide your own set of external `{repo}.BUILD.bazel` rules that reflect the
+ament operations expressed in CMake. Until the `ament` / ROS 2 build ecosystem
+provides scaffolding or affordances for Bazel tooling, and until pacakges
+provide their own (tested) Bazel tooling, this may be a tall (but still
+tractable) hill to climb.
+
+### Contrast
+
+`RobotLocomotion/drake-ros/bazel_ros2_rules` leverages a prebuilt workspace, be
+it from a local path, a tarball, or some other Bazel `repository_rule`
+provenance (e.g.
+[`RobotLocomotion/bazel-external-data`](https://github.com/RobotLocomotion/bazel-external-data).
+
+The pro is that only scraping needs to be
+done of CMake metadata, and thus can be more scalable, especially for complex
+package ecosystems like RViz2 related things.
+
+The con is that this scraping can be slow, is currently in the analysis phase,
+and does not admit source-level configurability.

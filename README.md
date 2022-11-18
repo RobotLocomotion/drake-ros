@@ -12,6 +12,8 @@ capability:
 - Bazel Starlark macros and tooling to enable ingesting (already built) ROS 2
   workspaces from either installed locations or tarballs in
   [`bazel_ros2_rules`](./bazel_ros2_rules).
+  - Be sure to read about
+    [alternative approaches](./bazel_ros2_rules/ros2/#alternatives).
 - Examples for using these APIs and Bazel macros in
   [`ros2_example_bazel_installed`](./ros2_example_bazel_installed).
 

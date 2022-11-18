@@ -2,6 +2,9 @@
 
 This project provides rules to build and run against a ROS 2 distribution from Bazel.
 
+Please be sure to review [Alternatives](./ros2#alternatives) for Bazel tooling
+for use with the ROS 2 ecosystem.
+
 ## Features
 
 - Automatic ROS 2 overlay scraping, `symlink` or `merge`-installed
