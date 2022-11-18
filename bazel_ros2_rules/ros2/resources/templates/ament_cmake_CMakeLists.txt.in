@@ -13,7 +13,6 @@ if("@PACKAGE@" STREQUAL "rviz_ogre_vendor")
   set(CMAKE_FIND_LIBRARY_PREFIXES ";lib")
 endif()
 
-
 find_package(@PACKAGE@ REQUIRED)
 
 file(WRITE empty.cc "")
