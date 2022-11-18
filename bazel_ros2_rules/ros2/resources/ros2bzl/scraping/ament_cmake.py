@@ -67,6 +67,10 @@ def collect_ament_cmake_shared_library_codemodel(
             if is_system_library(library):
                 if library.startswith('/usr/local'):
                     local_link_libraries.append(library)
+                if os.path.basename(library).startswith("libconsole_bridge"):
+                    # Special case console_bridge system package on Jammy
+                    link_flags.append('-L' + os.path.dirname(library))
+                    link_flags.append('-l:' + os.path.basename(library))
                 continue
             link_libraries.append(library)
     # Fail on any /usr/local libraries
