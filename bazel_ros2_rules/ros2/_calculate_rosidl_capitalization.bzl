@@ -14,30 +14,30 @@ def calculate_rosidl_capitalization(basename):
             # insert an underscore before any upper case letter
             # which is followed by a lower case letter
             if i > 0 and i + 1 < len(basename):
-                if basename[i+1] in alphabet.lower():
+                if basename[i + 1] in alphabet.lower():
                     insert_underscore = True
+
             # insert an underscore before any upper case letter
             # which is preseded by a lower case letter or number
             if i - 1 >= 0:
                 if basename[i - 1] in numbers + alphabet.lower():
                     insert_underscore = True
         if insert_underscore:
-            basename_build.append('_')
+            basename_build.append("_")
         basename_build.append(basename[i].lower())
     return "".join(basename_build)
 
-
 def run_calculate_rosidl_capitalization_tests():
     test_cases = [
-        ('WSGState', 'wsg_state'),
-        ('A', 'a'),
-        ('a', 'a'),
-        ('_', '_'),
-        ('__', '__'),
+        ("WSGState", "wsg_state"),
+        ("A", "a"),
+        ("a", "a"),
+        ("_", "_"),
+        ("__", "__"),
         ("Accel.msg", "accel.msg"),
         ("AccelStamped.msg", "accel_stamped.msg"),
         ("AccelWithCovariance.msg", "accel_with_covariance.msg"),
-        ("AccelWithCovarianceStamped.msg", "accel_with_covariance_stamped.msg"),
+        ("AccelWithCovarianceStamped.msg", "accel_with_covariance_stamped.msg"),  # noqa
         ("Arrays.msg", "arrays.msg"),
         ("ArrayVal.msg", "array_val.msg"),
         ("BasicTypes.msg", "basic_types.msg"),
@@ -126,7 +126,7 @@ def run_calculate_rosidl_capitalization_tests():
         ("MultiArrayLayout.msg", "multi_array_layout.msg"),
         ("MultiDOFJointState.msg", "multi_dof_joint_state.msg"),
         ("MultiDOFJointTrajectory.msg", "multi_dof_joint_trajectory.msg"),
-        ("MultiDOFJointTrajectoryPoint.msg", "multi_dof_joint_trajectory_point.msg"),
+        ("MultiDOFJointTrajectoryPoint.msg", "multi_dof_joint_trajectory_point.msg"),  # noqa
         ("MultiEchoLaserScan.msg", "multi_echo_laser_scan.msg"),
         ("MultiNested.msg", "multi_nested.msg"),
         ("NavSatFix.msg", "nav_sat_fix.msg"),
@@ -194,7 +194,7 @@ def run_calculate_rosidl_capitalization_tests():
         ("Twist.msg", "twist.msg"),
         ("TwistStamped.msg", "twist_stamped.msg"),
         ("TwistWithCovariance.msg", "twist_with_covariance.msg"),
-        ("TwistWithCovarianceStamped.msg", "twist_with_covariance_stamped.msg"),
+        ("TwistWithCovarianceStamped.msg", "twist_with_covariance_stamped.msg"),  # noqa
         ("UInt16.msg", "u_int16.msg"),
         ("UInt16MultiArray.msg", "u_int16_multi_array.msg"),
         ("UInt32.msg", "u_int32.msg"),
@@ -278,5 +278,5 @@ def run_calculate_rosidl_capitalization_tests():
     ]
     for idl_name, expected_output in test_cases:
         actual_output = calculate_rosidl_capitalization(idl_name)
-        if not expected_output == actual_output :
+        if not expected_output == actual_output:
             fail(msg = "Expected " + expected_output + " got " + actual_output)

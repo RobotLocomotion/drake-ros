@@ -65,8 +65,8 @@ def do_dload_shim(ctx, template, to_list):
     """
     Implements common dload_shim rule functionality.
 
-    This macro is a parametrized rule implementation and as such it is not meant
-    to be used in any other context (like a BUILD.bazel file).
+    This macro is a parametrized rule implementation and as such it is not
+    meant to be used in any other context (like a BUILD.bazel file).
 
     Args:
         ctx: context of a Bazel rule
@@ -76,21 +76,23 @@ def do_dload_shim(ctx, template, to_list):
     It expects the following attributes on ctx:
 
         target: executable target to be shimmed
-        env_changes: runtime environment changes to be applied, as a mapping from
-          environment variable names to actions to be performed on them.
+        env_changes: runtime environment changes to be applied, as a mapping
+          from environment variable names to actions to be performed on them.
           Actions are (action_type, action_args) tuples. Supported action types
           are: 'path-prepend', 'path-replace', 'set-if-not-set', and 'replace'.
           Paths are resolved relative to the runfiles directory of the
           downstream executable.
-          Also, see MAGIC_VARIABLES for platform-independent runtime environment
-          specification.
+          Also, see MAGIC_VARIABLES for platform-independent runtime
+          environment specification.
 
     You may use get_dload_shim_attributes() on rule definition.
     """
     executable_file = ctx.executable.target
 
     env_changes = {
-        MAGIC_VARIABLES.get(name, default = name): _parse_runtime_environment_action(ctx, action)
+        MAGIC_VARIABLES.get(name, default = name): (
+            _parse_runtime_environment_action(ctx, action)
+        )
         for name, action in ctx.attr.env_changes.items()
     }
 
@@ -138,6 +140,14 @@ def _resolve_runfile_path(ctx, path):
     """
     return _normpath(ctx.expand_location(path))
 
+def _resolve_runfile_path_with_bang_suffix(ctx, path):
+    """Same as above, but preserve bang (!) suffix."""
+    suffix = ""
+    if path.endswith("!"):
+        suffix = "!"
+        path = path[:-1]
+    return _resolve_runfile_path(ctx, path) + suffix
+
 def _parse_runtime_environment_action(ctx, action):
     """
     Parses a runtime environment action, validating types and resolving paths.
@@ -148,7 +158,7 @@ def _parse_runtime_environment_action(ctx, action):
             tpl = "'{}' action requires at least one argument"
             fail(msg = tpl.format(action_type))
         action_args = _unique([
-            _resolve_runfile_path(ctx, path[:-1]) + "!" if path.endswith("!") else _resolve_runfile_path(ctx, path)
+            _resolve_runfile_path_with_bang_suffix(ctx, path)
             for path in action_args
         ])
     elif action_type in ("path-replace", "set-if-not-set", "replace"):

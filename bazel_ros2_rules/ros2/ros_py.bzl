@@ -2,12 +2,12 @@
 
 load(
     "//tools:dload_py.bzl",
-    "dload_py_shim"
+    "dload_py_shim",
 )
 load(
     "//tools:kwargs.bzl",
     "filter_to_only_common_kwargs",
-    "remove_test_specific_kwargs"
+    "remove_test_specific_kwargs",
 )
 load(
     "//tools:common.bzl",
@@ -15,17 +15,20 @@ load(
 )
 load(
     ":distro.bzl",
-    "RUNTIME_ENVIRONMENT"
+    "RUNTIME_ENVIRONMENT",
 )
 
 def ros_import_binary(
-    name, executable, rmw_implementation = None, py_binary_rule = native.py_binary, **kwargs
-):
+        name,
+        executable,
+        rmw_implementation = None,
+        py_binary_rule = native.py_binary,
+        **kwargs):
     """
-    Imports an existing executable by wrapping it with a Python shim that will inject the
-    minimal runtime environment necessary for execution when depending on this ROS 2 local
-    repository. Imported executables need not be Python -- binary executables will work the
-    same.
+    Imports an existing executable by wrapping it with a Python shim that will
+    inject the minimal runtime environment necessary for execution when
+    depending on this ROS 2 local repository. Imported executables need not be
+    Python -- binary executables will work the same.
 
     Akin to the cc_import() rule.
 
@@ -42,8 +45,9 @@ def ros_import_binary(
     if rmw_implementation:
         kwargs, env_changes = \
             incorporate_rmw_implementation(
-                kwargs, env_changes,
-                rmw_implementation = rmw_implementation
+                kwargs,
+                env_changes,
+                rmw_implementation = rmw_implementation,
             )
 
     shim_name = "_" + name + "_shim.py"
@@ -61,17 +65,20 @@ def ros_import_binary(
         tags = ["nolint"] + kwargs.get("tags", []),
         data = [executable] + kwargs.get("data", []),
         deps = kwargs.get("deps", []) + [
-            "@bazel_ros2_rules//ros2:dload_shim_py"]
+            "@bazel_ros2_rules//ros2:dload_shim_py",
+        ],
     )
     py_binary_rule(name = name, **kwargs)
 
 def ros_py_binary(
-    name, rmw_implementation = None, py_binary_rule = native.py_binary, **kwargs
-):
+        name,
+        rmw_implementation = None,
+        py_binary_rule = native.py_binary,
+        **kwargs):
     """
-    Builds a Python binary and wraps it with a shim that will inject the minimal
-    runtime environment necessary for execution when depending on targets from
-    this ROS 2 local repository.
+    Builds a Python binary and wraps it with a shim that will inject the
+    minimal runtime environment necessary for execution when depending on
+    targets from this ROS 2 local repository.
 
     Equivalent to the py_binary() rule, which this rule decorates.
 
@@ -92,8 +99,9 @@ def ros_py_binary(
     if rmw_implementation:
         noshim_kwargs, shim_env_changes = \
             incorporate_rmw_implementation(
-                noshim_kwargs, shim_env_changes,
-                rmw_implementation = rmw_implementation
+                noshim_kwargs,
+                shim_env_changes,
+                rmw_implementation = rmw_implementation,
             )
 
     py_binary_rule(
@@ -118,15 +126,16 @@ def ros_py_binary(
             "@bazel_ros2_rules//ros2:dload_shim_py",
             ":" + noshim_name,  # Support py_binary being used a dependency
         ],
-        tags = ["nolint"] + kwargs.get("tags", [])
+        tags = ["nolint"] + kwargs.get("tags", []),
     )
     py_binary_rule(name = name, **kwargs)
 
 def ros_py_test(
-    name, rmw_implementation = None,
-    py_binary_rule = native.py_binary,
-    py_test_rule = native.py_test, **kwargs
-):
+        name,
+        rmw_implementation = None,
+        py_binary_rule = native.py_binary,
+        py_test_rule = native.py_test,
+        **kwargs):
     """
     Builds a Python test and wraps it with a shim that will inject the minimal
     runtime environment necessary for execution when depending on targets from
@@ -150,7 +159,8 @@ def ros_py_test(
     if rmw_implementation:
         noshim_kwargs, shim_env_changes = \
             incorporate_rmw_implementation(
-                noshim_kwargs, shim_env_changes,
+                noshim_kwargs,
+                shim_env_changes,
                 rmw_implementation = rmw_implementation,
             )
 
@@ -174,6 +184,6 @@ def ros_py_test(
         main = shim_name,
         data = [":" + noshim_name],
         deps = ["@bazel_ros2_rules//ros2:dload_shim_py"],
-        tags = ["nolint"] + kwargs.get("tags", [])
+        tags = ["nolint"] + kwargs.get("tags", []),
     )
     py_test_rule(name = name, **kwargs)

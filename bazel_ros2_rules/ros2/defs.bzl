@@ -151,7 +151,14 @@ def _label(relpath):
 def base_ros2_repository_attrs():
     """
     Attributes necessary for `base_ros2_repository()`.
-    """
+
+    Note:
+        All of the `_*` labels are listed as private attributes to force
+        prefetching, or else repository rules will be restarted on first hit.
+        See https://github.com/bazelbuild/bazel/commit/cdc99afc1a03ff8fbbbae088d358b7c029e0d232
+        and https://github.com/bazelbuild/bazel/issues/4533 for further
+        reference.
+    """  # noqa
     return {
         "include_packages": attr.string_list(
             doc = "Optional set of packages to include, " +
@@ -171,13 +178,10 @@ def base_ros2_repository_attrs():
                   "localhost by default. Defaults to True",
             default = True,
         ),
-        # NOTE: all these labels are listed as private attributes to force prefetching, or else
-        # repository rules will be restarted on first hit.
-        # See https://github.com/bazelbuild/bazel/commit/cdc99afc1a03ff8fbbbae088d358b7c029e0d232
-        # and https://github.com/bazelbuild/bazel/issues/4533 for further reference.
         "_common_files": attr.label_list(
             default = [_label(path) for path in COMMON_FILES_MANIFEST],
-            doc = "List of common files to be symlinked to every new repository.",
+            doc = "List of common files to be symlinked to every new " +
+                  "repository.",
         ),
         "_run_template_file": attr.label(
             default = _label("resources/templates/run.bash.in"),
@@ -190,15 +194,18 @@ def base_ros2_repository_attrs():
         ),
         "_generate_distro_file_tool": attr.label(
             default = _label("generate_distro_file.py"),
-            doc = "Tool to generate distro.bzl file from distribution metadata.",
+            doc = "Tool to generate distro.bzl file from distribution " +
+                  "metadata.",
         ),
         "_generate_build_file_tool": attr.label(
             default = _label("generate_build_file.py"),
-            doc = "Tool to generate BUILD.bazel file from distribution metadata.",
+            doc = "Tool to generate BUILD.bazel file from distribution " +
+                  "metadata.",
         ),
         "_compute_system_rosdeps_tool": attr.label(
             default = _label("compute_system_rosdeps.py"),
-            doc = "Tool to compute system rosdep keys for target distribution.",
+            doc = "Tool to compute system rosdep keys for target " +
+                  "distribution.",
         ),
     }
 

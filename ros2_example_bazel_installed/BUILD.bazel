@@ -1,10 +1,12 @@
 # -*- python -*-
 
-load("@ros2//:ros_cc.bzl",
+load(
+    "@ros2//:ros_cc.bzl",
     "ros_cc_binary",
     "ros_cc_test",
 )
-load("@ros2//:ros_py.bzl",
+load(
+    "@ros2//:ros_py.bzl",
     "ros_py_binary",
     "ros_py_test",
 )
@@ -14,29 +16,30 @@ load("//tools:cmd_test.bzl", "cmd_test")
 cmd_test(
     name = "lint_rosdeps",
     cmd = [
-        "diff", "-u",
+        "diff",
+        "-u",
         "setup/prereq-rosdep-keys.txt",
         "$(location @ros2//:system-rosdep-keys.txt)",
     ],
     data = [
-        "@ros2//:system-rosdep-keys.txt",
         "setup/prereq-rosdep-keys.txt",
+        "@ros2//:system-rosdep-keys.txt",
     ],
 )
 
 ros_cc_test(
     name = "runfiles_cc_test",
     srcs = ["test/runfiles_test.cc"],
-    deps = ["@bazel_tools//tools/cpp/runfiles"],
     data = ["test/runfiles_test_data.txt"],
+    deps = ["@bazel_tools//tools/cpp/runfiles"],
 )
 
 ros_py_test(
     name = "runfiles_py_test",
     srcs = ["test/runfiles_test.py"],
+    data = ["test/runfiles_test_data.txt"],
     main = "test/runfiles_test.py",
     deps = ["@bazel_tools//tools/python/runfiles"],
-    data = ["test/runfiles_test_data.txt"],
 )
 
 ros_cc_binary(
@@ -53,12 +56,12 @@ ros_py_binary(
 py_test(
     name = "shimmed_sentinel_test",
     srcs = ["test/shimmed_sentinel_test.py"],
-    deps = [
-        "@bazel_tools//tools/python/runfiles"
-    ],
     data = [
         ":shimmed_sentinel_cc",
         ":shimmed_sentinel_py",
+    ],
+    deps = [
+        "@bazel_tools//tools/python/runfiles",
     ],
 )
 

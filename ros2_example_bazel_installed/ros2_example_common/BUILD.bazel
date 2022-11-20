@@ -10,9 +10,9 @@ rosidl_interfaces_group(
         "srv/Query.srv",
         "action/Do.action",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "@ros2//:action_msgs",
         "@ros2//:builtin_interfaces",
     ],
-    visibility = ["//visibility:public"],
 )

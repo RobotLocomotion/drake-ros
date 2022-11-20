@@ -2,7 +2,8 @@
 
 """
 The purpose of these rules is to support the propagation of runtime information
-that is necessary for the execution of C/C++ binaries and tests that require it.
+that is necessary for the execution of C/C++ binaries and tests that require
+it.
 """
 
 load(

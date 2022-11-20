@@ -25,6 +25,9 @@ jobs:
       - name: Check direct runs via runfiles
         run: ./setup/runfiles_direct_test.sh
         working-directory: ros2_example_bazel_installed
+      - name: Test lint
+        run: ./fix_bazel_lint.sh --test
+        working-directory: .
       - name: Build Bazel workspace
         run: bazel build //...
         working-directory: ros2_example_bazel_installed

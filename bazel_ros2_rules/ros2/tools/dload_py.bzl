@@ -3,7 +3,8 @@
 
 """
 The purpose of these rules is to support the propagation of runtime information
-that is necessary for the execution of Python binaries and tests that require it.
+that is necessary for the execution of Python binaries and tests that require
+it.
 """
 
 load(
@@ -38,7 +39,8 @@ dload_py_shim = rule(
 """
 Generates a Python shim that can inject runtime environment information for
 Python binaries that have such requirements. Using a Python shim for Python
-binaries enables downstream usage of the latter through transitive dependencies.
+binaries enables downstream usage of the latter through transitive
+dependencies.
 
 This shim uses a sentinel environment variable so that it only modifies the
 environment once. Any nested shims will use the top-level shim's environment.
