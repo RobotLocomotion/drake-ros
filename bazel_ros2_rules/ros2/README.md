@@ -141,7 +141,7 @@ reconfigurable.
 The (present) possible con to this approach is scalability. You must presently
 provide your own set of external `{repo}.BUILD.bazel` rules that reflect the
 ament operations expressed in CMake. Until the `ament` / ROS 2 build ecosystem
-provides scaffolding or affordances for Bazel tooling, and until pacakges
+provides scaffolding or affordances for Bazel tooling, and until packages
 provide their own (tested) Bazel tooling, this may be a tall (but certainly
 tractable) hill to climb.
 
