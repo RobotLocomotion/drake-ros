@@ -121,12 +121,18 @@ and downstream packages to use.
 
 ## Alternatives
 
-### `ApexAI/rules_ros`
+### `mvukov/rules_ros2`
 
-[`ApexAI/rules_ros`](https://github.com/ApexAI/rules_ros) is another great
-method of ingesting ROS 2 into a Bazel-ified workflow. At present, it has a
-[`vcstool`](https://github.com/dirk-thomas/vcstool)-like manifest of
-repositories that will be used to fetch packages and build them from source.
+[`mvukov/rules_ros2`](https://github.com/mvukov/rules_ros2) provides an elegant
+way of manually mapping a [`vcstool`](https://github.com/dirk-thomas/vcstool),
+e.g. [`ros2.repos`](https://github.com/ros2/ros2/blob/rolling/ros2.repos), onto
+a custom but simple manifest to then bootstrap into Bazel repository rules (and
+the corresponding `BUILD` files) to build from source.
+
+Additionally, affordances are provided to leverage Python `pip` provisiong (via
+[`rules_python`](https://github.com/bazelbuild/rules_python/)) and examples of
+Docker container integration (via
+[`rules_docker`](https://github.com/bazelbuild/rules_docker)).
 
 The benefit from this approach is being able to fully control the source build,
 configuration flags, etc., for ensuring a build is consistent and easily
@@ -136,10 +142,23 @@ The (present) possible con to this approach is scalability. You must presently
 provide your own set of external `{repo}.BUILD.bazel` rules that reflect the
 ament operations expressed in CMake. Until the `ament` / ROS 2 build ecosystem
 provides scaffolding or affordances for Bazel tooling, and until pacakges
-provide their own (tested) Bazel tooling, this may be a tall (but still
+provide their own (tested) Bazel tooling, this may be a tall (but certainly
 tractable) hill to climb.
 
-### Contrast
+Additionally, some entry points need to be reflected into the codebase (e.g.
+`ros2_topic.py`), which provides for nice flexibility, but at the cost of
+duplication / redundancy w.r.t. upstream.
+
+### `ApexAI/rules_ros`
+
+[`ApexAI/rules_ros`](https://github.com/ApexAI/rules_ros) is another great
+method of ingesting ROS 2 into a Bazel-ified workflow. At present, it has a
+`vcstool`-like manifest of
+repositories that will be used to fetch packages and build them from source.
+
+The pros and cons to this approach are similar to `mvukov/rules_ros2`.
+
+### This Repository (`RobotLocomotion/drake-ros/bazel_ros2_rules`)
 
 `RobotLocomotion/drake-ros/bazel_ros2_rules` leverages a prebuilt workspace, be
 it from a local path, a tarball, or some other Bazel `repository_rule`
@@ -152,3 +171,26 @@ package ecosystems like RViz2 related things.
 
 The con is that this scraping can be slow, is currently in the analysis phase,
 and does not admit source-level configurability.
+
+#### Features
+
+From the above two examples (at present), the following features are in
+`RobotLocomotion/bazel_ros2_rules` that may be missing from the others:
+
+- Host-based isolation (see `rmw_isolation` tooling here)
+- Ament index analysis (e.g. using `ros2 interface list` in Bazel and seeing
+  your custom types)
+- Examples leverage RViz from within a Bazel workspace
+- Writing Python bindings in `pybind11` against other C++ libraries that have
+  their own bindings - e.g., [Drake](https://drake.mit.edu/).
+  - There is *some* affordance for leveraging `pybind11` against ROS 2 RMW
+    libraries. However, because the Python bindings do not leverage C++
+    directly, but instead leverage the C-level interfaces, we get into an
+    awkward ground of mutually exclusive memory / resource management
+    paradigms.
+
+The other repos, however, have the following that `bazel_ros2_rules` is
+missing:
+
+- Affordances for `ros2 launch`
+- Launching from containers (Docker, Apptainer)
