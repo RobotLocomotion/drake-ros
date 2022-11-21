@@ -37,17 +37,18 @@ add_bazel_ros2_rules_dependencies()
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
 
+# Please keep this list sorted
 ROS2_PACKAGES = [
     "action_msgs",
     "builtin_interfaces",
-    "rosidl_default_generators",
-    "rclcpp_action",
+    "console_bridge_vendor",
     "rclcpp",
+    "rclcpp_action",
     "rclpy",
     "ros2cli",
     "ros2cli_common_extensions",
+    "rosidl_default_generators",
     "tf2_py",
-    "console_bridge_vendor",
 ] + [
     # These are possible RMW implementations. Uncomment one and only one to
     # change implementations
