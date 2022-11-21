@@ -2,6 +2,7 @@ import glob
 from multiprocessing.dummy import Pool
 import os
 from pathlib import Path
+import re
 from tempfile import TemporaryDirectory
 
 import cmake_tools
@@ -11,6 +12,12 @@ from ros2bzl.scraping.system import find_library_path
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_include
 from ros2bzl.scraping.system import is_system_library
+
+
+_ALLOWED_SYSTEM_LIBS = [
+    # Allow console_bridge_vendor to use upstream package on Ubuntu Jammy
+    re.compile(r"libconsole_bridge\.so[.0-9]*"),
+]
 
 
 def collect_ament_cmake_shared_library_codemodel(
@@ -67,10 +74,11 @@ def collect_ament_cmake_shared_library_codemodel(
             if is_system_library(library):
                 if library.startswith('/usr/local'):
                     local_link_libraries.append(library)
-                if os.path.basename(library).startswith("libconsole_bridge"):
-                    # Special case console_bridge system package on Jammy
-                    link_flags.append('-L' + os.path.dirname(library))
-                    link_flags.append('-l:' + os.path.basename(library))
+                for allowed_regex in _ALLOWED_SYSTEM_LIBS:
+                    if allowed_regex.fullmatch(os.path.basename(library)):
+                        link_flags.append('-L' + os.path.dirname(library))
+                        link_flags.append('-l:' + os.path.basename(library))
+                        break
                 continue
             link_libraries.append(library)
     # Fail on any /usr/local libraries
