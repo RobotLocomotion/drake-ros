@@ -1,7 +1,7 @@
 load("//tools:execute.bzl", "execute_or_fail")
 
 VERSION_FILE_TEMPLATE = \
-"""
+    """
 # -*- python -*-
 
 PYTHON_VERSION = "{}"
@@ -9,7 +9,7 @@ PYTHON_EXTENSION_SUFFIX = "{}"
 """
 
 BUILD_FILE_TEMPLATE = \
-"""
+    """
 # -*- python -*-
 
 package(default_visibility = ["//visibility:public"])
@@ -39,27 +39,32 @@ def _impl(repo_ctx):
         fail("No python3-config utility found in PATH")
 
     python_version = execute_or_fail(
-        repo_ctx, [
-            python_interpreter, "-c" ,
+        repo_ctx,
+        [
+            python_interpreter,
+            "-c",
             "import sys; v = sys.version_info;" +
-            "print('{}.{}'.format(v.major, v.minor))"
-        ]
+            "print('{}.{}'.format(v.major, v.minor))",
+        ],
     ).stdout.strip()
 
     extension_suffix = execute_or_fail(
-        repo_ctx, [python_config, "--extension-suffix"]
+        repo_ctx,
+        [python_config, "--extension-suffix"],
     ).stdout.strip()
 
     repo_ctx.file(
         "version.bzl",
         content = VERSION_FILE_TEMPLATE.format(
-            python_version, extension_suffix
+            python_version,
+            extension_suffix,
         ),
-        executable = False
+        executable = False,
     )
 
     cflags = execute_or_fail(
-        repo_ctx, [python_config, "--includes"]
+        repo_ctx,
+        [python_config, "--includes"],
     ).stdout.strip().split(" ")
 
     includes = []
@@ -68,14 +73,16 @@ def _impl(repo_ctx):
             continue
         include = cflag[2:]
         sandboxed_include = "include/{}".format(
-            include.replace("/", "_"))
+            include.replace("/", "_"),
+        )
         if sandboxed_include in includes:
             continue
         repo_ctx.symlink(include, sandboxed_include)
         includes.append(sandboxed_include)
 
     linkopts = execute_or_fail(
-        repo_ctx, [python_config, "--ldflags"]
+        repo_ctx,
+        [python_config, "--ldflags"],
     ).stdout.strip().split(" ")
 
     libpython = "python{}".format(python_version)
@@ -90,13 +97,14 @@ def _impl(repo_ctx):
     repo_ctx.file(
         "BUILD.bazel",
         content = BUILD_FILE_TEMPLATE.format(
-            includes, linkopts
+            includes,
+            linkopts,
         ),
-        executable = False
+        executable = False,
     )
 
 cpython_local_repository = repository_rule(
     implementation = _impl,
     local = True,
-    configure = True
+    configure = True,
 )
