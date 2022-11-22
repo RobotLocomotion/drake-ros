@@ -54,26 +54,21 @@ using StateInterpolatorWithDiscreteDerivatived =
     drake::systems::StateInterpolatorWithDiscreteDerivative<double>;
 using Systemd = drake::systems::System<double>;
 
-/// Adds body named FlyingSaucer to the multibody plant.
-ModelInstanceIndex AddFlyingSaucer(MultibodyPlantd* plant) {
+/// Adds UFO scene to the multibody plant.
+/// \return index of flying saucer
+ModelInstanceIndex AddUfoScene(MultibodyPlantd* plant) {
   auto parser = Parser(plant);
-  std::filesystem::path pkg_share_dir{
-    ament_index_cpp::get_package_share_directory("drake_ros_examples")
-  };
-  const char * kUfoPath = "models/ufo.sdf";
-  std::string model_file_path = (pkg_share_dir / kUfoPath).string();
-  return parser.AddModelFromFile(model_file_path, "spacecraft");
-}
+  parser.package_map().Add(
+    "drake_ros_examples",
+    ament_index_cpp::get_package_share_directory("drake_ros_examples"));
 
-/// Adds Ground geometry to the world in the multibody plant.
-void AddGround(MultibodyPlantd* plant) {
-  auto parser = Parser(plant);
-  std::filesystem::path pkg_share_dir{
-    ament_index_cpp::get_package_share_directory("drake_ros_examples")
+  // TODO(sloretz) make Drake Parser to support package://
+  std::filesystem::path ufo_path{
+    parser.package_map().GetPath("drake_ros_examples")
   };
-  const char * kGroundPath = "models/ground.sdf";
-  std::string model_file_path = (pkg_share_dir / kGroundPath).string();
-  parser.AddModelFromFile(model_file_path, "ground");
+  parser.AddAllModelsFromFile((ufo_path / "models/ufo_scene.sdf").string());
+
+  return plant->GetModelInstanceByName("spacecraft");
 }
 
 class SplitRigidTransform : public LeafSystemd {
@@ -361,8 +356,7 @@ std::unique_ptr<Diagramd> BuildSimulation() {
   auto [plant, scene_graph] =
       drake::multibody::AddMultibodyPlantSceneGraph(&builder, 0.001);
 
-  AddGround(&plant);
-  ModelInstanceIndex saucer_idx = AddFlyingSaucer(&plant);
+  ModelInstanceIndex saucer_idx = AddUfoScene(&plant);
 
   plant.Finalize();
 
