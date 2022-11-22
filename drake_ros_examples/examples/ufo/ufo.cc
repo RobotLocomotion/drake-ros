@@ -420,13 +420,12 @@ std::unique_ptr<Diagramd> BuildSimulation() {
   return builder.Build();
 }
 
-std::unique_ptr<Contextd> CreateInitialConditions(Diagramd* diagram) {
-  std::unique_ptr<Contextd> diagram_context = diagram->CreateDefaultContext();
-  return diagram_context;
-}
+int main() {
+  drake_ros_core::init();
 
-void RunSimulation(Diagramd* diagram,
-                   std::unique_ptr<Contextd> diagram_context) {
+  std::unique_ptr<Diagramd> diagram = BuildSimulation();
+  std::unique_ptr<Contextd> diagram_context = diagram->CreateDefaultContext();
+
   auto simulator =
       std::make_unique<Simulatord>(*diagram, std::move(diagram_context));
 
@@ -439,16 +438,6 @@ void RunSimulation(Diagramd* diagram,
   while (true) {
     simulator->AdvanceTo(simulator_context.get_time() + 0.1);
   }
-}
-
-int main() {
-  drake_ros_core::init();
-
-  std::unique_ptr<Diagramd> diagram = BuildSimulation();
-  std::unique_ptr<Contextd> diagram_context =
-    CreateInitialConditions(diagram.get());
-
-  RunSimulation(diagram.get(), std::move(diagram_context));
 
   return 0;
 }
