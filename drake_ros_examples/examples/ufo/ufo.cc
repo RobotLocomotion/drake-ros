@@ -2,19 +2,12 @@
 #include <vector>
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
-#include <drake/geometry/proximity_properties.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/externally_applied_spatial_force.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/analysis/simulator.h>
-#include <drake/systems/controllers/pid_controller.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake/systems/primitives/adder.h>
-#include <drake/systems/primitives/constant_value_source.h>
-#include <drake/systems/primitives/constant_vector_source.h>
-#include <drake/systems/primitives/discrete_derivative.h>
-#include <drake/systems/primitives/multiplexer.h>
 #include <drake_ros_core/drake_ros.h>
 #include <drake_ros_core/ros_interface_system.h>
 #include <drake_ros_core/ros_subscriber_system.h>
@@ -25,6 +18,7 @@
 using drake::multibody::BodyIndex;
 using drake::multibody::ModelInstanceIndex;
 using drake::multibody::Parser;
+using drake::systems::AbstractStateIndex;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
 using drake_ros_core::RosSubscriberSystem;
@@ -33,216 +27,153 @@ using drake_ros_viz::RvizVisualizer;
 using Eigen::Quaterniond;
 using Eigen::Vector3d;
 
-using Adderd = drake::systems::Adder<double>;
-using BasicVectord = drake::systems::BasicVector<double>;
 using Bodyd = drake::multibody::Body<double>;
-using ConstantVectorSourced = drake::systems::ConstantVectorSource<double>;
 using Contextd = drake::systems::Context<double>;
-using Diagramd = drake::systems::Diagram<double>;
 using DiagramBuilderd = drake::systems::DiagramBuilder<double>;
+using Diagramd = drake::systems::Diagram<double>;
 using ExternallyAppliedSpatialForced =
     drake::multibody::ExternallyAppliedSpatialForce<double>;
 using LeafSystemd = drake::systems::LeafSystem<double>;
 using MultibodyPlantd = drake::multibody::MultibodyPlant<double>;
-using Multiplexerd = drake::systems::Multiplexer<double>;
-using PidControllerd = drake::systems::controllers::PidController<double>;
 using RigidTransformd = drake::math::RigidTransform<double>;
-using RollPitchYawd = drake::math::RollPitchYaw<double>;
 using Simulatord = drake::systems::Simulator<double>;
 using SpatialForced = drake::multibody::SpatialForce<double>;
-using StateInterpolatorWithDiscreteDerivatived =
-    drake::systems::StateInterpolatorWithDiscreteDerivative<double>;
-using Systemd = drake::systems::System<double>;
+using Stated = drake::systems::State<double>;
 
 /// Adds UFO scene to the multibody plant.
 /// \return index of flying saucer
 ModelInstanceIndex AddUfoScene(MultibodyPlantd* plant) {
   auto parser = Parser(plant);
   parser.package_map().Add(
-    "drake_ros_examples",
-    ament_index_cpp::get_package_share_directory("drake_ros_examples"));
+      "drake_ros_examples",
+      ament_index_cpp::get_package_share_directory("drake_ros_examples"));
 
-  // TODO(sloretz) make Drake Parser to support package://
+  // TODO(sloretz) make Drake Parser support package://
   std::filesystem::path ufo_path{
-    parser.package_map().GetPath("drake_ros_examples")
-  };
+      parser.package_map().GetPath("drake_ros_examples")};
   parser.AddAllModelsFromFile((ufo_path / "models/ufo_scene.sdf").string());
 
   return plant->GetModelInstanceByName("spacecraft");
 }
 
-class SplitRigidTransform : public LeafSystemd {
+class FlyingSaucerController : public LeafSystemd {
  public:
-  SplitRigidTransform() {
-    DeclareAbstractInputPort(kTransformPort,
+  FlyingSaucerController(double saucer_mass, Vector3d gravity, Vector3d kp,
+                         Vector3d kd, Vector3d kp_rot, Vector3d kd_rot,
+                         double period = 1.0 / 100.0)
+      : saucer_mass_(saucer_mass),
+        gravity_(gravity),
+        kp_(kp),
+        kd_(kd),
+        kp_rot_(kp_rot),
+        kd_rot_(kd_rot),
+        period_(period) {
+    DeclareAbstractInputPort(kCurrentPosePort,
+                             *drake::AbstractValue::Make(RigidTransformd()));
+    DeclareAbstractInputPort(kTargetPosePort,
                              *drake::AbstractValue::Make(RigidTransformd()));
 
-    DeclareVectorOutputPort(kOrientationPort, BasicVectord(3),
-                            &SplitRigidTransform::CalcOrientation);
-
-    DeclareVectorOutputPort(kPositionPort, BasicVectord(3),
-                            &SplitRigidTransform::CalcPosition);
-  }
-
-  virtual ~SplitRigidTransform() = default;
-
-  static constexpr const char* kTransformPort{"X_WF"};
-  static constexpr const char* kOrientationPort{"R_WF"};
-  static constexpr const char* kPositionPort{"p_WF"};
-
- private:
-  void CalcOrientation(const Contextd& context, BasicVectord* output) const {
-    auto& transform_port = GetInputPort(kTransformPort);
-    const auto& X_WF = transform_port.Eval<RigidTransformd>(context);
-    output->SetFromVector(RollPitchYawd(X_WF.rotation()).vector());
-  }
-
-  void CalcPosition(const Contextd& context, BasicVectord* output) const {
-    auto& transform_port = GetInputPort(kTransformPort);
-    const auto& X_WF = transform_port.Eval<RigidTransformd>(context);
-    output->SetFromVector(X_WF.translation());
-  }
-};
-
-class UnsplitSpatialForce : public LeafSystemd {
- public:
-  UnsplitSpatialForce() {
-    DeclareVectorInputPort(kForcesPort, BasicVectord(3));
-    DeclareVectorInputPort(kTorquesPort, BasicVectord(3));
-
     DeclareAbstractOutputPort(kSpatialForcePort,
-                              &UnsplitSpatialForce::CalcSpatialForce);
+                              &FlyingSaucerController::CalcSpatialForce);
+
+    X_WS_idx_ =
+        DeclareAbstractState(*drake::AbstractValue::Make(RigidTransformd()));
+    prev_X_WS_idx_ =
+        DeclareAbstractState(*drake::AbstractValue::Make(RigidTransformd()));
+
+    DeclarePeriodicUnrestrictedUpdateEvent(
+        period_, 0., &FlyingSaucerController::UpdateState);
   }
 
-  virtual ~UnsplitSpatialForce() = default;
-
-  static constexpr const char* kForcesPort{"f_F"};
-  static constexpr const char* kTorquesPort{"t_F"};
-  static constexpr const char* kSpatialForcePort{"F_F"};
+  // Pose of saucer in world frame
+  static constexpr const char* kCurrentPosePort{"X_WS"};
+  // Target saucer pose in world frame
+  static constexpr const char* kTargetPosePort{"X_WT"};
+  // SpatialForce to be applied on saucer in world frame
+  static constexpr const char* kSpatialForcePort{"F_S_W"};
 
  private:
-  void CalcSpatialForce(const Contextd& context, SpatialForced* output) const {
-    auto& forces_port = GetInputPort(kForcesPort);
-    auto& torques_port = GetInputPort(kTorquesPort);
+  void UpdateState(const Contextd& context, Stated* state) const {
+    auto& current_pose_port = GetInputPort(kCurrentPosePort);
 
-    const auto& f_F = forces_port.Eval<BasicVectord>(context).value();
-    const auto& t_F = torques_port.Eval<BasicVectord>(context).value();
-    *output = SpatialForced(t_F, f_F);
+    // Store current pose as old pose
+    state->get_mutable_abstract_state<RigidTransformd>(prev_X_WS_idx_) =
+        state->get_mutable_abstract_state<RigidTransformd>(X_WS_idx_);
+
+    // TODO(sloretz) what happens if UpdateState is called faster than
+    // X_WS input?
+    // Store input pose as current pose
+    state->get_mutable_abstract_state<RigidTransformd>(X_WS_idx_) =
+        current_pose_port.Eval<RigidTransformd>(context);
   }
+
+  void CalcSpatialForce(const Contextd& context, SpatialForced* output) const {
+    // Get target pose
+    auto& target_pose_port = GetInputPort(kTargetPosePort);
+    const auto& X_WT = target_pose_port.Eval<RigidTransformd>(context);
+
+    // Get Current and previous pose
+    const auto& avs = context.get_abstract_state();
+    const auto& X_WS = avs.get_value(X_WS_idx_).get_value<RigidTransformd>();
+    const auto& prev_X_WS =
+        avs.get_value(prev_X_WS_idx_).get_value<RigidTransformd>();
+
+    // force to be applied to saucer in world frame
+    Vector3d f_S_W{0, 0, 0};
+    // torque to be applied to saucer in world frame
+    Vector3d t_S_W{0, 0, 0};
+
+    // Translation
+    // p_WS = Current saucer position in world frame
+    // p_WT = Target saucer position in world frame
+    const auto& p_WS = X_WS.translation();
+    const auto& p_WT = X_WT.translation();
+
+    // Translation Error
+    const auto p_error = p_WT - p_WS;
+    const auto prev_p_error = p_WT - prev_X_WS.translation();
+
+    // Translation PD controller - proportional
+    f_S_W += ((p_error).array() * kp_.array()).matrix();
+
+    // Translation PD controller - derivative
+    const auto de_dt = (p_error - prev_p_error) / period_;
+    f_S_W += (de_dt.array() * kd_.array()).matrix();
+
+    // Translation PD Gravity feedforward
+    f_S_W -= saucer_mass_ * gravity_;
+
+    // Orientation
+    const auto& R_WS = X_WS.rotation();
+    const auto& R_WT = X_WT.rotation();
+
+    // Rotation from current to target orientation
+    const auto R_error = R_WT * R_WS.inverse();
+    const auto prev_R_error = R_WT * prev_X_WS.rotation().inverse();
+
+    // Orientation PD controller - proportional
+    t_S_W +=
+        (R_error.ToRollPitchYaw().vector().array() * kp_rot_.array()).matrix();
+
+    // Orientation PD controller - derivative
+    const auto rot_de_dt =
+        (R_error * prev_R_error.inverse()).ToRollPitchYaw().vector() / period_;
+    t_S_W += (rot_de_dt.array() * kd_rot_.array()).matrix();
+
+    *output = SpatialForced(t_S_W, f_S_W);
+  }
+
+  const double saucer_mass_;
+  const Vector3d gravity_;
+  const Vector3d kp_;
+  const Vector3d kd_;
+  const Vector3d kp_rot_;
+  const Vector3d kd_rot_;
+  const double period_;
+
+  AbstractStateIndex X_WS_idx_;
+  AbstractStateIndex prev_X_WS_idx_;
 };
-
-/// Create a controller for the flying saucer
-/// \param[in] saucer_mass Mass of spacecraft in kg for gravity feedforward
-///   controller.
-/// \param[in] gravity_vector Acceleration due to gravity expressed in world
-///   frame. This assumes a flat planet with gravity that is constant
-///   regardless of altitude.
-std::unique_ptr<Diagramd> CreateSaucerController(
-  double saucer_mass, Vector3d gravity_vector)
-{
-  // X_WS = Pose of saucer in world frame
-  // X_WT = Target saucer pose in world frame
-  // p_WS = Current saucer position in world frame
-  // p_WT = Target saucer position in world frame
-  // f_S_W = force to be applied to saucer in world frame
-  // t_S_W = torque to be applied to saucer in world frame
-  // F_S_W = SpatialForce to be applied on saucer in world frame
-
-  // TODO(eric.cousineau): Add orientation controller
-
-  // Not included: glue to MultibodyPlant's vectors of stuff
-
-  DiagramBuilderd builder;
-
-  // Input glue (current pose splitter)
-  // input: RigidTransform X_WS
-  // output: Vector3d (Euler) R_WS
-  // output: Vector3d p_WS
-  auto* current_pose_glue = builder.AddSystem<SplitRigidTransform>();
-
-  // Input glue (target pose splitter)
-  // input: RigidTransform X_WT
-  // output: Vector3d (Euler) R_WT
-  // output: Vector3d p_WT
-  auto* target_pose_glue = builder.AddSystem<SplitRigidTransform>();
-
-  // Zero velocity for target pose
-  auto* zero_vector3 =
-      builder.AddSystem<ConstantVectorSourced>(Vector3d{0.0, 0.0, 0.0});
-
-  // Current position state with derivative
-  // input: p_WS
-  // output: p_WS concatenated with v_WS
-  auto* current_position_interp =
-      builder.AddSystem<StateInterpolatorWithDiscreteDerivatived>(3, 0.01);
-  builder.Connect(
-      current_pose_glue->GetOutputPort(SplitRigidTransform::kPositionPort),
-      current_position_interp->get_input_port());
-
-  // Target position mux
-  // input: p_WT
-  // output: p_WT concatenated with v_WT (zeros)
-  auto* target_position_mux =
-      builder.AddSystem<Multiplexerd>(std::vector<int>{3, 3});
-  builder.Connect(
-      target_pose_glue->GetOutputPort(SplitRigidTransform::kPositionPort),
-      target_position_mux->get_input_port(0));
-  builder.Connect(zero_vector3->get_output_port(),
-                  target_position_mux->get_input_port(1));
-
-  // Gravity feedforward
-  // output: Vector3d f_S_W
-  auto antigravity =
-      builder.AddSystem<ConstantVectorSourced>(
-          -1 * saucer_mass * gravity_vector);
-
-  // Forces PidController
-  // input: estimated state Vector3d p_WS concatenated with v_WS
-  // input: desired state Vector3d p_WT concatenated with v_WT
-  // output: Vector3d f_S_W
-  // Gains picked through trial and error
-  auto* forces_pid_controller = builder.AddSystem<PidControllerd>(
-      Vector3d{100.0f, 0.0f, 2500.0f}, Vector3d{0.0f, 0.0f, 50.0f},
-      Vector3d{500.0f, 0.0f, 500.0f});
-  builder.Connect(current_position_interp->get_output_port(),
-                  forces_pid_controller->get_input_port_estimated_state());
-  builder.Connect(target_position_mux->get_output_port(),
-                  forces_pid_controller->get_input_port_desired_state());
-
-  auto force_adder = builder.AddSystem<Adderd>(2, 3);
-  builder.Connect(antigravity->get_output_port(),
-                  force_adder->get_input_port(0));
-  builder.Connect(forces_pid_controller->get_output_port_control(),
-                  force_adder->get_input_port(1));
-
-  // Output Glue
-  // input: Vector3d f_S_W
-  // input: Vector3d t_S_W (zeros)
-  // output: SpacialForce F_S_W
-  auto* spatial_force_combiner = builder.AddSystem<UnsplitSpatialForce>();
-  builder.Connect(
-      force_adder->get_output_port(),
-      spatial_force_combiner->GetInputPort(UnsplitSpatialForce::kForcesPort));
-  builder.Connect(
-      zero_vector3->get_output_port(),
-      spatial_force_combiner->GetInputPort(UnsplitSpatialForce::kTorquesPort));
-
-  // Whole diagram ports
-  //  input: RigidTransform X_WS
-  //  input: RigidTransform X_WT
-  //  output: SpatialForced F_S_W
-  builder.ExportInput(
-      current_pose_glue->GetInputPort(SplitRigidTransform::kTransformPort),
-      "X_WS");
-  builder.ExportInput(
-      target_pose_glue->GetInputPort(SplitRigidTransform::kTransformPort),
-      "X_WT");
-  builder.ExportOutput(spatial_force_combiner->GetOutputPort(
-                           UnsplitSpatialForce::kSpatialForcePort),
-                       "F_S_W");
-
-  return builder.Build();
-}
 
 class BodyPoseAtIndex : public LeafSystemd {
  public:
@@ -360,11 +291,19 @@ std::unique_ptr<Diagramd> BuildSimulation() {
 
   plant.Finalize();
 
-  const Bodyd& saucer_body = plant.GetUniqueFreeBaseBodyOrThrow(saucer_idx);
+  double saucer_mass{0.0};
+  auto body_idxs = plant.GetBodyIndices(saucer_idx);
+  for (auto& body_idx : body_idxs) {
+    const Bodyd& body = plant.get_body(body_idx);
+    saucer_mass += body.default_mass();
+  }
 
-  auto* ufo_controller = builder.AddSystem(
-      CreateSaucerController(saucer_body.default_mass(),
-                             plant.gravity_field().gravity_vector()));
+  auto ufo_controller = builder.AddSystem<FlyingSaucerController>(
+      saucer_mass, plant.gravity_field().gravity_vector(),
+      Vector3d{100.0, 100.0, 100.0},  // kp & kd chosen by trial and error
+      Vector3d{500.0, 500.0, 400.0},
+      Vector3d{1000.0, 1000.0, 1000.0},  // kp_rot & kd_rot also trial and error
+      Vector3d{1000.0, 1000.0, 1000.0});
 
   // Glue controller to multibody plant
   // Get saucer poses X_WS to controller
