@@ -237,9 +237,32 @@ class AppliedSpatialForceVector : public LeafSystemd {
   const BodyIndex index_;
 };
 
+class RigidTransformPremultiplier : public LeafSystemd {
+ public:
+  explicit RigidTransformPremultiplier(const RigidTransformd& X_BC) : X_BC_(X_BC) {
+    DeclareAbstractInputPort(
+        kInputPort,
+        *drake::AbstractValue::Make(RigidTransformd()));
+
+    DeclareAbstractOutputPort(kOutputPort, &RigidTransformPremultiplier::CalcTransform);
+  }
+
+  static constexpr const char* kInputPort{"X_AB"};
+  static constexpr const char* kOutputPort{"X_AC"};
+ protected:
+  void CalcTransform(const Contextd& context,
+                          RigidTransformd* X_AC) const {
+    auto& input_port = GetInputPort(kInputPort);
+    auto& X_AB = input_port.Eval<RigidTransformd>(context);
+    *X_AC = X_AB * X_BC_;
+  }
+
+  const RigidTransformd X_BC_;
+};
+
 class RosPoseGlue : public LeafSystemd {
  public:
-  explicit RosPoseGlue(double extra_z = 0.0) : extra_z_(extra_z) {
+  explicit RosPoseGlue() {
     DeclareAbstractInputPort(
         kRosMsgPort,
         *drake::AbstractValue::Make(geometry_msgs::msg::PoseStamped()));
@@ -264,7 +287,7 @@ class RosPoseGlue : public LeafSystemd {
     Vector3d translation{
         goal_pose.pose.position.x,
         goal_pose.pose.position.y,
-        goal_pose.pose.position.z + extra_z_,
+        goal_pose.pose.position.z,
     };
     Quaterniond rotation{
         goal_pose.pose.orientation.w,
@@ -276,8 +299,6 @@ class RosPoseGlue : public LeafSystemd {
     output->set_translation(translation);
     output->set_rotation(rotation);
   }
-
-  const double extra_z_;
 };
 
 /// Build a simulation and set initial conditions.
@@ -345,9 +366,15 @@ std::unique_ptr<Diagramd> BuildSimulation() {
       RosSubscriberSystem::Make<geometry_msgs::msg::PoseStamped>(
           "goal_pose", rclcpp::QoS(1),
           ros_interface_system->get_ros_interface()));
-  auto goal_glue = builder.AddSystem<RosPoseGlue>(10.0f);
+  auto goal_glue = builder.AddSystem<RosPoseGlue>();
   builder.Connect(goal_sub->get_output_port(), goal_glue->get_input_port());
+
+  // RViz goal is on the ground - add system to raise it by 10 meters
+  auto goal_offsetter = builder.AddSystem<RigidTransformPremultiplier>(
+      RigidTransformd(Vector3d{0, 0, 10.0}));
   builder.Connect(goal_glue->get_output_port(),
+                  goal_offsetter->get_input_port());
+  builder.Connect(goal_offsetter->get_output_port(),
                   ufo_controller->GetInputPort("X_WT"));
 
   return builder.Build();
