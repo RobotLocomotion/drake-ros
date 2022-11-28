@@ -324,7 +324,7 @@ std::unique_ptr<Diagramd> BuildSimulation() {
   builder.Connect(body_pose_at_index->GetOutputPort(BodyPoseAtIndex::kPosePort),
                   ufo_controller->GetInputPort("X_WS"));
 
-  // TODO(sloretz) replace when RobotLocomotion/drake#16923 is solved
+  // Connect UFO Controller's output to applied force accepted by MultibodyPlant
   auto* apply_force_glue =
       builder.AddSystem<AppliedSpatialForceVector>(ufo_index);
   builder.Connect(ufo_controller->GetOutputPort("F_S_W"),
