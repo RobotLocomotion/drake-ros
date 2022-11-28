@@ -9,6 +9,7 @@
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake_ros_core/drake_ros.h>
+#include <drake_ros_core/geometry_conversions.h>
 #include <drake_ros_core/ros_interface_system.h>
 #include <drake_ros_core/ros_subscriber_system.h>
 #include <drake_ros_tf2/scene_tf_broadcaster_system.h>
@@ -284,20 +285,7 @@ class RosPoseGlue : public LeafSystemd {
     const auto& goal_pose =
         input_port.Eval<geometry_msgs::msg::PoseStamped>(context);
 
-    Vector3d translation{
-        goal_pose.pose.position.x,
-        goal_pose.pose.position.y,
-        goal_pose.pose.position.z,
-    };
-    Quaterniond rotation{
-        goal_pose.pose.orientation.w,
-        goal_pose.pose.orientation.x,
-        goal_pose.pose.orientation.y,
-        goal_pose.pose.orientation.z,
-    };
-
-    output->set_translation(translation);
-    output->set_rotation(rotation);
+    *output = drake_ros_core::RosPoseToRigidTransform(goal_pose.pose);
   }
 };
 
