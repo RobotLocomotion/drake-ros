@@ -25,6 +25,7 @@
 
 namespace drake_ros_core {
 namespace drake_ros_core_py {
+namespace {
 
 // A (de)serialization interface implementation for Python ROS messages
 // that can be overriden from Python itself.
@@ -74,5 +75,6 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
   }
 };
 
+}  // namespace
 }  // namespace drake_ros_core_py
 }  // namespace drake_ros_core
