@@ -181,8 +181,8 @@ From the above two examples (at present), the following features are in
 - Ament index analysis (e.g. using `ros2 interface list` in Bazel and seeing
   your custom types)
 - Examples leverage RViz from within a Bazel workspace
-- Writing Python bindings in `pybind11` against other C++ libraries that have
-  their own bindings - e.g., [Drake](https://drake.mit.edu/).
+- Examples include Python bindings (via `pybind11`) against other C++ libraries
+  that have their own bindings - e.g., [Drake](https://drake.mit.edu/).
   - There is *some* affordance for leveraging `pybind11` against ROS 2 RMW
     libraries. However, because the Python bindings do not leverage C++
     directly, but instead leverage the C-level interfaces, we get into an
