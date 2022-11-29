@@ -2,11 +2,21 @@
 
 This project provides rules to build and run against a ROS 2 distribution from Bazel.
 
+Please be sure to review [Alternatives](./ros2#alternatives) for Bazel tooling
+for use with the ROS 2 ecosystem.
+
 ## Features
 
 - Automatic ROS 2 overlay scraping, `symlink` or `merge`-installed
-- ROS 2 aware C++/Python binaries (e.g. `dload` capable)
-- ROS 2 interface generation within Bazel
+- ROS 2 aware C++/Python binaries (e.g. `dload` capable via shims)
+- ROS 2 interface generation within Bazel. Ament index manifests are
+  also generated against any ROS 2 dependencies (`data` or `deps` for `cc` and
+  `py` rules).
+    - For example, you can generate custom message types, and them as
+      dependencies, run `ros2 interface list` under Bazel and see your custom
+      generated types.
+
+More detail about these features are listed in [`./ros2`](./ros2).
 
 ## Platform support
 
