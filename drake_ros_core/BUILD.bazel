@@ -53,26 +53,10 @@ cc_library(
     ],
 )
 
-ros_cc_test(
-    name = "test_pub_sub",
-    size = "small",
-    srcs = ["test/test_pub_sub.cc"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
-    deps = [
-        ":drake_ros_core",
-        "@com_google_googletest//:gtest_main",
-        "@drake//systems/analysis:simulator",
-        "@drake//systems/framework:diagram_builder",
-        "@ros2//:rclcpp_cc",
-        "@ros2//:test_msgs_cc",
-        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
-    ],
-)
-
 cc_library(
     name = "python_bindings_internal_hdrs",
-    hdrs = glob(["src/python_bindings/*.h"]),
-    strip_include_prefix = "src/python_bindings",
+    hdrs = glob(["include/**/*_pybind.h"]),
+    strip_include_prefix = "include/",
 )
 
 pybind_py_library(
@@ -82,7 +66,7 @@ pybind_py_library(
         ":python_bindings_internal_hdrs",
     ],
     cc_so_name = "_drake_ros_core",
-    cc_srcs = glob(["src/python_bindings/*.cc"]),
+    cc_srcs = glob(["**/*_py.cc"]),
     py_imports = ["src"],
     py_srcs = glob(["src/drake_ros_core/**/*.py"]),
     visibility = ["//visibility:public"],
