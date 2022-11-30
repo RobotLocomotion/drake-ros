@@ -34,6 +34,9 @@ jobs:
       - name: Test Bazel workspace
         run: bazel test //... @ros2//...
         working-directory: ros2_example_bazel_installed
+      - name: Install Drake Dependencies
+        run: bazel build @drake//:module_py && ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
+        working-directory: drake_ros_core
       - name: Build drake_ros_core
         run: bazel build //...
         working-directory: drake_ros_core
