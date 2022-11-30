@@ -19,12 +19,11 @@
 #include <pybind11/stl.h>
 
 #include "drake_ros_core/drake_ros.h"
-#include "drake_ros_core/drake_ros_core_pybind.h"
 #include "drake_ros_core/qos_pybind.h"
 #include "drake_ros_core/ros_interface_system.h"
 #include "drake_ros_core/ros_publisher_system.h"
 #include "drake_ros_core/ros_subscriber_system.h"
-#include "drake_ros_core/serializer_interface_pybind.h"
+#include "drake_ros_core/serializer_interface.h"
 
 namespace drake_ros_core {
 namespace drake_ros_core_py {
@@ -32,6 +31,54 @@ namespace {
 
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
+
+// A (de)serialization interface implementation for Python ROS messages
+// that can be overriden from Python itself.
+class PySerializerInterface : public py::wrapper<SerializerInterface> {
+ public:
+  using Base = py::wrapper<SerializerInterface>;
+
+  PySerializerInterface() : Base() {}
+
+  const rosidl_message_type_support_t* GetTypeSupport() const override {
+    auto overload = [&]() -> py::capsule {
+      PYBIND11_OVERLOAD_PURE(py::capsule, SerializerInterface, GetTypeSupport);
+    };
+    return static_cast<rosidl_message_type_support_t*>(overload());
+  }
+
+  std::unique_ptr<drake::AbstractValue> CreateDefaultValue() const override {
+    PYBIND11_OVERLOAD_PURE(std::unique_ptr<drake::AbstractValue>,
+                           SerializerInterface, CreateDefaultValue);
+  }
+
+  rclcpp::SerializedMessage Serialize(
+      const drake::AbstractValue& abstract_value) const override {
+    auto overload = [&]() -> py::bytes {
+      PYBIND11_OVERLOAD_PURE(py::bytes, SerializerInterface, Serialize,
+                             &abstract_value);
+    };
+    std::string bytes = overload();
+    rclcpp::SerializedMessage serialized_message(bytes.size());
+    rcl_serialized_message_t& rcl_serialized_message =
+        serialized_message.get_rcl_serialized_message();
+    std::copy(bytes.data(), bytes.data() + bytes.size(),
+              rcl_serialized_message.buffer);
+    rcl_serialized_message.buffer_length = bytes.size();
+    return serialized_message;
+  }
+
+  void Deserialize(const rclcpp::SerializedMessage& serialized_message,
+                   drake::AbstractValue* abstract_value) const override {
+    const rcl_serialized_message_t& rcl_serialized_message =
+        serialized_message.get_rcl_serialized_message();
+    py::bytes serialized_message_bytes(
+        reinterpret_cast<const char*>(rcl_serialized_message.buffer),
+        rcl_serialized_message.buffer_length);
+    PYBIND11_OVERLOAD_PURE(void, SerializerInterface, Deserialize,
+                           serialized_message_bytes, abstract_value);
+  }
+};
 
 PYBIND11_MODULE(_drake_ros_core, m) {
   m.doc() = "Python bindings for drake_ros_core";
