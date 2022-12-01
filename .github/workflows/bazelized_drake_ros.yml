@@ -17,6 +17,8 @@ jobs:
           key: bazel-drake-ros
       - name: Install ROS tools (like rosdep)
         uses: ros-tooling/setup-ros@v0.4
+      - name: Update rosdep data
+        run: rosdep update
       - name: Install bazel_ros2_rules dependencies
         # TODO(sloretz) make bazel_ros2_rules/setup/install_prereqs.sh
         run: sudo apt install python3 python3-toposort
