@@ -19,7 +19,7 @@ jobs:
         run: bazel build @drake//:module_py
         working-directory: drake_ros_core
       - name: Install Drake's dependencies
-        run: yes | ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
+        run: yes | sudo ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
         working-directory: drake_ros_core
       - name: Build drake_ros_core
         run: bazel build //...
