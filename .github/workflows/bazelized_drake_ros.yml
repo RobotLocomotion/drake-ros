@@ -8,24 +8,26 @@ on:
 
 jobs:
   bazel_build_and_test:
-    runs-on: ubuntu-latest
-    container:
-      image: ros:rolling-ros-base-focal
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
           path: "/home/runner/.cache/bazel"
           key: bazel-drake-ros
+      - uses: ros-tooling/setup-ros@v0.4
+        with:
+          use-ros2-testing: true
       - name: Download Drake
         run: bazel build @drake//:module_py
         working-directory: drake_ros_core
       - name: Install Drake's dependencies
         run: yes | ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
+      - name: Install Drake-ROS's ROS dependencies
+        run: rosdep install -ryi --rosdistro rolling --from-paths .
       - name: Build drake_ros_core
-        run: bazel build //...
+        run: "source /opt/ros/rolling/setup.bash && bazel build //..."
         working-directory: drake_ros_core
       - name: Test drake_ros_core
-        run: bazel test //...
+        run: "source /opt/ros/rolling/setup.bash && bazel test //..."
         working-directory: drake_ros_core
-
