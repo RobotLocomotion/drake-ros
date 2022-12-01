@@ -15,19 +15,15 @@ jobs:
         with:
           path: "/home/runner/.cache/bazel"
           key: bazel-drake-ros
-      - uses: ros-tooling/setup-ros@v0.4
-        with:
-          use-ros2-testing: true
       - name: Download Drake
         run: bazel build @drake//:module_py
         working-directory: drake_ros_core
       - name: Install Drake's dependencies
         run: yes | ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
-      - name: Install Drake-ROS's ROS dependencies
-        run: rosdep install -ryi --rosdistro rolling --from-paths .
+        working-directory: drake_ros_core
       - name: Build drake_ros_core
-        run: "source /opt/ros/rolling/setup.bash && bazel build //..."
+        run: bazel build //...
         working-directory: drake_ros_core
       - name: Test drake_ros_core
-        run: "source /opt/ros/rolling/setup.bash && bazel test //..."
+        run: bazel test //...
         working-directory: drake_ros_core
