@@ -1,0 +1,36 @@
+name: Bazel Drake-ROS Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  bazel_build_and_test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: bazel-drake-ros
+      - name: Install ROS tools (like rosdep)
+        uses: ros-tooling/setup-ros@v0.4
+      - name: Update rosdep data
+        run: rosdep update
+      - name: Install bazel_ros2_rules dependencies
+        # TODO(sloretz) make bazel_ros2_rules/setup/install_prereqs.sh
+        run: sudo apt install python3 python3-toposort
+      - name: Download Drake
+        run: bazel build @drake//:module_py
+        working-directory: drake_ros_core
+      - name: Install Drake's dependencies
+        run: yes | sudo ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
+        working-directory: drake_ros_core
+      - name: Build drake_ros_core
+        run: bazel build //...
+        working-directory: drake_ros_core
+      - name: Test drake_ros_core
+        run: bazel test //...
+        working-directory: drake_ros_core

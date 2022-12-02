@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.framework import TriggerType
@@ -30,7 +32,15 @@ from drake_ros_core import RosPublisherSystem
 from drake_ros_core import RosSubscriberSystem
 
 
+def isolate_if_using_bazel():
+    if 'TEST_TMPDIR' in os.environ:
+        # This package can only be imported when using bazel_ros2_rules
+        from rmw_isolation import isolate_rmw_by_path
+        isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
+
+
 def test_nominal_case():
+    isolate_if_using_bazel()
     drake_ros_core.init()
 
     builder = DiagramBuilder()

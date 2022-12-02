@@ -13,6 +13,11 @@
 # limitations under the License.
 
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
+load("@ros2//:ros_py.bzl", "ros_py_test")
+load(
+    "@drake//tools/skylark:pybind.bzl",
+    "pybind_py_library",
+)
 
 PYBIND_EXCLUDES = [
     "**/*_py.cc",
@@ -46,6 +51,25 @@ cc_library(
         "@ros2//:rosidl_runtime_c_cc",
         "@ros2//:rosidl_typesupport_cpp_cc",
     ],
+)
+
+cc_library(
+    name = "python_bindings_internal_hdrs",
+    hdrs = glob(["include/**/*_pybind.h"]),
+    strip_include_prefix = "include/",
+)
+
+pybind_py_library(
+    name = "drake_ros_core_py",
+    cc_deps = [
+        ":drake_ros_core",
+        ":python_bindings_internal_hdrs",
+    ],
+    cc_so_name = "_drake_ros_core",
+    cc_srcs = glob(["src/**/*_py.cc"]),
+    py_imports = ["src"],
+    py_srcs = glob(["src/drake_ros_core/**/*.py"]),
+    visibility = ["//visibility:public"],
 )
 
 ros_cc_test(
@@ -85,5 +109,18 @@ ros_cc_test(
     deps = [
         ":drake_ros_core",
         "@com_google_googletest//:gtest_main",
+    ],
+)
+
+ros_py_test(
+    name = "test_pub_sub_py",
+    srcs = ["test/test_pub_sub.py"],
+    main = "test/test_pub_sub.py",
+    deps = [
+        ":drake_ros_core_py",
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+        "@ros2//:test_msgs_py",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )
