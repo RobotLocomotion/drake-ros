@@ -58,6 +58,7 @@ function dpkg_install_from_curl() {
 
 apt install g++ unzip zlib1g-dev
 
+# TODO(sloretz) Make sure the version of bazel is exactly the same as the one used by Drake
 dpkg_install_from_curl \
   bazel 5.1.0 \
   https://releases.bazel.build/5.1.0/release/bazel_5.1.0-linux-x86_64.deb \
