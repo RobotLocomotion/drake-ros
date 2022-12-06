@@ -76,6 +76,9 @@ cc_library(
 pybind_py_library(
     name = "drake_ros_tf2_py",
     cc_deps = [
+        # TODO(sloretz) - depend on a shared library target
+        # This links statically, and so can lead to ODR violations if the
+        # python and C++ libraries are depended upon by the same python target.
         ":drake_ros_tf2",
         ":python_bindings_internal_hdrs",
     ],
