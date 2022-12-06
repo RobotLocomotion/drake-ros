@@ -67,7 +67,6 @@ ros_cc_test(
     ],
 )
 
-
 cc_library(
     name = "python_bindings_internal_hdrs",
     hdrs = glob(["include/**/*_pybind.h"]),
@@ -83,7 +82,7 @@ pybind_py_library(
     cc_so_name = "drake_ros_tf2",
     cc_srcs = glob(["src/**/*_py.cc"]),
     py_deps = [
-      "@drake_ros_core//:drake_ros_core_py"
+        "@drake_ros_core//:drake_ros_core_py",
     ],
     py_imports = ["src"],
     py_srcs = glob(["src/drake_ros_tf2/**/*.py"]),
@@ -93,6 +92,7 @@ pybind_py_library(
 ros_py_test(
     name = "test_tf_broadcaster_py",
     srcs = ["test/test_tf_broadcaster.py"],
+    legacy_create_init = False,
     main = "test/test_tf_broadcaster.py",
     deps = [
         ":drake_ros_tf2_py",
@@ -101,5 +101,4 @@ ros_py_test(
         "@ros2//:tf2_ros_py_py",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
-    legacy_create_init = False,
 )
