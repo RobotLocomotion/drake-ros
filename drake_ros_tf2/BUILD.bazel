@@ -101,4 +101,5 @@ ros_py_test(
         "@ros2//:tf2_ros_py_py",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
+    legacy_create_init = False,
 )
