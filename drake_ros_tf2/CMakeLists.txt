@@ -109,6 +109,11 @@ if(BUILD_TESTING)
     tf2_ros::tf2_ros
     ${geometry_msgs_TARGETS}
   )
+  target_compile_definitions(test_tf_broadcaster
+    PRIVATE
+    # We do not expose `rmw_isoliation` via CMake.
+    _TEST_DISABLE_RMW_ISOLATION
+  )
 
   ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py)
 
