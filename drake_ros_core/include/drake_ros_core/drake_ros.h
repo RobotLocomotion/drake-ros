@@ -36,6 +36,12 @@ class DrakeRos final {
   DrakeRos(const std::string& node_name,
            rclcpp::NodeOptions node_options = rclcpp::NodeOptions{});
 
+  /** A constructor that accepts an externally created node.
+
+   This instance takes ownership of the node.
+   */
+  explicit DrakeRos(rclcpp::Node::UniquePtr node);
+
   ~DrakeRos();
 
   /** Returns a constant reference to the underlying ROS node. */

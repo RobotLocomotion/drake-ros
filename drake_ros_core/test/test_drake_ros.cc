@@ -41,6 +41,13 @@ TEST(DrakeRos, local_context) {
   context->shutdown("done");
 }
 
+TEST(DrakeRos, external_node) {
+  drake_ros_core::init();
+  auto node = std::make_unique<rclcpp::Node>("externally_created_node");
+  EXPECT_NO_THROW(std::make_unique<DrakeRos>(std::move(node)));
+  EXPECT_TRUE(drake_ros_core::shutdown());
+}
+
 // Only available in Bazel.
 #ifndef _TEST_DISABLE_RMW_ISOLATION
 #include "rmw_isolation/rmw_isolation.h"

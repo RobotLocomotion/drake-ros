@@ -23,6 +23,17 @@
 
 namespace drake_ros_core {
 struct DrakeRos::Impl {
+  void InitExecutor() {
+    assert(nullptr != context);
+    assert(nullptr != node);
+    // TODO(hidmic): optionally take a user-provided Executor instance
+    rclcpp::ExecutorOptions eo;
+    eo.context = context;
+    executor.reset(new rclcpp::executors::SingleThreadedExecutor(eo));
+
+    executor->add_node(node->get_node_base_interface());
+  }
+
   rclcpp::Context::SharedPtr context;
   rclcpp::Node::UniquePtr node;
   rclcpp::executors::SingleThreadedExecutor::UniquePtr executor;
@@ -37,15 +48,19 @@ DrakeRos::DrakeRos(const std::string& node_name,
     throw std::invalid_argument("NodeOptions must contain a non-null context");
   }
   impl_->context = node_options.context();
-
   impl_->node.reset(new rclcpp::Node(node_name, node_options));
 
-  // TODO(hidmic): optionally take a user-provided Executor instance
-  rclcpp::ExecutorOptions eo;
-  eo.context = impl_->context;
-  impl_->executor.reset(new rclcpp::executors::SingleThreadedExecutor(eo));
+  impl_->InitExecutor();
+}
 
-  impl_->executor->add_node(impl_->node->get_node_base_interface());
+DrakeRos::DrakeRos(rclcpp::Node::UniquePtr node) : impl_(new Impl()) {
+  if (!node) {
+    throw std::invalid_argument("node must not be nullptr");
+  }
+  impl_->context = node->get_node_base_interface()->get_context();
+  impl_->node = std::move(node);
+
+  impl_->InitExecutor();
 }
 
 DrakeRos::~DrakeRos() {}
