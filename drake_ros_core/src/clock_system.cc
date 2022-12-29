@@ -13,7 +13,7 @@ ClockSystem::~ClockSystem() {}
 
 void ClockSystem::CalcClock(const drake::systems::Context<double>& context,
                             rosgraph_msgs::msg::Clock* output_value) const {
-  rclcpp::Time now;
+  rclcpp::Time now{0, 0, RCL_ROS_TIME};
   now += rclcpp::Duration::from_seconds(context.get_time());
   output_value->clock = now;
 }
