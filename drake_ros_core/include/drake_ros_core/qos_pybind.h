@@ -117,7 +117,8 @@ struct type_caster<drake_ros_core::QoS> {
     object instance =
         module::import("rclpy.qos")
             .attr("QoSProfile")(
-                pybind11::arg("history") = static_cast<ssize_t>(rmw_qos.history),
+                pybind11::arg("history") =
+                    static_cast<ssize_t>(rmw_qos.history),
                 pybind11::arg("depth") = static_cast<size_t>(rmw_qos.depth),
                 pybind11::arg("reliability") =
                     static_cast<ssize_t>(rmw_qos.reliability),
