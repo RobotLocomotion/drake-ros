@@ -85,7 +85,7 @@ DEFINE_double(resolution_hint, 0.5,
               " Smaller numbers produce a denser mesh");
 
 DEFINE_bool(use_drake_visualizer, false,
-              "Use drake-visualizer instead of RViz.");
+            "Use drake-visualizer instead of RViz.");
 
 int do_main() {
   DiagramBuilder<double> builder;
@@ -181,10 +181,10 @@ int do_main() {
   plant.Finalize();
 
   if (FLAGS_use_drake_visualizer) {
-    //Visualize with drake-visualizer
+    // Visualize with drake-visualizer
     drake::geometry::DrakeVisualizerd::AddToBuilder(&builder, scene_graph);
-    drake::multibody::ConnectContactResultsToDrakeVisualizer(
-        &builder, plant, scene_graph);
+    drake::multibody::ConnectContactResultsToDrakeVisualizer(&builder, plant,
+                                                             scene_graph);
   } else {
     // Visualize with RViz
     drake_ros_core::init();
