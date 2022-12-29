@@ -59,16 +59,24 @@ ModelInstanceIndex AddUfoScene(MultibodyPlantd* plant) {
 
 class FlyingSaucerController : public LeafSystemd {
  public:
-  FlyingSaucerController(double saucer_mass, Vector3d gravity, Vector3d kp,
-                         Vector3d kd, Vector3d kp_rot, Vector3d kd_rot,
-                         double period = 1.0 / 100.0)
-      : saucer_mass_(saucer_mass),
-        gravity_(gravity),
-        kp_(kp),
-        kd_(kd),
-        kp_rot_(kp_rot),
-        kd_rot_(kd_rot),
-        period_(period) {
+  struct Params {
+    double saucer_mass;
+    Vector3d gravity;
+    Vector3d kp;
+    Vector3d kd;
+    Vector3d kp_rot;
+    Vector3d kd_rot;
+    double period{1.0 / 100.0};
+  };
+
+  explicit FlyingSaucerController(const Params& params)
+      : saucer_mass_(params.saucer_mass),
+        gravity_(params.gravity),
+        kp_(params.kp),
+        kd_(params.kd),
+        kp_rot_(params.kp_rot),
+        kd_rot_(params.kd_rot),
+        period_(params.period) {
     DeclareAbstractInputPort(kCurrentPosePort,
                              *drake::AbstractValue::Make(RigidTransformd()));
     DeclareAbstractInputPort(kTargetPosePort,
@@ -240,19 +248,20 @@ class AppliedSpatialForceVector : public LeafSystemd {
 
 class RigidTransformPremultiplier : public LeafSystemd {
  public:
-  explicit RigidTransformPremultiplier(const RigidTransformd& X_BC) : X_BC_(X_BC) {
-    DeclareAbstractInputPort(
-        kInputPort,
-        *drake::AbstractValue::Make(RigidTransformd()));
+  explicit RigidTransformPremultiplier(const RigidTransformd& X_BC)
+      : X_BC_(X_BC) {
+    DeclareAbstractInputPort(kInputPort,
+                             *drake::AbstractValue::Make(RigidTransformd()));
 
-    DeclareAbstractOutputPort(kOutputPort, &RigidTransformPremultiplier::CalcTransform);
+    DeclareAbstractOutputPort(kOutputPort,
+                              &RigidTransformPremultiplier::CalcTransform);
   }
 
   static constexpr const char* kInputPort{"X_AB"};
   static constexpr const char* kOutputPort{"X_AC"};
+
  protected:
-  void CalcTransform(const Contextd& context,
-                          RigidTransformd* X_AC) const {
+  void CalcTransform(const Contextd& context, RigidTransformd* X_AC) const {
     auto& input_port = GetInputPort(kInputPort);
     auto& X_AB = input_port.Eval<RigidTransformd>(context);
     *X_AC = X_AB * X_BC_;
@@ -263,7 +272,7 @@ class RigidTransformPremultiplier : public LeafSystemd {
 
 class RosPoseGlue : public LeafSystemd {
  public:
-  explicit RosPoseGlue() {
+  RosPoseGlue() {
     DeclareAbstractInputPort(
         kRosMsgPort,
         *drake::AbstractValue::Make(geometry_msgs::msg::PoseStamped()));
@@ -307,12 +316,16 @@ std::unique_ptr<Diagramd> BuildSimulation() {
     saucer_mass += body.default_mass();
   }
 
-  auto ufo_controller = builder.AddSystem<FlyingSaucerController>(
-      saucer_mass, plant.gravity_field().gravity_vector(),
-      Vector3d{100.0, 100.0, 100.0},  // kp & kd chosen by trial and error
-      Vector3d{500.0, 500.0, 400.0},
-      Vector3d{1000.0, 1000.0, 1000.0},  // kp_rot & kd_rot also trial and error
-      Vector3d{1000.0, 1000.0, 1000.0});
+  FlyingSaucerController::Params params;
+  params.saucer_mass = saucer_mass;
+  params.gravity = plant.gravity_field().gravity_vector();
+  params.kp =
+      Vector3d{100.0, 100.0, 100.0};  // kp & kd chosen by trial and error
+  params.kd = Vector3d{500.0, 500.0, 400.0};
+  params.kp_rot =
+      Vector3d{1000.0, 1000.0, 1000.0};  // kp_rot & kd_rot also trial and error
+  params.kd_rot = Vector3d{1000.0, 1000.0, 1000.0};
+  auto ufo_controller = builder.AddSystem<FlyingSaucerController>(params);
 
   // Glue controller to multibody plant
   // Get saucer poses X_WS to controller
