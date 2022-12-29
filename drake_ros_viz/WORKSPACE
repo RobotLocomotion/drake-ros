@@ -28,6 +28,7 @@ ros2_archive(
         "geometry_msgs",
         "rclcpp",
         "rclpy",
+        "tf2_eigen",
         "tf2_ros",
         "tf2_ros_py",
         "visualization_msgs",

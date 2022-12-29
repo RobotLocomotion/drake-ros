@@ -53,7 +53,7 @@ RvizVisualizer::RvizVisualizer(drake_ros_core::DrakeRos* ros,
   builder.Connect(impl_->scene_visual_markers->get_markers_output_port(),
                   scene_visual_markers_publisher->get_input_port());
 
-  builder.ExportInput(impl_->scene_visual_markers->get_graph_query_port(),
+  builder.ExportInput(impl_->scene_visual_markers->get_graph_query_input_port(),
                       "graph_query");
 
   auto scene_collision_markers_publisher = builder.AddSystem(
@@ -104,7 +104,7 @@ void RvizVisualizer::ComputeFrameHierarchy() {
 
 const drake::systems::InputPort<double>&
 RvizVisualizer::get_graph_query_input_port() const {
-  return get_input_port(impl_->graph_query_port_index);
+  return get_input_port();
 }
 
 }  // namespace drake_ros_viz

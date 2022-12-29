@@ -31,6 +31,8 @@ cc_library(
         [
             "src/*.cc",
             "src/*.h",
+            "src/lodepng/lodepng.cpp",
+            "src/lodepng/lodepng.h",
         ],
         exclude = PYBIND_EXCLUDES,
     ),
@@ -38,6 +40,7 @@ cc_library(
         ["include/**/*.h"],
         exclude = PYBIND_EXCLUDES,
     ),
+    copts = ["-Isrc/"],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
     deps = [
@@ -50,6 +53,7 @@ cc_library(
         "@drake_ros_tf2",
         "@ros2//:geometry_msgs_cc",
         "@ros2//:rclcpp_cc",
+        "@ros2//:tf2_eigen_cc",
         "@ros2//:visualization_msgs_cc",
     ],
 )
