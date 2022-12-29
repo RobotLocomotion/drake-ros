@@ -35,6 +35,7 @@
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake_ros_core/drake_ros.h>
+#include <drake_ros_core/geometry_conversions.h>
 #include <drake_ros_core/ros_publisher_system.h>
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -68,15 +69,6 @@ void convert_color(
   color_out.g = color.g();
   color_out.b = color.b();
   color_out.a = color.a();
-}
-
-void convert_vector3d(
-  const Eigen::Vector3d &point,
-  geometry_msgs::msg::Point &point_out)
-{
-  point_out.x = point.x();
-  point_out.y = point.y();
-  point_out.z = point.z();
 }
 
 std::string contact_name(const std::string& name1, const std::string& name2) {
@@ -284,10 +276,8 @@ void ContactMarkersSystem::CalcContactMarkers(
     const auto p_WStart = p_WC + p_CL_W;
     const auto p_WEnd = p_WC - p_CL_W;
 
-    geometry_msgs::msg::Point start;
-    geometry_msgs::msg::Point end;
-    convert_vector3d(p_WStart, start);
-    convert_vector3d(p_WEnd, end);
+    geometry_msgs::msg::Point start = drake_ros_core::Vector3ToRosPoint(p_WStart);
+    geometry_msgs::msg::Point end = drake_ros_core::Vector3ToRosPoint(p_WEnd);
 
     normal_msg.points.push_back(start);
     normal_msg.points.push_back(end);
