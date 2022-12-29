@@ -103,33 +103,33 @@ struct type_caster<drake_ros_core::QoS> {
     object duration = module::import("rclpy.duration").attr("Duration");
 
     object lifespan_duration =
-        duration(py::arg("seconds") = rmw_qos.lifespan.sec,
-                 py::arg("nanoseconds") = rmw_qos.lifespan.nsec);
+        duration(pybind11::arg("seconds") = rmw_qos.lifespan.sec,
+                 pybind11::arg("nanoseconds") = rmw_qos.lifespan.nsec);
 
     object deadline_duration =
-        duration(py::arg("seconds") = rmw_qos.deadline.sec,
-                 py::arg("nanoseconds") = rmw_qos.deadline.nsec);
+        duration(pybind11::arg("seconds") = rmw_qos.deadline.sec,
+                 pybind11::arg("nanoseconds") = rmw_qos.deadline.nsec);
 
     object liveliness_lease_duration = duration(
-        py::arg("seconds") = rmw_qos.liveliness_lease_duration.sec,
-        py::arg("nanoseconds") = rmw_qos.liveliness_lease_duration.nsec);
+        pybind11::arg("seconds") = rmw_qos.liveliness_lease_duration.sec,
+        pybind11::arg("nanoseconds") = rmw_qos.liveliness_lease_duration.nsec);
 
     object instance =
         module::import("rclpy.qos")
             .attr("QoSProfile")(
-                py::arg("history") = static_cast<ssize_t>(rmw_qos.history),
-                py::arg("depth") = static_cast<size_t>(rmw_qos.depth),
-                py::arg("reliability") =
+                pybind11::arg("history") = static_cast<ssize_t>(rmw_qos.history),
+                pybind11::arg("depth") = static_cast<size_t>(rmw_qos.depth),
+                pybind11::arg("reliability") =
                     static_cast<ssize_t>(rmw_qos.reliability),
-                py::arg("durability") =
+                pybind11::arg("durability") =
                     static_cast<ssize_t>(rmw_qos.durability),
-                py::arg("lifespan") = lifespan_duration,
-                py::arg("deadline") = deadline_duration,
-                py::arg("liveliness") =
+                pybind11::arg("lifespan") = lifespan_duration,
+                pybind11::arg("deadline") = deadline_duration,
+                pybind11::arg("liveliness") =
                     static_cast<ssize_t>(rmw_qos.liveliness),
-                py::arg("liveliness_lease_duration") =
+                pybind11::arg("liveliness_lease_duration") =
                     liveliness_lease_duration,
-                py::arg("avoid_ros_namespace_conventions") =
+                pybind11::arg("avoid_ros_namespace_conventions") =
                     rmw_qos.avoid_ros_namespace_conventions);
     instance.inc_ref();
     return instance;
