@@ -36,6 +36,11 @@ class ClockSystem : public drake::systems::LeafSystem<double> {
   ~ClockSystem() override;
 
   /** Add a ClockSystem and RosPublisherSystem to a diagram builder.
+   *
+   * This adds both a ClockSystem and a RosPublisherSystem that publishes
+   * time to a `/clock` topic. All nodes should have their `use_sim_time`
+   * parameter set to `True` so they use the published topic as their source
+   * of time.
    */
   static std::tuple<ClockSystem*, RosPublisherSystem*> AddToBuilder(
       drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
