@@ -197,7 +197,7 @@ int do_main() {
     rviz_visualizer.RegisterMultibodyPlant(&plant);
 
     builder.Connect(scene_graph.get_query_output_port(),
-                    rviz_visualizer.get_graph_query_port());
+                    rviz_visualizer.get_graph_query_input_port());
 
     ConnectContactResultsToRviz(&builder, plant, scene_graph,
                                 ros_interface_system->get_ros_interface());
