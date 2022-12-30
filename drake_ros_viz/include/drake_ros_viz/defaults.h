@@ -22,8 +22,8 @@ namespace drake_ros_viz {
 
 /// Publish triggers for scene markers
 const std::unordered_set<drake::systems::TriggerType> kDefaultPublishTriggers{
-      drake::systems::TriggerType::kForced,
-      drake::systems::TriggerType::kPeriodic};
+    drake::systems::TriggerType::kForced,
+    drake::systems::TriggerType::kPeriodic};
 
 /// Period for periodic markers and tf broadcasting.
 /// To help avoid small timesteps, use a default period that has an exact

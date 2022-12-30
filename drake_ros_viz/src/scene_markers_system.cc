@@ -36,8 +36,8 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#include "drake_ros_viz/name_conventions.h"
 #include "drake_ros_viz/defaults.h"
+#include "drake_ros_viz/name_conventions.h"
 
 namespace drake_ros_viz {
 

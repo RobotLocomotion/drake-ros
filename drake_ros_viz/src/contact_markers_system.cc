@@ -46,7 +46,6 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-
 namespace drake_ros_viz {
 
 namespace {
@@ -61,10 +60,8 @@ struct FullBodyName {
 };
 // End copied code
 
-void convert_color(
-  const drake::geometry::Rgba &color,
-  std_msgs::msg::ColorRGBA &color_out)
-{
+void convert_color(const drake::geometry::Rgba& color,
+                   std_msgs::msg::ColorRGBA& color_out) {
   color_out.r = color.r();
   color_out.g = color.g();
   color_out.b = color.b();
@@ -276,7 +273,8 @@ void ContactMarkersSystem::CalcContactMarkers(
     const auto p_WStart = p_WC + p_CL_W;
     const auto p_WEnd = p_WC - p_CL_W;
 
-    geometry_msgs::msg::Point start = drake_ros_core::Vector3ToRosPoint(p_WStart);
+    geometry_msgs::msg::Point start =
+        drake_ros_core::Vector3ToRosPoint(p_WStart);
     geometry_msgs::msg::Point end = drake_ros_core::Vector3ToRosPoint(p_WEnd);
 
     normal_msg.points.push_back(start);
@@ -441,8 +439,8 @@ ContactMarkersSystem* ConnectContactResultsToRviz(
 
   // System that turns contact results into ROS Messages
   ContactMarkersSystem* contact_markers =
-      builder->AddSystem<ContactMarkersSystem>(
-          plant, scene_graph, params.contact_markers_params);
+      builder->AddSystem<ContactMarkersSystem>(plant, scene_graph,
+                                               params.contact_markers_params);
 
   builder->Connect(plant.get_contact_results_output_port(),
                    contact_markers->get_contact_results_port());

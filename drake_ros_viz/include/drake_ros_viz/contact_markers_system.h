@@ -78,7 +78,7 @@ struct ContactConnectionParams {
   ContactMarkersParams contact_markers_params;
 
   std::unordered_set<drake::systems::TriggerType> publish_triggers{
-    kDefaultPublishTriggers};
+      kDefaultPublishTriggers};
 
   double publish_period{kDefaultPublishPeriod};
 

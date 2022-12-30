@@ -13,14 +13,13 @@
 // limitations under the License.
 #pragma once
 
-#include <drake_ros_viz/defaults.h>
-
 #include <memory>
 #include <unordered_set>
 
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/diagram.h>
 #include <drake_ros_core/drake_ros.h>
+#include <drake_ros_viz/defaults.h>
 
 namespace drake_ros_viz {
 
@@ -28,7 +27,7 @@ namespace drake_ros_viz {
 struct RvizVisualizerParams {
   /// Publish triggers for scene markers and tf broadcasting.
   std::unordered_set<drake::systems::TriggerType> publish_triggers{
-    kDefaultPublishTriggers};
+      kDefaultPublishTriggers};
 
   /// Period for periodic scene markers and tf broadcasting.
   double publish_period{kDefaultPublishPeriod};
