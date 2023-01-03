@@ -16,6 +16,7 @@
 #include <memory>
 #include <optional>  // NOLINT(build/include_order)
 #include <string>
+#include <unordered_set>
 
 #include "drake/multibody/plant/contact_results.h"
 #include <drake/geometry/geometry_roles.h>
