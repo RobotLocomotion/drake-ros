@@ -242,9 +242,8 @@ void ContactMarkersSystem::CalcContactMarkers(
     ball_msg.scale.y = kPointBallDiameter;
     ball_msg.scale.z = kPointBallDiameter;
 
-    ball_msg.pose.position.x = contact_info.contact_point()[0];
-    ball_msg.pose.position.y = contact_info.contact_point()[1];
-    ball_msg.pose.position.z = contact_info.contact_point()[2];
+    ball_msg.pose.position =
+        drake_ros_core::Vector3ToRosPoint(contact_info.contact_point());
 
     output_value->markers.push_back(ball_msg);
 
