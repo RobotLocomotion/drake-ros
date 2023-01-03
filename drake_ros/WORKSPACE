@@ -33,6 +33,9 @@ ros2_archive(
         "rosidl_runtime_c",
         "rosidl_typesupport_cpp",
         "test_msgs",
+        "tf2_ros",
+        "tf2_ros_py",
+        "visualization_msgs",
     ],
     sha256_url = "https://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci-CHECKSUM",  # noqa
     strip_prefix = "ros2-linux",
