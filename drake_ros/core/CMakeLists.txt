@@ -27,7 +27,7 @@ foreach(hdr ${HEADERS})
   configure_file("${hdr}" "${mock_include_dir}/drake_ros_core/${hdr}" COPYONLY)
 endforeach()
 
-add_library(core
+add_library(drake_ros_core
   drake_ros.cc
   geometry_conversions.cc
   publisher.cc
@@ -36,9 +36,8 @@ add_library(core
   ros_subscriber_system.cc
   subscription.cc
 )
-set_target_properties(core PROPERTIES OUTPUT_NAME "drake-ros-core")
 
-target_link_libraries(core PUBLIC
+target_link_libraries(drake_ros_core PUBLIC
   Eigen3::Eigen
   drake::drake
   ${geometry_msgs_TARGETS}
@@ -47,14 +46,14 @@ target_link_libraries(core PUBLIC
   rosidl_typesupport_cpp::rosidl_typesupport_cpp
 )
 
-target_include_directories(core
+target_include_directories(drake_ros_core
   PUBLIC
     "$<BUILD_INTERFACE:${mock_include_dir}>"
     "$<INSTALL_INTERFACE:include>"
 )
 
 # Nominal ament install directives
-install(TARGETS core EXPORT ${PROJECT_NAME}
+install(TARGETS drake_ros_core EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -72,7 +71,7 @@ install(
 pybind11_add_module(drake_ros_core_py SHARED
   module_py.cc
 )
-target_link_libraries(drake_ros_core_py PRIVATE core)
+target_link_libraries(drake_ros_core_py PRIVATE drake_ros_core)
 set_target_properties(drake_ros_core_py PROPERTIES OUTPUT_NAME "_drake_ros_core")
 target_include_directories(drake_ros_core_py
   PRIVATE
@@ -101,7 +100,7 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_pub_sub
     drake::drake
-    core
+    drake_ros_core
     ${test_msgs_TARGETS}
   )
 
@@ -115,9 +114,9 @@ if(BUILD_TESTING)
     _TEST_DISABLE_RMW_ISOLATION
   )
   target_link_libraries(test_drake_ros
-    core
+    drake_ros_core
   )
 
   ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
-  target_link_libraries(test_geometry_conversions core)
+  target_link_libraries(test_geometry_conversions drake_ros_core)
 endif()
