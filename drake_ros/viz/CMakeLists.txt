@@ -1,89 +1,65 @@
-cmake_minimum_required(VERSION 3.10)
-project(drake_ros_viz)
-
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
-
-# Default to C++17
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wno-error=deprecated-declarations)
-endif()
-
-find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(drake REQUIRED)
-
-find_package(drake_ros_core REQUIRED)
-find_package(drake_ros_tf2 REQUIRED)
-# Must use Drake's fork of Pybind11
-find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
-add_library(drake_ros_viz
-  src/name_conventions.cc
-  src/rviz_visualizer.cc
-  src/scene_markers_system.cc
+set(HEADERS
+  "drake_ros_viz_pybind.h"
+  "name_conventions.h"
+  "rviz_visualizer.h"
+  "scene_markers_system.h"
 )
 
-target_link_libraries(drake_ros_viz PUBLIC
+# Mock install headers so include paths match installed paths
+set(mock_include_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
+file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros_viz")
+foreach(hdr ${HEADERS})
+  configure_file("${hdr}" "${mock_include_dir}/drake_ros_viz/${hdr}" COPYONLY)
+endforeach()
+
+add_library(viz
+  name_conventions.cc
+  rviz_visualizer.cc
+  scene_markers_system.cc
+)
+set_target_properties(viz PROPERTIES OUTPUT_NAME "drake-ros-viz")
+
+target_link_libraries(viz PUBLIC
     drake::drake
-    drake_ros_core::drake_ros_core
-    drake_ros_tf2::drake_ros_tf2
+    core
+    tf2
     rclcpp::rclcpp
     ${geometry_msgs_TARGETS}
     ${visualization_msgs_TARGETS}
 )
 
-target_include_directories(drake_ros_viz
+target_include_directories(viz
   PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<BUILD_INTERFACE:${mock_include_dir}>"
     "$<INSTALL_INTERFACE:include>"
 )
-target_include_directories(drake_ros_viz
-  PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-)
-
-ament_export_include_directories(include)
-ament_export_libraries(drake_ros_viz)
-ament_export_targets(drake_ros_viz)
-
-ament_export_dependencies(drake)
-ament_export_dependencies(drake_ros_core)
-ament_export_dependencies(drake_ros_tf2)
-ament_export_dependencies(geometry_msgs)
-ament_export_dependencies(rclcpp)
-ament_export_dependencies(visualization_msgs)
 
 install(
-  TARGETS drake_ros_viz
-  EXPORT drake_ros_viz
+  TARGETS viz
+  EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
 
 install(
-  DIRECTORY include/
-  DESTINATION include
+  FILES
+    ${HEADERS}
+  DESTINATION include/drake_ros_viz
 )
 
 ###
 # Python bindings
 ###
 pybind11_add_module(py_drake_ros_viz SHARED
-  src/module_py.cc
+  module_py.cc
 )
 set_target_properties(py_drake_ros_viz PROPERTIES OUTPUT_NAME "drake_ros_viz")
-target_link_libraries(py_drake_ros_viz PRIVATE drake_ros_viz)
-target_include_directories(py_drake_ros_viz
-  PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-)
+target_link_libraries(py_drake_ros_viz PRIVATE viz)
 
 # Sets PYTHON_INSTALL_DIR
 ament_get_python_install_dir(python_install_dir)
@@ -95,34 +71,25 @@ install(
 ### End Python bindings
 
 if(BUILD_TESTING)
-  find_package(ament_cmake_clang_format REQUIRED)
-  find_package(ament_cmake_cpplint REQUIRED)
-  find_package(ament_cmake_pytest REQUIRED)
-
-  ament_clang_format(CONFIG_FILE .clang-format)
-  ament_cpplint()
-
   find_package(ament_cmake_gtest REQUIRED)
   find_package(test_msgs REQUIRED)
 
   ament_add_gtest(test_scene_markers test/test_scene_markers.cc)
   target_link_libraries(test_scene_markers
     drake::drake
-    drake_ros_viz
+    viz
     ${visualization_msgs_TARGETS}
   )
 
-  ament_add_gtest(test_name_conventions test/test_name_conventions.cc)
-  target_include_directories(test_name_conventions
+  ament_add_gtest(test_viz_name_conventions test/test_name_conventions.cc)
+  target_include_directories(test_viz_name_conventions
     PRIVATE
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
   )
-  target_link_libraries(test_name_conventions
+  target_link_libraries(test_viz_name_conventions
     drake::drake
-    drake_ros_viz
+    viz
   )
 
   ament_add_pytest_test(test_python_bindings test/test_python_bindings.py)
 endif()
-
-ament_package()

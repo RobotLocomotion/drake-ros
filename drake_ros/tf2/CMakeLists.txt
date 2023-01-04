@@ -91,12 +91,12 @@ if(BUILD_TESTING)
 
   ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py)
 
-  ament_add_gtest(test_name_conventions test/test_name_conventions.cc)
-  target_include_directories(test_name_conventions
+  ament_add_gtest(test_tf2_name_conventions test/test_name_conventions.cc)
+  target_include_directories(test_tf2_name_conventions
     PRIVATE
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
   )
-  target_link_libraries(test_name_conventions
+  target_link_libraries(test_tf2_name_conventions
     drake::drake
     tf2
   )
