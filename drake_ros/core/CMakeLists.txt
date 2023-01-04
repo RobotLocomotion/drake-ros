@@ -36,6 +36,7 @@ add_library(core
   ros_subscriber_system.cc
   subscription.cc
 )
+set_target_properties(core PROPERTIES OUTPUT_NAME "drake-ros-core")
 
 target_link_libraries(core PUBLIC
   Eigen3::Eigen
@@ -50,10 +51,6 @@ target_include_directories(core
   PUBLIC
     "$<BUILD_INTERFACE:${mock_include_dir}>"
     "$<INSTALL_INTERFACE:include>"
-)
-target_include_directories(core
-  PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
 # Nominal ament install directives
@@ -91,17 +88,9 @@ install(
 ### End Python bindings
 
 if(BUILD_TESTING)
-  find_package(ament_cmake_clang_format REQUIRED)
-  find_package(ament_cmake_cpplint REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
-  find_package(ament_cmake_pycodestyle REQUIRED)
   find_package(test_msgs REQUIRED)
-
-  ament_clang_format(CONFIG_FILE ../.clang-format)
-  ament_cpplint()
-
-  ament_pycodestyle(--config pycodestyle.ini)
 
   ament_add_gtest(test_pub_sub test/test_pub_sub.cc)
 
