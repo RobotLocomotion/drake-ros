@@ -17,29 +17,28 @@ foreach(hdr ${HEADERS})
   configure_file("${hdr}" "${mock_include_dir}/drake_ros_tf2/${hdr}" COPYONLY)
 endforeach()
 
-add_library(tf2
+add_library(drake_ros_tf2
   name_conventions.cc
   scene_tf_broadcaster_system.cc
   scene_tf_system.cc
 )
-set_target_properties(tf2 PROPERTIES OUTPUT_NAME "drake-ros-tf2")
 
-target_link_libraries(tf2 PUBLIC
-    core
-    drake::drake
-    rclcpp::rclcpp
-    tf2_ros::tf2_ros
-    ${geometry_msgs_TARGETS}
+target_link_libraries(drake_ros_tf2 PUBLIC
+  drake_ros_core
+  drake::drake
+  rclcpp::rclcpp
+  tf2_ros::tf2_ros
+  ${geometry_msgs_TARGETS}
 )
 
-target_include_directories(tf2
+target_include_directories(drake_ros_tf2
   PUBLIC
     "$<BUILD_INTERFACE:${mock_include_dir}>"
     "$<INSTALL_INTERFACE:include>"
 )
 
 install(
-  TARGETS tf2
+  TARGETS drake_ros_tf2
   EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -59,7 +58,7 @@ pybind11_add_module(py_drake_ros_tf2 SHARED
   module_py.cc
 )
 set_target_properties(py_drake_ros_tf2 PROPERTIES OUTPUT_NAME "drake_ros_tf2")
-target_link_libraries(py_drake_ros_tf2 PRIVATE tf2)
+target_link_libraries(py_drake_ros_tf2 PRIVATE drake_ros_tf2)
 
 # Sets PYTHON_INSTALL_DIR
 ament_get_python_install_dir(python_install_dir)
@@ -79,7 +78,7 @@ if(BUILD_TESTING)
   target_link_libraries(test_tf_broadcaster
     drake::drake
     rclcpp::rclcpp
-    tf2
+    drake_ros_tf2
     tf2_ros::tf2_ros
     ${geometry_msgs_TARGETS}
   )
@@ -98,6 +97,6 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_tf2_name_conventions
     drake::drake
-    tf2
+    drake_ros_tf2
   )
 endif()

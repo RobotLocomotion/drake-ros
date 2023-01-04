@@ -16,30 +16,29 @@ foreach(hdr ${HEADERS})
   configure_file("${hdr}" "${mock_include_dir}/drake_ros_viz/${hdr}" COPYONLY)
 endforeach()
 
-add_library(viz
+add_library(drake_ros_viz
   name_conventions.cc
   rviz_visualizer.cc
   scene_markers_system.cc
 )
-set_target_properties(viz PROPERTIES OUTPUT_NAME "drake-ros-viz")
 
-target_link_libraries(viz PUBLIC
+target_link_libraries(drake_ros_viz PUBLIC
     drake::drake
-    core
-    tf2
+    drake_ros_core
+    drake_ros_tf2
     rclcpp::rclcpp
     ${geometry_msgs_TARGETS}
     ${visualization_msgs_TARGETS}
 )
 
-target_include_directories(viz
+target_include_directories(drake_ros_viz
   PUBLIC
     "$<BUILD_INTERFACE:${mock_include_dir}>"
     "$<INSTALL_INTERFACE:include>"
 )
 
 install(
-  TARGETS viz
+  TARGETS drake_ros_viz
   EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -59,7 +58,7 @@ pybind11_add_module(py_drake_ros_viz SHARED
   module_py.cc
 )
 set_target_properties(py_drake_ros_viz PROPERTIES OUTPUT_NAME "drake_ros_viz")
-target_link_libraries(py_drake_ros_viz PRIVATE viz)
+target_link_libraries(py_drake_ros_viz PRIVATE drake_ros_viz)
 
 # Sets PYTHON_INSTALL_DIR
 ament_get_python_install_dir(python_install_dir)
@@ -77,7 +76,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_scene_markers test/test_scene_markers.cc)
   target_link_libraries(test_scene_markers
     drake::drake
-    viz
+    drake_ros_viz
     ${visualization_msgs_TARGETS}
   )
 
@@ -88,7 +87,7 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_viz_name_conventions
     drake::drake
-    viz
+    drake_ros_viz
   )
 
   ament_add_pytest_test(test_python_bindings test/test_python_bindings.py)
