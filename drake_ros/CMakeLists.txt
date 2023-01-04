@@ -18,11 +18,10 @@ find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 
 add_subdirectory(core)
 add_subdirectory(tf2)
-# add_subdirectory(viz)
+add_subdirectory(viz)
 
-# Can't be used in CMake subdirectory?
+# Install core python file because ament function can't be used in CMake subdirectory
 ament_python_install_module(core/drake_ros_core.py)
-
 
 if(BUILD_TESTING)
     find_package(ament_cmake_clang_format REQUIRED)
@@ -64,5 +63,6 @@ ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_runtime_c)
 ament_export_dependencies(rosidl_typesupport_cpp)
 ament_export_dependencies(tf2_ros)
+ament_export_dependencies(visualization_msgs)
 
 ament_package()
