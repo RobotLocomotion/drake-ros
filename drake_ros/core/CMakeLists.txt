@@ -1,38 +1,43 @@
-cmake_minimum_required(VERSION 3.10)
-project(drake_ros_core)
 
-# Default to C++17
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wno-error=deprecated-declarations)
-endif()
-
-find_package(ament_cmake_ros REQUIRED)
-find_package(drake REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3)
-# Must use Drake's fork of Pybind11
-find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_runtime_c REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
 
-add_library(drake_ros_core
-  src/drake_ros.cc
-  src/geometry_conversions.cc
-  src/publisher.cc
-  src/ros_interface_system.cc
-  src/ros_publisher_system.cc
-  src/ros_subscriber_system.cc
-  src/subscription.cc
+set(HEADERS
+  "drake_ros_core_pybind.h"
+  "drake_ros.h"
+  "geometry_conversions.h"
+  "publisher.h"
+  "qos_pybind.h"
+  "ros_interface_system.h"
+  "ros_publisher_system.h"
+  "ros_subscriber_system.h"
+  "serializer.h"
+  "serializer_interface.h"
 )
 
-target_link_libraries(drake_ros_core PUBLIC
+# Mock install headers so include paths match installed paths
+set(mock_include_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
+file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros_core")
+foreach(hdr ${HEADERS})
+  configure_file("${hdr}" "${mock_include_dir}/drake_ros_core/${hdr}" COPYONLY)
+endforeach()
+
+add_library(core
+  drake_ros.cc
+  geometry_conversions.cc
+  publisher.cc
+  ros_interface_system.cc
+  ros_publisher_system.cc
+  ros_subscriber_system.cc
+  subscription.cc
+)
+
+target_link_libraries(core PUBLIC
   Eigen3::Eigen
   drake::drake
   ${geometry_msgs_TARGETS}
@@ -41,73 +46,40 @@ target_link_libraries(drake_ros_core PUBLIC
   rosidl_typesupport_cpp::rosidl_typesupport_cpp
 )
 
-target_include_directories(drake_ros_core
+target_include_directories(core
   PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<BUILD_INTERFACE:${mock_include_dir}>"
     "$<INSTALL_INTERFACE:include>"
 )
-target_include_directories(drake_ros_core
+target_include_directories(core
   PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
-ament_export_include_directories(include)
-ament_export_libraries(drake_ros_core)
-ament_export_targets(${PROJECT_NAME})
-
-ament_export_dependencies(drake)
-ament_export_dependencies(eigen3_cmake_module)
-ament_export_dependencies(Eigen3)
-ament_export_dependencies(geometry_msgs)
-ament_export_dependencies(rclcpp)
-ament_export_dependencies(rosidl_runtime_c)
-ament_export_dependencies(rosidl_typesupport_cpp)
-
-### Drake library path environment hook
-get_target_property(DRAKE_LIBRARY drake::drake LOCATION)
-get_filename_component(DRAKE_LIBRARY_DIR ${DRAKE_LIBRARY} DIRECTORY)
-if(APPLE)
-  set(LIBRARY_PATH_ENV_VAR "DYLD_LIBRARY_PATH")
-else()
-  set(LIBRARY_PATH_ENV_VAR "LD_LIBRARY_PATH")
-endif()
-set(
-  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
-  "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
-ament_environment_hooks("env-hooks/drake_library_path.sh.in")
-
-### Python module path environment hook for pydrake
-set(
-  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
-  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
-ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
-
 # Nominal ament install directives
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
+install(TARGETS core EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
 
 install(
-  DIRECTORY include/
-  DESTINATION include
+  FILES
+    ${HEADERS}
+  DESTINATION include/drake_ros_core
 )
-
-ament_python_install_package(
-  drake_ros_core PACKAGE_DIR src/drake_ros_core)
 
 ###
 # Python bindings
 ###
 pybind11_add_module(drake_ros_core_py SHARED
-  src/module_py.cc
+  module_py.cc
 )
-target_link_libraries(drake_ros_core_py PRIVATE drake_ros_core)
+target_link_libraries(drake_ros_core_py PRIVATE core)
 set_target_properties(drake_ros_core_py PROPERTIES OUTPUT_NAME "_drake_ros_core")
 target_include_directories(drake_ros_core_py
   PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
 )
 
 ament_get_python_install_dir(python_install_dir)
@@ -126,7 +98,7 @@ if(BUILD_TESTING)
   find_package(ament_cmake_pycodestyle REQUIRED)
   find_package(test_msgs REQUIRED)
 
-  ament_clang_format(CONFIG_FILE .clang-format)
+  ament_clang_format(CONFIG_FILE ../.clang-format)
   ament_cpplint()
 
   ament_pycodestyle(--config pycodestyle.ini)
@@ -140,7 +112,7 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_pub_sub
     drake::drake
-    drake_ros_core
+    core
     ${test_msgs_TARGETS}
   )
 
@@ -154,11 +126,9 @@ if(BUILD_TESTING)
     _TEST_DISABLE_RMW_ISOLATION
   )
   target_link_libraries(test_drake_ros
-    drake_ros_core
+    core
   )
 
   ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
-  target_link_libraries(test_geometry_conversions drake_ros_core)
+  target_link_libraries(test_geometry_conversions core)
 endif()
-
-ament_package()
