@@ -1,0 +1,44 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+
+ros_cc_binary(
+    name = "multirobot",
+    srcs = ["multirobot.cc"],
+    deps = [
+        "@drake//common:find_resource",
+        "@drake//geometry:drake_visualizer",  # TODO(sloretz) remove in Jammy
+        "@drake//multibody/parsing:parser",
+        "@drake//multibody/plant",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@drake//systems/primitives:constant_vector_source",
+        "@drake_ros_core//:drake_ros_core",
+        "@drake_ros_tf2//:drake_ros_tf2",
+        "@drake_ros_viz//:drake_ros_viz",
+    ],
+    data = [
+        "@drake//manipulation/models/iiwa_description:models",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+ros_py_binary(
+    name = "multirobot_py",
+    srcs = ["multirobot.py"],
+    main = "multirobot.py",
+    deps = [
+        "@drake//bindings/pydrake",
+        "@drake_ros_core//:drake_ros_core_py",
+        "@drake_ros_tf2//:drake_ros_tf2_py",
+        "@drake_ros_viz//:drake_ros_viz_py",
+        "@ros2//:rclpy_py",
+    ],
+    data = [
+        "@drake//manipulation/models/iiwa_description:models",
+    ],
+    legacy_create_init = False,
+    visibility = ["//visibility:public"],
+)
