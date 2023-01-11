@@ -18,10 +18,10 @@
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_interface_system.h>
-#include <drake_ros_core/ros_publisher_system.h>
-#include <drake_ros_core/ros_subscriber_system.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_interface_system.h>
+#include <drake_ros/core/ros_publisher_system.h>
+#include <drake_ros/core/ros_subscriber_system.h>
 #include <std_msgs/msg/bool.hpp>
 
 using drake_ros_core::DrakeRos;
