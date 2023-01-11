@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_viz/name_conventions.h"
+#include "drake_ros/viz/name_conventions.h"
 
 #include <sstream>
 #include <string>

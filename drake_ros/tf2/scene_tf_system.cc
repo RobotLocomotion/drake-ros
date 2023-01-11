@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_tf2/scene_tf_system.h"
+#include "drake_ros/tf2/scene_tf_system.h"
 
+#include <string>
+#include <unordered_map>
 #include <unordered_set>
 
-#include "drake_ros_core/geometry_conversions.h"
 #include <drake/geometry/query_object.h>
 #include <drake/geometry/scene_graph_inspector.h>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
 
-#include "drake_ros_tf2/name_conventions.h"
+#include "drake_ros/core/geometry_conversions.h"
+#include "drake_ros/tf2/name_conventions.h"
 
 namespace drake_ros_tf2 {
 

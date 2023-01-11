@@ -13,13 +13,13 @@
 // limitations under the License.
 #include <memory>
 
-#include "drake_ros_core/drake_ros.h"
 #include <drake/systems/framework/diagram.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "drake_ros_viz/drake_ros_viz_pybind.h"
-#include "drake_ros_viz/rviz_visualizer.h"
+#include "drake_ros/core/drake_ros.h"
+#include "drake_ros/viz/drake_ros_viz_pybind.h"
+#include "drake_ros/viz/rviz_visualizer.h"
 
 namespace drake_ros_viz {
 namespace drake_ros_viz_py {

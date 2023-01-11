@@ -20,9 +20,9 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-#include "drake_ros_core/drake_ros.h"
-#include "drake_ros_core/serializer.h"
-#include "drake_ros_core/serializer_interface.h"
+#include "drake_ros/core/drake_ros.h"
+#include "drake_ros/core/serializer.h"
+#include "drake_ros/core/serializer_interface.h"
 
 namespace drake_ros_core {
 /** A system that can subscribe to ROS messages.

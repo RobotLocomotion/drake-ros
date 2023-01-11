@@ -22,9 +22,9 @@ set(HEADERS
 
 # Mock install headers so include paths match installed paths
 set(mock_include_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
-file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros_core")
+file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros/core")
 foreach(hdr ${HEADERS})
-  configure_file("${hdr}" "${mock_include_dir}/drake_ros_core/${hdr}" COPYONLY)
+  configure_file("${hdr}" "${mock_include_dir}/drake_ros/core/${hdr}" COPYONLY)
 endforeach()
 
 add_library(drake_ros_core
@@ -62,7 +62,7 @@ install(TARGETS drake_ros_core EXPORT ${PROJECT_NAME}
 install(
   FILES
     ${HEADERS}
-  DESTINATION include/drake_ros_core
+  DESTINATION include/drake_ros/core
 )
 
 ###

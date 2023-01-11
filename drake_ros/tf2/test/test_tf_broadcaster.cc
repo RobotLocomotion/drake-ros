@@ -26,15 +26,15 @@
 #include <drake/math/rotation_matrix.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_value_source.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_interface_system.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_interface_system.h>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <gtest/gtest.h>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
-#include "drake_ros_tf2/scene_tf_broadcaster_system.h"
+#include "drake_ros/tf2/scene_tf_broadcaster_system.h"
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;

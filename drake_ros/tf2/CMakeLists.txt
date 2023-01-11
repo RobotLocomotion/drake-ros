@@ -12,9 +12,9 @@ set(HEADERS
 
 # Mock install headers so include paths match installed paths
 set(mock_include_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
-file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros_tf2")
+file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros/tf2")
 foreach(hdr ${HEADERS})
-  configure_file("${hdr}" "${mock_include_dir}/drake_ros_tf2/${hdr}" COPYONLY)
+  configure_file("${hdr}" "${mock_include_dir}/drake_ros/tf2/${hdr}" COPYONLY)
 endforeach()
 
 add_library(drake_ros_tf2
@@ -48,7 +48,7 @@ install(
 install(
   FILES
     ${HEADERS}
-  DESTINATION include/drake_ros_tf2
+  DESTINATION include/drake_ros/tf2
 )
 
 ###

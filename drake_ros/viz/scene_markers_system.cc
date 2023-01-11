@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_viz/scene_markers_system.h"
+#include "drake_ros/viz/scene_markers_system.h"
 
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 
-#include "drake_ros_core/geometry_conversions.h"
 #include <builtin_interfaces/msg/time.hpp>
 #include <drake/common/drake_copyable.h>
 #include <drake/common/eigen_types.h>
@@ -30,13 +29,14 @@
 #include <drake/geometry/shape_specification.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_tf2/name_conventions.h>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#include "drake_ros_viz/name_conventions.h"
+#include "drake_ros/core/geometry_conversions.h"
+#include "drake_ros/tf2/name_conventions.h"
+#include "drake_ros/viz/name_conventions.h"
 
 namespace drake_ros_viz {
 

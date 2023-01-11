@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_tf2/scene_tf_broadcaster_system.h"
+#include "drake_ros/tf2/scene_tf_broadcaster_system.h"
 
 #include <memory>
 #include <unordered_set>
 
 #include <drake/systems/framework/diagram_builder.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_publisher_system.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_publisher_system.h>
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <tf2_ros/qos.hpp>
 
-#include "drake_ros_tf2/scene_tf_system.h"
+#include "drake_ros/tf2/scene_tf_system.h"
 
 namespace drake_ros_tf2 {
 
