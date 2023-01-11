@@ -30,7 +30,7 @@ jobs:
         run: bazel build @drake//:module_py
         working-directory: drake_ros
       - name: Install Drake's dependencies
-        run: yes | sudo ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
+        run: yes | sudo ./bazel-drake_ros/external/drake/setup/ubuntu/install_prereqs.sh
         working-directory: drake_ros
       - name: Configure Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
