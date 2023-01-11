@@ -16,8 +16,9 @@
 #include <memory>
 #include <string>
 
-#include "rclcpp/qos.hpp"
-#include "rclcpp/subscription_base.hpp"
+#include <rclcpp/qos.hpp>
+#include <rclcpp/subscription_base.hpp>
+#include <rclcpp/subscription_options.hpp>
 #include <rmw/serialized_message.h>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
@@ -31,7 +32,15 @@ class Subscription final : public rclcpp::SubscriptionBase {
       rclcpp::node_interfaces::NodeBaseInterface* node_base,
       const rosidl_message_type_support_t& ts, const std::string& topic_name,
       const rclcpp::QoS& qos,
-      std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback);
+      std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback)
+      : Subscription(node_base, ts, topic_name, qos, callback, {}) {}
+
+  Subscription(
+      rclcpp::node_interfaces::NodeBaseInterface* node_base,
+      const rosidl_message_type_support_t& ts, const std::string& topic_name,
+      const rclcpp::QoS& qos,
+      std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback,
+      const rclcpp::SubscriptionOptionsBase& options);
 
   ~Subscription();
 

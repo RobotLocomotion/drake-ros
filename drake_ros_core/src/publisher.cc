@@ -16,6 +16,8 @@
 
 #include <string>
 
+#include <rclcpp/version.h>
+
 namespace drake_ros_core {
 namespace internal {
 namespace {
@@ -29,11 +31,20 @@ rcl_publisher_options_t publisher_options(const rclcpp::QoS& qos) {
 
 Publisher::Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
                      const rosidl_message_type_support_t& type_support,
-                     const std::string& topic_name, const rclcpp::QoS& qos)
+                     const std::string& topic_name, const rclcpp::QoS& qos,
+                     const rclcpp::PublisherOptionsBase& options)
+#if RCLCPP_VERSION_GTE(18, 0, 0)
     : rclcpp::PublisherBase(node_base, topic_name, type_support,
-                            publisher_options(qos)) {}
+                            publisher_options(qos), options.event_callbacks,
+                            options.use_default_callbacks){}
+#else
+    : rclcpp::PublisherBase(node_base, topic_name, type_support,
+                            publisher_options(qos)) {
+}
+#endif
 
-Publisher::~Publisher() {}
+      Publisher::~Publisher() {
+}
 
 void Publisher::publish(const rclcpp::SerializedMessage& serialized_msg) {
   // TODO(sloretz) Copied from rosbag2_transport GenericPublisher, can it be
