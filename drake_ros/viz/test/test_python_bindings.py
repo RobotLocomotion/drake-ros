@@ -79,8 +79,7 @@ class ManagedSubscription:
         self._spin_complete.clear()
         self._spinning_thread = threading.Thread(
             target=lambda to: self.spinner(time.monotonic_ns(), to),
-            args = ([int(timeout) * 1000000000])
-            )
+            args=([int(timeout) * 1000000000]))
         self._spinning_thread.start()
 
     def spinner(self, start_time, timeout):
