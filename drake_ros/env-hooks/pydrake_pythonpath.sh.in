@@ -1,4 +1,4 @@
-# Generated from template at drake_ros_core/env-hooks/pydrake_pythonpath.sh.in
+# Generated from template at drake_ros/env-hooks/pydrake_pythonpath.sh.in
 
 # Ensures the pydrake Python module can be found at runtime.
 # See RobotLocomotion/drake-ros#157 for more details.

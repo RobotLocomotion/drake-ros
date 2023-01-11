@@ -1,4 +1,4 @@
-# Generated from template at drake_ros_core/env-hooks/drake_library_path.sh.in
+# Generated from template at drake_ros/env-hooks/drake_library_path.sh.in
 
 # Ensures that ament-style linking (no RPATH) plays well with what Drake itself
 # provides (only RPATH). See RobotLocomotion/drake-ros#139 for more details.
