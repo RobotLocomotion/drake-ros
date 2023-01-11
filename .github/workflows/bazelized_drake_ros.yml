@@ -28,16 +28,16 @@ jobs:
         run: sudo apt install python3 python3-toposort
       - name: Download Drake
         run: bazel build @drake//:module_py
-        working-directory: drake_ros_core
+        working-directory: drake_ros
       - name: Install Drake's dependencies
         run: yes | sudo ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
-        working-directory: drake_ros_core
+        working-directory: drake_ros
       - name: Configure Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
-        working-directory: drake_ros_core
-      - name: Build drake_ros_core
+        working-directory: drake_ros
+      - name: Build drake_ros
         run: bazel build //...
-        working-directory: drake_ros_core
-      - name: Test drake_ros_core
+        working-directory: drake_ros
+      - name: Test drake_ros
         run: bazel test //...
-        working-directory: drake_ros_core
+        working-directory: drake_ros
