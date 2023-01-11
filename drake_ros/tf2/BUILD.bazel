@@ -41,9 +41,9 @@ cc_library(
     include_prefix = "drake_ros/tf2",
     visibility = ["//visibility:public"],
     deps = [
+        "//core",
         "@drake//geometry:scene_graph_inspector",
         "@drake//multibody/plant",
-        "//core:core",
         "@ros2//:geometry_msgs_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:tf2_ros_cc",

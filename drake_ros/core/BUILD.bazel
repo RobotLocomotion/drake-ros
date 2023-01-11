@@ -55,8 +55,8 @@ cc_library(
 
 cc_library(
     name = "python_bindings_internal_hdrs",
-    include_prefix = "drake_ros/core",
     hdrs = glob(["*_pybind.h"]),
+    include_prefix = "drake_ros/core",
 )
 
 pybind_py_library(
