@@ -13,13 +13,13 @@
 // limitations under the License.
 #include <memory>
 
-#include "drake_ros_core/drake_ros.h"
 #include <drake/systems/framework/diagram.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "drake_ros_tf2/drake_ros_tf2_pybind.h"
-#include "drake_ros_tf2/scene_tf_broadcaster_system.h"
+#include "drake_ros/core/drake_ros.h"
+#include "drake_ros/tf2/drake_ros_tf2_pybind.h"
+#include "drake_ros/tf2/scene_tf_broadcaster_system.h"
 
 namespace drake_ros_tf2 {
 namespace drake_ros_tf2_py {

@@ -22,10 +22,10 @@
 #include <rclcpp/rclcpp.hpp>
 #include <test_msgs/msg/basic_types.hpp>
 
-#include "drake_ros_core/drake_ros.h"
-#include "drake_ros_core/ros_interface_system.h"
-#include "drake_ros_core/ros_publisher_system.h"
-#include "drake_ros_core/ros_subscriber_system.h"
+#include "drake_ros/core/drake_ros.h"
+#include "drake_ros/core/ros_interface_system.h"
+#include "drake_ros/core/ros_publisher_system.h"
+#include "drake_ros/core/ros_subscriber_system.h"
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;

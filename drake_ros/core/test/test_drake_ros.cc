@@ -19,7 +19,7 @@
 #include <gtest/gtest.h>
 #include <rclcpp/rclcpp.hpp>
 
-#include "drake_ros_core/drake_ros.h"
+#include "drake_ros/core/drake_ros.h"
 
 using drake_ros_core::DrakeRos;
 

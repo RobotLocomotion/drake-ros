@@ -11,9 +11,9 @@ set(HEADERS
 
 # Mock install headers so include paths match installed paths
 set(mock_include_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
-file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros_viz")
+file(MAKE_DIRECTORY "${mock_include_dir}/drake_ros/viz")
 foreach(hdr ${HEADERS})
-  configure_file("${hdr}" "${mock_include_dir}/drake_ros_viz/${hdr}" COPYONLY)
+  configure_file("${hdr}" "${mock_include_dir}/drake_ros/viz/${hdr}" COPYONLY)
 endforeach()
 
 add_library(drake_ros_viz
@@ -48,7 +48,7 @@ install(
 install(
   FILES
     ${HEADERS}
-  DESTINATION include/drake_ros_viz
+  DESTINATION include/drake_ros/viz
 )
 
 ###

@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_viz/rviz_visualizer.h"
+#include "drake_ros/viz/rviz_visualizer.h"
 
 #include <memory>
 #include <unordered_set>
 #include <utility>
 
 #include <drake/systems/framework/diagram_builder.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_publisher_system.h>
-#include <drake_ros_tf2/scene_tf_broadcaster_system.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_publisher_system.h>
+#include <drake_ros/tf2/scene_tf_broadcaster_system.h>
 #include <rclcpp/qos.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#include "drake_ros_viz/scene_markers_system.h"
+#include "drake_ros/viz/scene_markers_system.h"
 
 namespace drake_ros_viz {
 

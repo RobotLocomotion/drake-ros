@@ -38,7 +38,7 @@ cc_library(
         ["*.h"],
         exclude = PYBIND_EXCLUDES + ["internal_*.h"],
     ),
-    include_prefix = "drake_ros_tf2",
+    include_prefix = "drake_ros/tf2",
     visibility = ["//visibility:public"],
     deps = [
         "@drake//geometry:scene_graph_inspector",
@@ -70,7 +70,7 @@ ros_cc_test(
 cc_library(
     name = "python_bindings_internal_hdrs",
     hdrs = glob(["*_pybind.h"]),
-    include_prefix = "drake_ros_tf2",
+    include_prefix = "drake_ros/tf2",
 )
 
 pybind_py_library(

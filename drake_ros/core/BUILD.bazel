@@ -38,7 +38,7 @@ cc_library(
         ["*.h"],
         exclude = PYBIND_EXCLUDES,
     ),
-    include_prefix = "drake_ros_core",
+    include_prefix = "drake_ros/core",
     visibility = ["//visibility:public"],
     deps = [
         "@drake//common:essential",
@@ -55,7 +55,7 @@ cc_library(
 
 cc_library(
     name = "python_bindings_internal_hdrs",
-    include_prefix = "drake_ros_core",
+    include_prefix = "drake_ros/core",
     hdrs = glob(["*_pybind.h"]),
 )
 

@@ -18,7 +18,7 @@
 
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/diagram.h>
-#include <drake_ros_core/drake_ros.h>
+#include <drake_ros/core/drake_ros.h>
 
 namespace drake_ros_viz {
 

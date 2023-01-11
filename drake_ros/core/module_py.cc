@@ -18,12 +18,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "drake_ros_core/drake_ros.h"
-#include "drake_ros_core/qos_pybind.h"
-#include "drake_ros_core/ros_interface_system.h"
-#include "drake_ros_core/ros_publisher_system.h"
-#include "drake_ros_core/ros_subscriber_system.h"
-#include "drake_ros_core/serializer_interface.h"
+#include "drake_ros/core/drake_ros.h"
+#include "drake_ros/core/qos_pybind.h"
+#include "drake_ros/core/ros_interface_system.h"
+#include "drake_ros/core/ros_publisher_system.h"
+#include "drake_ros/core/ros_subscriber_system.h"
+#include "drake_ros/core/serializer_interface.h"
 
 namespace drake_ros_core {
 namespace drake_ros_core_py {

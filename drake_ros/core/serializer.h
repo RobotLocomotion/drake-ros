@@ -20,7 +20,7 @@
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-#include "drake_ros_core/serializer_interface.h"
+#include "drake_ros/core/serializer_interface.h"
 
 namespace drake_ros_core {
 /** A (de)serialization interface implementation that is

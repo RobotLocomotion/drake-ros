@@ -27,7 +27,7 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#include "drake_ros_viz/scene_markers_system.h"
+#include "drake_ros/viz/scene_markers_system.h"
 
 using drake_ros_viz::SceneMarkersSystem;
 

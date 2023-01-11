@@ -17,7 +17,7 @@
 #include "internal_name_conventions.h"  // NOLINT
 #include <gtest/gtest.h>
 
-#include "drake_ros_tf2/name_conventions.h"
+#include "drake_ros/tf2/name_conventions.h"
 
 using drake::geometry::FrameId;
 using drake::multibody::ModelInstanceIndex;

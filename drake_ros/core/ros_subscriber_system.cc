@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_core/ros_subscriber_system.h"
+#include "drake_ros/core/ros_subscriber_system.h"
 
 #include <memory>
 #include <mutex>

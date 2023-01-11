@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 
-#include "drake_ros_core/geometry_conversions.h"
+#include "drake_ros/core/geometry_conversions.h"
 
 namespace drake_ros_core {
 namespace {
