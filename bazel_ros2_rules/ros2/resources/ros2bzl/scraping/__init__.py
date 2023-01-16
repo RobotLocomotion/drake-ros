@@ -42,7 +42,7 @@ def build_dependency_graph(packages, include=None, exclude=None):
         include = set(include)
         if not package_set.issuperset(include):
             unknown_packages = tuple(include.difference(package_set))
-            msg = 'Cannont find package'
+            msg = 'Cannot find package'
             if len(unknown_packages) == 1:
                 msg +=  ' ' + repr(unknown_packages[0])
             else:
