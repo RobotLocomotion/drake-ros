@@ -2,7 +2,11 @@
 
 #include <geometry_msgs/msg/quaternion.hpp>
 
-namespace PYBIND11_NAMESPACE { namespace detail {
+namespace PYBIND11_NAMESPACE {
+  namespace detail {
+
+    // Typecasting between geometry_msgs.msg.Quaternion (Python) and
+    // geometry_msgs::msg::Quaternion (C++)
     template <> struct type_caster<geometry_msgs::msg::Quaternion> {
     public:
         PYBIND11_TYPE_CASTER(geometry_msgs::msg::Quaternion,
@@ -27,11 +31,20 @@ namespace PYBIND11_NAMESPACE { namespace detail {
 
         // Converting from C++ geometry_msgs::msg::Quaternion to
         // python geometry_msgs.msg.Quaternion
-        static handle cast(geometry_msgs::msg::Quaternion src, return_value_policy policy, handle parent) {
+        static handle cast(geometry_msgs::msg::Quaternion src,
+            return_value_policy policy, handle parent) {
           (void)src;
           (void)policy;
           (void)parent;
-          Py_RETURN_NOTIMPLEMENTED;
+
+          object instance = module::import("geometry_msgs.msg").attr("Quaternion")();
+          instance.attr("x") = src.x;
+          instance.attr("y") = src.y;
+          instance.attr("z") = src.z;
+          instance.attr("w") = src.w;
+
+          instance.inc_ref();
+          return instance;
         }
     };
 }} // namespace PYBIND11_NAMESPACE::detail

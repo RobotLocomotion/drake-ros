@@ -1,32 +1,38 @@
 import pytest
 import pydrake.math
 import _drake_ros_core
+import numpy as np
 
 from geometry_msgs.msg import Quaternion
 
-# TODO (aditya) -Add these when Eigen python bindings are resolved.
+# TODO (aditya)
 def test_translation():
     pass
 
 def test_orientation():
     # ROS quaternion to rotation matrix.
-    q1 = Quaternion()
-    q1.x = 1.0
-    q1.y = 1.0
-    q1.z = 1.0
-    q1.w = 1.0
+    q = Quaternion()
+    q.x = 0.5
+    q.y = 0.5
+    q.z = 0.5
+    q.w = 0.5
 
-    q2 = _drake_ros_core.ros_quaternion_to_rotation_matrix(q1)
+    rot_matrix_converted = \
+        _drake_ros_core.ros_quaternion_to_rotation_matrix(q)
 
-    # TODO (aditya) - Add expectations for q2
+    rot_matrix_expected = \
+        np.array([[0.0, 0.0, 1.0],
+                  [1.0, 0.0, 0.0],
+                  [0.0, 1.0, 0.0]])
+
+    assert (rot_matrix_expected == rot_matrix_converted.matrix()).all()
 
     # Rotation matrix to ROS quaternion.
-    q3 = pydrake.math.RotationMatrix_[float]()
+    quaternion_expected = \
+            _drake_ros_core.rotation_matrix_to_ros_quaternion(rot_matrix_converted)
+    assert (quaternion_expected == q)
 
-    q4 = _drake_ros_core.rotation_matrix_to_ros_quaternion(q3)
-
-    # TODO (aditya) - Add expectations for q4
-
+# TODO (aditya)
 def test_pose():
     # ROS pose to rigid transform.
 
@@ -37,11 +43,14 @@ def test_pose():
     # Rigid transform to ROS transform.
     pass
 
+# TODO (aditya)
 def test_spatial_velocity():
     pass
 
+# TODO (aditya)
 def test_spatial_acceleration():
     pass
 
+# TODO (aditya)
 def test_spatial_force():
     pass
