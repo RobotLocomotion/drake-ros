@@ -17,6 +17,9 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+/* #include <pybind11/complex.h> */
+/* #include <pybind11/functional.h> */
+/* #include <pybind11/chrono.h> */
 
 #include "drake_ros_core/drake_ros.h"
 #include "drake_ros_core/qos_pybind.h"
@@ -25,6 +28,7 @@
 #include "drake_ros_core/ros_subscriber_system.h"
 #include "drake_ros_core/serializer_interface.h"
 #include "drake_ros_core/geometry_conversions.h"
+#include "drake_ros_core/geometry_typecast.h"
 
 namespace drake_ros_core {
 namespace drake_ros_core_py {
@@ -89,6 +93,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
 
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
+  py::module::import("pydrake.math");
 
   // TODD(hidmic): populate Python docstrings with
   // C++ docstrings. Consider using mkdoc to keep
@@ -168,14 +173,16 @@ PYBIND11_MODULE(_drake_ros_core, m) {
 
   // Python bindings for geometry conversions.
   // Vector / Translation functions.
-  m.def("ros_point_to_vector3", &drake_ros_core::RosPointToVector3);
-  m.def("vector3_to_ros_point", &drake_ros_core::Vector3ToRosPoint);
-  m.def("ros_vector3_to_vector3", &drake_ros_core::RosVector3ToVector3);
-  m.def("vector3_to_ros_vector3", &drake_ros_core::Vector3ToRosVector3);
+  // TODO (aditya) - Resolve Eigen python bindings.
+  /* m.def("ros_point_to_vector3", &drake_ros_core::RosPointToVector3); */
+  /* m.def("vector3_to_ros_point", &drake_ros_core::Vector3ToRosPoint); */
+  /* m.def("ros_vector3_to_vector3", &drake_ros_core::RosVector3ToVector3); */
+  /* m.def("vector3_to_ros_vector3", &drake_ros_core::Vector3ToRosVector3); */
 
   // Orientation
-  m.def("ros_quaternion_to_quaternion", &drake_ros_core::RosQuaternionToQuaternion);
-  m.def("quaternion_to_ros_quaternion", &drake_ros_core::QuaternionToRosQuaternion);
+  // TODO (aditya) - Resolve Eigen python bindings.
+  /* m.def("ros_quaternion_to_quaternion", &drake_ros_core::RosQuaternionToQuaternion); */
+  /* m.def("quaternion_to_ros_quaternion", &drake_ros_core::QuaternionToRosQuaternion); */
   m.def("ros_quaternion_to_rotation_matrix", &drake_ros_core::RosQuaternionToRotationMatrix);
   m.def("rotation_matrix_to_ros_quaternion", &RotationMatrixToRosQuaternion);
 
@@ -184,10 +191,11 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   m.def("rigid_transform_to_ros_pose", &RigidTransformToRosPose);
   m.def("ros_transform_to_rigid_transform", &RosTransformToRigidTransform);
   m.def("rigid_transform_to_ros_transform", &RigidTransformToRosTransform);
-  m.def("ros_pose_to_isometry3", &RosPoseToIsometry3);
-  m.def("isometry3_to_ros_pose", &Isometry3ToRosPose);
-  m.def("ros_transform_to_isometry3", &RosTransformToIsometry3);
-  m.def("isometry3_to_ros_transform", &Isometry3ToRosTransform);
+  // TODO (aditya) - Resolve Eigen python bindings.
+  /* m.def("ros_pose_to_isometry3", &RosPoseToIsometry3); */
+  /* m.def("isometry3_to_ros_pose", &Isometry3ToRosPose); */
+  /* m.def("ros_transform_to_isometry3", &RosTransformToIsometry3); */
+  /* m.def("isometry3_to_ros_transform", &Isometry3ToRosTransform); */
 
   // Spatial Velocity
   m.def("ros_twist_to_vector6", &RosTwistToVector6);
