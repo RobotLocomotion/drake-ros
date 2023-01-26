@@ -94,6 +94,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
   py::module::import("pydrake.math");
+  py::module::import("numpy");
 
   // TODD(hidmic): populate Python docstrings with
   // C++ docstrings. Consider using mkdoc to keep
@@ -174,7 +175,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // Python bindings for geometry conversions.
   // Vector / Translation functions.
   // TODO (aditya) - Resolve Eigen python bindings.
-  /* m.def("ros_point_to_vector3", &drake_ros_core::RosPointToVector3); */
+  m.def("ros_point_to_vector3", &drake_ros_core::RosPointToVector3);
   /* m.def("vector3_to_ros_point", &drake_ros_core::Vector3ToRosPoint); */
   /* m.def("ros_vector3_to_vector3", &drake_ros_core::RosVector3ToVector3); */
   /* m.def("vector3_to_ros_vector3", &drake_ros_core::Vector3ToRosVector3); */
