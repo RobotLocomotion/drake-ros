@@ -1,6 +1,11 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
+#include <Eigen/Geometry>
 #include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/point.hpp>
+
+namespace py = pybind11;
 
 namespace PYBIND11_NAMESPACE {
   namespace detail {
@@ -81,6 +86,47 @@ namespace PYBIND11_NAMESPACE {
           instance.attr("x") = src.x;
           instance.attr("y") = src.y;
           instance.attr("z") = src.z;
+
+          instance.inc_ref();
+          return instance;
+        }
+    };
+
+    // Typecasting between numpy.array (Python) and
+    // Eigen::Vector3d (C++)
+    template <> struct type_caster<Eigen::Vector3d> {
+    public:
+        PYBIND11_TYPE_CASTER(Eigen::Vector3d,
+            _("numpy.array"));
+
+        // Convert from python numpy.array to
+        // C ++ Eigen::Vector3d
+        bool load(handle src, bool) {
+          handle cls = module::import("numpy").attr("array");
+          if (!isinstance(src, cls)) {
+            return false;
+          }
+          object source = reinterpret_borrow<object>(src);
+
+          // TODO (aditya) -- Check size on np array, should be 3,1
+
+          return true;
+        }
+
+        // Converting from C++ Eigen::Vector3d to
+        // Python numpy.array
+        static handle cast(Eigen::Vector3d src,
+            return_value_policy policy, handle parent) {
+          (void)policy;
+          (void)parent;
+
+          py::array_t<double> vector = py::array_t<double>({3,1});
+          double* buffer = (double*)vector.request().ptr;
+          buffer[0] = src(0,0);
+          buffer[1] = src(1,0);
+          buffer[2] = src(2,0);
+
+          object instance = module::import("numpy").attr("array")(vector);
 
           instance.inc_ref();
           return instance;
