@@ -138,4 +138,44 @@ namespace PYBIND11_NAMESPACE {
         }
     };
 
+    // Typecasting between geometry_msgs.msg.Vector3 (Python) and
+    // geometry_msgs::msg::Vector3 (C++)
+    template <> struct type_caster<geometry_msgs::msg::Vector3> {
+    public:
+        PYBIND11_TYPE_CASTER(geometry_msgs::msg::Vector3,
+            _("geometry_msgs.msg.Vector3"));
+
+        // Convert from python geometry_msgs.msg.Vector3 to
+        // C ++ geometry_msgs::msg::Vector3
+        bool load(handle src, bool) {
+          handle cls = module::import("geometry_msgs.msg").attr("Vector3");
+          if (!isinstance(src, cls)) {
+            return false;
+          }
+          object source = reinterpret_borrow<object>(src);
+
+          value.x = source.attr("x").cast<double>();
+          value.y = source.attr("y").cast<double>();
+          value.z = source.attr("z").cast<double>();
+
+          return true;
+        }
+
+        // Converting from C++ geometry_msgs::msg::Vector3 to
+        // Python geometry_msgs.msg.Vector3
+        static handle cast(geometry_msgs::msg::Vector3 src,
+            return_value_policy policy, handle parent) {
+          (void)policy;
+          (void)parent;
+
+          object instance = module::import("geometry_msgs.msg").attr("Vector3")();
+          instance.attr("x") = src.x;
+          instance.attr("y") = src.y;
+          instance.attr("z") = src.z;
+
+          instance.inc_ref();
+          return instance;
+        }
+    };
+
 }} // namespace PYBIND11_NAMESPACE::detail

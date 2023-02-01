@@ -3,11 +3,10 @@ import pydrake.math
 import _drake_ros_core
 import numpy as np
 
-from geometry_msgs.msg import Quaternion, Point
+from geometry_msgs.msg import Quaternion, Point, Vector3
 
-# TODO (aditya)
 def test_translation():
-    # ROS point to Vector3 (numpy array)
+    # ROS Point to Vector3 (numpy array)
     p = Point()
     p.x = 1.12
     p.y = 2.34
@@ -22,6 +21,21 @@ def test_translation():
     point_expected = \
             _drake_ros_core.vector3_to_ros_point(np.array([[1.12],[2.34],[3.456]]))
     assert (point_expected == p)
+
+    # ROS Vector3 to Vector3 (numpy array)
+    v = Vector3()
+    v.x = 1.25
+    v.y = 2.50
+    v.z = 3.75
+
+    vec3_converted = _drake_ros_core.ros_vector3_to_vector3(v)
+    vec3_expected = np.array([[1.25], [2.50], [3.75]])
+    assert (vec3_converted == vec3_expected).all()
+
+    # Vector3 (numpy array) to ROS Vector3
+    ros_vec3_expected = \
+            _drake_ros_core.vector3_to_ros_vector3(np.array([[1.25], [2.50], [3.75]]))
+    assert (ros_vec3_expected == v)
 
 def test_orientation():
     # ROS quaternion to rotation matrix.

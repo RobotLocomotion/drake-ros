@@ -174,8 +174,8 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // TODO (aditya) - Resolve Eigen python bindings.
   m.def("ros_point_to_vector3", &drake_ros_core::RosPointToVector3);
   m.def("vector3_to_ros_point", &drake_ros_core::Vector3ToRosPoint);
-  /* m.def("ros_vector3_to_vector3", &drake_ros_core::RosVector3ToVector3); */
-  /* m.def("vector3_to_ros_vector3", &drake_ros_core::Vector3ToRosVector3); */
+  m.def("ros_vector3_to_vector3", &drake_ros_core::RosVector3ToVector3);
+  m.def("vector3_to_ros_vector3", &drake_ros_core::Vector3ToRosVector3);
 
   // Orientation
   m.def("ros_quaternion_to_rotation_matrix", &drake_ros_core::RosQuaternionToRotationMatrix);
