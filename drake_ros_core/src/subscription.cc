@@ -42,7 +42,8 @@ Subscription::Subscription(
 #else
                                true),
 #endif
-      callback_(callback) {}
+      callback_(callback) {
+}
 
 Subscription::~Subscription() {}
 

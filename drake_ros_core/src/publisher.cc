@@ -34,9 +34,11 @@ Publisher::Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
                      const std::string& topic_name, const rclcpp::QoS& qos)
     : rclcpp::PublisherBase(node_base, topic_name, type_support,
 #if RCLCPP_VERSION_GTE(18, 0, 0)
-                            publisher_options(qos), {}, true) {}
+                            publisher_options(qos), {}, true) {
+}
 #else
-                            publisher_options(qos)) {}
+                            publisher_options(qos)) {
+}
 #endif
 
 Publisher::~Publisher() {}
