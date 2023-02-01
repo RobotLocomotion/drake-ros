@@ -34,22 +34,17 @@ Subscription::Subscription(
     rclcpp::node_interfaces::NodeBaseInterface* node_base,
     const rosidl_message_type_support_t& ts, const std::string& topic_name,
     const rclcpp::QoS& qos,
-    std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback,
-    const rclcpp::SubscriptionOptionsBase& options)
-#if RCLCPP_VERSION_GTE(18, 0, 0)
-    : rclcpp::SubscriptionBase(
-          node_base, ts, topic_name, subscription_options(qos),
-          options.event_callbacks, options.use_default_callbacks, true),
-      callback_(callback){}
-#else
+    std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback)
     : rclcpp::SubscriptionBase(node_base, ts, topic_name,
-                               subscription_options(qos), true),
-      callback_(callback) {
-}
+                               subscription_options(qos),
+#if RCLCPP_VERSION_GTE(18, 0, 0)
+                               {}, true, true),
+#else
+                               true),
 #endif
+      callback_(callback) {}
 
-      Subscription::~Subscription() {
-}
+Subscription::~Subscription() {}
 
 std::shared_ptr<void> Subscription::create_message() {
   // Subscriber only does serialized messages

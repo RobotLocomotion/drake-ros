@@ -17,7 +17,6 @@
 #include <string>
 
 #include <rclcpp/publisher_base.hpp>
-#include <rclcpp/publisher_options.hpp>
 #include <rclcpp/qos.hpp>
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_runtime_c/message_type_support_struct.h>
@@ -30,13 +29,7 @@ class Publisher final : public rclcpp::PublisherBase {
  public:
   Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
             const rosidl_message_type_support_t& ts,
-            const std::string& topic_name, const rclcpp::QoS& qos)
-      : Publisher(node_base, ts, topic_name, qos, {}) {}
-
-  Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
-            const rosidl_message_type_support_t& ts,
-            const std::string& topic_name, const rclcpp::QoS& qos,
-            const rclcpp::PublisherOptionsBase& options);
+            const std::string& topic_name, const rclcpp::QoS& qos);
 
   ~Publisher();
 
