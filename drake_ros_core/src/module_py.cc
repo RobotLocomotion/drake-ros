@@ -17,9 +17,6 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-/* #include <pybind11/complex.h> */
-/* #include <pybind11/functional.h> */
-/* #include <pybind11/chrono.h> */
 
 #include "drake_ros_core/drake_ros.h"
 #include "drake_ros_core/qos_pybind.h"
@@ -176,7 +173,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // Vector / Translation functions.
   // TODO (aditya) - Resolve Eigen python bindings.
   m.def("ros_point_to_vector3", &drake_ros_core::RosPointToVector3);
-  /* m.def("vector3_to_ros_point", &drake_ros_core::Vector3ToRosPoint); */
+  m.def("vector3_to_ros_point", &drake_ros_core::Vector3ToRosPoint);
   /* m.def("ros_vector3_to_vector3", &drake_ros_core::RosVector3ToVector3); */
   /* m.def("vector3_to_ros_vector3", &drake_ros_core::Vector3ToRosVector3); */
 

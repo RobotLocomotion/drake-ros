@@ -19,7 +19,9 @@ def test_translation():
     assert (array_expected == array_converted).all()
 
     # Vector3 (numpy array) to ROS Point
-    # TODO
+    point_expected = \
+            _drake_ros_core.vector3_to_ros_point(np.array([[1.12],[2.34],[3.456]]))
+    assert (point_expected == p)
 
 def test_orientation():
     # ROS quaternion to rotation matrix.

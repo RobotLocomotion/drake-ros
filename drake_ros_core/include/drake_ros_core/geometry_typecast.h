@@ -102,13 +102,18 @@ namespace PYBIND11_NAMESPACE {
         // Convert from python numpy.array to
         // C ++ Eigen::Vector3d
         bool load(handle src, bool) {
-          handle cls = module::import("numpy").attr("array");
-          if (!isinstance(src, cls)) {
-            return false;
-          }
           object source = reinterpret_borrow<object>(src);
 
-          // TODO (aditya) -- Check size on np array, should be 3,1
+          py::str shape = source.attr("shape");
+          if (std::string(shape) != "(3, 1)") {
+            return false;
+          }
+
+          double* buffer = (double*)static_cast<py::array_t<double>>(source).request().ptr;
+
+          value[0] = buffer[0];
+          value[1] = buffer[1];
+          value[2] = buffer[2];
 
           return true;
         }
