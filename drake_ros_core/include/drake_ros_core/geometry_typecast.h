@@ -5,6 +5,8 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/point.hpp>
 
+#include <drake/common/eigen_types.h>
+
 namespace py = pybind11;
 
 namespace PYBIND11_NAMESPACE {
@@ -310,6 +312,58 @@ namespace PYBIND11_NAMESPACE {
           instance.attr("torque").attr("x") = src.torque.x;
           instance.attr("torque").attr("y") = src.torque.y;
           instance.attr("torque").attr("z") = src.torque.z;
+
+          instance.inc_ref();
+          return instance;
+        }
+    };
+
+    // Typecasting between numpy.array (Python) and
+    // drake::Vector6d (C++)
+    template <> struct type_caster<drake::Vector6d> {
+    public:
+        PYBIND11_TYPE_CASTER(drake::Vector6d,
+            _("numpy.array"));
+
+        // Convert from python numpy.array to
+        // C ++ drake::Vector6d
+        bool load(handle src, bool) {
+          object source = reinterpret_borrow<object>(src);
+
+          py::str shape = source.attr("shape");
+          if (std::string(shape) != "(6, 1)") {
+            return false;
+          }
+
+          double* buffer = (double*)static_cast<py::array_t<double>>(source).request().ptr;
+
+          value[0] = buffer[0];
+          value[1] = buffer[1];
+          value[2] = buffer[2];
+          value[3] = buffer[3];
+          value[4] = buffer[4];
+          value[5] = buffer[5];
+
+          return true;
+        }
+
+        // Converting from C++ drake::Vector6d to
+        // Python numpy.array
+        static handle cast(drake::Vector6d src,
+            return_value_policy policy, handle parent) {
+          (void)policy;
+          (void)parent;
+
+          py::array_t<double> vector = py::array_t<double>({6,1});
+          double* buffer = (double*)vector.request().ptr;
+          buffer[0] = src(0,0);
+          buffer[1] = src(1,0);
+          buffer[2] = src(2,0);
+          buffer[3] = src(3,0);
+          buffer[4] = src(4,0);
+          buffer[5] = src(5,0);
+
+          object instance = module::import("numpy").attr("array")(vector);
 
           instance.inc_ref();
           return instance;

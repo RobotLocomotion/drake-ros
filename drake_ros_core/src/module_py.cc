@@ -192,20 +192,20 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   /* m.def("isometry3_to_ros_transform", &Isometry3ToRosTransform); */
 
   // Spatial Velocity
-  /* m.def("ros_twist_to_vector6", &RosTwistToVector6); */
-  /* m.def("vector6_to_ros_twist", &Vector6ToRosTwist); */
+  m.def("ros_twist_to_vector6", &RosTwistToVector6);
+  m.def("vector6_to_ros_twist", &Vector6ToRosTwist);
   m.def("ros_twist_to_spatial_velocity", &RosTwistToSpatialVelocity);
   m.def("spatial_velocity_to_ros_twist", &SpatialVelocityToRosTwist);
 
   // Spatial Acceleration
-  /* m.def("ros_accel_to_vector6", &RosAccelToVector6); */
-  /* m.def("vector6_to_ros_accel", &Vector6ToRosAccel); */
+  m.def("ros_accel_to_vector6", &RosAccelToVector6);
+  m.def("vector6_to_ros_accel", &Vector6ToRosAccel);
   m.def("ros_accel_to_spatial_acceleration", &RosAccelToSpatialAcceleration);
   m.def("spatial_acceleration_to_ros_accel", &SpatialAccelerationToRosAccel);
 
   // Spatial Force
-  /* m.def("ros_wrench_to_vector6", &RosWrenchToVector6); */
-  /* m.def("vector6_to_ros_wrench", &Vector6ToRosWrench); */
+  m.def("ros_wrench_to_vector6", &RosWrenchToVector6);
+  m.def("vector6_to_ros_wrench", &Vector6ToRosWrench);
   m.def("ros_wrench_to_spatial_force", &RosWrenchToSpatialForce);
   m.def("spatial_force_to_ros_wrench", &SpatialForceToRosWrench);
 }

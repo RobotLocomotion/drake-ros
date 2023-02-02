@@ -72,13 +72,8 @@ def test_pose():
     # Rigid transform to ROS transform.
     pass
 
-# TODO (aditya)
 def test_spatial_velocity():
-    # ROS Twist to Vec6 - TODO
-
-    # Vec6 to ROS Twist - TODO
-
-    # ROS Twist to Spatial Velocity
+    # ROS Twist to Vec6
     t = Twist()
     t.linear.x = 1.11
     t.linear.y = 2.22
@@ -88,6 +83,16 @@ def test_spatial_velocity():
     t.angular.y = 22.22
     t.angular.z = 33.33
 
+    vec6_expected = _drake_ros_core.ros_twist_to_vector6(t)
+    assert (vec6_expected == np.array([[11.11], [22.22], [33.33],
+                                       [1.11],[2.22],[3.33]])).all()
+
+    # Vec6 to ROS Twist
+    ros_twist_expected = _drake_ros_core.vector6_to_ros_twist(
+            np.array([[11.11], [22.22], [33.33], [1.11], [2.22], [3.33]]))
+    assert (ros_twist_expected == t)
+
+    # ROS Twist to Spatial Velocity
     spatial_vel_converted = _drake_ros_core.ros_twist_to_spatial_velocity(t)
     assert (np.array([1.11, 2.22, 3.33]) ==
             spatial_vel_converted.translational()).all()
@@ -103,13 +108,8 @@ def test_spatial_velocity():
             )
     assert (ros_twist_converted == t)
 
-# TODO (aditya)
 def test_spatial_acceleration():
-    # ROS Accel to Vec6 - TODO
-
-    # Vec6 to ROS Accel - TODO
-
-    # ROS Accel to Spatial Acceleration
+    # ROS Accel to Vec6
     a = Accel()
     a.linear.x = 1.11
     a.linear.y = 2.22
@@ -119,6 +119,15 @@ def test_spatial_acceleration():
     a.angular.y = 22.22
     a.angular.z = 33.33
 
+    vec6_expected = _drake_ros_core.ros_accel_to_vector6(a)
+    assert (vec6_expected == np.array([[11.11], [22.22], [33.33],
+                                       [1.11],[2.22],[3.33]])).all()
+    # Vec6 to ROS Accel
+    ros_accel_expected = _drake_ros_core.vector6_to_ros_accel(
+            np.array([[11.11], [22.22], [33.33], [1.11], [2.22], [3.33]]))
+    assert (ros_accel_expected == a)
+
+    # ROS Accel to Spatial Acceleration
     spatial_accel_converted = _drake_ros_core.ros_accel_to_spatial_acceleration(a)
     assert (np.array([1.11, 2.22, 3.33]) ==
             spatial_accel_converted.translational()).all()
@@ -134,13 +143,8 @@ def test_spatial_acceleration():
             )
     assert (ros_accel_converted == a)
 
-# TODO (aditya)
 def test_spatial_force():
-    # ROS Wrench to Vec6 - TODO
-
-    # Vec6 to ROS Wrench - TODO
-
-    # ROS Wrench to Spatial Force
+    # ROS Wrench to Vec6
     w = Wrench()
     w.force.x = 1.11
     w.force.y = 2.22
@@ -150,6 +154,15 @@ def test_spatial_force():
     w.torque.y = 22.22
     w.torque.z = 33.33
 
+    vec6_expected = _drake_ros_core.ros_wrench_to_vector6(w)
+    assert (vec6_expected == np.array([[11.11], [22.22], [33.33],
+                                       [1.11],[2.22],[3.33]])).all()
+    # Vec6 to ROS Wrench
+    ros_wrench_expected = _drake_ros_core.vector6_to_ros_wrench(
+            np.array([[11.11], [22.22], [33.33], [1.11], [2.22], [3.33]]))
+    assert (ros_wrench_expected == w)
+
+    # ROS Wrench to Spatial Force
     spatial_force_converted = _drake_ros_core.ros_wrench_to_spatial_force(w)
     assert (np.array([1.11, 2.22, 3.33]) ==
             spatial_force_converted.translational()).all()
