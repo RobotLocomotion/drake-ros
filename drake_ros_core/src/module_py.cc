@@ -91,6 +91,7 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
   py::module::import("pydrake.math");
+  py::module::import("pydrake.common.eigen_geometry");
   py::module::import("numpy");
 
   // TODD(hidmic): populate Python docstrings with
@@ -177,6 +178,8 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   m.def("vector3_to_ros_vector3", &drake_ros_core::Vector3ToRosVector3);
 
   // Orientation
+  m.def("ros_quaternion_to_quaternion", &drake_ros_core::RosQuaternionToQuaternion);
+  m.def("quaternion_to_ros_quaternion", &drake_ros_core::QuaternionToRosQuaternion);
   m.def("ros_quaternion_to_rotation_matrix", &drake_ros_core::RosQuaternionToRotationMatrix);
   m.def("rotation_matrix_to_ros_quaternion", &RotationMatrixToRosQuaternion);
 

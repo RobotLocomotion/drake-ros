@@ -1,6 +1,7 @@
 import pytest
 import pydrake.math
 import pydrake.multibody.math
+import pydrake.common.eigen_geometry
 import _drake_ros_core
 import numpy as np
 
@@ -39,6 +40,28 @@ def test_translation():
     assert (ros_vec3_expected == v)
 
 def test_orientation():
+    # ROS quaternion to pydrake.common.eigen_geometry.Quaternion
+    q = Quaternion()
+    q.x = 0.1
+    q.y = 0.2
+    q.z = 0.3
+    q.w = 0.4
+
+    pydrake_quaternon_expected = _drake_ros_core.ros_quaternion_to_quaternion(q)
+    assert (pydrake_quaternon_expected.x() == 0.1)
+    assert (pydrake_quaternon_expected.y() == 0.2)
+    assert (pydrake_quaternon_expected.z() == 0.3)
+    assert (pydrake_quaternon_expected.w() == 0.4)
+
+    # pydrake.common.eigen_geometry.Quaternion to ROS quaternion
+    ros_quaternion = _drake_ros_core.quaternion_to_ros_quaternion(
+            pydrake.common.eigen_geometry.Quaternion([1/np.sqrt(30), 2/np.sqrt(30),
+                                                      3/np.sqrt(30), 4/np.sqrt(30)]))
+    assert (ros_quaternion.w == 1/np.sqrt(30))
+    assert (ros_quaternion.x == 2/np.sqrt(30))
+    assert (ros_quaternion.y == 3/np.sqrt(30))
+    assert (ros_quaternion.z == 4/np.sqrt(30))
+
     # ROS quaternion to rotation matrix.
     q = Quaternion()
     q.x = 0.5
