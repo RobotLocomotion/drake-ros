@@ -4,7 +4,7 @@ import pydrake.multibody.math
 import _drake_ros_core
 import numpy as np
 
-from geometry_msgs.msg import Quaternion, Point, Vector3, Twist
+from geometry_msgs.msg import Quaternion, Point, Vector3, Twist, Accel, Wrench
 
 def test_translation():
     # ROS Point to Vector3 (numpy array)
@@ -74,6 +74,10 @@ def test_pose():
 
 # TODO (aditya)
 def test_spatial_velocity():
+    # ROS Twist to Vec6 - TODO
+
+    # Vec6 to ROS Twist - TODO
+
     # ROS Twist to Spatial Velocity
     t = Twist()
     t.linear.x = 1.11
@@ -101,8 +105,62 @@ def test_spatial_velocity():
 
 # TODO (aditya)
 def test_spatial_acceleration():
-    pass
+    # ROS Accel to Vec6 - TODO
+
+    # Vec6 to ROS Accel - TODO
+
+    # ROS Accel to Spatial Acceleration
+    a = Accel()
+    a.linear.x = 1.11
+    a.linear.y = 2.22
+    a.linear.z = 3.33
+
+    a.angular.x = 11.11
+    a.angular.y = 22.22
+    a.angular.z = 33.33
+
+    spatial_accel_converted = _drake_ros_core.ros_accel_to_spatial_acceleration(a)
+    assert (np.array([1.11, 2.22, 3.33]) ==
+            spatial_accel_converted.translational()).all()
+    assert (np.array([11.11, 22.22, 33.33]) ==
+            spatial_accel_converted.rotational()).all()
+
+    # Spatial Acceleration to ROS Accel
+    ros_accel_converted = _drake_ros_core.spatial_acceleration_to_ros_accel(
+            pydrake.multibody.math.SpatialAcceleration_[float](
+                alpha = np.array([11.11, 22.22, 33.33]),
+                a = np.array([1.11, 2.22, 3.33])
+                )
+            )
+    assert (ros_accel_converted == a)
 
 # TODO (aditya)
 def test_spatial_force():
-    pass
+    # ROS Wrench to Vec6 - TODO
+
+    # Vec6 to ROS Wrench - TODO
+
+    # ROS Wrench to Spatial Force
+    w = Wrench()
+    w.force.x = 1.11
+    w.force.y = 2.22
+    w.force.z = 3.33
+
+    w.torque.x = 11.11
+    w.torque.y = 22.22
+    w.torque.z = 33.33
+
+    spatial_force_converted = _drake_ros_core.ros_wrench_to_spatial_force(w)
+    assert (np.array([1.11, 2.22, 3.33]) ==
+            spatial_force_converted.translational()).all()
+    assert (np.array([11.11, 22.22, 33.33]) ==
+            spatial_force_converted.rotational()).all()
+
+    # Spatial Force to ROS Wrench
+    ros_wrench_converted = _drake_ros_core.spatial_force_to_ros_wrench(
+            pydrake.multibody.math.SpatialForce_[float](
+                tau = np.array([11.11, 22.22, 33.33]),
+                f = np.array([1.11, 2.22, 3.33])
+                )
+            )
+    assert (ros_wrench_converted == w)

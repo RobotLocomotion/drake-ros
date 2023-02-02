@@ -171,7 +171,6 @@ PYBIND11_MODULE(_drake_ros_core, m) {
 
   // Python bindings for geometry conversions.
   // Vector / Translation functions.
-  // TODO (aditya) - Resolve Eigen python bindings.
   m.def("ros_point_to_vector3", &drake_ros_core::RosPointToVector3);
   m.def("vector3_to_ros_point", &drake_ros_core::Vector3ToRosPoint);
   m.def("ros_vector3_to_vector3", &drake_ros_core::RosVector3ToVector3);
@@ -201,14 +200,14 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // Spatial Acceleration
   /* m.def("ros_accel_to_vector6", &RosAccelToVector6); */
   /* m.def("vector6_to_ros_accel", &Vector6ToRosAccel); */
-  /* m.def("ros_accel_to_spatial_acceleration", &RosAccelToSpatialAcceleration); */
-  /* m.def("spatial_acceleration_to_ros_accel", &SpatialAccelerationToRosAccel); */
+  m.def("ros_accel_to_spatial_acceleration", &RosAccelToSpatialAcceleration);
+  m.def("spatial_acceleration_to_ros_accel", &SpatialAccelerationToRosAccel);
 
   // Spatial Force
   /* m.def("ros_wrench_to_vector6", &RosWrenchToVector6); */
   /* m.def("vector6_to_ros_wrench", &Vector6ToRosWrench); */
-  /* m.def("ros_wrench_to_spatial_force", &RosWrenchToSpatialForce); */
-  /* m.def("spatial_force_to_ros_wrench", &SpatialForceToRosWrench); */
+  m.def("ros_wrench_to_spatial_force", &RosWrenchToSpatialForce);
+  m.def("spatial_force_to_ros_wrench", &SpatialForceToRosWrench);
 }
 
 }  // namespace
