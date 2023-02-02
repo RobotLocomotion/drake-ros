@@ -1,9 +1,10 @@
 import pytest
 import pydrake.math
+import pydrake.multibody.math
 import _drake_ros_core
 import numpy as np
 
-from geometry_msgs.msg import Quaternion, Point, Vector3
+from geometry_msgs.msg import Quaternion, Point, Vector3, Twist
 
 def test_translation():
     # ROS Point to Vector3 (numpy array)
@@ -73,7 +74,30 @@ def test_pose():
 
 # TODO (aditya)
 def test_spatial_velocity():
-    pass
+    # ROS Twist to Spatial Velocity
+    t = Twist()
+    t.linear.x = 1.11
+    t.linear.y = 2.22
+    t.linear.z = 3.33
+
+    t.angular.x = 11.11
+    t.angular.y = 22.22
+    t.angular.z = 33.33
+
+    spatial_vel_converted = _drake_ros_core.ros_twist_to_spatial_velocity(t)
+    assert (np.array([1.11, 2.22, 3.33]) ==
+            spatial_vel_converted.translational()).all()
+    assert (np.array([11.11, 22.22, 33.33]) ==
+            spatial_vel_converted.rotational()).all()
+
+    # Spatial Velocity to ROS Twist
+    ros_twist_converted = _drake_ros_core.spatial_velocity_to_ros_twist(
+            pydrake.multibody.math.SpatialVelocity_[float](
+                w = np.array([11.11, 22.22, 33.33]),
+                v = np.array([1.11, 2.22, 3.33])
+                )
+            )
+    assert (ros_twist_converted == t)
 
 # TODO (aditya)
 def test_spatial_acceleration():

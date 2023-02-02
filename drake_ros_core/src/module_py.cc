@@ -195,8 +195,8 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // Spatial Velocity
   /* m.def("ros_twist_to_vector6", &RosTwistToVector6); */
   /* m.def("vector6_to_ros_twist", &Vector6ToRosTwist); */
-  /* m.def("ros_twist_to_spatial_velocity", &RosTwistToSpatialVelocity); */
-  /* m.def("spatial_velocity_to_ros_twist", &SpatialVelocityToRosTwist); */
+  m.def("ros_twist_to_spatial_velocity", &RosTwistToSpatialVelocity);
+  m.def("spatial_velocity_to_ros_twist", &SpatialVelocityToRosTwist);
 
   // Spatial Acceleration
   /* m.def("ros_accel_to_vector6", &RosAccelToVector6); */

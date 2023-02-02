@@ -178,4 +178,50 @@ namespace PYBIND11_NAMESPACE {
         }
     };
 
+    // Typecasting between geometry_msgs.msg.Twist (Python) and
+    // geometry_msgs::msg::Twist (C++)
+    template <> struct type_caster<geometry_msgs::msg::Twist> {
+    public:
+        PYBIND11_TYPE_CASTER(geometry_msgs::msg::Twist,
+            _("geometry_msgs.msg.Twist"));
+
+        // Convert from python geometry_msgs.msg.Twist to
+        // C ++ geometry_msgs::msg::Twist
+        bool load(handle src, bool) {
+          handle cls = module::import("geometry_msgs.msg").attr("Twist");
+          if (!isinstance(src, cls)) {
+            return false;
+          }
+          object source = reinterpret_borrow<object>(src);
+
+          value.linear.x = source.attr("linear").attr("x").cast<double>();
+          value.linear.y = source.attr("linear").attr("y").cast<double>();
+          value.linear.z = source.attr("linear").attr("z").cast<double>();
+          value.angular.x = source.attr("angular").attr("x").cast<double>();
+          value.angular.y = source.attr("angular").attr("y").cast<double>();
+          value.angular.z = source.attr("angular").attr("z").cast<double>();
+
+          return true;
+        }
+
+        // Converting from C++ geometry_msgs::msg::Twist to
+        // Python geometry_msgs.msg.Twist
+        static handle cast(geometry_msgs::msg::Twist src,
+            return_value_policy policy, handle parent) {
+          (void)policy;
+          (void)parent;
+
+          object instance = module::import("geometry_msgs.msg").attr("Twist")();
+          instance.attr("linear").attr("x") = src.linear.x;
+          instance.attr("linear").attr("y") = src.linear.y;
+          instance.attr("linear").attr("z") = src.linear.z;
+          instance.attr("angular").attr("x") = src.angular.x;
+          instance.attr("angular").attr("y") = src.angular.y;
+          instance.attr("angular").attr("z") = src.angular.z;
+
+          instance.inc_ref();
+          return instance;
+        }
+    };
+
 }} // namespace PYBIND11_NAMESPACE::detail
