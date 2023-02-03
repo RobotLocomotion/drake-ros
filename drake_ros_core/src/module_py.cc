@@ -186,13 +186,12 @@ PYBIND11_MODULE(_drake_ros_core, m) {
   // Pose
   m.def("ros_pose_to_rigid_transform", &RosPoseToRigidTransform);
   m.def("rigid_transform_to_ros_pose", &RigidTransformToRosPose);
-  /* m.def("ros_transform_to_rigid_transform", &RosTransformToRigidTransform); */
-  /* m.def("rigid_transform_to_ros_transform", &RigidTransformToRosTransform); */
-  // TODO (aditya) - Resolve Eigen python bindings.
+  m.def("ros_transform_to_rigid_transform", &RosTransformToRigidTransform);
+  m.def("rigid_transform_to_ros_transform", &RigidTransformToRosTransform);
   m.def("ros_pose_to_isometry3", &RosPoseToIsometry3);
   m.def("isometry3_to_ros_pose", &Isometry3ToRosPose);
-  /* m.def("ros_transform_to_isometry3", &RosTransformToIsometry3); */
-  /* m.def("isometry3_to_ros_transform", &Isometry3ToRosTransform); */
+  m.def("ros_transform_to_isometry3", &RosTransformToIsometry3);
+  m.def("isometry3_to_ros_transform", &Isometry3ToRosTransform);
 
   // Spatial Velocity
   m.def("ros_twist_to_vector6", &RosTwistToVector6);
