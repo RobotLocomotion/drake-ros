@@ -84,7 +84,6 @@ def test_orientation():
             _drake_ros_core.rotation_matrix_to_ros_quaternion(rot_matrix_converted)
     assert (quaternion_expected == q)
 
-# TODO (aditya)
 def test_pose():
     # ROS pose to rigid transform.
     ros_pose = Pose()
@@ -107,6 +106,20 @@ def test_pose():
                       [0.33333333, 0.93333333, 0.13333333]])))
 
     # Rigid transform to ROS pose.
+    rigid_transform = pydrake.math.RigidTransform(
+            p = np.array([1.0, 2.0, 3.0]),
+            quaternion = pydrake.common.eigen_geometry.Quaternion(
+                [1.0/np.sqrt(30), 2.0/np.sqrt(30), 3.0/np.sqrt(30), 4.0/np.sqrt(30)]))
+
+    ros_pose_expected = _drake_ros_core.rigid_transform_to_ros_pose(rigid_transform)
+    assert (ros_pose_expected.position.x == 1.0)
+    assert (ros_pose_expected.position.y == 2.0)
+    assert (ros_pose_expected.position.z == 3.0)
+
+    assert np.isclose(ros_pose_expected.orientation.w, 1.0/np.sqrt(30))
+    assert np.isclose(ros_pose_expected.orientation.x, 2.0/np.sqrt(30))
+    assert np.isclose(ros_pose_expected.orientation.y, 3.0/np.sqrt(30))
+    assert np.isclose(ros_pose_expected.orientation.z, 4.0/np.sqrt(30))
 
     # ROS transform to rigid transform.
     ros_transform = Transform()
@@ -129,10 +142,59 @@ def test_pose():
                       [0.33333333, 0.93333333, 0.13333333]])))
 
     # Rigid transform to ROS transform.
+    ros_transform_expected = _drake_ros_core.rigid_transform_to_ros_transform(rigid_transform)
+    assert (ros_transform_expected.translation.x == 1.0)
+    assert (ros_transform_expected.translation.y == 2.0)
+    assert (ros_transform_expected.translation.z == 3.0)
 
-    # ROS Pose to Isometry3
+    assert np.isclose(ros_transform_expected.rotation.w, 1.0/np.sqrt(30))
+    assert np.isclose(ros_transform_expected.rotation.x, 2.0/np.sqrt(30))
+    assert np.isclose(ros_transform_expected.rotation.y, 3.0/np.sqrt(30))
+    assert np.isclose(ros_transform_expected.rotation.z, 4.0/np.sqrt(30))
 
-    # Isometry3 to ROS Pose
+    # ROS Pose to Isometry3.
+    isometry_expected = _drake_ros_core.ros_pose_to_isometry3(ros_pose)
+    assert (isometry_expected.translation() == np.array([1.0, 2.0, 3.0])).all()
+    assert np.isclose(isometry_expected.quaternion().w(), 1.0/np.sqrt(30))
+    assert np.isclose(isometry_expected.quaternion().x(), 2.0/np.sqrt(30))
+    assert np.isclose(isometry_expected.quaternion().y(), 3.0/np.sqrt(30))
+    assert np.isclose(isometry_expected.quaternion().z(), 4.0/np.sqrt(30))
+
+    # Isometry3 to ROS Pose.
+    isometry3 = pydrake.common.eigen_geometry.Isometry3(
+            translation = np.array([1.0, 2.0, 3.0]),
+            rotation = np.array([[-0.66666667, 0.13333333 , 0.73333333],
+                                 [0.66666667, -0.33333333, 0.6666667],
+                                 [0.33333333, 0.93333333, 0.13333333]]))
+
+    ros_pose_expected = _drake_ros_core.isometry3_to_ros_pose(isometry3)
+    assert (ros_pose_expected.position.x == 1.0)
+    assert (ros_pose_expected.position.y == 2.0)
+    assert (ros_pose_expected.position.z == 3.0)
+
+    assert np.isclose(ros_pose_expected.orientation.w, 1.0/np.sqrt(30))
+    assert np.isclose(ros_pose_expected.orientation.x, 2.0/np.sqrt(30))
+    assert np.isclose(ros_pose_expected.orientation.y, 3.0/np.sqrt(30))
+    assert np.isclose(ros_pose_expected.orientation.z, 4.0/np.sqrt(30))
+
+    # ROS transform to Isometry3.
+    isometry_expected = _drake_ros_core.ros_transform_to_isometry3(ros_transform)
+    assert (isometry_expected.translation() == np.array([1.0, 2.0, 3.0])).all()
+    assert np.isclose(isometry_expected.quaternion().w(), 1.0/np.sqrt(30))
+    assert np.isclose(isometry_expected.quaternion().x(), 2.0/np.sqrt(30))
+    assert np.isclose(isometry_expected.quaternion().y(), 3.0/np.sqrt(30))
+    assert np.isclose(isometry_expected.quaternion().z(), 4.0/np.sqrt(30))
+
+    # Isometry3 to ROS transform.
+    ros_transform_expected = _drake_ros_core.isometry3_to_ros_transform(isometry3)
+    assert (ros_transform_expected.translation.x == 1.0)
+    assert (ros_transform_expected.translation.y == 2.0)
+    assert (ros_transform_expected.translation.z == 3.0)
+
+    assert np.isclose(ros_transform_expected.rotation.w, 1.0/np.sqrt(30))
+    assert np.isclose(ros_transform_expected.rotation.x, 2.0/np.sqrt(30))
+    assert np.isclose(ros_transform_expected.rotation.y, 3.0/np.sqrt(30))
+    assert np.isclose(ros_transform_expected.rotation.z, 4.0/np.sqrt(30))
 
 def test_spatial_velocity():
     # ROS Twist to Vec6
