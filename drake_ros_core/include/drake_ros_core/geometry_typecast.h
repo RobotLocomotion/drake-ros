@@ -370,4 +370,104 @@ namespace PYBIND11_NAMESPACE {
         }
     };
 
+    // Typecasting between geometry_msgs.msg.Pose (Python) and
+    // geometry_msgs::msg::Pose (C++)
+    template <> struct type_caster<geometry_msgs::msg::Pose> {
+    public:
+        PYBIND11_TYPE_CASTER(geometry_msgs::msg::Pose,
+            _("geometry_msgs.msg.Pose"));
+
+        // Convert from python geometry_msgs.msg.Pose to
+        // C ++ geometry_msgs::msg::Pose
+        bool load(handle src, bool) {
+          handle cls = module::import("geometry_msgs.msg").attr("Pose");
+          if (!isinstance(src, cls)) {
+            return false;
+          }
+          object source = reinterpret_borrow<object>(src);
+
+          value.position.x = source.attr("position").attr("x").cast<double>();
+          value.position.y = source.attr("position").attr("y").cast<double>();
+          value.position.z = source.attr("position").attr("z").cast<double>();
+
+          value.orientation.x = source.attr("orientation").attr("x").cast<double>();
+          value.orientation.y = source.attr("orientation").attr("y").cast<double>();
+          value.orientation.z = source.attr("orientation").attr("z").cast<double>();
+          value.orientation.w = source.attr("orientation").attr("w").cast<double>();
+
+          return true;
+        }
+
+        // Converting from C++ geometry_msgs::msg::Pose to
+        // Python geometry_msgs.msg.Pose
+        static handle cast(geometry_msgs::msg::Pose src,
+            return_value_policy policy, handle parent) {
+          (void)policy;
+          (void)parent;
+
+          object instance = module::import("geometry_msgs.msg").attr("Pose")();
+          instance.attr("position").attr("x") = src.position.x;
+          instance.attr("position").attr("y") = src.position.y;
+          instance.attr("position").attr("z") = src.position.z;
+
+          instance.attr("orientation").attr("x") = src.orientation.x;
+          instance.attr("orientation").attr("y") = src.orientation.y;
+          instance.attr("orientation").attr("z") = src.orientation.z;
+          instance.attr("orientation").attr("w") = src.orientation.w;
+
+          instance.inc_ref();
+          return instance;
+        }
+    };
+
+    // Typecasting between geometry_msgs.msg.Transform (Python) and
+    // geometry_msgs::msg::Transform (C++)
+    template <> struct type_caster<geometry_msgs::msg::Transform> {
+    public:
+        PYBIND11_TYPE_CASTER(geometry_msgs::msg::Transform,
+            _("geometry_msgs.msg.Transform"));
+
+        // Convert from python geometry_msgs.msg.Transform to
+        // C ++ geometry_msgs::msg::Transform
+        bool load(handle src, bool) {
+          handle cls = module::import("geometry_msgs.msg").attr("Transform");
+          if (!isinstance(src, cls)) {
+            return false;
+          }
+          object source = reinterpret_borrow<object>(src);
+
+          value.translation.x = source.attr("translation").attr("x").cast<double>();
+          value.translation.y = source.attr("translation").attr("y").cast<double>();
+          value.translation.z = source.attr("translation").attr("z").cast<double>();
+
+          value.rotation.x = source.attr("rotation").attr("x").cast<double>();
+          value.rotation.y = source.attr("rotation").attr("y").cast<double>();
+          value.rotation.z = source.attr("rotation").attr("z").cast<double>();
+          value.rotation.w = source.attr("rotation").attr("w").cast<double>();
+
+          return true;
+        }
+
+        // Converting from C++ geometry_msgs::msg::Transform to
+        // Python geometry_msgs.msg.Transform
+        static handle cast(geometry_msgs::msg::Transform src,
+            return_value_policy policy, handle parent) {
+          (void)policy;
+          (void)parent;
+
+          object instance = module::import("geometry_msgs.msg").attr("Transform")();
+          instance.attr("translation").attr("x") = src.translation.x;
+          instance.attr("translation").attr("y") = src.translation.y;
+          instance.attr("translation").attr("z") = src.translation.z;
+
+          instance.attr("rotation").attr("x") = src.rotation.x;
+          instance.attr("rotation").attr("y") = src.rotation.y;
+          instance.attr("rotation").attr("z") = src.rotation.z;
+          instance.attr("rotation").attr("w") = src.rotation.w;
+
+          instance.inc_ref();
+          return instance;
+        }
+    };
+
 }} // namespace PYBIND11_NAMESPACE::detail

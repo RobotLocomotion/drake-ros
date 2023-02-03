@@ -5,7 +5,7 @@ import pydrake.common.eigen_geometry
 import _drake_ros_core
 import numpy as np
 
-from geometry_msgs.msg import Quaternion, Point, Vector3, Twist, Accel, Wrench
+from geometry_msgs.msg import Quaternion, Point, Vector3, Twist, Accel, Wrench, Pose
 
 def test_translation():
     # ROS Point to Vector3 (numpy array)
@@ -87,13 +87,34 @@ def test_orientation():
 # TODO (aditya)
 def test_pose():
     # ROS pose to rigid transform.
+    ros_pose = Pose()
+    ros_pose.position.x = 1.0
+    ros_pose.position.y = 2.0
+    ros_pose.position.z = 3.0
+
+    ros_pose.orientation.w = 1.0
+    ros_pose.orientation.x = 2.0
+    ros_pose.orientation.y = 3.0
+    ros_pose.orientation.z = 4.0
+
+    rigid_transform_expected = _drake_ros_core.ros_pose_to_rigid_transform(ros_pose)
+    assert (rigid_transform_expected.translation() ==
+            np.array([1.0, 2.0, 3.0])).all()
+
+    assert (np.allclose(rigid_transform_expected.rotation().matrix(),
+            np.array([[-0.66666667, 0.13333333 , 0.73333333],
+                      [0.66666667, -0.33333333, 0.6666667],
+                      [0.33333333, 0.93333333, 0.13333333]])))
 
     # Rigid transform to ROS pose.
 
     # ROS transform to rigid transform.
 
     # Rigid transform to ROS transform.
-    pass
+
+    # ROS Pose to Isometry3
+
+    # Isometry3 to ROS Pose
 
 def test_spatial_velocity():
     # ROS Twist to Vec6
