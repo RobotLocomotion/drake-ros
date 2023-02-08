@@ -13,7 +13,7 @@ def test_ros_point_to_vector3():
     p.y = 2.34
     p.z = 3.456
     array_converted = _drake_ros_core.ros_point_to_vector3(p)
-    array_expected = np.array([[1.12],[2.34],[3.456]])
+    array_expected = np.array([1.12, 2.34, 3.456])
 
     assert (array_expected == array_converted).all()
 
@@ -32,7 +32,7 @@ def test_ros_vector3_to_vector3():
     v.y = 2.50
     v.z = 3.75
     vec3_converted = _drake_ros_core.ros_vector3_to_vector3(v)
-    vec3_expected = np.array([[1.25], [2.50], [3.75]])
+    vec3_expected = np.array([1.25, 2.5, 3.75])
     assert (vec3_converted == vec3_expected).all()
 
 def test_vector3_to_ros_vector3():
@@ -208,9 +208,9 @@ def test_ros_transform_to_isometry3():
 def test_isometry3_to_ros_transform():
     isometry3 = pydrake.common.eigen_geometry.Isometry3(
             translation = np.array([1.0, 2.0, 3.0]),
-            rotation = np.array([[-0.66666667, 0.13333333 , 0.73333333],
-                                 [0.66666667, -0.33333333, 0.6666667],
-                                 [0.33333333, 0.93333333, 0.13333333]]))
+            quaternion = pydrake.common.eigen_geometry.Quaternion(
+                [1/np.sqrt(30), 2/np.sqrt(30), 3/np.sqrt(30), 4/np.sqrt(30)]))
+
     ros_transform_expected = _drake_ros_core.isometry3_to_ros_transform(isometry3)
     assert ros_transform_expected.translation.x == 1.0
     assert ros_transform_expected.translation.y == 2.0
@@ -259,8 +259,8 @@ def test_ros_twist_to_vector6():
     t.angular.y = 22.22
     t.angular.z = 33.33
     vec6_expected = _drake_ros_core.ros_twist_to_vector6(t)
-    assert (vec6_expected == np.array([[11.11], [22.22], [33.33],
-                                       [1.11],[2.22],[3.33]])).all()
+    assert (vec6_expected == np.array([11.11, 22.22, 33.33,
+                                       1.11,2.22,3.33])).all()
 
 def test_vector6_to_ros_twist():
     t = Twist()
@@ -271,7 +271,7 @@ def test_vector6_to_ros_twist():
     t.angular.y = 22.22
     t.angular.z = 33.33
     ros_twist_expected = _drake_ros_core.vector6_to_ros_twist(
-            np.array([[11.11], [22.22], [33.33], [1.11], [2.22], [3.33]]))
+            np.array([11.11, 22.22, 33.33, 1.11, 2.22, 3.33]))
     assert ros_twist_expected == t
 
 def test_ros_accel_to_vector6():
@@ -283,8 +283,8 @@ def test_ros_accel_to_vector6():
     a.angular.y = 22.22
     a.angular.z = 33.33
     vec6_expected = _drake_ros_core.ros_accel_to_vector6(a)
-    assert (vec6_expected == np.array([[11.11], [22.22], [33.33],
-                                       [1.11],[2.22],[3.33]])).all()
+    assert (vec6_expected == np.array([11.11, 22.22, 33.33,
+                                       1.11,2.22,3.33])).all()
 
 def vector6_to_ros_accel():
     a = Accel()
@@ -337,8 +337,8 @@ def test_ros_wrench_to_vector6():
     w.torque.y = 22.22
     w.torque.z = 33.33
     vec6_expected = _drake_ros_core.ros_wrench_to_vector6(w)
-    assert (vec6_expected == np.array([[11.11], [22.22], [33.33],
-                                       [1.11],[2.22],[3.33]])).all()
+    assert (vec6_expected == np.array([11.11, 22.22, 33.33,
+                                       1.11,2.22,3.33])).all()
 
 def test_vector6_to_ros_wrench():
     w = Wrench()
