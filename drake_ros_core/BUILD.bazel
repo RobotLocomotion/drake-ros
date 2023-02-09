@@ -124,3 +124,15 @@ ros_py_test(
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )
+
+ros_py_test(
+    name = "test_geometry_conversions_py",
+    srcs = ["test/test_geometry_conversions_py.py"],
+    main = "test/test_geometry_conversions_py.py",
+    deps = [
+        ":drake_ros_core_py",
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+        "@ros2//:test_msgs_py",
+    ],
+)
