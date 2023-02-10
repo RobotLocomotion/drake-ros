@@ -77,7 +77,7 @@ def generate_distro_file_content(
     packages = distro['packages']
     ament_prefix_paths = distro['paths']['ament_prefix']
     library_load_paths = distro['paths']['library_load']
-    ros_distro = distro['paths']['ros_distro']
+    ros_distro = distro['ros_distro']
     return interpolate(
         load_resource('templates/distro.bzl.tpl'),
         to_starlark_string_dict({
