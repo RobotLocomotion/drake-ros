@@ -17,6 +17,8 @@
 #include <memory>
 #include <string>
 
+#include <rclcpp/version.h>
+
 namespace drake_ros_core {
 namespace internal {
 namespace {
@@ -33,9 +35,19 @@ Subscription::Subscription(
     const rosidl_message_type_support_t& ts, const std::string& topic_name,
     const rclcpp::QoS& qos,
     std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback)
+#if RCLCPP_VERSION_GTE(18, 0, 0)
     : rclcpp::SubscriptionBase(node_base, ts, topic_name,
-                               subscription_options(qos), true),
-      callback_(callback) {}
+                               subscription_options(qos),
+                               /* event_callbacks */ {},
+                               /* use_default_callbacks */ true,
+                               /* is_serialized */ true),
+#else
+    : rclcpp::SubscriptionBase(node_base, ts, topic_name,
+                               subscription_options(qos),
+                               /* is_serialized */ true),
+#endif
+      callback_(callback) {
+}
 
 Subscription::~Subscription() {}
 

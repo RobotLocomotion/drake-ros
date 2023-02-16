@@ -16,6 +16,8 @@
 
 #include <string>
 
+#include <rclcpp/version.h>
+
 namespace drake_ros_core {
 namespace internal {
 namespace {
@@ -30,8 +32,17 @@ rcl_publisher_options_t publisher_options(const rclcpp::QoS& qos) {
 Publisher::Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
                      const rosidl_message_type_support_t& type_support,
                      const std::string& topic_name, const rclcpp::QoS& qos)
+#if RCLCPP_VERSION_GTE(18, 0, 0)
     : rclcpp::PublisherBase(node_base, topic_name, type_support,
-                            publisher_options(qos)) {}
+                            publisher_options(qos),
+                            /* event_callbacks */ {},
+                            /* use_default_callbacks */ true)
+#else
+    : rclcpp::PublisherBase(node_base, topic_name, type_support,
+                            publisher_options(qos))
+#endif
+{
+}
 
 Publisher::~Publisher() {}
 
