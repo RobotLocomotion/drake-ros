@@ -29,17 +29,20 @@ rcl_publisher_options_t publisher_options(const rclcpp::QoS& qos) {
 }
 }  // namespace
 
-Publisher::Publisher(rclcpp::node_interfaces::NodeBaseInterface* node_base,
-                     const rosidl_message_type_support_t& type_support,
-                     const std::string& topic_name, const rclcpp::QoS& qos)
-    : rclcpp::PublisherBase(node_base, topic_name, type_support,
+Publisher::Publisher(
+    rclcpp::node_interfaces::NodeBaseInterface* node_base,
+    const rosidl_message_type_support_t& type_support,
+    const std::string& topic_name, const rclcpp::QoS& qos)
 #if RCLCPP_VERSION_GTE(18, 0, 0)
-                            publisher_options(qos), {}, true) {
-}
+    : rclcpp::PublisherBase(
+        node_base, topic_name, type_support, publisher_options(qos),
+        /* event_callbacks */ {},
+        /* use_default_callbacks */ true)
 #else
-                            publisher_options(qos)) {
-}
+    : rclcpp::PublisherBase(
+        node_base, topic_name, type_support, publisher_options(qos))
 #endif
+{ }
 
 Publisher::~Publisher() {}
 
