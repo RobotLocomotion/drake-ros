@@ -15,6 +15,8 @@ jobs:
         with:
           path: "/home/runner/.cache/bazel"
           key: bazel-drake-ros
+      - name: Simplify apt upgrades
+        run: .github/simplify_apt_and_upgrades.sh
       - name: Install ROS tools (like rosdep)
         uses: ros-tooling/setup-ros@v0.4
       - name: Update rosdep data
