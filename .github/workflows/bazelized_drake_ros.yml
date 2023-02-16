@@ -1,6 +1,10 @@
 name: Bazel Drake-ROS Continuous Integration
 
 on:
+  push:
+    branches:
+      - main
+      - develop
   pull_request:
     branches:
       - main
