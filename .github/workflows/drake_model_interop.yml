@@ -1,10 +1,11 @@
 name: drake_model_interop Continuous Integration
 
 on:
-  push:
-    branches:
-      - main
-      - develop
+  # TODO(eric.cousineau): Enable this once #83 lands.
+  # push:
+  #   branches:
+  #     - main
+  #     - develop
   pull_request:
     branches:
       - main
@@ -18,7 +19,7 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: ros:noetic-ros-base-jammy
+      image: ros:noetic-ros-base-focal
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
