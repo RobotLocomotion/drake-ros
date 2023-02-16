@@ -1,8 +1,13 @@
 name: drake_model_interop Continuous Integration
 
 on:
+  push:
+    branches:
+      - main
+      - develop
   pull_request:
     branches:
+      - main
       - develop
 
 defaults:
