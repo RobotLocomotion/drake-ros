@@ -18,7 +18,7 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: ros:noetic-ros-base-focal
+      image: ros:noetic-ros-base-jammy
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2

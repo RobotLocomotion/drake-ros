@@ -14,7 +14,7 @@ jobs:
   bazel_build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: ros:rolling-ros-base-focal
+      image: ros:rolling-ros-base-jammy
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
