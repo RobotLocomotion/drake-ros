@@ -1,1 +1,8 @@
 bazel-*
+
+# User-specified configuration
+/bazel_ros2_rules/user.bazelrc
+/drake_ros_core/user.bazelrc
+/drake_ros_tf2/user.bazelrc
+/drake_ros_viz/user.bazelrc
+/ros2_example_bazel_installed/user.bazelrc
