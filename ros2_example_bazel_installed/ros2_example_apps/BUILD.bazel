@@ -185,3 +185,16 @@ ros_py_test(
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )
+
+ros_py_test(
+    name = "rmw_isolation_example_py_test",
+    srcs = ["test/rmw_isolation_example.py"],
+    main = "test/rmw_isolation_example.py",
+    data = [
+        "@ros2",
+    ],
+    deps = [
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+)
