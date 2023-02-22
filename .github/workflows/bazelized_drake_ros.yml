@@ -31,7 +31,11 @@ jobs:
         working-directory: drake_ros
       - name: Install Drake's dependencies
         run: yes | sudo ./bazel-drake_ros/external/drake/setup/ubuntu/install_prereqs.sh
-        working-directory: drake_ros
+      - name: Install ROS tarball's dependencies
+        # TODO(sloretz) can't use rosdep here because we need the archive downloaded,
+        # but can't download the archive with bazel until we have the dependencies installed
+        # so bazel_ros2_rules can inspect it.
+        run: sudo apt-get install -y libconsole-bridge-dev
       - name: Configure Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros
