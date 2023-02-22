@@ -33,6 +33,7 @@ jobs:
         working-directory: drake_ros
       - name: Install Drake's dependencies
         run: yes | sudo ./bazel-drake_ros/external/drake/setup/ubuntu/install_prereqs.sh
+        working-directory: drake_ros
       - name: Install ROS tarball's dependencies
         # TODO(sloretz) can't use rosdep here because we need the archive downloaded,
         # but can't download the archive with bazel until we have the dependencies installed
