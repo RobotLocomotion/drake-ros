@@ -10,6 +10,8 @@
 
 namespace py = pybind11;
 
+// TODO(Aditya):Use serialization-deserialization based generic typecasting for
+// ROS msgs.
 namespace PYBIND11_NAMESPACE {
   namespace detail {
 
