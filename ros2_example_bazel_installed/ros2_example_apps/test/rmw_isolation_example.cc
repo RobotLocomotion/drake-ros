@@ -21,11 +21,11 @@ class Talker : public rclcpp::Node {
     publisher_ = this->create_publisher<std_msgs::msg::Float64>("id", 10);
     timer_ = this->create_wall_timer(
         std::chrono::duration<double>(0.1),
-        std::bind(&Talker::timer_callback, this));
+        std::bind(&Talker::timerCallback, this));
   }
 
  private:
-  void timer_callback() const {
+  void timerCallback() const {
     std_msgs::msg::Float64 message;
     message.data = id_;
     publisher_->publish(message);
@@ -42,23 +42,23 @@ class Listener : public rclcpp::Node {
       : rclcpp::Node("isolated_listener"), id_(id) {
     double timeout = this->declare_parameter("timeout", 1.0);
     subscription_ = this->create_subscription<std_msgs::msg::Float64>(
-        "id", 10, std::bind(&Listener::topic_callback, this, _1));
+        "id", 10, std::bind(&Listener::topicCallback, this, _1));
     timer_ = this->create_wall_timer(
         std::chrono::duration<double>(timeout),
-        std::bind(&Listener::timer_callback, this));
+        std::bind(&Listener::timerCallback, this));
   }
 
  private:
-  void topic_callback(const std_msgs::msg::Float64::SharedPtr msg) {
+  void topicCallback(const std_msgs::msg::Float64::SharedPtr msg) {
     if (msg->data != id_) {
       throw std::runtime_error("I heard '" + std::to_string(msg->data) + "' yet " +
                                "I was expecting '" + std::to_string(id_) + "'!");
     }
-    ++expected_messages_count_;
+    ++expectedMessagesCount_;
   }
 
-  void timer_callback() const {
-    if (0u == expected_messages_count_) {
+  void timerCallback() const {
+    if (0u == expectedMessagesCount_) {
       throw std::runtime_error("I did not hear '" + std::to_string(id_) + "' even once!");
     }
     rclcpp::shutdown();
@@ -66,7 +66,7 @@ class Listener : public rclcpp::Node {
 
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr subscription_;
   rclcpp::TimerBase::SharedPtr timer_;
-  size_t expected_messages_count_{0u};
+  size_t expectedMessagesCount_{0u};
   float id_;
 };
 
