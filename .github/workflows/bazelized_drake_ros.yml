@@ -20,7 +20,7 @@ jobs:
           path: "/home/runner/.cache/bazel"
           key: bazel-drake-ros
       - name: Workaround https://bugs.launchpad.net/ubuntu/+source/grub2/+bug/1814187
-        run: sudo apt-get update && sudo apt-get install mokutil
+        run: sudo apt-get update && sudo apt-get install -y mokutil
       - name: Install ROS tools (like rosdep)
         uses: ros-tooling/setup-ros@v0.4
       - name: Update rosdep data
