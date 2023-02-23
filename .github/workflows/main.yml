@@ -49,7 +49,7 @@ jobs:
       PYTHONPATH:
     steps:
       - name: Workaround https://bugs.launchpad.net/ubuntu/+source/grub2/+bug/1814187
-        run: sudo apt-get update && sudo apt-get install -y mokutil
+        run: apt-get update && apt-get install -y mokutil
       - uses: ros-tooling/setup-ros@v0.4
       - name: Install dependencies to build ROS packages
         run: |
