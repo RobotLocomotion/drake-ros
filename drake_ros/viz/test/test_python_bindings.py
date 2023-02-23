@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# XXX debugging issue I can't reproduce locally
+import os
+import sys
+for k,v in os.environ.items():
+    sys.stderr.write(f'{k}: {v}\n')
+# XXX
+
 
 import pytest
 
