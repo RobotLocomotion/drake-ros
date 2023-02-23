@@ -28,6 +28,6 @@ jobs:
           path: "/home/runner/.cache/model-interop"
           key: model_interop
       - name: Simplify apt upgrades
-        run: .github/simplify_apt_and_upgrades.sh
+        run: ${{ env.GITHUB_WORKSPACE }}/.github/simplify_apt_and_upgrades.sh
       - name: Install prerequisites
         run: yes | ./setup/install_prereqs.sh
