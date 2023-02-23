@@ -10,7 +10,7 @@ guide](https://drake.mit.edu/code_style_guide.html).
 This repository uses GitHub Actions to perform CI.
 
 If you are prototyping a PR, consider saving resources by disabling CI by
-adding the `status: block ci` label to your PR.
+adding the `status: defer ci` label to your PR.
 
 If you add or remove the label to an existing PR, you must ensure that checks
 are re-run with job conditions being re-evaluated. You can do this by pushing

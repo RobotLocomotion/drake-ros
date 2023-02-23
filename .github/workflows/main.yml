@@ -10,7 +10,7 @@ on:
       - develop
 jobs:
   test_against_debs:
-    if: "! contains(github.event.pull_request.labels.*.name, 'status: block ci')"
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
     strategy:
       matrix:
         include:
@@ -35,7 +35,7 @@ jobs:
         with:
           target-ros2-distro: ${{matrix.ros_distro}}
   test_against_archive:
-    if: "! contains(github.event.pull_request.labels.*.name, 'status: block ci')"
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
     strategy:
       matrix:
         include:
