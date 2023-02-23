@@ -34,9 +34,9 @@ ros2_archive(
         "rosidl_typesupport_cpp",
         "test_msgs",
     ],
-    sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci-CHECKSUM",  # noqa
+    sha256_url = "https://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci-CHECKSUM",  # noqa
     strip_prefix = "ros2-linux",
-    url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci.tar.bz2",  # noqa
+    url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa
 )
 
 # Depend on Drake

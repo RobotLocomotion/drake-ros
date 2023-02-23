@@ -4,7 +4,8 @@ This is a collection of examples built around `drake_ros` libraries' C++ and Pyt
 
 ## Building
 
-This package has been built and tested on Ubuntu Focal with ROS Rolling, using a Drake nightly or any stable releases after 14 Jan 2022.
+This package has been built and tested on Ubuntu Jammy 22.04 with ROS 2
+Rolling, using a recent Drake nightly or stable release.
 It may work on other versions of ROS and Drake, but it hasn't been tested.
 
 To build it:

@@ -1,6 +1,10 @@
 name: Bazel Drake-ROS Continuous Integration
 
 on:
+  push:
+    branches:
+      - main
+      - develop
   pull_request:
     branches:
       - main
@@ -8,7 +12,8 @@ on:
 
 jobs:
   bazel_build_and_test:
-    runs-on: ubuntu-20.04
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -29,6 +34,9 @@ jobs:
         working-directory: drake_ros_core
       - name: Install Drake's dependencies
         run: yes | sudo ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
+        working-directory: drake_ros_core
+      - name: Configure Bazel for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros_core
       - name: Build drake_ros_core
         run: bazel build //...
