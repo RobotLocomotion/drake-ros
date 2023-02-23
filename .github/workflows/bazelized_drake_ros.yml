@@ -12,6 +12,7 @@ on:
 
 jobs:
   bazel_build_and_test:
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
@@ -19,8 +20,8 @@ jobs:
         with:
           path: "/home/runner/.cache/bazel"
           key: bazel-drake-ros
-      - name: Workaround https://bugs.launchpad.net/ubuntu/+source/grub2/+bug/1814187
-        run: sudo apt-get update && sudo apt-get install -y mokutil
+      - name: Simplify apt upgrades
+        run: .github/simplify_apt_and_upgrades.sh
       - name: Install ROS tools (like rosdep)
         uses: ros-tooling/setup-ros@v0.4
       - name: Update rosdep data
