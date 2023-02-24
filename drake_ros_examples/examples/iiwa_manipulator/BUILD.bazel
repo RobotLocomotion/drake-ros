@@ -30,6 +30,5 @@ ros_py_binary(
         "@drake_ros//viz:viz_py",
         "@ros2//:rclpy_py",
     ],
-    legacy_create_init = False,
     visibility = ["//visibility:public"],
 )

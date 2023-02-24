@@ -28,6 +28,5 @@ ros_py_binary(
         "@ros2//:std_msgs_py",
         "@ros2//:rclpy_py",
     ],
-    legacy_create_init = False,
     visibility = ["//visibility:public"],
 )

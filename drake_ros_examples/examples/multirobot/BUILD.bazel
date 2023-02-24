@@ -39,6 +39,5 @@ ros_py_binary(
     data = [
         "@drake//manipulation/models/iiwa_description:models",
     ],
-    legacy_create_init = False,
     visibility = ["//visibility:public"],
 )
