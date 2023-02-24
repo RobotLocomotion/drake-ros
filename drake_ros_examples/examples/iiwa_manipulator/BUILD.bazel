@@ -14,8 +14,8 @@ ros_cc_binary(
         "@drake//systems/primitives:adder",
         "@drake//systems/primitives:constant_vector_source",
         "@drake//systems/primitives:sine",
-        "@drake_ros_core//:drake_ros_core",
-        "@drake_ros_viz//:drake_ros_viz",
+        "@drake_ros//core:core",
+        "@drake_ros//viz:viz",
     ],
     visibility = ["//visibility:public"],
 )
@@ -26,8 +26,8 @@ ros_py_binary(
     main = "iiwa_manipulator.py",
     deps = [
         "@drake//bindings/pydrake",
-        "@drake_ros_core//:drake_ros_core_py",
-        "@drake_ros_viz//:drake_ros_viz_py",
+        "@drake_ros//core:core_py",
+        "@drake_ros//viz:viz_py",
         "@ros2//:rclpy_py",
     ],
     legacy_create_init = False,
