@@ -1,8 +1,8 @@
 add_executable(iiwa_manipulator iiwa_manipulator.cpp)
 target_link_libraries(iiwa_manipulator
   drake::drake
-  drake_ros_core::drake_ros_core
-  drake_ros_viz::drake_ros_viz
+  drake_ros::drake_ros_core
+  drake_ros::drake_ros_viz
 )
 
 install(

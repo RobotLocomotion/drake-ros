@@ -23,9 +23,9 @@
 #include <drake/systems/primitives/adder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/primitives/sine.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_interface_system.h>
-#include <drake_ros_viz/rviz_visualizer.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_interface_system.h>
+#include <drake_ros/viz/rviz_visualizer.h>
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;

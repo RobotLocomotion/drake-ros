@@ -222,6 +222,7 @@ def _ros2_local_repository_impl(repo_ctx):
     repo_ctx.report_progress("Sandboxing ROS 2 workspaces")
     workspaces_in_sandbox = {}
     for path in repo_ctx.attr.workspaces:
+        path = path.rstrip("/")
         path_in_sandbox = path.replace("/", "_")
         repo_ctx.symlink(path, path_in_sandbox)
         workspaces_in_sandbox[path] = path_in_sandbox
