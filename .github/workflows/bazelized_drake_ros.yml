@@ -1,6 +1,10 @@
 name: Bazel Drake-ROS Continuous Integration
 
 on:
+  push:
+    branches:
+      - main
+      - develop
   pull_request:
     branches:
       - main
@@ -8,13 +12,16 @@ on:
 
 jobs:
   bazel_build_and_test:
-    runs-on: ubuntu-20.04
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
           path: "/home/runner/.cache/bazel"
           key: bazel-drake-ros
+      - name: Simplify apt upgrades
+        run: .github/simplify_apt_and_upgrades.sh
       - name: Install ROS tools (like rosdep)
         uses: ros-tooling/setup-ros@v0.4
       - name: Update rosdep data
@@ -24,13 +31,21 @@ jobs:
         run: sudo apt install python3 python3-toposort
       - name: Download Drake
         run: bazel build @drake//:module_py
-        working-directory: drake_ros_core
+        working-directory: drake_ros
       - name: Install Drake's dependencies
-        run: yes | sudo ./bazel-drake_ros_core/external/drake/setup/ubuntu/install_prereqs.sh
-        working-directory: drake_ros_core
-      - name: Build drake_ros_core
+        run: yes | sudo ./bazel-drake_ros/external/drake/setup/ubuntu/install_prereqs.sh
+        working-directory: drake_ros
+      - name: Install ROS tarball's dependencies
+        # TODO(sloretz) can't use rosdep here because we need the archive downloaded,
+        # but can't download the archive with bazel until we have the dependencies installed
+        # so bazel_ros2_rules can inspect it.
+        run: sudo apt-get install -y libconsole-bridge-dev
+      - name: Configure Bazel for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: drake_ros
+      - name: Build drake_ros
         run: bazel build //...
-        working-directory: drake_ros_core
-      - name: Test drake_ros_core
+        working-directory: drake_ros
+      - name: Test drake_ros
         run: bazel test //...
-        working-directory: drake_ros_core
+        working-directory: drake_ros

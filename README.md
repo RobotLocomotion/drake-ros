@@ -24,6 +24,12 @@ with the Gazebo and broader ROS ecosystem:
   mesh and geometry offsets are consistently interpreted between Drake and
   Gazebo. This may adjust the constituent URDF and/or SDFormat models.
 
+## Supported Configurations:
+  - Ubuntu 22.04 + ROS2 Humble (Recommended)
+  - Ubuntu 20.04 + ROS2 Rolling
+  - Architecture: x86_64 (amd64)
+  - Bazel >= 5.0
+
 ## Usable! But No Stability Commitment
 
 This code is prioritized for use within the TRI Dexterous Manipulation Group.
