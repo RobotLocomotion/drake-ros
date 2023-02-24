@@ -14,26 +14,29 @@ Run either the C++ `iiwa_manipulator` executable or the Python `iiwa_manipulator
 For the C++ version of the example, run the executable.
 
 ```
-# Use this command if you built the examples using Colcon/CMake
+# Using Colcon/CMake
 ros2 run drake_ros_examples iiwa_manipulator
-# Use this command if you built the examples using bazel
+
+# Using bazel
 bazel run //examples/iiwa_manipulator:iiwa_manipulator
 ```
 
 For the Python version of the example, run the Python script.
 
 ```
-# Use this command if you built the examples using Colcon/CMake
+# Using Colcon/CMake
 ros2 run drake_ros_examples iiwa_manipulator.py
-# Use this command if you built the examples using bazel
+
+# Using bazel
 bazel run //examples/iiwa_manipulator:iiwa_manipulator_py
 ```
 
 Run RViz in a different terminal with your ROS installation sourced to visualize the station:
 
 ```
-# Use this command if you built the examples using Colcon/CMake
+# Using Colcon/CMake
 ros2 run rviz2 rviz2 -d examples/iiwa_manipulator/iiwa_manipulator.rviz
-# Use this command if you built the examples using bazel
+
+# Using bazel
 bazel run @ros2//:rviz2 -- -d examples/iiwa_manipulator/iiwa_manipulator.rviz
 ```

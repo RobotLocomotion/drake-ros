@@ -18,27 +18,30 @@ Run either the C++ executable or the Python script.
 For the C++ version of the example, run the executable.
 
 ```
-# Use this command if you built the examples using Colcon/CMake
+# Using Colcon/CMake
 ros2 run drake_ros_examples multirobot
-# Use this command if you built the examples using bazel
+
+# Using bazel
 bazel run //examples/multirobot:multirobot
 ```
 
 For the Python version of the example, run the Python script.
 
 ```
-# Use this command if you built the examples using Colcon/CMake
+# Using Colcon/CMake
 ros2 run drake_ros_examples multirobot.py
-# Use this command if you built the examples using bazel
+
+# Using bazel
 bazel run //examples/multirobot:multirobot_py
 ```
 
 In a separate terminal, launch RViz and provide the path to the configuration file to visualise the robots.
 
 ```
-# Use this command if you built the examples using Colcon/CMake
+# Using Colcon/CMake
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix drake_ros_examples)/share/drake_ros_examples/multirobot.rviz
-# Use this command if you built the examples using bazel
+
+# Using bazel
 bazel run @ros2//:rviz2 -- -d examples/multirobot/multirobot.rviz
 ```
 
