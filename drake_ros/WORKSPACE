@@ -23,20 +23,13 @@ add_bazel_ros2_rules_dependencies()
 
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
 
+load("//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
+load("//:required_packages.bzl", "DRAKE_ROS_TEST_DEPENDENCIES")
+
 # Use ROS 2
 ros2_archive(
     name = "ros2",
-    include_packages = [
-        "geometry_msgs",
-        "rclpy",
-        "rclcpp",
-        "rosidl_runtime_c",
-        "rosidl_typesupport_cpp",
-        "test_msgs",
-        "tf2_ros",
-        "tf2_ros_py",
-        "visualization_msgs",
-    ],
+    include_packages = DRAKE_ROS_REQUIRED_PACKAGES + DRAKE_ROS_TEST_DEPENDENCIES,  # noqa
     sha256_url = "https://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci-CHECKSUM",  # noqa
     strip_prefix = "ros2-linux",
     url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa

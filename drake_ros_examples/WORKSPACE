@@ -21,28 +21,35 @@ add_bazel_ros2_rules_dependencies()
 
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
 
+local_repository(
+    name = "drake_ros",
+    path = "../drake_ros",
+)
+
+load("@drake_ros//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
+load("@drake_ros//:required_packages.bzl", "drake_ros_fail_if_missing_required_packages")
+
+ROS_PACKAGES = DRAKE_ROS_REQUIRED_PACKAGES + [
+    "geometry_msgs",
+    "rclcpp",
+    "rclpy",
+    "ros2cli_common_extensions",
+    "rviz2",
+    "tf2_ros",
+    "tf2_ros_py",
+    "visualization_msgs",
+]
+drake_ros_fail_if_missing_required_packages(ROS_PACKAGES)
+
 # Use ROS 2
 ros2_archive(
     name = "ros2",
-    include_packages = [
-        "geometry_msgs",
-        "rclcpp",
-        "rclpy",
-        "ros2cli_common_extensions",
-        "rviz2",
-        "tf2_ros",
-        "tf2_ros_py",
-        "visualization_msgs",
-    ],
+    include_packages = ROS_PACKAGES,
     sha256_url = "https://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci-CHECKSUM",  # noqa
     strip_prefix = "ros2-linux",
     url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa
 )
 
-local_repository(
-    name = "drake_ros",
-    path = "../drake_ros",
-)
 load("@drake_ros//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
 
 http_archive(
