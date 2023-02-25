@@ -7,6 +7,10 @@ load("@ros2//:ros_py.bzl", "ros_py_binary")
 ros_cc_binary(
     name = "multirobot",
     srcs = ["multirobot.cc"],
+    data = [
+        "@drake//manipulation/models/iiwa_description:models",
+    ],
+    visibility = ["//visibility:public"],
     deps = [
         "@drake//common:find_resource",
         "@drake//geometry:drake_visualizer",  # TODO(sloretz) remove in Jammy
@@ -15,20 +19,20 @@ ros_cc_binary(
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/primitives:constant_vector_source",
-        "@drake_ros//core:core",
-        "@drake_ros//tf2:tf2",
-        "@drake_ros//viz:viz",
+        "@drake_ros//core",
+        "@drake_ros//tf2",
+        "@drake_ros//viz",
     ],
-    data = [
-        "@drake//manipulation/models/iiwa_description:models",
-    ],
-    visibility = ["//visibility:public"],
 )
 
 ros_py_binary(
     name = "multirobot_py",
     srcs = ["multirobot.py"],
+    data = [
+        "@drake//manipulation/models/iiwa_description:models",
+    ],
     main = "multirobot.py",
+    visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
         "@drake_ros//core:core_py",
@@ -36,8 +40,4 @@ ros_py_binary(
         "@drake_ros//viz:viz_py",
         "@ros2//:rclpy_py",
     ],
-    data = [
-        "@drake//manipulation/models/iiwa_description:models",
-    ],
-    visibility = ["//visibility:public"],
 )
