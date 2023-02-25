@@ -43,16 +43,14 @@ ros2_archive(
 )
 
 # Depend on Drake
-DRAKE_TAG = "v1.10.0"
-
-DRAKE_CHECKSUM = "78bd251bcfb349c988ee9225175a803a50cc53eaacdeb3bba200dfc82dcea305"  # noqa
+load("//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
 
 http_archive(
     name = "drake",
-    sha256 = DRAKE_CHECKSUM,
-    strip_prefix = "drake-{}".format(DRAKE_TAG.lstrip("v")),
+    sha256 = DRAKE_SUGGESTED_VERSION.sha256,
+    strip_prefix = DRAKE_SUGGESTED_VERSION.strip_prefix,
     urls = [
-        "https://github.com/RobotLocomotion/drake/archive/refs/tags/{}.tar.gz".format(DRAKE_TAG),  # noqa
+        DRAKE_SUGGESTED_VERSION.url,
     ],
 )
 

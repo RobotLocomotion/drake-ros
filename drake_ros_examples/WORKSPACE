@@ -39,25 +39,21 @@ ros2_archive(
     url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa
 )
 
-# Depend on Drake
-DRAKE_TAG = "v1.10.0"
-
-DRAKE_CHECKSUM = "78bd251bcfb349c988ee9225175a803a50cc53eaacdeb3bba200dfc82dcea305"  # noqa
+local_repository(
+    name = "drake_ros",
+    path = "../drake_ros",
+)
+load("@drake_ros//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
 
 http_archive(
     name = "drake",
-    sha256 = DRAKE_CHECKSUM,
-    strip_prefix = "drake-{}".format(DRAKE_TAG.lstrip("v")),
+    sha256 = DRAKE_SUGGESTED_VERSION.sha256,
+    strip_prefix = DRAKE_SUGGESTED_VERSION.strip_prefix,
     urls = [
-        "https://github.com/RobotLocomotion/drake/archive/refs/tags/{}.tar.gz".format(DRAKE_TAG),  # noqa
+        DRAKE_SUGGESTED_VERSION.url,
     ],
 )
 
 load("@drake//tools/workspace:default.bzl", "add_default_workspace")
 
 add_default_workspace()
-
-local_repository(
-    name = "drake_ros",
-    path = "../drake_ros",
-)
