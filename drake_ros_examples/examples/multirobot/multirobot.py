@@ -18,7 +18,7 @@ from pydrake.common import FindResourceOrThrow
 from pydrake.geometry import DrakeVisualizer
 from pydrake.math import RigidTransform
 from pydrake.multibody.parsing import Parser
-from pydrake.multibody.plant import AddMultibodyPlantSceneGraph
+from pydrake.multibody.plant import AddMultibodyPlant, MultibodyPlantConfig
 from pydrake.multibody.tree import JointIndex
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
@@ -26,7 +26,7 @@ from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantVectorSource
 
 
-if __name__ == '__main__':
+def main():
     # Create a Drake diagram
     builder = DiagramBuilder()
     # Initialise the ROS infrastructure
@@ -35,14 +35,20 @@ if __name__ == '__main__':
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem('multirobot'))
 
     # Add a multibody plant and a scene graph to hold the robots
-    plant, scene_graph = AddMultibodyPlantSceneGraph(builder, time_step=0.001)
+    print(MultibodyPlantConfig())
+    plant, scene_graph = AddMultibodyPlant(
+        MultibodyPlantConfig(time_step=0.001, discrete_contact_solver="sap"),
+        builder,
+    )
 
+    viz_dt = 1 / 32.0
     # Add a TF2 broadcaster to provide task frame information
     scene_tf_broadcaster = builder.AddSystem(
         SceneTfBroadcasterSystem(
             sys_ros_interface.get_ros_interface(),
             params=SceneTfBroadcasterParams(
-                publish_triggers={TriggerType.kForced}
+                publish_triggers={TriggerType.kPeriodic},
+                publish_period=viz_dt,
             )
         )
     )
@@ -55,8 +61,8 @@ if __name__ == '__main__':
         RvizVisualizer(
             sys_ros_interface.get_ros_interface(),
             params=RvizVisualizerParams(
-                publish_triggers={TriggerType.kForced},
-                publish_period=0.0
+                publish_triggers={TriggerType.kPeriodic},
+                publish_period=viz_dt,
             )
         )
     )
@@ -70,9 +76,9 @@ if __name__ == '__main__':
         'drake/manipulation/models/iiwa_description/urdf/iiwa14_polytope_collision.urdf')
     model_name = "kuka_iiwa"
 
-    # Create a 10x10 array of manipulators
-    NUM_ROWS = 10
-    NUM_COLS = 10
+    # Create a 5x5 array of manipulators
+    NUM_ROWS = 5
+    NUM_COLS = 5
     models = []
     for x in range(NUM_ROWS):
         models.append([])
@@ -119,5 +125,7 @@ if __name__ == '__main__':
     # Step the simulator in 0.1s intervals
     while True:
         simulator.AdvanceTo(simulator_context.get_time() + 0.1)
-        # At each time step, trigger the publication of the diagram's outputs
-        diagram.ForcedPublish(simulator_context)
+
+
+if __name__ == '__main__':
+    main()
