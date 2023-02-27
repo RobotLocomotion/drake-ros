@@ -4,6 +4,7 @@ target_link_libraries(multirobot
   drake_ros::drake_ros_core
   drake_ros::drake_ros_tf2
   drake_ros::drake_ros_viz
+  gflags::gflags
 )
 
 install(

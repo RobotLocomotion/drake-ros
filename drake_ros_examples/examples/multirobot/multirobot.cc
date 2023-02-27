@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <filesystem>
+#include <limits>
 #include <memory>
 
 #include <drake/common/find_resource.h>
@@ -26,6 +27,12 @@
 #include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/tf2/scene_tf_broadcaster_system.h>
 #include <drake_ros/viz/rviz_visualizer.h>
+#include <gflags/gflags.h>
+
+DEFINE_double(
+  simulation_sec,
+  std::numeric_limits<double>::infinity(),
+  "How many seconds to run the simulation");
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -33,7 +40,8 @@ using drake_ros_core::RosInterfaceSystem;
 using drake::systems::ConstantVectorSource;
 using drake::systems::Simulator;
 
-int main() {
+int main(int argc, char ** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, false);
   // Create a Drake diagram
   drake::systems::DiagramBuilder<double> builder;
 
@@ -122,12 +130,18 @@ int main() {
 
   // Create a simulator for the system
   auto simulator = std::make_unique<Simulator<double>>(*diagram);
+  simulator->Initialize();
   auto& simulator_context = simulator->get_mutable_context();
   simulator->set_target_realtime_rate(1.0);
 
   // Step the simulator in 0.1s intervals
-  while (true) {
-    simulator->AdvanceTo(simulator_context.get_time() + 0.1);
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_sec) {
+    if (FLAGS_simulation_sec - simulator_context.get_time() < kStep) {
+      simulator->AdvanceTo(FLAGS_simulation_sec);
+    } else {
+      simulator->AdvanceTo(simulator_context.get_time() + kStep);
+    }
     // At each time step, trigger the publication of the diagram's outputs
     diagram->ForcedPublish(simulator_context);
   }

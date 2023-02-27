@@ -12,6 +12,7 @@ ros_cc_binary(
     ],
     visibility = ["//visibility:public"],
     deps = [
+        "@gflags//:gflags",
         "@drake//common:find_resource",
         "@drake//geometry:drake_visualizer",  # TODO(sloretz) remove in Jammy
         "@drake//multibody/parsing:parser",
@@ -40,4 +41,18 @@ ros_py_binary(
         "@drake_ros//viz:viz_py",
         "@ros2//:rclpy_py",
     ],
+)
+
+sh_test(
+    name = "multirobot_test",
+    srcs = ["test/run_multirobot.sh"],
+    data = [":multirobot"],
+    args = ["$(location :multirobot)"]
+)
+
+sh_test(
+    name = "multirobot_py_test",
+    srcs = ["test/run_multirobot.sh"],
+    data = [":multirobot_py"],
+    args = ["$(location :multirobot_py)"]
 )

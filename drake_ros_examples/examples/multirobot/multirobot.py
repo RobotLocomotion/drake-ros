@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import os.path
 import pathlib
@@ -26,7 +27,7 @@ from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantVectorSource
 
 
-if __name__ == '__main__':
+def main(simulation_sec: float):
     # Create a Drake diagram
     builder = DiagramBuilder()
     # Initialise the ROS infrastructure
@@ -113,11 +114,30 @@ if __name__ == '__main__':
 
     # Create a simulator for the system
     simulator = Simulator(diagram)
+    simulator.Initialize()
     simulator_context = simulator.get_mutable_context()
     simulator.set_target_realtime_rate(1.0)
 
     # Step the simulator in 0.1s intervals
-    while True:
-        simulator.AdvanceTo(simulator_context.get_time() + 0.1)
+    step = 0.1
+    while simulator_context.get_time() < simulation_sec:
+        if simulation_sec - simulator_context.get_time() < step:
+            simulator.AdvanceTo(simulation_sec)
+        else:
+            simulator.AdvanceTo(simulator_context.get_time() + step)
         # At each time step, trigger the publication of the diagram's outputs
         diagram.ForcedPublish(simulator_context)
+
+
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument(
+        '--simulation_sec',
+        type=float,
+        default=float('inf'),
+        help='How many seconds to run the simulation')
+    return p.parse_args()
+
+
+if __name__ == '__main__':
+    main(parse_args().simulation_sec)
