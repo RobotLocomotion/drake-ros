@@ -91,10 +91,12 @@ def scrape_distribution(include=None, exclude=None):
         index_all_packages(), include, exclude)
     executables = list_all_executables()
     ld_library_path = os.environ['LD_LIBRARY_PATH']
+    ros_distro = os.environ['ROS_DISTRO']
     return {
         'packages': packages,
         'dependency_graph': dependency_graph,
         'executables': executables,
+        'ros_distro': ros_distro,
         'paths': {
             'ament_prefix': ament_index_python.get_search_paths(),
             'library_load': ld_library_path.split(os.path.pathsep),

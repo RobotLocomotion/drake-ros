@@ -13,3 +13,10 @@ test --test_env=ROS_HOME=/does_not_exist/instead_please_reconfigure_in_test
 
 # Disable ROS communication with other machines
 test --test_env=ROS_LOCALHOST_ONLY=1
+
+# Default test options.
+test --test_output=errors
+test --test_summary=terse
+
+# Try to import user-specific configuration local to workspace.
+try-import %workspace%/user.bazelrc
