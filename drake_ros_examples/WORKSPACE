@@ -27,7 +27,10 @@ local_repository(
 )
 
 load("@drake_ros//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
-load("@drake_ros//:required_packages.bzl", "drake_ros_fail_if_missing_required_packages")
+load(
+    "@drake_ros//:required_packages.bzl",
+    "drake_ros_fail_if_missing_required_packages",
+)
 
 ROS_PACKAGES = DRAKE_ROS_REQUIRED_PACKAGES + [
     "geometry_msgs",
