@@ -27,7 +27,15 @@ from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantVectorSource
 
 
-def main(simulation_sec: float):
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument(
+        '--simulation_sec',
+        type=float,
+        default=float('inf'),
+        help='How many seconds to run the simulation')
+    args = p.parse_args()
+
     # Create a Drake diagram
     builder = DiagramBuilder()
     # Initialise the ROS infrastructure
@@ -126,22 +134,12 @@ def main(simulation_sec: float):
 
     # Step the simulator in 0.1s intervals
     step = 0.1
-    while simulator_context.get_time() < simulation_sec:
-        if simulation_sec - simulator_context.get_time() < step:
-            simulator.AdvanceTo(simulation_sec)
+    while simulator_context.get_time() < args.simulation_sec:
+        if args.simulation_sec - simulator_context.get_time() < step:
+            simulator.AdvanceTo(args.simulation_sec)
         else:
             simulator.AdvanceTo(simulator_context.get_time() + step)
 
 
-def parse_args():
-    p = argparse.ArgumentParser()
-    p.add_argument(
-        '--simulation_sec',
-        type=float,
-        default=float('inf'),
-        help='How many seconds to run the simulation')
-    return p.parse_args()
-
-
 if __name__ == '__main__':
-    main(parse_args().simulation_sec)
+    main()
