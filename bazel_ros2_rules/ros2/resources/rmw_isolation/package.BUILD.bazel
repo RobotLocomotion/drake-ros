@@ -85,7 +85,7 @@ sh_test(
     data = [":isolated_talker_py", ":isolated_listener_py"],
     size = "small",
     # Set flaky because collision rates are non-zero,
-    # See ROS2 Skylark tooling README.md for further reference.
+    # See ROS 2 Skylark tooling README.md for further reference.
     flaky = True,
 )
 
@@ -121,6 +121,6 @@ sh_test(
     data = [":isolated_talker_cc", ":isolated_listener_cc"],
     size = "small",
     # Set flaky because collision rates are non-zero,
-    # See ROS2 Skylark tooling README.md for further reference.
+    # See ROS 2 Skylark tooling README.md for further reference.
     flaky = True,
 )

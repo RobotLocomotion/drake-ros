@@ -26,6 +26,7 @@ from pydrake.systems.primitives import Adder
 from pydrake.systems.primitives import ConstantVectorSource
 from pydrake.systems.primitives import Sine
 
+
 def main():
     builder = DiagramBuilder()
 
