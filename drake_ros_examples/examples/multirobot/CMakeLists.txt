@@ -1,12 +1,10 @@
-find_package(gflags REQUIRED)
-
 add_executable(multirobot multirobot.cc)
 target_link_libraries(multirobot
   drake::drake
   drake_ros::drake_ros_core
   drake_ros::drake_ros_tf2
   drake_ros::drake_ros_viz
-  gflags::gflags_shared
+  gflags_shared
 )
 
 install(
