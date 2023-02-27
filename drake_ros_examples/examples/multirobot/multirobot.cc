@@ -20,6 +20,7 @@
 #include <drake/geometry/drake_visualizer.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
+#include <drake/multibody/plant/multibody_plant_config_functions.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
@@ -39,6 +40,7 @@ using drake_ros_core::RosInterfaceSystem;
 
 using drake::systems::ConstantVectorSource;
 using drake::systems::Simulator;
+using drake::systems::TriggerType;
 
 int main(int argc, char ** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -52,15 +54,19 @@ int main(int argc, char ** argv) {
       std::make_unique<DrakeRos>("multirobot_node"));
 
   // Add a multibody plant and a scene graph to hold the robots
+  drake::multibody::MultibodyPlantConfig plant_config;
+  plant_config.time_step = 0.001;
+  plant_config.discrete_contact_solver = "sap";
   auto [plant, scene_graph] =
-      drake::multibody::AddMultibodyPlantSceneGraph(&builder, 0.001);
+      drake::multibody::AddMultibodyPlant(plant_config, &builder);
 
+  const double viz_dt = 1 / 32.0;
   // Add a TF2 broadcaster to provide task frame information
   auto scene_tf_broadcaster =
       builder.AddSystem<drake_ros_tf2::SceneTfBroadcasterSystem>(
           ros_interface_system->get_ros_interface(),
           drake_ros_tf2::SceneTfBroadcasterParams{
-              {drake::systems::TriggerType::kForced}, 0., "/tf"});
+              {TriggerType::kPeriodic}, viz_dt, "/tf"});
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_tf_broadcaster->get_graph_query_input_port());
 
@@ -68,7 +74,7 @@ int main(int argc, char ** argv) {
   auto scene_visualizer = builder.AddSystem<drake_ros_viz::RvizVisualizer>(
       ros_interface_system->get_ros_interface(),
       drake_ros_viz::RvizVisualizerParams{
-          {drake::systems::TriggerType::kForced}, 0., true});
+          {TriggerType::kPeriodic}, viz_dt, true});
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_visualizer->get_graph_query_input_port());
 
@@ -79,9 +85,9 @@ int main(int argc, char ** argv) {
       "iiwa14_polytope_collision.urdf");
   const std::string model_name = "kuka_iiwa";
 
-  // Create a 10x10 array of manipulators
-  size_t kNumRows = 10;
-  size_t kNumCols = 10;
+  // Create a 5x5 array of manipulators
+  size_t kNumRows = 5;
+  size_t kNumCols = 5;
   std::vector<std::vector<drake::multibody::ModelInstanceIndex>> models;
   for (uint8_t xx = 0; xx < kNumRows; ++xx) {
     std::vector<drake::multibody::ModelInstanceIndex> models_xx;
@@ -142,8 +148,6 @@ int main(int argc, char ** argv) {
     } else {
       simulator->AdvanceTo(simulator_context.get_time() + kStep);
     }
-    // At each time step, trigger the publication of the diagram's outputs
-    diagram->ForcedPublish(simulator_context);
   }
 
   return 0;

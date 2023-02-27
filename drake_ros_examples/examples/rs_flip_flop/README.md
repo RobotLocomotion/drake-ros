@@ -16,29 +16,25 @@ And publish to the following topics
 ## How To
 
 Run either the C++ executable or the Python script.
-For the C++ version of the example, run the executable.
 
-```
+
+```sh
 # Using Colcon/CMake
+# C++
 ros2 run drake_ros_examples rs_flip_flop
-
-# Using bazel
-bazel run //examples/rs_flip_flop:rs_flip_flop
-```
-
-For the Python version of the example, run the Python script.
-
-```
-# Using Colcon/CMake
+# Python
 ros2 run drake_ros_examples rs_flip_flop.py
 
 # Using bazel
+# C++
+bazel run //examples/rs_flip_flop:rs_flip_flop
+# Python
 bazel run //examples/rs_flip_flop:rs_flip_flop_py
 ```
 
-Run the following commands in different terminals with your ROS installation sourced to echo the output topics:
+Run the following commands in different terminals
 
-```
+```sh
 # Using Colcon/CMake
 ros2 topic echo /Q
 
@@ -46,32 +42,35 @@ ros2 topic echo /Q
 bazel run @ros2//:ros2 topic echo /Q
 ```
 
-```
-# Use this command if you built the examples using Colcon/CMake
+```sh
+# Using Colcon/CMake
 ros2 topic echo /Q_not
-# Use this command if you built the examples using bazel
+# Using bazel
 bazel run @ros2//:ros2 topic echo /Q_not
 ```
 
-Run these commands in different terminals with your ROS installation sourced to play with the input topics.
+Run these commands in different terminals to play with the input topics. \
 The first two commands will cause `Q` to turn true.
 
-```
-# Use these commands if you built the examples using Colcon/CMake
+```sh
+# Using Colcon/CMake
 ros2 topic pub /S std_msgs/msg/Bool "data: false"
 ros2 topic pub /R std_msgs/msg/Bool "data: true"
-# Use these commands if you built the examples using bazel
+# Using bazel
 bazel run @ros2//:ros2 topic pub /S std_msgs/msg/Bool "data: false"
 bazel run @ros2//:ros2 topic pub /R std_msgs/msg/Bool "data: true"
 ```
 
 Run these next two commands to turn `Q` false again.
 
-```
-# Use these commands if you built the examples using Colcon/CMake
+```sh
+# Using Colcon/CMake
 ros2 topic pub /R std_msgs/msg/Bool "data: false"
 ros2 topic pub /S std_msgs/msg/Bool "data: true"
-# Use these commands if you built the examples using bazel
+# Using bazel
 bazel run @ros2//:ros2 topic pub /R std_msgs/msg/Bool "data: false"
 bazel run @ros2//:ros2 topic pub /S std_msgs/msg/Bool "data: true"
 ```
+
+**Note**: All terminals should have their environment setup appropriately. See
+`drake_ros_examples` for an example of how to do so.
