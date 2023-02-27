@@ -1,3 +1,5 @@
+find_package(gflags REQUIRED)
+
 add_executable(multirobot multirobot.cc)
 target_link_libraries(multirobot
   drake::drake
