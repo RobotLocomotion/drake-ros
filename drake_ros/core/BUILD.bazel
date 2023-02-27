@@ -132,8 +132,8 @@ ros_py_test(
     deps = [
         ":drake_ros_core_py",
         "@drake//bindings/pydrake",
-        "@ros2//:rclpy_py",
         "@ros2//:geometry_msgs_py",
+        "@ros2//:rclpy_py",
         "@ros2//:test_msgs_py",
     ],
 )
