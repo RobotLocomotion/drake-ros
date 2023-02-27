@@ -39,6 +39,7 @@ ROS_PACKAGES = DRAKE_ROS_REQUIRED_PACKAGES + [
     "tf2_ros_py",
     "visualization_msgs",
 ]
+
 drake_ros_fail_if_missing_required_packages(ROS_PACKAGES)
 
 # Use ROS 2
