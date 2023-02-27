@@ -13,7 +13,7 @@ ros_cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@drake//common:find_resource",
-        "@drake//geometry:drake_visualizer",  # TODO(sloretz) remove in Jammy
+        "@drake//geometry:drake_visualizer",
         "@drake//multibody/parsing:parser",
         "@drake//multibody/plant",
         "@drake//systems/analysis:simulator",
