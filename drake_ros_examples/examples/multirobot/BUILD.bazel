@@ -3,6 +3,7 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary")
+load("@ros2//:ros_py.bzl", "ros_py_test")
 
 ros_cc_binary(
     name = "multirobot",
@@ -43,16 +44,16 @@ ros_py_binary(
     ],
 )
 
-sh_test(
+ros_py_test(
     name = "multirobot_test",
-    srcs = ["test/run_multirobot.sh"],
-    args = ["$(location :multirobot)"],
-    data = [":multirobot"],
-)
-
-sh_test(
-    name = "multirobot_py_test",
-    srcs = ["test/run_multirobot.sh"],
-    args = ["$(location :multirobot_py)"],
-    data = [":multirobot_py"],
+    srcs = ["test/run_multirobot.py"],
+    main = "test/run_multirobot.py",
+    data = [
+        ":multirobot",
+        ":multirobot_py",
+    ],
+    deps = [
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@rules_python//python/runfiles",
+    ]
 )
