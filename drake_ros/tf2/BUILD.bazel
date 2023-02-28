@@ -18,6 +18,10 @@ load(
     "@drake//tools/skylark:pybind.bzl",
     "pybind_py_library",
 )
+load(
+    "@drake_ros//tools/skylark:drake_ros_pybind.bzl",
+    "drake_ros_cc_shared_library",
+)
 
 PYBIND_EXCLUDES = [
     "**/*_py.cc",
@@ -25,25 +29,45 @@ PYBIND_EXCLUDES = [
 ]
 
 # TODO(sloretz) more granular targets for static linking
+_cc_srcs = glob(
+    [
+        "*.cc",
+        "*.h",
+    ],
+    exclude = PYBIND_EXCLUDES,
+)
+
+_cc_hdrs = glob(
+    ["*.h"],
+    exclude = PYBIND_EXCLUDES + ["internal_*.h"],
+)
+
 cc_library(
     name = "tf2",
-    srcs = glob(
-        [
-            "*.cc",
-            "*.h",
-        ],
-        exclude = PYBIND_EXCLUDES,
-    ),
-    hdrs = glob(
-        ["*.h"],
-        exclude = PYBIND_EXCLUDES + ["internal_*.h"],
-    ),
+    srcs = _cc_srcs,
+    hdrs = _cc_hdrs,
     include_prefix = "drake_ros/tf2",
     visibility = ["//visibility:public"],
     deps = [
         "//core",
         "@drake//geometry:scene_graph_inspector",
         "@drake//multibody/plant",
+        "@ros2//:geometry_msgs_cc",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:tf2_ros_cc",
+    ],
+)
+
+drake_ros_cc_shared_library(
+    name = "shared_library",
+    srcs = _cc_srcs,
+    hdrs = _cc_hdrs,
+    include_prefix = "drake_ros/tf2",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//core:shared_library",
+        "@drake//:drake_shared_library",
+        "@eigen",
         "@ros2//:geometry_msgs_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:tf2_ros_cc",
@@ -76,11 +100,8 @@ cc_library(
 pybind_py_library(
     name = "cc_py",
     cc_deps = [
-        # TODO(sloretz) - depend on a shared library target
-        # This links statically, and so can lead to ODR violations if the
-        # python and C++ libraries are depended upon by the same python target.
-        ":tf2",
         ":python_bindings_internal_hdrs",
+        ":shared_library",
     ],
     cc_so_name = "_cc",
     cc_srcs = ["cc_py.cc"],
