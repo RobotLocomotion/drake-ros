@@ -9,7 +9,7 @@
 #include "drake_ros/tf2/scene_tf_broadcaster_system.h"
 
 namespace drake_ros {
-namespace drake_ros_py {
+namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
@@ -58,5 +58,5 @@ void DefTf2(py::module m) {
            py::return_value_policy::reference_internal);
 }
 
-}  // namespace drake_ros_py
+}  // namespace DRAKE_ROS_NO_EXPORT
 }  // namespace drake_ros

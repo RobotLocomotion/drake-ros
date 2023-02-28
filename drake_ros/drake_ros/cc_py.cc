@@ -3,7 +3,7 @@
 #include "drake_ros/drake_ros_pybind.h"
 
 namespace drake_ros {
-namespace drake_ros_py {
+namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
 void DefCore(py::module m);
 void DefTf2(py::module m);
@@ -20,5 +20,5 @@ PYBIND11_MODULE(_cc, m) {
 }
 
 }  // namespace
-}  // namespace drake_ros_py
+}  // namespace DRAKE_ROS_NO_EXPORT
 }  // namespace drake_ros
