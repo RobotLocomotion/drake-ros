@@ -11,6 +11,7 @@
 #include "drake_ros/core/ros_publisher_system.h"
 #include "drake_ros/core/ros_subscriber_system.h"
 #include "drake_ros/core/serializer_interface.h"
+#include "drake_ros/drake_ros_pybind.h"
 
 namespace drake_ros {
 namespace drake_ros_py {
@@ -26,9 +27,13 @@ using drake_ros_core::shutdown;
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
 
+// TODO(eric.cousineau): Why is DRAKE_ROS_NO_EXPORT necessary on the below
+// class when `drake_ros_py` is private per `drake_ros_pybind.h`?
+
 // A (de)serialization interface implementation for Python ROS messages
 // that can be overriden from Python itself.
-class PySerializerInterface : public py::wrapper<SerializerInterface> {
+class DRAKE_ROS_NO_EXPORT PySerializerInterface
+    : public py::wrapper<SerializerInterface> {
  public:
   using Base = py::wrapper<SerializerInterface>;
 
