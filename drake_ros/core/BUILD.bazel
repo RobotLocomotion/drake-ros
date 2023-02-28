@@ -1,14 +1,4 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
-load("@ros2//:ros_py.bzl", "ros_py_test")
-load(
-    "@drake//tools/skylark:pybind.bzl",
-    "pybind_py_library",
-)
-
-PYBIND_EXCLUDES = [
-    "*_py.cc",
-    "*_pybind.h",
-]
 
 # TODO(sloretz) more granular targets for static linking
 cc_library(
@@ -18,11 +8,9 @@ cc_library(
             "*.cc",
             "*.h",
         ],
-        exclude = PYBIND_EXCLUDES,
     ),
     hdrs = glob(
         ["*.h"],
-        exclude = PYBIND_EXCLUDES,
     ),
     include_prefix = "drake_ros/core",
     visibility = ["//visibility:public"],
@@ -37,25 +25,6 @@ cc_library(
         "@ros2//:rosidl_runtime_c_cc",
         "@ros2//:rosidl_typesupport_cpp_cc",
     ],
-)
-
-cc_library(
-    name = "python_bindings_internal_hdrs",
-    hdrs = glob(["*_pybind.h"]),
-    include_prefix = "drake_ros/core",
-)
-
-pybind_py_library(
-    name = "core_py",
-    cc_deps = [
-        ":core",
-        ":python_bindings_internal_hdrs",
-    ],
-    cc_so_name = "_drake_ros_core",
-    cc_srcs = glob(["*_py.cc"]),
-    py_imports = ["."],
-    py_srcs = glob(["*.py"]),
-    visibility = ["//visibility:public"],
 )
 
 ros_cc_test(
@@ -95,18 +64,5 @@ ros_cc_test(
     deps = [
         ":core",
         "@com_google_googletest//:gtest_main",
-    ],
-)
-
-ros_py_test(
-    name = "test_pub_sub_py",
-    srcs = ["test/test_pub_sub.py"],
-    main = "test/test_pub_sub.py",
-    deps = [
-        ":core_py",
-        "@drake//bindings/pydrake",
-        "@ros2//:rclpy_py",
-        "@ros2//:test_msgs_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )

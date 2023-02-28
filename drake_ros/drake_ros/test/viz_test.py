@@ -16,9 +16,9 @@ from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.primitives import ConstantVectorSource
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_viz import RvizVisualizer
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.viz import RvizVisualizer
 
 
 class ManagedSubscription:
@@ -93,7 +93,7 @@ class ManagedSubscription:
 
 class DrakeTestSystem:
     def __init__(self):
-        drake_ros_core.init()
+        drake_ros.core.init()
 
         builder = DiagramBuilder()
         ros_interface_system = builder.AddSystem(
@@ -166,3 +166,7 @@ def test_receive_visual_marker_array():
         )
         assert len(mesh_resources) >= 1
         assert "" not in mesh_resources
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main(sys.argv))

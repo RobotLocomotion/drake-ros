@@ -12,9 +12,16 @@
 #include "drake_ros/core/ros_subscriber_system.h"
 #include "drake_ros/core/serializer_interface.h"
 
-namespace drake_ros_core {
-namespace drake_ros_core_py {
-namespace {
+namespace drake_ros {
+namespace drake_ros_py {
+
+using drake_ros_core::DrakeRos;
+using drake_ros_core::init;
+using drake_ros_core::RosInterfaceSystem;
+using drake_ros_core::RosPublisherSystem;
+using drake_ros_core::RosSubscriberSystem;
+using drake_ros_core::SerializerInterface;
+using drake_ros_core::shutdown;
 
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
@@ -67,11 +74,8 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
   }
 };
 
-PYBIND11_MODULE(_drake_ros_core, m) {
-  m.doc() = "Python bindings for drake_ros_core";
-  // Force module name in docstrings to match
-  // that of the outer module.
-  m.attr("__name__") = "drake_ros_core";
+void DefCore(py::module m) {
+  m.doc() = "Python bindings for drake_ros.core";
 
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
@@ -153,6 +157,5 @@ PYBIND11_MODULE(_drake_ros_core, m) {
       }));
 }
 
-}  // namespace
-}  // namespace drake_ros_core_py
-}  // namespace drake_ros_core
+}  // namespace drake_ros_py
+}  // namespace drake_ros

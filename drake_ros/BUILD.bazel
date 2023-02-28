@@ -1,0 +1,16 @@
+load("@ros2//:ros_py.bzl", "ros_py_test")
+
+py_library(
+    name = "drake_ros_py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//drake_ros:drake_ros_py",
+    ],
+)
+
+ros_py_test(
+    name = "import_test",
+    srcs = ["test/import_test.py"],
+    main = "test/import_test.py",
+    deps = [":drake_ros_py"],
+)

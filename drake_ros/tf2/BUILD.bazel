@@ -1,14 +1,4 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
-load("@ros2//:ros_py.bzl", "ros_py_test")
-load(
-    "@drake//tools/skylark:pybind.bzl",
-    "pybind_py_library",
-)
-
-PYBIND_EXCLUDES = [
-    "**/*_py.cc",
-    "**/*_pybind.h",
-]
 
 # TODO(sloretz) more granular targets for static linking
 cc_library(
@@ -18,11 +8,9 @@ cc_library(
             "*.cc",
             "*.h",
         ],
-        exclude = PYBIND_EXCLUDES,
     ),
     hdrs = glob(
         ["*.h"],
-        exclude = PYBIND_EXCLUDES + ["internal_*.h"],
     ),
     include_prefix = "drake_ros/tf2",
     visibility = ["//visibility:public"],
@@ -50,44 +38,5 @@ ros_cc_test(
         "@ros2//:rclcpp_cc",
         "@ros2//:tf2_ros_cc",
         "@ros2//resources/rmw_isolation:rmw_isolation_cc",
-    ],
-)
-
-cc_library(
-    name = "python_bindings_internal_hdrs",
-    hdrs = glob(["*_pybind.h"]),
-    include_prefix = "drake_ros/tf2",
-)
-
-pybind_py_library(
-    name = "tf2_py",
-    cc_deps = [
-        # TODO(sloretz) - depend on a shared library target
-        # This links statically, and so can lead to ODR violations if the
-        # python and C++ libraries are depended upon by the same python target.
-        ":tf2",
-        ":python_bindings_internal_hdrs",
-    ],
-    cc_so_name = "drake_ros_tf2",
-    cc_srcs = glob(["*_py.cc"]),
-    py_deps = [
-        "//core:core_py",
-    ],
-    py_imports = ["."],
-    py_srcs = glob(["*.py"]),
-    visibility = ["//visibility:public"],
-)
-
-ros_py_test(
-    name = "test_tf_broadcaster_py",
-    srcs = ["test/test_tf_broadcaster.py"],
-    legacy_create_init = False,
-    main = "test/test_tf_broadcaster.py",
-    deps = [
-        ":tf2_py",
-        "@drake//bindings/pydrake",
-        "@ros2//:rclpy_py",
-        "@ros2//:tf2_ros_py_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )

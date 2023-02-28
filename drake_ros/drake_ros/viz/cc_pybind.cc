@@ -5,22 +5,23 @@
 #include <pybind11/stl.h>
 
 #include "drake_ros/core/drake_ros.h"
-#include "drake_ros/viz/drake_ros_viz_pybind.h"
+#include "drake_ros/drake_ros_pybind.h"
 #include "drake_ros/viz/rviz_visualizer.h"
 
-namespace drake_ros_viz {
-namespace drake_ros_viz_py {
-namespace {
+namespace drake_ros {
+namespace drake_ros_py {
+
+using drake_ros_core::DrakeRos;
+using drake_ros_viz::RvizVisualizer;
+using drake_ros_viz::RvizVisualizerParams;
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
 
-using drake_ros_core::DrakeRos;
-
-PYBIND11_MODULE(drake_ros_viz, m) {
+void DefViz(py::module m) {
   m.doc() = "Python wrapper for drake_ros_viz";
 
-  py::module::import("drake_ros_core");
+  py::module::import("drake_ros.core");
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
 
@@ -51,6 +52,5 @@ PYBIND11_MODULE(drake_ros_viz, m) {
            py::return_value_policy::reference_internal);
 }
 
-}  // namespace
-}  // namespace drake_ros_viz_py
-}  // namespace drake_ros_viz
+}  // namespace drake_ros_py
+}  // namespace drake_ros
