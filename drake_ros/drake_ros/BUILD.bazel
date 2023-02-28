@@ -17,11 +17,7 @@ pybind_py_library(
     name = "cc_py",
     cc_deps = [
         ":python_bindings_internal_hdrs",
-        # TODO(sloretz, eric): Should depend on shared library to avoid ODR
-        # violations.
-        "//core",
-        "//tf2",
-        "//viz",
+        "//:drake_ros_shared_library",
     ],
     cc_so_name = "_cc",
     cc_srcs = [
@@ -88,4 +84,13 @@ ros_py_test(
         "@ros2//:visualization_msgs_py",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
+)
+
+# N.B. This test should fail if `cc_py` has its `cc_deps` on
+# `//:drake_ros_shared_library` changed to `//:drake_ros` (the static version).
+ros_py_test(
+    name = "odr_py_test",
+    srcs = ["test/odr_py_test.py"],
+    main = "test/odr_py_test.py",
+    deps = [":drake_ros_py"],
 )

@@ -11,9 +11,10 @@
 #include "drake_ros/core/ros_publisher_system.h"
 #include "drake_ros/core/ros_subscriber_system.h"
 #include "drake_ros/core/serializer_interface.h"
+#include "drake_ros/drake_ros_pybind.h"
 
 namespace drake_ros {
-namespace drake_ros_py {
+namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::init;
@@ -156,6 +157,7 @@ void DefCore(py::module m) {
             std::move(serializer), topic_name, qos, ros_interface);
       }));
 }
-
+// clang-format off
 }  // namespace drake_ros_py
+// clang-format on
 }  // namespace drake_ros
