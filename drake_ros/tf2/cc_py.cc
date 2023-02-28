@@ -29,10 +29,10 @@ using drake::systems::Diagram;
 using drake::systems::TriggerType;
 using drake_ros_core::DrakeRos;
 
-PYBIND11_MODULE(drake_ros_tf2, m) {
-  m.doc() = "Python wrapper for drake_ros_tf2";
+PYBIND11_MODULE(_cc, m) {
+  m.doc() = "Python wrapper for drake_ros.tf2";
 
-  py::module::import("drake_ros_core");
+  py::module::import("drake_ros.core");
 
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");

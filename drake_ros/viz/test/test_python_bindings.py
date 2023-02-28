@@ -24,9 +24,9 @@ import threading
 import time
 from visualization_msgs.msg import MarkerArray
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_viz import RvizVisualizer
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.viz import RvizVisualizer
 
 from pydrake.examples.manipulation_station import ManipulationStation
 from pydrake.systems.analysis import Simulator
@@ -106,11 +106,11 @@ class ManagedSubscription:
 
 class DrakeTestSystem:
     def __init__(self):
-        drake_ros_core.init()
+        drake_ros.core.init()
 
         builder = DiagramBuilder()
         ros_interface_system = builder.AddSystem(
-            RosInterfaceSystem('drake_ros_viz_test'))
+            RosInterfaceSystem('drake_ros.viz_test'))
 
         self.manipulation_station = builder.AddSystem(ManipulationStation())
         self.manipulation_station.SetupClutterClearingStation()

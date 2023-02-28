@@ -15,9 +15,9 @@
 
 import numpy as np
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_viz import RvizVisualizer
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.viz import RvizVisualizer
 
 from pydrake.examples.manipulation_station import ManipulationStation
 from pydrake.systems.analysis import Simulator
@@ -30,7 +30,7 @@ from pydrake.systems.primitives import Sine
 def main():
     builder = DiagramBuilder()
 
-    drake_ros_core.init()
+    drake_ros.core.init()
     ros_interface_system = builder.AddSystem(RosInterfaceSystem("iiwa_manipulator_node"))
 
     manipulation_station = builder.AddSystem(ManipulationStation())
