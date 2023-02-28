@@ -55,9 +55,12 @@ install(
 # Python bindings
 ###
 pybind11_add_module(py_drake_ros_tf2 SHARED
-  module_py.cc
+  cc_py.cc
 )
-set_target_properties(py_drake_ros_tf2 PROPERTIES OUTPUT_NAME "drake_ros_tf2")
+set_target_properties(py_drake_ros_tf2
+  PROPERTIES
+    OUTPUT_NAME "_cc"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/py/drake_ros/tf2/")
 target_link_libraries(py_drake_ros_tf2 PRIVATE drake_ros_tf2)
 
 # Sets PYTHON_INSTALL_DIR
@@ -65,7 +68,7 @@ ament_get_python_install_dir(python_install_dir)
 
 install(
   TARGETS py_drake_ros_tf2
-  DESTINATION "${python_install_dir}"
+  DESTINATION "${python_install_dir}/drake_ros/tf2/"
 )
 ### End Python bindings
 
@@ -88,7 +91,10 @@ if(BUILD_TESTING)
     _TEST_DISABLE_RMW_ISOLATION
   )
 
-  ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py)
+  ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py
+    # Let Python import mock-install structure in build folder
+    APPEND_ENV
+      "PYTHONPATH=${PROJECT_BINARY_DIR}/py/")
 
   ament_add_gtest(test_tf2_name_conventions test/test_name_conventions.cc)
   target_include_directories(test_tf2_name_conventions

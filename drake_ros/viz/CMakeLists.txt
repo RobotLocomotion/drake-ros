@@ -55,9 +55,12 @@ install(
 # Python bindings
 ###
 pybind11_add_module(py_drake_ros_viz SHARED
-  module_py.cc
+  cc_py.cc
 )
-set_target_properties(py_drake_ros_viz PROPERTIES OUTPUT_NAME "drake_ros_viz")
+set_target_properties(py_drake_ros_viz
+  PROPERTIES
+    OUTPUT_NAME "_cc"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/py/drake_ros/viz/")
 target_link_libraries(py_drake_ros_viz PRIVATE drake_ros_viz)
 
 # Sets PYTHON_INSTALL_DIR
@@ -65,7 +68,7 @@ ament_get_python_install_dir(python_install_dir)
 
 install(
   TARGETS py_drake_ros_viz
-  DESTINATION "${python_install_dir}"
+  DESTINATION "${python_install_dir}/drake_ros/viz/"
 )
 ### End Python bindings
 
@@ -90,5 +93,8 @@ if(BUILD_TESTING)
     drake_ros_viz
   )
 
-  ament_add_pytest_test(test_python_bindings test/test_python_bindings.py)
+  ament_add_pytest_test(test_python_bindings test/test_python_bindings.py
+    # Let Python import mock-install structure in build folder
+    APPEND_ENV
+      "PYTHONPATH=${PROJECT_BINARY_DIR}/py/")
 endif()
