@@ -17,11 +17,7 @@ pybind_py_library(
     name = "cc_py",
     cc_deps = [
         ":python_bindings_internal_hdrs",
-        # TODO(sloretz, eric): Should depend on shared library to avoid ODR
-        # violations.
-        "//core",
-        "//tf2",
-        "//viz",
+        "//:drake_ros_shared_library",
     ],
     cc_so_name = "_cc",
     cc_srcs = [
@@ -88,4 +84,32 @@ ros_py_test(
         "@ros2//:visualization_msgs_py",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
+)
+
+pybind_py_library(
+    name = "odr_py_helpers_py",
+    testonly = 1,
+    cc_deps = [
+        # We purposefully do not directly depend on
+        # `@drake//:drake_shared_library`. This ensures that we check ODR
+        # violations through the linking paths of *drake-ros* libraries. If we
+        # use that dependency, then we would get a false negative on testing
+        # for ODR.
+        # N.B. If you replace this with `//:drake_ros`, you should see ODR
+        # violations.
+        "//:drake_ros_shared_library",
+    ],
+    cc_so_name = "test/odr_py_helpers",
+    cc_srcs = ["test/odr_py_helpers_py.cc"],
+    py_deps = [
+        "//:drake_ros_py",
+        "@drake//bindings/pydrake",
+    ],
+)
+
+ros_py_test(
+    name = "odr_py_test",
+    srcs = ["test/odr_py_test.py"],
+    main = "test/odr_py_test.py",
+    deps = [":odr_py_helpers_py"],
 )

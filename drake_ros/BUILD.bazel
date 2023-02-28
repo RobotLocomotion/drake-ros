@@ -1,4 +1,34 @@
 load("@ros2//:ros_py.bzl", "ros_py_test")
+load("//tools/skylark:drake_ros_cc.bzl", "drake_ros_cc_shared_library")
+
+# Static library roll-up.
+cc_library(
+    name = "drake_ros",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//core",
+        "//tf2",
+        "//viz",
+    ],
+)
+
+# Shared library recompilation and roll-up.
+drake_ros_cc_shared_library(
+    name = "drake_ros_shared_library",
+    include_prefix = "drake_ros/",
+    package_deps = [
+        "//core",
+        "//tf2",
+        "//viz",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//core:odr_safe_deps",
+        "//tf2:odr_safe_deps",
+        "//viz:odr_safe_deps",
+        "@drake//:drake_shared_library",
+    ],
+)
 
 py_library(
     name = "drake_ros_py",

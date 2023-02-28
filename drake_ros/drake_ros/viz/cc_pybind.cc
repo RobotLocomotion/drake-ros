@@ -9,7 +9,7 @@
 #include "drake_ros/viz/rviz_visualizer.h"
 
 namespace drake_ros {
-namespace drake_ros_py {
+namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
 using drake_ros_core::DrakeRos;
 using drake_ros_viz::RvizVisualizer;
@@ -52,5 +52,5 @@ void DefViz(py::module m) {
            py::return_value_policy::reference_internal);
 }
 
-}  // namespace drake_ros_py
+}  // namespace DRAKE_ROS_NO_EXPORT
 }  // namespace drake_ros
