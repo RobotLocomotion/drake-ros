@@ -1,11 +1,11 @@
-"""Python wrapper for drake_ros_core."""
+"""Python wrapper for drake_ros.core."""
 
-from _drake_ros_core import init
-from _drake_ros_core import RosInterfaceSystem
-from _drake_ros_core import RosPublisherSystem
-from _drake_ros_core import RosSubscriberSystem
-from _drake_ros_core import SerializerInterface
-from _drake_ros_core import shutdown
+from drake_ros.core._cc import init
+from drake_ros.core._cc import RosInterfaceSystem
+from drake_ros.core._cc import RosPublisherSystem
+from drake_ros.core._cc import RosSubscriberSystem
+from drake_ros.core._cc import SerializerInterface
+from drake_ros.core._cc import shutdown
 
 from pydrake.common.value import AbstractValue
 from pydrake.systems.framework import TriggerType

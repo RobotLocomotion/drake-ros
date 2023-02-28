@@ -1,0 +1,26 @@
+load("@ros2//:ros_py.bzl", "ros_py_test")
+
+py_library(
+    name = "module_py",
+    srcs = ["__init__.py"],
+    imports = [".."],
+    visibility = ["//:__subpackages__"],
+)
+
+py_library(
+    name = "drake_ros_py",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":module_py",
+        "//core:core_py",
+        "//tf2:tf2_py",
+        "//viz:viz_py",
+    ],
+)
+
+ros_py_test(
+    name = "drake_ros_py_test",
+    srcs = ["test/drake_ros_py_test.py"],
+    main = "test/drake_ros_py_test.py",
+    deps = [":drake_ros_py"],
+)

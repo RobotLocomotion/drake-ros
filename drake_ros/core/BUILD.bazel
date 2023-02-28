@@ -60,16 +60,35 @@ cc_library(
 )
 
 pybind_py_library(
-    name = "core_py",
+    name = "cc_py",
     cc_deps = [
         ":core",
         ":python_bindings_internal_hdrs",
     ],
-    cc_so_name = "_drake_ros_core",
-    cc_srcs = glob(["*_py.cc"]),
-    py_imports = ["."],
-    py_srcs = glob(["*.py"]),
+    cc_so_name = "_cc",
+    cc_srcs = ["cc_py.cc"],
+    py_deps = [
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+# Warning: This requires the C++ bindings.
+py_library(
+    name = "core_py",
+    srcs = ["__init__.py"],
     visibility = ["//visibility:public"],
+    deps = [
+        ":cc_py",
+        "//:module_py",
+    ],
+)
+
+ros_py_test(
+    name = "core_py_test",
+    srcs = ["test/core_py_test.py"],
+    main = "test/core_py_test.py",
+    deps = [":core_py"],
 )
 
 ros_cc_test(

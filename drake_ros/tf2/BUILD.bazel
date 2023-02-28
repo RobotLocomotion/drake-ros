@@ -74,7 +74,7 @@ cc_library(
 )
 
 pybind_py_library(
-    name = "tf2_py",
+    name = "cc_py",
     cc_deps = [
         # TODO(sloretz) - depend on a shared library target
         # This links statically, and so can lead to ODR violations if the
@@ -82,14 +82,31 @@ pybind_py_library(
         ":tf2",
         ":python_bindings_internal_hdrs",
     ],
-    cc_so_name = "drake_ros_tf2",
-    cc_srcs = glob(["*_py.cc"]),
+    cc_so_name = "_cc",
+    cc_srcs = ["cc_py.cc"],
     py_deps = [
+        "//:module_py",
         "//core:core_py",
     ],
-    py_imports = ["."],
-    py_srcs = glob(["*.py"]),
+)
+
+py_library(
+    name = "module_py",
+    srcs = ["__init__.py"],
+    deps = [":cc_py"],
+)
+
+py_library(
+    name = "tf2_py",
     visibility = ["//visibility:public"],
+    deps = [":module_py"],
+)
+
+ros_py_test(
+    name = "tf2_py_test",
+    srcs = ["test/tf2_py_test.py"],
+    main = "test/tf2_py_test.py",
+    deps = [":tf2_py"],
 )
 
 ros_py_test(
