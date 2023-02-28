@@ -1,4 +1,8 @@
 load("@ros2//:ros_py.bzl", "ros_py_test")
+load(
+    "@drake//tools/skylark:pybind.bzl",
+    "pybind_py_library",
+)
 
 py_library(
     name = "module_py",
@@ -23,4 +27,31 @@ ros_py_test(
     srcs = ["test/drake_ros_py_test.py"],
     main = "test/drake_ros_py_test.py",
     deps = [":drake_ros_py"],
+)
+
+pybind_py_library(
+    name = "odr_py_helpers_py",
+    testonly = 1,
+    cc_deps = [
+        # N.B. If you replace this with `//viz`, you should see ODR violations.
+        "//viz:shared_library",
+        # We purposefully violate IWYU and do not directly include
+        # `@drake//:drake_shared_library`. This ensures that we check ODR
+        # violations through the linking paths of *drake-ros* libraries. If we
+        # use that dependency, then we would get a false negative on testing
+        # for ODR.
+    ],
+    cc_so_name = "test/odr_py_helpers",
+    cc_srcs = ["test/odr_py_helpers_py.cc"],
+    py_deps = [
+        "//viz:viz_py",
+        "@drake//bindings/pydrake",
+    ],
+)
+
+ros_py_test(
+    name = "odr_py_test",
+    srcs = ["test/odr_py_test.py"],
+    main = "test/odr_py_test.py",
+    deps = [":odr_py_helpers_py"],
 )
