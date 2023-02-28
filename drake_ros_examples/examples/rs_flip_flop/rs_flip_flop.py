@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_core import RosPublisherSystem
-from drake_ros_core import RosSubscriberSystem
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.core import RosPublisherSystem
+from drake_ros.core import RosSubscriberSystem
 
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
@@ -71,7 +71,7 @@ def main():
     # S: true  R: true  | Q: invalid    Q_not: invalid
     builder = DiagramBuilder()
 
-    drake_ros_core.init()
+    drake_ros.core.init()
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem("rs_flip_flop_node"))
 
     qos = QoSProfile(depth=10)

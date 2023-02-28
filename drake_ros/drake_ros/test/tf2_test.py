@@ -1,10 +1,12 @@
 import math
+import sys
+
 import numpy as np
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_tf2 import SceneTfBroadcasterSystem
-from drake_ros_tf2 import SceneTfBroadcasterParams
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.tf2 import SceneTfBroadcasterSystem
+from drake_ros.tf2 import SceneTfBroadcasterParams
 
 from pydrake.common.value import AbstractValue
 from pydrake.math import RigidTransform
@@ -18,13 +20,15 @@ from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantValueSource
 
+import pytest
+
 import rclpy
 import rclpy.time
 import tf2_ros
 
 
 def test_nominal_case():
-    drake_ros_core.init()
+    drake_ros.core.init()
 
     builder = DiagramBuilder()
 
@@ -115,3 +119,7 @@ def test_nominal_case():
     assert math.isclose(odom_to_base_link.transform.rotation.y, R_OB.y())
     assert math.isclose(odom_to_base_link.transform.rotation.z, R_OB.z())
     assert math.isclose(odom_to_base_link.transform.rotation.w, R_OB.w())
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main(sys.argv))

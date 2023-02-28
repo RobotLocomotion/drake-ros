@@ -7,13 +7,13 @@ import pathlib
 
 import numpy
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_tf2 import SceneTfBroadcasterSystem
-from drake_ros_tf2 import SceneTfBroadcasterParams
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.tf2 import SceneTfBroadcasterSystem
+from drake_ros.tf2 import SceneTfBroadcasterParams
 
-from drake_ros_viz import RvizVisualizer
-from drake_ros_viz import RvizVisualizerParams
+from drake_ros.viz import RvizVisualizer
+from drake_ros.viz import RvizVisualizerParams
 
 from pydrake.common import FindResourceOrThrow
 from pydrake.geometry import DrakeVisualizer
@@ -39,7 +39,7 @@ def main():
     # Create a Drake diagram
     builder = DiagramBuilder()
     # Initialise the ROS infrastructure
-    drake_ros_core.init()
+    drake_ros.core.init()
     # Create a Drake system to interface with ROS
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem('multirobot'))
 
