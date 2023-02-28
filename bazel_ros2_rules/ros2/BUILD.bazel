@@ -4,9 +4,10 @@ load(
 )
 
 cc_library(
-    name = "dload_shim_cc",
+    name = "dload_shim",
     srcs = ["tools/dload_shim.cc"],
     hdrs = ["tools/dload_shim.h"],
+    linkstatic = True,
     visibility = ["//visibility:public"],
     deps = ["@bazel_tools//tools/cpp/runfiles"],
 )
