@@ -30,10 +30,8 @@
 #include <drake_ros/viz/rviz_visualizer.h>
 #include <gflags/gflags.h>
 
-DEFINE_double(
-  simulation_sec,
-  std::numeric_limits<double>::infinity(),
-  "How many seconds to run the simulation");
+DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
+              "How many seconds to run the simulation");
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -42,7 +40,7 @@ using drake::systems::ConstantVectorSource;
 using drake::systems::Simulator;
 using drake::systems::TriggerType;
 
-int main(int argc, char ** argv) {
+int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, false);
   // Create a Drake diagram
   drake::systems::DiagramBuilder<double> builder;
