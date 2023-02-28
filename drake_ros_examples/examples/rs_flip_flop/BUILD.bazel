@@ -1,0 +1,31 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+
+ros_cc_binary(
+    name = "rs_flip_flop",
+    srcs = ["rs_flip_flop.cpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@drake//systems/framework:leaf_system",
+        "@drake_ros//core",
+        "@ros2//:std_msgs_cc",
+    ],
+)
+
+ros_py_binary(
+    name = "rs_flip_flop_py",
+    srcs = ["rs_flip_flop.py"],
+    main = "rs_flip_flop.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//bindings/pydrake",
+        "@drake_ros//core:core_py",
+        "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py",
+    ],
+)

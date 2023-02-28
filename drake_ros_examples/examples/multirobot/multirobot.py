@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import os.path
 import pathlib
@@ -27,6 +28,14 @@ from pydrake.systems.primitives import ConstantVectorSource
 
 
 def main():
+    p = argparse.ArgumentParser()
+    p.add_argument(
+        '--simulation_sec',
+        type=float,
+        default=float('inf'),
+        help='How many seconds to run the simulation')
+    args = p.parse_args()
+
     # Create a Drake diagram
     builder = DiagramBuilder()
     # Initialise the ROS infrastructure
@@ -119,12 +128,17 @@ def main():
 
     # Create a simulator for the system
     simulator = Simulator(diagram)
+    simulator.Initialize()
     simulator_context = simulator.get_mutable_context()
     simulator.set_target_realtime_rate(1.0)
 
     # Step the simulator in 0.1s intervals
-    while True:
-        simulator.AdvanceTo(simulator_context.get_time() + 0.1)
+    step = 0.1
+    while simulator_context.get_time() < args.simulation_sec:
+        if args.simulation_sec - simulator_context.get_time() < step:
+            simulator.AdvanceTo(args.simulation_sec)
+        else:
+            simulator.AdvanceTo(simulator_context.get_time() + step)
 
 
 if __name__ == '__main__':

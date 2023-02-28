@@ -1,14 +1,12 @@
-workspace(name = "drake_ros_core")
+workspace(name = "drake_ros_examples")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "com_google_googletest",
-    sha256 = "fbc8efdca4238e7dbe0642e29911a77be393f191a2444fa10372ee99bb665125",  # noqa
-    strip_prefix = "googletest-1.12.0",  # noqa
-    urls = [
-        "https://github.com/google/googletest/archive/refs/tags/v1.12.0.zip",  # noqa
-    ],
+    sha256 = "5cf189eb6847b4f8fc603a3ffff3b0771c08eec7dd4bd961bfd45477dd13eb73",  # noqa
+    strip_prefix = "googletest-609281088cfefc76f9d0ce82e1ff6c30cc3591e5",
+    urls = ["https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip"],  # noqa
 )
 
 # Use the ROS 2 bazel rules
@@ -22,20 +20,41 @@ load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
 add_bazel_ros2_rules_dependencies()
 
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
-load("//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
-load("//:required_packages.bzl", "DRAKE_ROS_TEST_DEPENDENCIES")
+
+local_repository(
+    name = "drake_ros",
+    path = "../drake_ros",
+)
+
+load("@drake_ros//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
+load(
+    "@drake_ros//:required_packages.bzl",
+    "drake_ros_fail_if_missing_required_packages",
+)
+
+ROS_PACKAGES = DRAKE_ROS_REQUIRED_PACKAGES + [
+    "geometry_msgs",
+    "rclcpp",
+    "rclpy",
+    "ros2cli_common_extensions",
+    "rviz2",
+    "tf2_ros",
+    "tf2_ros_py",
+    "visualization_msgs",
+]
+
+drake_ros_fail_if_missing_required_packages(ROS_PACKAGES)
 
 # Use ROS 2
 ros2_archive(
     name = "ros2",
-    include_packages = DRAKE_ROS_REQUIRED_PACKAGES + DRAKE_ROS_TEST_DEPENDENCIES,  # noqa
+    include_packages = ROS_PACKAGES,
     sha256_url = "https://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci-CHECKSUM",  # noqa
     strip_prefix = "ros2-linux",
     url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa
 )
 
-# Depend on Drake
-load("//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
+load("@drake_ros//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
 
 http_archive(
     name = "drake",

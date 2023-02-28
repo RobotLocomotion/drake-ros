@@ -13,17 +13,27 @@ They publish the following topics:
 First, run RViz:
 
 ```sh
+# Using Colcon/CMake
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix drake_ros_examples)/share/drake_ros_examples/iiwa_manipulator.rviz
+
+# Using bazel
+bazel run @ros2//:rviz2 -- -d `pwd`/examples/iiwa_manipulator/iiwa_manipulator.rviz
 ```
 
 In a separate terminal, run either the C++ or Python executable:
 
 ```sh
+# Using Colcon/CMake
 # C++
 ros2 run drake_ros_examples iiwa_manipulator
-
 # Python
 ros2 run drake_ros_examples iiwa_manipulator.py
+
+# Using bazel
+# C++
+bazel run //examples/iiwa_manipulator:iiwa_manipulator
+# Python
+bazel run //examples/iiwa_manipulator:iiwa_manipulator_py
 ```
 
 You should see the manipulation station with simple sinusoidal motion.

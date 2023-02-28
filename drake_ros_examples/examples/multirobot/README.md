@@ -17,17 +17,27 @@ The simulation publishes the following topics:
 First, run the visualizer by launching RViz:
 
 ```sh
+# Using Colcon/CMake
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix drake_ros_examples)/share/drake_ros_examples/multirobot.rviz
+
+# Using bazel
+bazel run @ros2//:rviz2 -- -d `pwd`/examples/multirobot/multirobot.rviz
 ```
 
 In a separate terminal, run either the C++ executable or the Python script.
 
 ```sh
+# Using Colcon/CMake
 # C++
 ros2 run drake_ros_examples multirobot
-
 # Python
 ros2 run drake_ros_examples multirobot.py
+
+# Using bazel
+# C++
+bazel run //examples/multirobot:multirobot
+# Python
+bazel run //examples/multirobot:multirobot_py
 ```
 
 You should observe a 5 x 5 array of manipulators flopping about under the influence of gravity.
