@@ -47,13 +47,13 @@ ros_py_binary(
 ros_py_test(
     name = "multirobot_test",
     srcs = ["test/run_multirobot.py"],
-    main = "test/run_multirobot.py",
     data = [
         ":multirobot",
         ":multirobot_py",
     ],
+    main = "test/run_multirobot.py",
     deps = [
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
         "@rules_python//python/runfiles",
-    ]
+    ],
 )
