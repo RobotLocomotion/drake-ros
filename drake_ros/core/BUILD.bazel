@@ -130,7 +130,7 @@ ros_py_test(
     srcs = ["test/test_geometry_conversions_py.py"],
     main = "test/test_geometry_conversions_py.py",
     deps = [
-        ":drake_ros_core_py",
+        ":core_py",
         "@drake//bindings/pydrake",
         "@ros2//:geometry_msgs_py",
         "@ros2//:rclpy_py",
