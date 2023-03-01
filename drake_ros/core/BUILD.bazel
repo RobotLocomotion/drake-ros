@@ -71,24 +71,14 @@ pybind_py_library(
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
     ],
-)
-
-# Warning: This requires the C++ bindings.
-py_library(
-    name = "core_py",
-    srcs = ["__init__.py"],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":cc_py",
-        "//:module_py",
-    ],
+    visibility = ["//:__subpackages__"],
 )
 
 ros_py_test(
     name = "core_py_test",
     srcs = ["test/core_py_test.py"],
     main = "test/core_py_test.py",
-    deps = [":core_py"],
+    deps = ["//:drake_ros_py"],
 )
 
 ros_cc_test(
@@ -136,7 +126,7 @@ ros_py_test(
     srcs = ["test/test_pub_sub.py"],
     main = "test/test_pub_sub.py",
     deps = [
-        ":core_py",
+        "//:drake_ros_py",
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
         "@ros2//:test_msgs_py",
