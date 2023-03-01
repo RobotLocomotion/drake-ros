@@ -68,12 +68,15 @@ install(
 ###
 # Python bindings
 ###
-pybind11_add_module(drake_ros_core_py SHARED
-  module_py.cc
+pybind11_add_module(py_drake_ros_core SHARED
+  cc_py.cc
 )
-target_link_libraries(drake_ros_core_py PRIVATE drake_ros_core)
-set_target_properties(drake_ros_core_py PROPERTIES OUTPUT_NAME "_drake_ros_core")
-target_include_directories(drake_ros_core_py
+target_link_libraries(py_drake_ros_core PRIVATE drake_ros_core)
+set_target_properties(py_drake_ros_core
+  PROPERTIES
+    OUTPUT_NAME "_cc"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/py/drake_ros/core/")
+target_include_directories(py_drake_ros_core
   PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
 )
@@ -81,8 +84,8 @@ target_include_directories(drake_ros_core_py
 ament_get_python_install_dir(python_install_dir)
 
 install(
-  TARGETS drake_ros_core_py
-  DESTINATION "${python_install_dir}"
+  TARGETS py_drake_ros_core
+  DESTINATION "${python_install_dir}/drake_ros/core/"
 )
 ### End Python bindings
 
@@ -105,7 +108,10 @@ if(BUILD_TESTING)
   )
 
   # TODO(eric, shane): Add environment variable to disable rmw_isolation.
-  ament_add_pytest_test(test_pub_sub_py test/test_pub_sub.py)
+  ament_add_pytest_test(test_pub_sub_py test/test_pub_sub.py
+    # Let Python import mock-install structure in build folder
+    APPEND_ENV
+      "PYTHONPATH=${PROJECT_BINARY_DIR}/py/")
 
   ament_add_gtest(test_drake_ros test/test_drake_ros.cc)
   target_compile_definitions(test_drake_ros
