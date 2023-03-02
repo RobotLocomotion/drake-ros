@@ -102,28 +102,17 @@ pybind_py_library(
     cc_so_name = "_cc",
     cc_srcs = ["cc_py.cc"],
     py_deps = [
-        "//core:core_py",
-        "//tf2:tf2_py",
+        "//core:cc_py",
+        "//tf2:cc_py",
     ],
-)
-
-py_library(
-    name = "module_py",
-    srcs = ["__init__.py"],
-    deps = [":cc_py"],
-)
-
-py_library(
-    name = "viz_py",
-    visibility = ["//visibility:public"],
-    deps = [":module_py"],
+    visibility = ["//:__subpackages__"],
 )
 
 ros_py_test(
     name = "viz_py_test",
     srcs = ["test/viz_py_test.py"],
     main = "test/viz_py_test.py",
-    deps = [":viz_py"],
+    deps = ["//:drake_ros_py"],
 )
 
 ros_py_test(
@@ -132,8 +121,7 @@ ros_py_test(
     legacy_create_init = False,
     main = "test/test_python_bindings.py",
     deps = [
-        ":viz_py",
-        "//core:core_py",
+        "//:drake_ros_py",
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
         "@ros2//:visualization_msgs_py",

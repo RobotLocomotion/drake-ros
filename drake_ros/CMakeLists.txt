@@ -20,22 +20,10 @@ add_subdirectory(core)
 add_subdirectory(tf2)
 add_subdirectory(viz)
 
-# Macro not function because ament_python_install_module sets variables used by ament_package()
-macro(install_py_module _relative_name)
-  get_filename_component(_relative_dir "${_relative_name}" DIRECTORY)
-  # Install python files because ament function can't be used in CMake subdirectory
-  ament_python_install_module(${_relative_name}
-    DESTINATION_SUFFIX "drake_ros/${_relative_dir}")
-
-  # Generate same python package in build directory for use in tests
-  file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/py/drake_ros/${_relative_dir}")
-  file(COPY_FILE "${_relative_name}" "${PROJECT_BINARY_DIR}/py/drake_ros/${_relative_name}" ONLY_IF_DIFFERENT)
-endmacro()
-
-install_py_module("./__init__.py")
-install_py_module("core/__init__.py")
-install_py_module("tf2/__init__.py")
-install_py_module("viz/__init__.py")
+ament_python_install_package(drake_ros)
+# Generate same python package in build directory for use in tests
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/py/")
+file(COPY "drake_ros" DESTINATION "${PROJECT_BINARY_DIR}/py/")
 
 if(BUILD_TESTING)
     find_package(ament_cmake_clang_format REQUIRED)
