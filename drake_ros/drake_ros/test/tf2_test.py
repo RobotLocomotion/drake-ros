@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import math
+import sys
+
 import numpy as np
 
 import drake_ros.core
@@ -31,6 +33,8 @@ from pydrake.geometry import SceneGraph
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.framework import TriggerType
 from pydrake.systems.primitives import ConstantValueSource
+
+import pytest
 
 import rclpy
 import rclpy.time
@@ -129,3 +133,7 @@ def test_nominal_case():
     assert math.isclose(odom_to_base_link.transform.rotation.y, R_OB.y())
     assert math.isclose(odom_to_base_link.transform.rotation.z, R_OB.z())
     assert math.isclose(odom_to_base_link.transform.rotation.w, R_OB.w())
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main(sys.argv))
