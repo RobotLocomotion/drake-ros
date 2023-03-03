@@ -8,7 +8,7 @@ find_package(geometry_msgs REQUIRED)
 
 
 set(HEADERS
-  "drake_ros_core_pybind.h"
+  "drake_ros_pybind.h"
   "drake_ros.h"
   "geometry_conversions.h"
   "publisher.h"

@@ -1,0 +1,91 @@
+load("@ros2//:ros_py.bzl", "ros_py_test")
+load(
+    "@drake//tools/skylark:pybind.bzl",
+    "pybind_py_library",
+)
+
+cc_library(
+    name = "python_bindings_internal_hdrs",
+    hdrs = [
+        "core/qos_pybind.h",
+        "drake_ros_pybind.h"
+    ],
+    include_prefix = "drake_ros/",
+)
+
+pybind_py_library(
+    name = "cc_py",
+    cc_srcs = [
+        "cc_py.cc",
+        "core/cc_pybind.cc",
+        "tf2/cc_pybind.cc",
+        "viz/cc_pybind.cc",
+    ],
+    cc_deps = [
+        ":python_bindings_internal_hdrs",
+        # TODO(sloretz, eric): Should depend on shared library to avoid ODR
+        # violations.
+        "//core",
+        "//tf2",
+        "//viz",
+    ],
+    cc_so_name = "_cc",
+    py_deps = [
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+py_library(
+    name = "drake_ros_py",
+    imports = [".."],
+    srcs = [
+        "__init__.py",
+        "core/__init__.py",
+        "tf2/__init__.py",
+        "viz/__init__.py",
+    ],
+    deps = [
+        ":cc_py",
+    ],
+    visibility = ["//:__pkg__"],
+)
+
+ros_py_test(
+    name = "core_test",
+    srcs = ["test/core_test.py"],
+    main = "test/core_test.py",
+    deps = [
+        ":drake_ros_py",
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+        "@ros2//:test_msgs_py",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+)
+
+ros_py_test(
+    name = "tf2_test",
+    srcs = ["test/tf2_test.py"],
+    main = "test/tf2_test.py",
+    deps = [
+        ":drake_ros_py",
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+        "@ros2//:tf2_ros_py_py",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+)
+
+ros_py_test(
+    name = "viz_test",
+    srcs = ["test/viz_test.py"],
+    main = "test/viz_test.py",
+    deps = [
+        ":drake_ros_py",
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+        "@ros2//:visualization_msgs_py",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+)
