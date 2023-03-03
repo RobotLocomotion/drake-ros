@@ -11,7 +11,7 @@ set(HEADERS
   "drake_ros_core_pybind.h"
   "drake_ros.h"
   "geometry_conversions.h"
-  "geometry_typecast.h"
+  "geometry_conversions_pybind.h"
   "publisher.h"
   "qos_pybind.h"
   "ros_interface_system.h"
