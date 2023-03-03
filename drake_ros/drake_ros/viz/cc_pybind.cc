@@ -24,9 +24,9 @@
 namespace drake_ros {
 namespace drake_ros_py {
 
-// Emulate placement in namespace.
-using namespace drake_ros_core;
-using namespace drake_ros_viz;
+using drake_ros_core::DrakeRos;
+using drake_ros_viz::RvizVisualizer;
+using drake_ros_viz::RvizVisualizerParams;
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
