@@ -28,8 +28,13 @@
 namespace drake_ros {
 namespace drake_ros_py {
 
-// Emulate placement in namespace.
-using namespace drake_ros_core;
+using drake_ros_core::DrakeRos;
+using drake_ros_core::init;
+using drake_ros_core::RosInterfaceSystem;
+using drake_ros_core::RosPublisherSystem;
+using drake_ros_core::RosSubscriberSystem;
+using drake_ros_core::SerializerInterface;
+using drake_ros_core::shutdown;
 
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;

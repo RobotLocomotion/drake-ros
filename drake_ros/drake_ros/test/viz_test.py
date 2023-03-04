@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 import pytest
 
 import numpy as np
@@ -170,3 +172,7 @@ def test_receive_visual_marker_array():
         assert marker.ns != ''
         assert marker.type == marker.MESH_RESOURCE
         assert marker.mesh_resource != ''
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main(sys.argv))

@@ -13,10 +13,13 @@
 # limitations under the License.
 
 import os
+import sys
 
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.framework import TriggerType
+
+import pytest
 
 import rclpy
 from rclpy.qos import DurabilityPolicy
@@ -117,3 +120,7 @@ def test_nominal_case():
         assert rx_msgs_direct_sub_out[-1].uint64_value == i
 
     drake_ros.core.shutdown()
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main(sys.argv))
