@@ -3,7 +3,6 @@ find_package(rclcpp REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 set(HEADERS
-  "drake_ros_viz_pybind.h"
   "name_conventions.h"
   "rviz_visualizer.h"
   "scene_markers_system.h"
@@ -51,27 +50,6 @@ install(
   DESTINATION include/drake_ros/viz
 )
 
-###
-# Python bindings
-###
-pybind11_add_module(py_drake_ros_viz SHARED
-  cc_py.cc
-)
-set_target_properties(py_drake_ros_viz
-  PROPERTIES
-    OUTPUT_NAME "_cc"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/py/drake_ros/viz/")
-target_link_libraries(py_drake_ros_viz PRIVATE drake_ros_viz)
-
-# Sets PYTHON_INSTALL_DIR
-ament_get_python_install_dir(python_install_dir)
-
-install(
-  TARGETS py_drake_ros_viz
-  DESTINATION "${python_install_dir}/drake_ros/viz/"
-)
-### End Python bindings
-
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(test_msgs REQUIRED)
@@ -92,9 +70,4 @@ if(BUILD_TESTING)
     drake::drake
     drake_ros_viz
   )
-
-  ament_add_pytest_test(test_python_bindings test/test_python_bindings.py
-    # Let Python import mock-install structure in build folder
-    APPEND_ENV
-      "PYTHONPATH=${PROJECT_BINARY_DIR}/py/")
 endif()

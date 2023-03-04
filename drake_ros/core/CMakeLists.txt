@@ -8,11 +8,9 @@ find_package(geometry_msgs REQUIRED)
 
 
 set(HEADERS
-  "drake_ros_core_pybind.h"
   "drake_ros.h"
   "geometry_conversions.h"
   "publisher.h"
-  "qos_pybind.h"
   "ros_interface_system.h"
   "ros_publisher_system.h"
   "ros_subscriber_system.h"
@@ -65,33 +63,8 @@ install(
   DESTINATION include/drake_ros/core
 )
 
-###
-# Python bindings
-###
-pybind11_add_module(py_drake_ros_core SHARED
-  cc_py.cc
-)
-target_link_libraries(py_drake_ros_core PRIVATE drake_ros_core)
-set_target_properties(py_drake_ros_core
-  PROPERTIES
-    OUTPUT_NAME "_cc"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/py/drake_ros/core/")
-target_include_directories(py_drake_ros_core
-  PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-)
-
-ament_get_python_install_dir(python_install_dir)
-
-install(
-  TARGETS py_drake_ros_core
-  DESTINATION "${python_install_dir}/drake_ros/core/"
-)
-### End Python bindings
-
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
-  find_package(ament_cmake_pytest REQUIRED)
   find_package(test_msgs REQUIRED)
 
   ament_add_gtest(test_pub_sub test/test_pub_sub.cc)
@@ -106,12 +79,6 @@ if(BUILD_TESTING)
     drake_ros_core
     ${test_msgs_TARGETS}
   )
-
-  # TODO(eric, shane): Add environment variable to disable rmw_isolation.
-  ament_add_pytest_test(test_pub_sub_py test/test_pub_sub.py
-    # Let Python import mock-install structure in build folder
-    APPEND_ENV
-      "PYTHONPATH=${PROJECT_BINARY_DIR}/py/")
 
   ament_add_gtest(test_drake_ros test/test_drake_ros.cc)
   target_compile_definitions(test_drake_ros

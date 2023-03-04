@@ -5,10 +5,10 @@
 
 #include <pybind11/pybind11.h>
 
-namespace drake_ros_core {
-namespace drake_ros_core_py {
+namespace drake_ros {
+namespace drake_ros_py {
 
 namespace py = pybind11;
 
-}  // namespace drake_ros_core_py
-}  // namespace drake_ros_core
+}  // namespace drake_ros_py
+}  // namespace drake_ros

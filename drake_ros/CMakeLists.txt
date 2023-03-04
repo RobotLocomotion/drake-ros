@@ -19,11 +19,17 @@ find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 add_subdirectory(core)
 add_subdirectory(tf2)
 add_subdirectory(viz)
+# Python bindings
+add_subdirectory(drake_ros)
 
+# Install python package must happen at top level CMakeLists.txt
+# TODO(sloretz) exclude drake_ros/test folder
 ament_python_install_package(drake_ros)
 # Generate same python package in build directory for use in tests
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/py/")
-file(COPY "drake_ros" DESTINATION "${PROJECT_BINARY_DIR}/py/")
+file(COPY "drake_ros"
+  DESTINATION "${PROJECT_BINARY_DIR}/py/"
+  PATTERN "drake_ros/test" EXCLUDE)
 
 if(BUILD_TESTING)
     find_package(ament_cmake_clang_format REQUIRED)

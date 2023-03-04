@@ -1,1 +1,1 @@
-from drake_ros.tf2._cc import *
+from drake_ros._cc.tf2 import *

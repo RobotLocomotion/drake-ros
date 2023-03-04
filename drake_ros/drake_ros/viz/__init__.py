@@ -1,1 +1,1 @@
-from drake_ros.viz._cc import *
+from drake_ros._cc.viz import *
