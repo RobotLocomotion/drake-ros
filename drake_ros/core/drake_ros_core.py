@@ -1,10 +1,38 @@
 """Python wrapper for drake_ros_core."""
 
 from _drake_ros_core import init
+from _drake_ros_core import Isometry3ToRosPose
+from _drake_ros_core import Isometry3ToRosTransform
+from _drake_ros_core import QuaternionToRosQuaternion
+from _drake_ros_core import RigidTransformToRosPose
+from _drake_ros_core import RigidTransformToRosTransform
+from _drake_ros_core import RosAccelToSpatialAcceleration
+from _drake_ros_core import RosAccelToVector6
 from _drake_ros_core import RosInterfaceSystem
+from _drake_ros_core import RosPointToVector3
+from _drake_ros_core import RosPoseToIsometry3
+from _drake_ros_core import RosPoseToRigidTransform
 from _drake_ros_core import RosPublisherSystem
+from _drake_ros_core import RosQuaternionToQuaternion
+from _drake_ros_core import RosQuaternionToRotationMatrix
 from _drake_ros_core import RosSubscriberSystem
+from _drake_ros_core import RosTransformToIsometry3
+from _drake_ros_core import RosTransformToRigidTransform
+from _drake_ros_core import RosTwistToSpatialVelocity
+from _drake_ros_core import RosTwistToVector6
+from _drake_ros_core import RosVector3ToVector3
+from _drake_ros_core import RosWrenchToSpatialForce
+from _drake_ros_core import RosWrenchToVector6
+from _drake_ros_core import RotationMatrixToRosQuaternion
 from _drake_ros_core import SerializerInterface
+from _drake_ros_core import SpatialAccelerationToRosAccel
+from _drake_ros_core import SpatialForceToRosWrench
+from _drake_ros_core import SpatialVelocityToRosTwist
+from _drake_ros_core import Vector3ToRosPoint
+from _drake_ros_core import Vector3ToRosVector3
+from _drake_ros_core import Vector6ToRosAccel
+from _drake_ros_core import Vector6ToRosTwist
+from _drake_ros_core import Vector6ToRosWrench
 from _drake_ros_core import shutdown
 
 from pydrake.common.value import AbstractValue
@@ -70,11 +98,39 @@ RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 __all__ = [
     'DrakeRosInterface',
-    'init',
+    'Isometry3ToRosPose',
+    'Isometry3ToRosTransform',
     'PySerializer',
+    'QuaternionToRosQuaternion',
+    'RigidTransformToRosPose',
+    'RigidTransformToRosTransform',
+    'RosAccelToSpatialAcceleration',
+    'RosAccelToVector6',
     'RosInterfaceSystem',
+    'RosPointToVector3',
+    'RosPoseToIsometry3',
+    'RosPoseToRigidTransform',
     'RosPublisherSystem',
+    'RosQuaternionToQuaternion',
+    'RosQuaternionToRotationMatrix',
     'RosSubscriberSystem',
+    'RosTransformToIsometry3',
+    'RosTransformToRigidTransform',
+    'RosTwistToSpatialVelocity',
+    'RosTwistToVector6',
+    'RosVector3ToVector3',
+    'RosWrenchToSpatialForce',
+    'RosWrenchToVector6',
+    'RotationMatrixToRosQuaternion',
     'SerializerInterface',
+    'SpatialAccelerationToRosAccel',
+    'SpatialForceToRosWrench',
+    'SpatialVelocityToRosTwist',
+    'Vector3ToRosPoint',
+    'Vector3ToRosVector3',
+    'Vector6ToRosAccel',
+    'Vector6ToRosTwist',
+    'Vector6ToRosWrench',
+    'init',
     'shutdown',
 ]

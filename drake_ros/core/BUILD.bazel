@@ -133,6 +133,6 @@ ros_py_test(
         ":core_py",
         "@drake//bindings/pydrake",
         "@ros2//:geometry_msgs_py",
-	"@ros2//:rclpy_py",
+        "@ros2//:rclpy_py",
     ],
 )
