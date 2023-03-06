@@ -58,11 +58,11 @@ def test_ros_quaternion_to_quaternion():
     q.y = 0.2
     q.z = 0.3
     q.w = 0.4
-    pydrake_quaternon_expected = drake_ros_core.RosQuaternionToQuaternion(q)
-    assert pydrake_quaternon_expected.x() == 0.1
-    assert pydrake_quaternon_expected.y() == 0.2
-    assert pydrake_quaternon_expected.z() == 0.3
-    assert pydrake_quaternon_expected.w() == 0.4
+    pydrake_quaternion_expected = drake_ros_core.RosQuaternionToQuaternion(q)
+    assert pydrake_quaternion_expected.x() == 0.1
+    assert pydrake_quaternion_expected.y() == 0.2
+    assert pydrake_quaternion_expected.z() == 0.3
+    assert pydrake_quaternion_expected.w() == 0.4
 
 
 def test_quaternion_to_ros_quaternion():
