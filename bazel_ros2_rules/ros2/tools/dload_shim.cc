@@ -1,4 +1,4 @@
-#include "dload_shim.h"
+#include "ros2/tools/dload_shim.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -15,44 +15,30 @@
 
 using bazel::tools::cpp::runfiles::Runfiles;
 
-int do_dload_shim(
-  const int argc,
-  const char ** argv,
-  const char * executable_path,
-  const std::vector<const char *> names,
-  const std::vector<std::vector<const char *>> actions)
-{
+namespace bazel_ros2_rules {
+
+namespace {
+std::unique_ptr<Runfiles> CreateRunfiles(const char* argv0) {
   std::string error;
-  std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv[0], &error));
-  if (!runfiles && std::filesystem::is_symlink(argv[0])) {
+  std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv0, &error));
+  if (!runfiles && std::filesystem::is_symlink(argv0)) {
     runfiles.reset(
-      Runfiles::Create(std::filesystem::read_symlink(argv[0]), &error));
+        Runfiles::Create(std::filesystem::read_symlink(argv0), &error));
   }
   if (!runfiles) {
     std::cerr << "DLOAD SHIM ERROR: " << error << std::endl;
-    return -1;
   }
+  return runfiles;
+}
+}  // namespace
 
-  // Forward runfiles env vars if needed. This is necessary since our shims are
-  // (presently) separate C++ binaries, and inferring runfiles manifests via
-  // `argv[0]` will not work properly when run outside of Bazel (#105).
-  // This will check if any runfiles env vars are set; if so, we assume this is
-  // a nested invocation and will not overwrite the env vars, and use the
-  // existing runfiles that are set.
-  const auto& runfiles_env = runfiles->EnvVars();
-  bool has_exiting_runfiles_env = false;
-  for (const auto& [key, value] : runfiles_env) {
-    if (nullptr != getenv(key.c_str())) {
-      has_exiting_runfiles_env = true;
-      break;
-    }
-  }
-  if (!has_exiting_runfiles_env) {
-    for (const auto& [key, value] : runfiles_env) {
-      if (setenv(key.c_str(), value.c_str(), 1) != 0) {
-        std::cerr << "DLOAD SHIM ERROR: failed to set " << key << std::endl;
-      }
-    }
+void ApplyEnvironmentActions(
+    const char* argv0,
+    const std::vector<const char*>& names,
+    const std::vector<std::vector<const char*>>& actions) {
+  std::unique_ptr<Runfiles> runfiles = CreateRunfiles(argv0);
+  if (!runfiles) {
+    std::abort();
   }
 
   // Sentinel indicates if the executable has already been shimmed
@@ -114,6 +100,43 @@ int do_dload_shim(
     }
     setenv(kShimmedSentinel, "", 1);
   }
+}
+  
+int ReexecMain(
+    const int argc,
+    const char** argv,
+    const char* executable_path,
+    const std::vector<const char*> names,
+    const std::vector<std::vector<const char*>> actions)
+{
+  std::unique_ptr<Runfiles> runfiles = CreateRunfiles(argv[0]);
+  if (!runfiles) {
+    return -1;
+  }
+
+  // Forward runfiles env vars if needed. This is necessary since our shims are
+  // (presently) separate C++ binaries, and inferring runfiles manifests via
+  // `argv[0]` will not work properly when run outside of Bazel (#105).
+  // This will check if any runfiles env vars are set; if so, we assume this is
+  // a nested invocation and will not overwrite the env vars, and use the
+  // existing runfiles that are set.
+  const auto& runfiles_env = runfiles->EnvVars();
+  bool has_exiting_runfiles_env = false;
+  for (const auto& [key, value] : runfiles_env) {
+    if (nullptr != getenv(key.c_str())) {
+      has_exiting_runfiles_env = true;
+      break;
+    }
+  }
+  if (!has_exiting_runfiles_env) {
+    for (const auto& [key, value] : runfiles_env) {
+      if (setenv(key.c_str(), value.c_str(), 1) != 0) {
+        std::cerr << "DLOAD SHIM ERROR: failed to set " << key << std::endl;
+      }
+    }
+  }
+
+  ApplyEnvironmentActions(argv[0], names, actions);
 
   const std::string real_executable_path = runfiles->Rlocation(executable_path);
 
@@ -129,3 +152,5 @@ int do_dload_shim(
   std::cout << "DLOAD SHIM ERROR: " << strerror(errno) << std::endl;
   return ret;
 }
+
+}  // namespace bazel_ros2_rules
