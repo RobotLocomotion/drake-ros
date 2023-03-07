@@ -17,6 +17,7 @@ namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
 namespace py = pybind11;
 
-// TODO(eric.cousineau): Fix or work around ament clang_format's failures.
-}  // namespace DRAKE_ROS_NO_EXPORT
+// clang-format off
+}  // namespace drake_ros_py
+// clang-format on
 }  // namespace drake_ros

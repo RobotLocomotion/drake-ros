@@ -52,5 +52,7 @@ void DefViz(py::module m) {
            py::return_value_policy::reference_internal);
 }
 
-}  // namespace DRAKE_ROS_NO_EXPORT
+// clang-format off
+}  // namespace drake_ros_py
+// clang-format on
 }  // namespace drake_ros

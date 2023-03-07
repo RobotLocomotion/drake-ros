@@ -41,9 +41,7 @@ if(BUILD_TESTING)
     find_package(ament_cmake_pycodestyle REQUIRED)
 
     ament_clang_format(CONFIG_FILE .clang-format)
-    # TODO(eric.cousineau): Reenable once both clang-format and cpplint agree
-    # on the same formatting for drake_ros_pybind.h.
-    # ament_cpplint()
+    ament_cpplint()
     ament_pycodestyle(--config pycodestyle.ini)
 endif()
 

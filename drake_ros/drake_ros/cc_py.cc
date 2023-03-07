@@ -20,5 +20,7 @@ PYBIND11_MODULE(_cc, m) {
 }
 
 }  // namespace
-}  // namespace DRAKE_ROS_NO_EXPORT
+// clang-format off
+}  // namespace drake_ros_py
+// clang-format on
 }  // namespace drake_ros

@@ -157,6 +157,7 @@ void DefCore(py::module m) {
             std::move(serializer), topic_name, qos, ros_interface);
       }));
 }
-
-}  // namespace DRAKE_ROS_NO_EXPORT
+// clang-format off
+}  // namespace drake_ros_py
+// clang-format on
 }  // namespace drake_ros
