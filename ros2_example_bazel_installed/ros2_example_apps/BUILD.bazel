@@ -18,8 +18,25 @@ rosidl_interfaces_group(
     ],
 )
 
+# This builds oracle.cc using the "reexec" strategy for shimming.
 ros_cc_binary(
-    name = "oracle_cc",
+    name = "oracle_cc_reexec",
+    shim = "reexec",
+    srcs = ["oracle.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    tags = ["requires-network"],
+    deps = [
+        ":ros2_example_apps_msgs_cc",
+        "//ros2_example_common:ros2_example_common_msgs_cc",
+        "@ros2//:rclcpp_action_cc",
+        "@ros2//:rclcpp_cc",
+    ],
+)
+
+# This builds oracle.cc using the "ldwrap" strategy for shimming.
+ros_cc_binary(
+    name = "oracle_cc_ldwrap",
+    shim = "ldwrap",
     srcs = ["oracle.cc"],
     rmw_implementation = "rmw_cyclonedds_cpp",
     tags = ["requires-network"],
@@ -99,31 +116,31 @@ ros_cc_test(
 )
 
 cmd_test(
-    name = "gdb_oracle_cc_test",
+    name = "gdb_oracle_cc_reexec_test",
     size = "small",
     cmd = [
         "gdb",
         "-x",
-        "$(location :test/oracle_cc.gdb)",
+        "$(location :test/oracle_cc_reexec.gdb)",
         "--batch",
         "--args",
-        "$(location :oracle_cc)",
+        "$(location :oracle_cc_reexec)",
         "--ros-args",
         "--disable-external-lib-logs",
     ],
     data = [
-        "test/oracle_cc.gdb",
-        ":oracle_cc",
+        "test/oracle_cc_reexec.gdb",
+        ":oracle_cc_reexec",
     ],
 )
 
 cmd_test(
-    name = "lldb_oracle_cc_test",
+    name = "lldb_oracle_cc_reexec_test",
     size = "small",
     cmd = [
         "lldb",
         "-s",
-        "$(location :test/oracle_cc.lldb)",
+        "$(location :test/oracle_cc_reexec.lldb)",
         "--batch",
         "--",
         "$(location :oracle_cc)",
@@ -131,8 +148,46 @@ cmd_test(
         "--disable-external-lib-logs",
     ],
     data = [
-        "test/oracle_cc.lldb",
-        ":oracle_cc",
+        "test/oracle_cc_reexec.lldb",
+        ":oracle_cc_reexec",
+    ],
+)
+
+cmd_test(
+    name = "gdb_oracle_cc_ldwrap_test",
+    size = "small",
+    cmd = [
+        "gdb",
+        "-x",
+        "$(location :test/oracle_cc_ldwrap.gdb)",
+        "--batch",
+        "--args",
+        "$(location :oracle_cc_ldwrap)",
+        "--ros-args",
+        "--disable-external-lib-logs",
+    ],
+    data = [
+        "test/oracle_cc_ldwrap.gdb",
+        ":oracle_cc_ldwrap",
+    ],
+)
+
+cmd_test(
+    name = "lldb_oracle_cc_ldwrap_test",
+    size = "small",
+    cmd = [
+        "lldb",
+        "-s",
+        "$(location :test/oracle_cc_ldwrap.lldb)",
+        "--batch",
+        "--",
+        "$(location :oracle_cc_ldwrap)",
+        "--ros-args",
+        "--disable-external-lib-logs",
+    ],
+    data = [
+        "test/oracle_cc_ldwrap.lldb",
+        ":oracle_cc_ldwrap",
     ],
 )
 
