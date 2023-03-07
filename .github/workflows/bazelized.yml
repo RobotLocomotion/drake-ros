@@ -21,10 +21,12 @@ jobs:
       options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: "/home/runner/.cache/ci"
           key: bazel
+      - name: Check cache
+        run: du -hs $(readlink -f /home/runner/.cache/ci)
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
       - name: Configure Bazel for CI
