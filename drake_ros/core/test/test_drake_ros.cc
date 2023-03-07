@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -25,6 +26,14 @@ TEST(DrakeRos, local_context) {
   // Should not have initialized global context
   EXPECT_FALSE(rclcpp::contexts::get_global_default_context()->is_valid());
   context->shutdown("done");
+}
+
+TEST(DrakeRos, environment) {
+  // The unit testing environment should always be shimmed to have proper
+  // environment variables. Check that at least this one test case is shimmed.
+  // If yes, it's likely that shimming is correct everywhere else, too.
+  const char* const ament_prefix_path = std::getenv("AMENT_PREFIX_PATH");
+  ASSERT_NE(ament_prefix_path, nullptr);
 }
 
 // Only available in Bazel.
