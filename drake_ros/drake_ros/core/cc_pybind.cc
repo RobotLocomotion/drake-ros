@@ -1,16 +1,3 @@
-// Copyright 2021 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 #include <memory>
 #include <unordered_set>
 
@@ -27,9 +14,16 @@
 #include "drake_ros/core/ros_subscriber_system.h"
 #include "drake_ros/core/serializer_interface.h"
 
-namespace drake_ros_core {
-namespace drake_ros_core_py {
-namespace {
+namespace drake_ros {
+namespace drake_ros_py {
+
+using drake_ros_core::DrakeRos;
+using drake_ros_core::init;
+using drake_ros_core::RosInterfaceSystem;
+using drake_ros_core::RosPublisherSystem;
+using drake_ros_core::RosSubscriberSystem;
+using drake_ros_core::SerializerInterface;
+using drake_ros_core::shutdown;
 
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
@@ -82,11 +76,8 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
   }
 };
 
-PYBIND11_MODULE(_drake_ros_core, m) {
-  m.doc() = "Python bindings for drake_ros_core";
-  // Force module name in docstrings to match
-  // that of the outer module.
-  m.attr("__name__") = "drake_ros_core";
+void DefCore(py::module m) {
+  m.doc() = "Python bindings for drake_ros.core";
 
   py::module::import("numpy");
   py::module::import("pydrake.systems.framework");
@@ -172,46 +163,45 @@ PYBIND11_MODULE(_drake_ros_core, m) {
 
   // Python bindings for geometry conversions.
   // Vector / Translation functions.
-  m.def("RosPointToVector3", &RosPointToVector3);
-  m.def("Vector3ToRosPoint", &Vector3ToRosPoint);
-  m.def("RosVector3ToVector3", &RosVector3ToVector3);
-  m.def("Vector3ToRosVector3", &Vector3ToRosVector3);
+  m.def("RosPointToVector3", &drake_ros_core::RosPointToVector3);
+  m.def("Vector3ToRosPoint", &drake_ros_core::Vector3ToRosPoint);
+  m.def("RosVector3ToVector3", &drake_ros_core::RosVector3ToVector3);
+  m.def("Vector3ToRosVector3", &drake_ros_core::Vector3ToRosVector3);
 
   // Orientation
-  m.def("RosQuaternionToQuaternion", &RosQuaternionToQuaternion);
-  m.def("QuaternionToRosQuaternion", &QuaternionToRosQuaternion);
-  m.def("RosQuaternionToRotationMatrix", &RosQuaternionToRotationMatrix);
-  m.def("RotationMatrixToRosQuaternion", &RotationMatrixToRosQuaternion);
+  m.def("RosQuaternionToQuaternion", &drake_ros_core::RosQuaternionToQuaternion);
+  m.def("QuaternionToRosQuaternion", &drake_ros_core::QuaternionToRosQuaternion);
+  m.def("RosQuaternionToRotationMatrix", &drake_ros_core::RosQuaternionToRotationMatrix);
+  m.def("RotationMatrixToRosQuaternion", &drake_ros_core::RotationMatrixToRosQuaternion);
 
   // Pose
-  m.def("RosPoseToRigidTransform", &RosPoseToRigidTransform);
-  m.def("RigidTransformToRosPose", &RigidTransformToRosPose);
-  m.def("RosTransformToRigidTransform", &RosTransformToRigidTransform);
-  m.def("RigidTransformToRosTransform", &RigidTransformToRosTransform);
-  m.def("RosPoseToIsometry3", &RosPoseToIsometry3);
-  m.def("Isometry3ToRosPose", &Isometry3ToRosPose);
-  m.def("RosTransformToIsometry3", &RosTransformToIsometry3);
-  m.def("Isometry3ToRosTransform", &Isometry3ToRosTransform);
+  m.def("RosPoseToRigidTransform", &drake_ros_core::RosPoseToRigidTransform);
+  m.def("RigidTransformToRosPose", &drake_ros_core::RigidTransformToRosPose);
+  m.def("RosTransformToRigidTransform", &drake_ros_core::RosTransformToRigidTransform);
+  m.def("RigidTransformToRosTransform", &drake_ros_core::RigidTransformToRosTransform);
+  m.def("RosPoseToIsometry3", &drake_ros_core::RosPoseToIsometry3);
+  m.def("Isometry3ToRosPose", &drake_ros_core::Isometry3ToRosPose);
+  m.def("RosTransformToIsometry3", &drake_ros_core::RosTransformToIsometry3);
+  m.def("Isometry3ToRosTransform", &drake_ros_core::Isometry3ToRosTransform);
 
   // Spatial Velocity
-  m.def("RosTwistToVector6", &RosTwistToVector6);
-  m.def("Vector6ToRosTwist", &Vector6ToRosTwist);
-  m.def("RosTwistToSpatialVelocity", &RosTwistToSpatialVelocity);
-  m.def("SpatialVelocityToRosTwist", &SpatialVelocityToRosTwist);
+  m.def("RosTwistToVector6", &drake_ros_core::RosTwistToVector6);
+  m.def("Vector6ToRosTwist", &drake_ros_core::Vector6ToRosTwist);
+  m.def("RosTwistToSpatialVelocity", &drake_ros_core::RosTwistToSpatialVelocity);
+  m.def("SpatialVelocityToRosTwist", &drake_ros_core::SpatialVelocityToRosTwist);
 
   // Spatial Acceleration
-  m.def("RosAccelToVector6", &RosAccelToVector6);
-  m.def("Vector6ToRosAccel", &Vector6ToRosAccel);
-  m.def("RosAccelToSpatialAcceleration", &RosAccelToSpatialAcceleration);
-  m.def("SpatialAccelerationToRosAccel", &SpatialAccelerationToRosAccel);
+  m.def("RosAccelToVector6", &drake_ros_core::RosAccelToVector6);
+  m.def("Vector6ToRosAccel", &drake_ros_core::Vector6ToRosAccel);
+  m.def("RosAccelToSpatialAcceleration", &drake_ros_core::RosAccelToSpatialAcceleration);
+  m.def("SpatialAccelerationToRosAccel", &drake_ros_core::SpatialAccelerationToRosAccel);
 
   // Spatial Force
-  m.def("RosWrenchToVector6", &RosWrenchToVector6);
-  m.def("Vector6ToRosWrench", &Vector6ToRosWrench);
-  m.def("RosWrenchToSpatialForce", &RosWrenchToSpatialForce);
-  m.def("SpatialForceToRosWrench", &SpatialForceToRosWrench);
+  m.def("RosWrenchToVector6", &drake_ros_core::RosWrenchToVector6);
+  m.def("Vector6ToRosWrench", &drake_ros_core::Vector6ToRosWrench);
+  m.def("RosWrenchToSpatialForce", &drake_ros_core::RosWrenchToSpatialForce);
+  m.def("SpatialForceToRosWrench", &drake_ros_core::SpatialForceToRosWrench);
 }
 
-}  // namespace
-}  // namespace drake_ros_core_py
-}  // namespace drake_ros_core
+}  // namespace drake_ros_py
+}  // namespace drake_ros

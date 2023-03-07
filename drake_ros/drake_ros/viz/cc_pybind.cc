@@ -1,16 +1,3 @@
-// Copyright 2020 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 #include <memory>
 
 #include <drake/systems/framework/diagram.h>
@@ -18,22 +5,23 @@
 #include <pybind11/stl.h>
 
 #include "drake_ros/core/drake_ros.h"
-#include "drake_ros/viz/drake_ros_viz_pybind.h"
+#include "drake_ros/drake_ros_pybind.h"
 #include "drake_ros/viz/rviz_visualizer.h"
 
-namespace drake_ros_viz {
-namespace drake_ros_viz_py {
-namespace {
+namespace drake_ros {
+namespace drake_ros_py {
+
+using drake_ros_core::DrakeRos;
+using drake_ros_viz::RvizVisualizer;
+using drake_ros_viz::RvizVisualizerParams;
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
 
-using drake_ros_core::DrakeRos;
-
-PYBIND11_MODULE(drake_ros_viz, m) {
+void DefViz(py::module m) {
   m.doc() = "Python wrapper for drake_ros_viz";
 
-  py::module::import("drake_ros_core");
+  py::module::import("drake_ros.core");
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
 
@@ -64,6 +52,5 @@ PYBIND11_MODULE(drake_ros_viz, m) {
            py::return_value_policy::reference_internal);
 }
 
-}  // namespace
-}  // namespace drake_ros_viz_py
-}  // namespace drake_ros_viz
+}  // namespace drake_ros_py
+}  // namespace drake_ros

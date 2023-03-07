@@ -15,3 +15,8 @@ install(
     iiwa_manipulator
   DESTINATION lib/${PROJECT_NAME}
 )
+
+install(
+  FILES iiwa_manipulator.rviz
+  DESTINATION share/${PROJECT_NAME}
+)

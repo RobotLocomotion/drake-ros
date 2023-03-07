@@ -1,37 +1,24 @@
-# Copyright 2022 Open Source Robotics Foundation, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import pytest
+import random
+import string
+import sys
+import threading
+import time
 
 import numpy as np
-import random
+import pytest
 import rclpy
 import rclpy.executors
 import rclpy.node
-import string
-import threading
-import time
-from visualization_msgs.msg import MarkerArray
+from visualization_msgs.msg import Marker, MarkerArray
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_viz import RvizVisualizer
-
-from pydrake.examples.manipulation_station import ManipulationStation
+from pydrake.examples import ManipulationStation
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.primitives import ConstantVectorSource
+
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.viz import RvizVisualizer
 
 
 class ManagedSubscription:
@@ -106,7 +93,7 @@ class ManagedSubscription:
 
 class DrakeTestSystem:
     def __init__(self):
-        drake_ros_core.init()
+        drake_ros.core.init()
 
         builder = DiagramBuilder()
         ros_interface_system = builder.AddSystem(
@@ -161,12 +148,25 @@ def test_receive_visual_marker_array():
 
         # Get at least two messages to confirm the markers are being updated
         assert len(rx_messages) >= 2
+        test_message = rx_messages[0]
+        test_markers = test_message.markers
 
         # Make sure there are some markers in the array
-        assert len(rx_messages[0].markers) >= 2
+        assert len(test_markers) >= 2
 
-        # Dissect and check some important values from a marker
-        marker = rx_messages[0].markers[1]
-        assert marker.ns != ''
-        assert marker.type == marker.MESH_RESOURCE
-        assert marker.mesh_resource != ''
+        # Do some very simple (but flexible) checks on the markers
+        types = set(marker.type for marker in test_markers)
+        assert types >= {Marker.ADD, Marker.CUBE, Marker.MESH_RESOURCE}
+        namespaces = set(marker.ns for marker in test_markers)
+        assert "" in namespaces
+        mesh_resources = set(
+            marker.mesh_resource
+            for marker in test_markers
+            if marker.type == marker.MESH_RESOURCE
+        )
+        assert len(mesh_resources) >= 1
+        assert "" not in mesh_resources
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main(sys.argv))
