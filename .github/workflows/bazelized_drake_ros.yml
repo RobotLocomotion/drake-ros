@@ -18,10 +18,13 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
-          path: "/home/runner/.cache/bazel"
-          key: bazel-drake-ros
+          path: "/home/runner/.cache/ci"
+          key: bazel
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
+      - name: Configure Bazel for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: drake_ros
       - name: Install ROS tools (like rosdep)
         uses: ros-tooling/setup-ros@v0.4
       - name: Update rosdep data
@@ -40,9 +43,6 @@ jobs:
         # but can't download the archive with bazel until we have the dependencies installed
         # so bazel_ros2_rules can inspect it.
         run: sudo apt-get install -y libconsole-bridge-dev
-      - name: Configure Bazel for CI
-        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
-        working-directory: drake_ros
       - name: Build drake_ros
         run: bazel build //...
         working-directory: drake_ros

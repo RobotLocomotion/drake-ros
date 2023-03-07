@@ -23,15 +23,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
-          path: "/home/runner/.cache/bazel"
+          path: "/home/runner/.cache/ci"
           key: bazel
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
-      - name: Install prerequisites
-        run: yes | ./setup/install_prereqs.sh
-        working-directory: ros2_example_bazel_installed
       - name: Configure Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: ros2_example_bazel_installed
+      - name: Install prerequisites
+        run: yes | ./setup/install_prereqs.sh
         working-directory: ros2_example_bazel_installed
       # Place this before main build.
       # TODO(eric.cousineau): Remove this pending resolution of #107.

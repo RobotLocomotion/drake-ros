@@ -7,3 +7,9 @@ common --experimental_ui_max_stdouterr_bytes=5242880
 common --keep_going=yes
 
 test --test_summary=short
+
+# Paths for caching Bazel externals and disk cache.
+fetch --repository_cache /home/runner/.cache/ci/bazel_externals
+build --repository_cache /home/runner/.cache/ci/bazel_externals
+fetch --disk_cache /home/runner/.cache/ci/bazel_local_disk
+build --disk_cache /home/runner/.cache/ci/bazel_local_disk
