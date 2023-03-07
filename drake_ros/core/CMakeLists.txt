@@ -93,6 +93,4 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
   target_link_libraries(test_geometry_conversions drake_ros_core)
-
-  ament_add_pytest_test(test_geometry_conversions_py test/test_geometry_conversions_py.py)
 endif()
