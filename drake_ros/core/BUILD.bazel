@@ -1,5 +1,18 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
 
+# Dependencies for both static and shared libraries that will not violate ODR.
+cc_library(
+    name = "odr_safe_deps",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@eigen",
+        "@ros2//:geometry_msgs_cc",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:rosidl_runtime_c_cc",
+        "@ros2//:rosidl_typesupport_cpp_cc",
+    ],
+)
+
 # TODO(sloretz) more granular targets for static linking
 cc_library(
     name = "core",
@@ -15,15 +28,11 @@ cc_library(
     include_prefix = "drake_ros/core",
     visibility = ["//visibility:public"],
     deps = [
+        ":odr_safe_deps",
         "@drake//common:essential",
         "@drake//math:geometric_transform",
         "@drake//multibody/math:spatial_algebra",
         "@drake//systems/framework:leaf_system",
-        "@eigen",
-        "@ros2//:geometry_msgs_cc",
-        "@ros2//:rclcpp_cc",
-        "@ros2//:rosidl_runtime_c_cc",
-        "@ros2//:rosidl_typesupport_cpp_cc",
     ],
 )
 
