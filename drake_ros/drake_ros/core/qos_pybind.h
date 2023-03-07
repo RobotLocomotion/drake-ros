@@ -5,26 +5,26 @@
 #include <pybind11/pybind11.h>
 #include <rclcpp/qos.hpp>
 
-#include "drake_ros/core/drake_ros_core_pybind.h"
+#include "drake_ros/drake_ros_pybind.h"
 
-namespace drake_ros_core {
+namespace drake_ros {
 // Thin wrapper that adds a default constructor, since rclcpp::QoS deletes
 // its own and PYBIND11_TYPE_CASTER requires one.
 class QoS : public rclcpp::QoS {
  public:
   QoS() : rclcpp::QoS(1) {}
 };
-}  // namespace drake_ros_core
+}  // namespace drake_ros
 
 namespace pybind11 {
 namespace detail {
 // TODO(hidmic): rely on rclpy.qos.QoSProfile when and if a pybind11 binding
 // is introduced upstream. See https://github.com/ros2/rclpy/issues/843.
 template <>
-struct type_caster<drake_ros_core::QoS> {
+struct type_caster<drake_ros::QoS> {
  public:
   // declares local 'value' of type QoS
-  PYBIND11_TYPE_CASTER(drake_ros_core::QoS, _("rclpy.qos.QoSProfile"));
+  PYBIND11_TYPE_CASTER(drake_ros::QoS, _("rclpy.qos.QoSProfile"));
 
   // Convert from Python rclpy.qos.QoSProfile to QoS
   bool load(handle src, bool) {
@@ -75,7 +75,7 @@ struct type_caster<drake_ros_core::QoS> {
   }
 
   // Convert from Python QoS to rclpy.qos.QoSProfile
-  static handle cast(drake_ros_core::QoS src, return_value_policy policy,
+  static handle cast(drake_ros::QoS src, return_value_policy policy,
                      handle parent) {
     (void)src;
     (void)policy;

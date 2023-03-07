@@ -5,21 +5,23 @@
 #include <pybind11/stl.h>
 
 #include "drake_ros/core/drake_ros.h"
-#include "drake_ros/tf2/drake_ros_tf2_pybind.h"
+#include "drake_ros/drake_ros_pybind.h"
 #include "drake_ros/tf2/scene_tf_broadcaster_system.h"
 
-namespace drake_ros_tf2 {
-namespace drake_ros_tf2_py {
-namespace {
+namespace drake_ros {
+namespace drake_ros_py {
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;
-using drake_ros_core::DrakeRos;
 
-PYBIND11_MODULE(drake_ros_tf2, m) {
-  m.doc() = "Python wrapper for drake_ros_tf2";
+void DefTf2(py::module m) {
+  m.doc() = "Python wrapper for drake_ros.tf2";
 
-  py::module::import("drake_ros_core");
+  using drake_ros_core::DrakeRos;
+  using drake_ros_tf2::SceneTfBroadcasterParams;
+  using drake_ros_tf2::SceneTfBroadcasterSystem;
+
+  py::module::import("drake_ros.core");
 
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
@@ -56,6 +58,5 @@ PYBIND11_MODULE(drake_ros_tf2, m) {
            py::return_value_policy::reference_internal);
 }
 
-}  // namespace
-}  // namespace drake_ros_tf2_py
-}  // namespace drake_ros_tf2
+}  // namespace drake_ros_py
+}  // namespace drake_ros
