@@ -24,7 +24,7 @@ jobs:
         run: du -hs $(readlink -f /home/runner/.cache/ci)
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
-      - name: Configure Bazel for CI
+      - name: Configure drake_ros Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros
       - name: Install ROS tools (like rosdep)
@@ -45,9 +45,23 @@ jobs:
         # but can't download the archive with bazel until we have the dependencies installed
         # so bazel_ros2_rules can inspect it.
         run: sudo apt-get install -y libconsole-bridge-dev
-      - name: Build drake_ros
+      # # CI for drake_ros.
+      # - name: Build drake_ros
+      #   run: bazel build //...
+      #   working-directory: drake_ros
+      # - name: Test drake_ros
+      #   run: bazel test //...
+      #   working-directory: drake_ros
+      # CI for drake_ros_examples.
+      - name: Install additional ROS dependencies for drake_ros_examples
+        run: yes | sudo ./setup/install_prereqs.sh
+        working-directory: drake_ros_examples
+      - name: Configure drake_ros_examples Bazel for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: drake_ros_examples
+      - name: Build drake_ros_examples
         run: bazel build //...
-        working-directory: drake_ros
-      - name: Test drake_ros
+        working-directory: drake_ros_examples
+      - name: Test drake_ros_examples
         run: bazel test //...
-        working-directory: drake_ros
+        working-directory: drake_ros_examples
