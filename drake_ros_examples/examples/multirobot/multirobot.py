@@ -28,13 +28,13 @@ from pydrake.systems.primitives import ConstantVectorSource
 
 
 def main():
-    p = argparse.ArgumentParser()
-    p.add_argument(
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
         '--simulation_sec',
         type=float,
         default=float('inf'),
         help='How many seconds to run the simulation')
-    args = p.parse_args()
+    args = parser.parse_args()
 
     # Create a Drake diagram
     builder = DiagramBuilder()
@@ -44,7 +44,6 @@ def main():
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem('multirobot'))
 
     # Add a multibody plant and a scene graph to hold the robots
-    print(MultibodyPlantConfig())
     plant, scene_graph = AddMultibodyPlant(
         MultibodyPlantConfig(time_step=0.001, discrete_contact_solver="sap"),
         builder,
@@ -135,10 +134,10 @@ def main():
     # Step the simulator in 0.1s intervals
     step = 0.1
     while simulator_context.get_time() < args.simulation_sec:
-        if args.simulation_sec - simulator_context.get_time() < step:
-            simulator.AdvanceTo(args.simulation_sec)
-        else:
-            simulator.AdvanceTo(simulator_context.get_time() + step)
+        next_time = min(
+            simulator_context.get_time() + step, args.simulation_sec,
+        )
+        simulator.AdvanceTo(next_time)
 
 
 if __name__ == '__main__':
