@@ -21,14 +21,20 @@ add_bazel_ros2_rules_dependencies()
 
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
 
+# N.B. We do *not* name this as `drake_ros` to avoid module shadowing.
+# See https://github.com/bazelbuild/bazel/issues/17691
+# If you wish to maintiain the name as `drake_ros` and you need Python, then
+# you should ensure `legacy_create_init=False` (or an equivalent effect) is
+# present:
+# https://bazel.build/reference/be/python#py_binary.legacy_create_init
 local_repository(
-    name = "drake_ros",
+    name = "drake_ros_repo",
     path = "../drake_ros",
 )
 
-load("@drake_ros//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
+load("@drake_ros_repo//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
 load(
-    "@drake_ros//:required_packages.bzl",
+    "@drake_ros_repo//:required_packages.bzl",
     "drake_ros_fail_if_missing_required_packages",
 )
 
@@ -54,7 +60,7 @@ ros2_archive(
     url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa
 )
 
-load("@drake_ros//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
+load("@drake_ros_repo//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
 
 http_archive(
     name = "drake",

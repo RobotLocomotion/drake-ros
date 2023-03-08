@@ -12,6 +12,10 @@
 #include <drake_ros/core/drake_ros.h>
 #include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/viz/rviz_visualizer.h>
+#include <gflags/gflags.h>
+
+DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
+              "How many seconds to run the simulation");
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -23,7 +27,8 @@ using drake::systems::ConstantVectorSource;
 using drake::systems::Simulator;
 using drake::systems::Sine;
 
-int main() {
+int main(int argc, char** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, false);
   drake::systems::DiagramBuilder<double> builder;
 
   drake_ros_core::init();
@@ -94,8 +99,12 @@ int main() {
       manipulation_station->GetIiwaPosition(manipulation_station_context));
   constants.get_mutable_value()[0] = -M_PI / 4.;
 
-  while (true) {
-    simulator->AdvanceTo(simulator_context.get_time() + 0.1);
+  // Step the simulator in 0.1s intervals
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_sec) {
+    const double next_time =
+        std::min(FLAGS_simulation_sec, simulator_context.get_time() + kStep);
+    simulator->AdvanceTo(next_time);
   }
   return 0;
 }

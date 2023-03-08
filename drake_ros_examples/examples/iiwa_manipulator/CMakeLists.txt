@@ -3,6 +3,7 @@ target_link_libraries(iiwa_manipulator
   drake::drake
   drake_ros::drake_ros_core
   drake_ros::drake_ros_viz
+  gflags_shared
 )
 
 install(

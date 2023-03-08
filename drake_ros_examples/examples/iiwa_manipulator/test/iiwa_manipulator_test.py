@@ -17,8 +17,12 @@ def make_env():
 
 def main():
     env = make_env()
-    cc_bin = Rlocation("drake_ros_examples/examples/multirobot/multirobot")
-    py_bin = Rlocation("drake_ros_examples/examples/multirobot/multirobot_py")
+    cc_bin = Rlocation(
+        "drake_ros_examples/examples/iiwa_manipulator/iiwa_manipulator"
+    )
+    py_bin = Rlocation(
+        "drake_ros_examples/examples/iiwa_manipulator/iiwa_manipulator_py"
+    )
     run([cc_bin, "--simulation_sec=0.01"], env=env, check=True)
     run([py_bin, "--simulation_sec=0.01"], env=env, check=True)
     print("[ Done ]")

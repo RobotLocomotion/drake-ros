@@ -127,11 +127,9 @@ int main(int argc, char** argv) {
   // Step the simulator in 0.1s intervals
   constexpr double kStep{0.1};
   while (simulator_context.get_time() < FLAGS_simulation_sec) {
-    if (FLAGS_simulation_sec - simulator_context.get_time() < kStep) {
-      simulator->AdvanceTo(FLAGS_simulation_sec);
-    } else {
-      simulator->AdvanceTo(simulator_context.get_time() + kStep);
-    }
+    const double next_time =
+        std::min(FLAGS_simulation_sec, simulator_context.get_time() + kStep);
+    simulator->AdvanceTo(next_time);
   }
 
   return 0;

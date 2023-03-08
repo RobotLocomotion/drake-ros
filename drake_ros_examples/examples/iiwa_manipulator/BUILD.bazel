@@ -3,6 +3,7 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary")
+load("@ros2//:ros_py.bzl", "ros_py_test")
 
 ros_cc_binary(
     name = "iiwa_manipulator",
@@ -15,8 +16,9 @@ ros_cc_binary(
         "@drake//systems/primitives:adder",
         "@drake//systems/primitives:constant_vector_source",
         "@drake//systems/primitives:sine",
-        "@drake_ros//core",
-        "@drake_ros//viz",
+        "@drake_ros_repo//core",
+        "@drake_ros_repo//viz",
+        "@gflags",
     ],
 )
 
@@ -27,8 +29,20 @@ ros_py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
-        "@drake_ros//core:core_py",
-        "@drake_ros//viz:viz_py",
+        "@drake_ros_repo//:drake_ros_py",
         "@ros2//:rclpy_py",
+    ],
+)
+
+ros_py_test(
+    name = "iiwa_manipulator_test",
+    srcs = ["test/iiwa_manipulator_test.py"],
+    data = [
+        ":iiwa_manipulator",
+        ":iiwa_manipulator_py",
+    ],
+    main = "test/iiwa_manipulator_test.py",
+    deps = [
+        "//:bazel_ros_testing_py",
     ],
 )
