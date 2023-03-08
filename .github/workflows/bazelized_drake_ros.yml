@@ -53,6 +53,11 @@ jobs:
         run: bazel test //...
         working-directory: drake_ros
       # CI for drake_ros_examples.
+      - name: Install additional ROS dependencies for drake_ros_examples
+        run: |
+            sudo apt-get install -y \
+                libyaml-cpp-dev \
+                liborocos-kdl-dev
       - name: Configure drake_ros_examples Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros_examples
