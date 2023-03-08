@@ -1,4 +1,17 @@
 #!/usr/bin/env python3
+"""
+NOR gate RS flip flop example
+Input topics /S and /R are active high (true is logic 1 and false is logic 0)
+Output topics  /Q and /Q_not are active low (true is logic 0 and false is logic 1)
+
+Input/Output table
+S: false R: false | Q: no change  Q_not: no change
+S: true  R: false | Q: false      Q_not: true
+S: false R: true  | Q: true       Q_not: false
+S: true  R: true  | Q: invalid    Q_not: invalid
+"""
+import argparse
+
 import drake_ros.core
 from drake_ros.core import RosInterfaceSystem
 from drake_ros.core import RosPublisherSystem
@@ -60,18 +73,16 @@ class Memory(LeafSystem):
 
 
 def main():
-    # NOR gate RS flip flop example
-    # Input topics /S and /R are active high (true is logic 1 and false is logic 0)
-    # Output topics  /Q and /Q_not are active low (true is logic 0 and false is logic 1)
-
-    # Input/Output table
-    # S: false R: false | Q: no change  Q_not: no change
-    # S: true  R: false | Q: false      Q_not: true
-    # S: false R: true  | Q: true       Q_not: false
-    # S: true  R: true  | Q: invalid    Q_not: invalid
-    builder = DiagramBuilder()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--simulation_sec',
+        type=float,
+        default=float('inf'),
+        help='How many seconds to run the simulation')
+    args = parser.parse_args()
 
     drake_ros.core.init()
+    builder = DiagramBuilder()
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem("rs_flip_flop_node"))
 
     qos = QoSProfile(depth=10)
@@ -128,8 +139,13 @@ def main():
     simulator_context = simulator.get_mutable_context()
     simulator.set_target_realtime_rate(1.0)
 
-    while True:
-        simulator.AdvanceTo(simulator_context.get_time() + 0.1)
+    # Step the simulator in 0.1s intervals
+    step = 0.1
+    while simulator_context.get_time() < args.simulation_sec:
+        next_time = min(
+            simulator_context.get_time() + step, args.simulation_sec,
+        )
+        simulator.AdvanceTo(next_time)
 
 
 if __name__ == '__main__':

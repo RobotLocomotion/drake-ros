@@ -20,9 +20,9 @@ ros_cc_binary(
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/primitives:constant_vector_source",
-        "@drake_ros//core",
-        "@drake_ros//tf2",
-        "@drake_ros//viz",
+        "@drake_ros_repo//core",
+        "@drake_ros_repo//tf2",
+        "@drake_ros_repo//viz",
         "@gflags",
     ],
 )
@@ -37,9 +37,7 @@ ros_py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
-        "@drake_ros//core:core_py",
-        "@drake_ros//tf2:tf2_py",
-        "@drake_ros//viz:viz_py",
+        "@drake_ros_repo//:drake_ros_py",
         "@ros2//:rclpy_py",
     ],
 )
@@ -53,7 +51,6 @@ ros_py_test(
     ],
     main = "test/multirobot_test.py",
     deps = [
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
-        "@rules_python//python/runfiles",
+        "//:bazel_ros_testing_py",
     ],
 )

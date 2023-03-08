@@ -1,1 +1,19 @@
-# Empty BUILD file to mark package boundary.
+py_test(
+    name = "drake_ros_py_import_test",
+    srcs = ["test/drake_ros_py_import_test.py"],
+    main = "test/drake_ros_py_import_test.py",
+    deps = [
+        "@drake_ros_repo//:drake_ros_py",
+    ],
+)
+
+py_library(
+    name = "bazel_ros_testing_py",
+    srcs = ["test/bazel_ros_testing.py"],
+    deps = [
+        "@rules_python//python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+    testonly = 1,
+    visibility = ["//:__subpackages__"],
+)

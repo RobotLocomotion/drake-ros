@@ -9,7 +9,11 @@
 #include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/core/ros_publisher_system.h>
 #include <drake_ros/core/ros_subscriber_system.h>
+#include <gflags/gflags.h>
 #include <std_msgs/msg/bool.hpp>
+
+DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
+              "How many seconds to run the simulation");
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
@@ -74,7 +78,8 @@ class Memory : public drake::systems::LeafSystem<double> {
   }
 };
 
-int main() {
+int main(int argc, char** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, false);
   // NOR gate RS flip flop example
   // Input topics /S and /R are active high (true is logic 1 and false is logic
   // 0)
@@ -138,8 +143,13 @@ int main() {
 
   auto& simulator_context = simulator->get_mutable_context();
 
-  while (true) {
-    simulator->AdvanceTo(simulator_context.get_time() + 0.1);
+  // Step the simulator in 0.1s intervals
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_sec) {
+    const double next_time =
+        std::min(FLAGS_simulation_sec, simulator_context.get_time() + kStep);
+    simulator->AdvanceTo(next_time);
   }
+
   return 0;
 }

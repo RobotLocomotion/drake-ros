@@ -3,6 +3,7 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary")
+load("@ros2//:ros_py.bzl", "ros_py_test")
 
 ros_cc_binary(
     name = "rs_flip_flop",
@@ -12,8 +13,9 @@ ros_cc_binary(
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/framework:leaf_system",
-        "@drake_ros//core",
+        "@drake_ros_repo//core",
         "@ros2//:std_msgs_cc",
+        "@gflags",
     ],
 )
 
@@ -24,8 +26,21 @@ ros_py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
-        "@drake_ros//core:core_py",
+        "@drake_ros_repo//:drake_ros_py",
         "@ros2//:rclpy_py",
         "@ros2//:std_msgs_py",
+    ],
+)
+
+ros_py_test(
+    name = "rs_flip_flop_test",
+    srcs = ["test/rs_flip_flop_test.py"],
+    data = [
+        ":rs_flip_flop",
+        ":rs_flip_flop_py",
+    ],
+    main = "test/rs_flip_flop_test.py",
+    deps = [
+        "//:bazel_ros_testing_py",
     ],
 )
