@@ -1,4 +1,4 @@
-$!/bin/bash
+#!/bin/bash
 set -euo pipefail
 
 cat_without_comments() {
