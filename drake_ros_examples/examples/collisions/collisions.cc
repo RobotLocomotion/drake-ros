@@ -105,8 +105,7 @@ int do_main() {
       friction_coefficient /* dynamic friction */);
 
   // Hydroelastic Ball and Plane example taken from
-  // https://github.com/RobotLocomotion/drake/blob/
-  // 940b63716161c7206d494378701be11852c53d75/
+  // https://github.com/RobotLocomotion/drake/blob/v1.11.0/
   // examples/multibody/rolling_sphere/populate_ball_plant.cc
   UnitInertia<double> G_Bcm = UnitInertia<double>::SolidSphere(radius);
   SpatialInertia<double> M_Bcm(mass, Vector3d::Zero(), G_Bcm);
