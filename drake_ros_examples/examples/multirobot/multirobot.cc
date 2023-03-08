@@ -1,39 +1,33 @@
-// Copyright 2022 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include <filesystem>
+#include <limits>
 #include <memory>
 
 #include <drake/common/find_resource.h>
 #include <drake/geometry/drake_visualizer.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
+#include <drake/multibody/plant/multibody_plant_config_functions.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_interface_system.h>
-#include <drake_ros_tf2/scene_tf_broadcaster_system.h>
-#include <drake_ros_viz/rviz_visualizer.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_interface_system.h>
+#include <drake_ros/tf2/scene_tf_broadcaster_system.h>
+#include <drake_ros/viz/rviz_visualizer.h>
+#include <gflags/gflags.h>
+
+DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
+              "How many seconds to run the simulation");
 
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
 
 using drake::systems::ConstantVectorSource;
 using drake::systems::Simulator;
+using drake::systems::TriggerType;
 
-int main() {
+int main(int argc, char** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, false);
   // Create a Drake diagram
   drake::systems::DiagramBuilder<double> builder;
 
@@ -44,15 +38,19 @@ int main() {
       std::make_unique<DrakeRos>("multirobot_node"));
 
   // Add a multibody plant and a scene graph to hold the robots
+  drake::multibody::MultibodyPlantConfig plant_config;
+  plant_config.time_step = 0.001;
+  plant_config.discrete_contact_solver = "sap";
   auto [plant, scene_graph] =
-      drake::multibody::AddMultibodyPlantSceneGraph(&builder, 0.001);
+      drake::multibody::AddMultibodyPlant(plant_config, &builder);
 
+  const double viz_dt = 1 / 32.0;
   // Add a TF2 broadcaster to provide task frame information
   auto scene_tf_broadcaster =
       builder.AddSystem<drake_ros_tf2::SceneTfBroadcasterSystem>(
           ros_interface_system->get_ros_interface(),
           drake_ros_tf2::SceneTfBroadcasterParams{
-              {drake::systems::TriggerType::kForced}, 0., "/tf"});
+              {TriggerType::kPeriodic}, viz_dt, "/tf"});
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_tf_broadcaster->get_graph_query_input_port());
 
@@ -60,7 +58,7 @@ int main() {
   auto scene_visualizer = builder.AddSystem<drake_ros_viz::RvizVisualizer>(
       ros_interface_system->get_ros_interface(),
       drake_ros_viz::RvizVisualizerParams{
-          {drake::systems::TriggerType::kForced}, 0., true});
+          {TriggerType::kPeriodic}, viz_dt, true});
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_visualizer->get_graph_query_input_port());
 
@@ -71,9 +69,9 @@ int main() {
       "iiwa14_polytope_collision.urdf");
   const std::string model_name = "kuka_iiwa";
 
-  // Create a 10x10 array of manipulators
-  size_t kNumRows = 10;
-  size_t kNumCols = 10;
+  // Create a 5x5 array of manipulators
+  size_t kNumRows = 5;
+  size_t kNumCols = 5;
   std::vector<std::vector<drake::multibody::ModelInstanceIndex>> models;
   for (uint8_t xx = 0; xx < kNumRows; ++xx) {
     std::vector<drake::multibody::ModelInstanceIndex> models_xx;
@@ -122,14 +120,16 @@ int main() {
 
   // Create a simulator for the system
   auto simulator = std::make_unique<Simulator<double>>(*diagram);
+  simulator->Initialize();
   auto& simulator_context = simulator->get_mutable_context();
   simulator->set_target_realtime_rate(1.0);
 
   // Step the simulator in 0.1s intervals
-  while (true) {
-    simulator->AdvanceTo(simulator_context.get_time() + 0.1);
-    // At each time step, trigger the publication of the diagram's outputs
-    diagram->ForcedPublish(simulator_context);
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_sec) {
+    const double next_time =
+        std::min(FLAGS_simulation_sec, simulator_context.get_time() + kStep);
+    simulator->AdvanceTo(next_time);
   }
 
   return 0;

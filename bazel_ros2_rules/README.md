@@ -20,7 +20,8 @@ More detail about these features are listed in [`./ros2`](./ros2).
 
 ## Platform support
 
-These rules require ROS 2 Rolling distributions on Ubuntu Focal 20.04 and onwards.
+These rules require ROS 2 Humble distributions on Ubuntu Jammy 22.04 and
+onwards.
 
 ## Usage
 

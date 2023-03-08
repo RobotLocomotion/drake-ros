@@ -7,3 +7,10 @@ build --host_cxxopt=-std=c++17
 
 # Use Python 3.
 build --python_path=/usr/bin/python3
+
+# Default test options.
+test --test_output=errors
+test --test_summary=terse
+
+# Try to import user-specific configuration local to workspace.
+try-import %workspace%/user.bazelrc

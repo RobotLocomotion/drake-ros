@@ -7,10 +7,8 @@ set -eux
 cd $(dirname ${BASH_SOURCE})
 
 ament_packages=(
-    drake_ros_core
+    drake_ros
     drake_ros_examples
-    drake_ros_tf2
-    drake_ros_viz
 )
 for ament_package in ${ament_packages[@]}; do
     (

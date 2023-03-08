@@ -66,7 +66,7 @@ dpkg_install_from_curl \
 
 # TODO(hidmic): install distributions from debians when Drake supports 22.04
 if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
-  # Install dependencies for ROS 2 Rolling on Focal tarball
+  # Install dependencies for ROS 2 Rolling on Jammy tarball
   ROS2_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
   if ! grep "${ROS2_APT_SOURCE}" /etc/apt/sources.list.d/ros2.list; then
     echo ${ROS2_APT_SOURCE} | tee /etc/apt/sources.list.d/ros2.list
