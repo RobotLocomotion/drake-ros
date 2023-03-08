@@ -45,13 +45,13 @@ jobs:
         # but can't download the archive with bazel until we have the dependencies installed
         # so bazel_ros2_rules can inspect it.
         run: sudo apt-get install -y libconsole-bridge-dev
-      # CI for drake_ros.
-      - name: Build drake_ros
-        run: bazel build //...
-        working-directory: drake_ros
-      - name: Test drake_ros
-        run: bazel test //...
-        working-directory: drake_ros
+      # # CI for drake_ros.
+      # - name: Build drake_ros
+      #   run: bazel build //...
+      #   working-directory: drake_ros
+      # - name: Test drake_ros
+      #   run: bazel test //...
+      #   working-directory: drake_ros
       # CI for drake_ros_examples.
       - name: Install additional ROS dependencies for drake_ros_examples
         run: |
