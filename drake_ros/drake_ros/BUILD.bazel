@@ -86,6 +86,18 @@ ros_py_test(
     ],
 )
 
+ros_py_test(
+    name = "geometry_conversions_test",
+    srcs = ["test/geometry_conversions_test.py"],
+    main = "test/geometry_conversions_test.py",
+    deps = [
+        ":drake_ros_py",
+        "@drake//bindings/pydrake",
+        "@ros2//:geometry_msgs_py",
+        "@ros2//:rclpy_py",
+    ],
+)
+
 # N.B. This test should fail if `cc_py` has its `cc_deps` on
 # `//:drake_ros_shared_library` changed to `//:drake_ros` (the static version).
 ros_py_test(

@@ -1,10 +1,38 @@
 """Python wrapper for drake_ros.core."""
 
 from drake_ros._cc.core import init
+from drake_ros._cc.core import Isometry3ToRosPose
+from drake_ros._cc.core import Isometry3ToRosTransform
+from drake_ros._cc.core import QuaternionToRosQuaternion
+from drake_ros._cc.core import RigidTransformToRosPose
+from drake_ros._cc.core import RigidTransformToRosTransform
+from drake_ros._cc.core import RosAccelToSpatialAcceleration
+from drake_ros._cc.core import RosAccelToVector6
 from drake_ros._cc.core import RosInterfaceSystem
+from drake_ros._cc.core import RosPointToVector3
+from drake_ros._cc.core import RosPoseToIsometry3
+from drake_ros._cc.core import RosPoseToRigidTransform
 from drake_ros._cc.core import RosPublisherSystem
+from drake_ros._cc.core import RosQuaternionToQuaternion
+from drake_ros._cc.core import RosQuaternionToRotationMatrix
 from drake_ros._cc.core import RosSubscriberSystem
+from drake_ros._cc.core import RosTransformToIsometry3
+from drake_ros._cc.core import RosTransformToRigidTransform
+from drake_ros._cc.core import RosTwistToSpatialVelocity
+from drake_ros._cc.core import RosTwistToVector6
+from drake_ros._cc.core import RosVector3ToVector3
+from drake_ros._cc.core import RosWrenchToSpatialForce
+from drake_ros._cc.core import RosWrenchToVector6
+from drake_ros._cc.core import RotationMatrixToRosQuaternion
 from drake_ros._cc.core import SerializerInterface
+from drake_ros._cc.core import SpatialAccelerationToRosAccel
+from drake_ros._cc.core import SpatialForceToRosWrench
+from drake_ros._cc.core import SpatialVelocityToRosTwist
+from drake_ros._cc.core import Vector3ToRosPoint
+from drake_ros._cc.core import Vector3ToRosVector3
+from drake_ros._cc.core import Vector6ToRosAccel
+from drake_ros._cc.core import Vector6ToRosTwist
+from drake_ros._cc.core import Vector6ToRosWrench
 from drake_ros._cc.core import shutdown
 
 from pydrake.common.value import AbstractValue
@@ -70,11 +98,39 @@ RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 __all__ = [
     'DrakeRosInterface',
-    'init',
+    'Isometry3ToRosPose',
+    'Isometry3ToRosTransform',
     'PySerializer',
+    'QuaternionToRosQuaternion',
+    'RigidTransformToRosPose',
+    'RigidTransformToRosTransform',
+    'RosAccelToSpatialAcceleration',
+    'RosAccelToVector6',
     'RosInterfaceSystem',
+    'RosPointToVector3',
+    'RosPoseToIsometry3',
+    'RosPoseToRigidTransform',
     'RosPublisherSystem',
+    'RosQuaternionToQuaternion',
+    'RosQuaternionToRotationMatrix',
     'RosSubscriberSystem',
+    'RosTransformToIsometry3',
+    'RosTransformToRigidTransform',
+    'RosTwistToSpatialVelocity',
+    'RosTwistToVector6',
+    'RosVector3ToVector3',
+    'RosWrenchToSpatialForce',
+    'RosWrenchToVector6',
+    'RotationMatrixToRosQuaternion',
     'SerializerInterface',
+    'SpatialAccelerationToRosAccel',
+    'SpatialForceToRosWrench',
+    'SpatialVelocityToRosTwist',
+    'Vector3ToRosPoint',
+    'Vector3ToRosVector3',
+    'Vector6ToRosAccel',
+    'Vector6ToRosTwist',
+    'Vector6ToRosWrench',
+    'init',
     'shutdown',
 ]

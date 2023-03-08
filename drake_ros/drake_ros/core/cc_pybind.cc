@@ -6,6 +6,8 @@
 #include <pybind11/stl.h>
 
 #include "drake_ros/core/drake_ros.h"
+#include "drake_ros/core/geometry_conversions.h"
+#include "drake_ros/core/geometry_conversions_pybind.h"
 #include "drake_ros/core/qos_pybind.h"
 #include "drake_ros/core/ros_interface_system.h"
 #include "drake_ros/core/ros_publisher_system.h"
@@ -78,8 +80,11 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
 void DefCore(py::module m) {
   m.doc() = "Python bindings for drake_ros.core";
 
+  py::module::import("numpy");
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.multibody.plant");
+  py::module::import("pydrake.math");
+  py::module::import("pydrake.common.eigen_geometry");
 
   // TODD(hidmic): populate Python docstrings with
   // C++ docstrings. Consider using mkdoc to keep
@@ -156,6 +161,75 @@ void DefCore(py::module m) {
         return std::make_unique<RosSubscriberSystem>(
             std::move(serializer), topic_name, qos, ros_interface);
       }));
+
+  // Python bindings for geometry conversions.
+  // Vector / Translation functions.
+  m.def("RosPointToVector3", &drake_ros_core::RosPointToVector3,
+        py::arg("point"));
+  m.def("Vector3ToRosPoint", &drake_ros_core::Vector3ToRosPoint,
+        py::arg("point"));
+  m.def("RosVector3ToVector3", &drake_ros_core::RosVector3ToVector3,
+        py::arg("point"));
+  m.def("Vector3ToRosVector3", &drake_ros_core::Vector3ToRosVector3,
+        py::arg("point"));
+
+  // Orientation
+  m.def("RosQuaternionToQuaternion", &drake_ros_core::RosQuaternionToQuaternion,
+        py::arg("quat"));
+  m.def("QuaternionToRosQuaternion", &drake_ros_core::QuaternionToRosQuaternion,
+        py::arg("quat"));
+  m.def("RosQuaternionToRotationMatrix",
+        &drake_ros_core::RosQuaternionToRotationMatrix, py::arg("quat"));
+  m.def("RotationMatrixToRosQuaternion",
+        &drake_ros_core::RotationMatrixToRosQuaternion, py::arg("rotation"));
+
+  // Pose
+  m.def("RosPoseToRigidTransform", &drake_ros_core::RosPoseToRigidTransform,
+        py::arg("pose"));
+  m.def("RigidTransformToRosPose", &drake_ros_core::RigidTransformToRosPose,
+        py::arg("transform"));
+  m.def("RosTransformToRigidTransform",
+        &drake_ros_core::RosTransformToRigidTransform, py::arg("transform"));
+  m.def("RigidTransformToRosTransform",
+        &drake_ros_core::RigidTransformToRosTransform, py::arg("transform"));
+  m.def("RosPoseToIsometry3", &drake_ros_core::RosPoseToIsometry3,
+        py::arg("pose"));
+  m.def("Isometry3ToRosPose", &drake_ros_core::Isometry3ToRosPose,
+        py::arg("isometry"));
+  m.def("RosTransformToIsometry3", &drake_ros_core::RosTransformToIsometry3,
+        py::arg("transform"));
+  m.def("Isometry3ToRosTransform", &drake_ros_core::Isometry3ToRosTransform,
+        py::arg("isometry"));
+
+  // Spatial Velocity
+  m.def("RosTwistToVector6", &drake_ros_core::RosTwistToVector6,
+        py::arg("twist"));
+  m.def("Vector6ToRosTwist", &drake_ros_core::Vector6ToRosTwist,
+        py::arg("vector"));
+  m.def("RosTwistToSpatialVelocity", &drake_ros_core::RosTwistToSpatialVelocity,
+        py::arg("twist"));
+  m.def("SpatialVelocityToRosTwist", &drake_ros_core::SpatialVelocityToRosTwist,
+        py::arg("velocity"));
+
+  // Spatial Acceleration
+  m.def("RosAccelToVector6", &drake_ros_core::RosAccelToVector6,
+        py::arg("accel"));
+  m.def("Vector6ToRosAccel", &drake_ros_core::Vector6ToRosAccel,
+        py::arg("vector"));
+  m.def("RosAccelToSpatialAcceleration",
+        &drake_ros_core::RosAccelToSpatialAcceleration, py::arg("accel"));
+  m.def("SpatialAccelerationToRosAccel",
+        &drake_ros_core::SpatialAccelerationToRosAccel, py::arg("accel"));
+
+  // Spatial Force
+  m.def("RosWrenchToVector6", &drake_ros_core::RosWrenchToVector6,
+        py::arg("wrench"));
+  m.def("Vector6ToRosWrench", &drake_ros_core::Vector6ToRosWrench,
+        py::arg("vector"));
+  m.def("RosWrenchToSpatialForce", &drake_ros_core::RosWrenchToSpatialForce,
+        py::arg("wrench"));
+  m.def("SpatialForceToRosWrench", &drake_ros_core::SpatialForceToRosWrench,
+        py::arg("force"));
 }
 // clang-format off
 }  // namespace drake_ros_py
