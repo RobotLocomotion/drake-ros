@@ -22,6 +22,7 @@ drake_ros_cc_relink_as_shared_library(
         "//core",
         "//tf2",
         "//viz",
+        "//viz:lodepng",
     ],
     include_prefix = "drake_ros/",
     visibility = ["//visibility:public"],

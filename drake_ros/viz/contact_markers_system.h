@@ -23,8 +23,8 @@
 #include <drake/geometry/rgba.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_viz/defaults.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/viz/defaults.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 namespace drake_ros_viz {

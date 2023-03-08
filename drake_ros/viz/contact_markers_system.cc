@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_viz/contact_markers_system.h"
+#include "drake_ros/viz/contact_markers_system.h"
 
 #include <algorithm>
 #include <cmath>
@@ -34,9 +34,9 @@
 #include <drake/geometry/shape_specification.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/geometry_conversions.h>
-#include <drake_ros_core/ros_publisher_system.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/geometry_conversions.h>
+#include <drake_ros/core/ros_publisher_system.h>
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
