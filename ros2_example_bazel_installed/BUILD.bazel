@@ -43,8 +43,15 @@ ros_py_test(
 )
 
 ros_cc_binary(
-    name = "shimmed_sentinel_cc",
+    name = "shimmed_sentinel_cc_reexec",
     srcs = ["test/shimmed_sentinel.cc"],
+    shim = "reexec",
+)
+
+ros_cc_binary(
+    name = "shimmed_sentinel_cc_ldwrap",
+    srcs = ["test/shimmed_sentinel.cc"],
+    shim = "ldwrap",
 )
 
 ros_py_binary(
@@ -57,7 +64,8 @@ py_test(
     name = "shimmed_sentinel_test",
     srcs = ["test/shimmed_sentinel_test.py"],
     data = [
-        ":shimmed_sentinel_cc",
+        ":shimmed_sentinel_cc_ldwrap",
+        ":shimmed_sentinel_cc_reexec",
         ":shimmed_sentinel_py",
     ],
     deps = [
