@@ -133,7 +133,8 @@ def test_rigid_transform_to_ros_pose():
                 [1.0/np.sqrt(30), 2.0/np.sqrt(30),
                  3.0/np.sqrt(30), 4.0/np.sqrt(30)]))
 
-    ros_pose = drake_ros.core.RigidTransformToRosPose(transform=rigid_transform)
+    ros_pose = drake_ros.core.RigidTransformToRosPose(
+            transform=rigid_transform)
     assert ros_pose.position.x == 1.0
     assert ros_pose.position.y == 2.0
     assert ros_pose.position.z == 3.0
@@ -333,7 +334,8 @@ def vector6_to_ros_accel():
     a.angular.y = 22.22
     a.angular.z = 33.33
     ros_accel_converted = drake_ros.core.Vector6ToRosAccel(
-            vector=np.array([[11.11], [22.22], [33.33], [1.11], [2.22], [3.33]]))
+            vector=np.array([[11.11], [22.22], [33.33], [1.11],
+                             [2.22], [3.33]]))
     assert ros_accel_converted == a
 
 
@@ -393,7 +395,8 @@ def test_vector6_to_ros_wrench():
     w.torque.y = 22.22
     w.torque.z = 33.33
     ros_wrench_converted = drake_ros.core.Vector6ToRosWrench(
-            vector=np.array([[11.11], [22.22], [33.33], [1.11], [2.22], [3.33]]))
+            vector=np.array([[11.11], [22.22], [33.33], [1.11],
+                             [2.22], [3.33]]))
     assert ros_wrench_converted == w
 
 
