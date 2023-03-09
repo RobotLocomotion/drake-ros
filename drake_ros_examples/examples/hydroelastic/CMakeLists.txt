@@ -1,5 +1,5 @@
-add_executable(collisions
-  collisions.cc
+add_executable(hydroelastic
+  hydroelastic.cc
 )
 target_link_libraries(collisions
   drake::drake
@@ -8,6 +8,6 @@ target_link_libraries(collisions
 )
 install(
   TARGETS
-    collisions
+    hydroelastic
   DESTINATION lib/${PROJECT_NAME}
 )

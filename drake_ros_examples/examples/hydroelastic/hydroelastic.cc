@@ -16,6 +16,7 @@
  An example of visualizing ContactSurfaces with RViz.  */
 
 #include <cmath>
+#include <limits>
 #include <memory>
 #include <utility>
 
@@ -77,8 +78,8 @@ using Eigen::Vector3d;
 using Eigen::Vector4d;
 using std::make_unique;
 
-DEFINE_double(simulation_time, 10.0,
-              "Desired duration of the simulation in seconds.");
+DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
+              "How many seconds to run the simulation");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
 DEFINE_double(resolution_hint, 0.5,
               "Measure of typical mesh edge length in meters."
@@ -233,10 +234,14 @@ int do_main() {
   simulator.set_target_realtime_rate(FLAGS_real_time ? 1.f : 0.f);
   simulator.Initialize();
 
-  while (true) {
-    simulator.AdvanceTo(simulator_context.get_time() + 0.1);
+  // Step the simulator in 0.1s intervals
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_sec) {
+    const double next_time =
+        std::min(FLAGS_simulation_sec, simulator_context.get_time() + kStep);
+    simulator.AdvanceTo(next_time);
   }
-  simulator.AdvanceTo(FLAGS_simulation_time);
+
   return 0;
 }
 

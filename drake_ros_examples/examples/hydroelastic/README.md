@@ -1,4 +1,4 @@
-# Collisions
+# Hydroelastic
 
 ## Overview
 
@@ -13,14 +13,22 @@ It publishes the following topics:
 
 ## How To
 
-Run the C++ `collisions` executable in the `drake_ros_examples` package.
+Run the C++ `hydroelastic` executable in the `drake_ros_examples` package.
 
-```
-ros2 run drake_ros_examples collisions
+```bash
+# Using bazel
+bazel run //examples/hydroelastic:hydroelastic
+
+# Using Colcon/CMake
+ros2 run drake_ros_examples hydroelastic
 ```
 
 Run RViz in a different terminal with your ROS installation sourced to visualize.
 
 ```
+# Using bazel
+bazel run @ros2//:rviz2 -- -d `pwd`/examples/hydroelastic/hydroelastic.rviz
+
+# Using Colcon/CMake
 rviz2 -d collisions.rviz
 ```
