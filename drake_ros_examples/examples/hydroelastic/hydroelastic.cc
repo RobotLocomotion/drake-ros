@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 
+#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <drake/common/value.h>
 #include <drake/geometry/drake_visualizer.h>
 #include <drake/geometry/geometry_frame.h>
@@ -21,6 +22,7 @@
 #include <drake/lcm/drake_lcm.h>
 #include <drake/lcmt_contact_results_for_viz.hpp>
 #include <drake/math/rigid_transform.h>
+#include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/contact_results_to_lcm.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/analysis/simulator.h>
@@ -37,6 +39,14 @@
 #include <gflags/gflags.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
+#ifdef BAZEL
+// Bazel can't run programs that expect the filesystem hierarchy standard.
+// We must know about bazel runfiles to access files when built by bazel.
+#include "tools/cpp/runfiles/runfiles.h"
+
+using bazel::tools::cpp::runfiles::Runfiles;
+#endif
+
 using drake::geometry::AddCompliantHydroelasticProperties;
 using drake::geometry::AddContactMaterial;
 using drake::geometry::AddRigidHydroelasticProperties;
@@ -49,6 +59,7 @@ using drake::math::RotationMatrixd;
 using drake::multibody::AddMultibodyPlantSceneGraph;
 using drake::multibody::ContactModel;
 using drake::multibody::CoulombFriction;
+using drake::multibody::Parser;
 using drake::multibody::RigidBody;
 using drake::multibody::SpatialInertia;
 using drake::multibody::UnitInertia;
@@ -64,6 +75,9 @@ using Eigen::Vector3d;
 using Eigen::Vector4d;
 using std::make_unique;
 
+using MultibodyPlantd = drake::multibody::MultibodyPlant<double>;
+
+
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
@@ -74,94 +88,46 @@ DEFINE_double(resolution_hint, 0.5,
 DEFINE_bool(use_drake_visualizer, false,
             "Use drake-visualizer instead of RViz.");
 
-int do_main() {
+void AddScene(const std::string &package_path, MultibodyPlantd* plant) {
+  auto parser = Parser(plant);
+  parser.package_map().Add("drake_ros_examples", package_path);
+
+  std::filesystem::path fs_path{
+      parser.package_map().GetPath("drake_ros_examples")};
+  parser.AddAllModelsFromFile(
+      (fs_path / "hydroelastic/hydroelastic.sdf").string());
+}
+
+int do_main(int argc, char ** argv) {
   DiagramBuilder<double> builder;
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
 
-  const double radius = 0.5;  // m
-  const double mass = 10;     // kg
-  const double g = 9.81;      // m/s^2
-
-  const double hydroelastic_modulus = 1000;  // Pa
-  const double dissipation = 5.0;            // s/m
-  const double friction_coefficient = 0.3;
-
-  const CoulombFriction<double> surface_friction(
-      friction_coefficient /* static friction */,
-      friction_coefficient /* dynamic friction */);
-
-  // Hydroelastic Ball and Plane example taken from
-  // https://github.com/RobotLocomotion/drake/blob/v1.11.0/
-  // examples/multibody/rolling_sphere/populate_ball_plant.cc
-  UnitInertia<double> G_Bcm = UnitInertia<double>::SolidSphere(radius);
-  SpatialInertia<double> M_Bcm(mass, Vector3d::Zero(), G_Bcm);
-
-  const double alpha = 0.35;
-  const Vector4d gray(0.5, 0.5, 0.5, alpha);
-  const Vector4d orange(1.0, 0.55, 0.0, alpha);
-
-  // Add a sloped half space
-  RigidTransformd X_WG(RollPitchYawd(0.15, 0.0, 0.0), Vector3d(0.0, 0.0, 0.0));
-
-  ProximityProperties ground_props;
-  AddRigidHydroelasticProperties(&ground_props);
-  AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
-                     &ground_props);
-  plant.RegisterCollisionGeometry(plant.world_body(), X_WG, HalfSpace{},
-                                  "collision_ground", std::move(ground_props));
-  // Add visual for the ground.
-  plant.RegisterVisualGeometry(plant.world_body(), X_WG, HalfSpace{},
-                               "visual_ground", gray);
-
-  // Add a vertical wall (Q)
-  RigidTransformd X_WQ(RollPitchYawd(-1.570796, 0.0, 0.0),
-                       Vector3d(0.0, -10.0, 0.0));
-
-  ProximityProperties wall_props;
-  AddRigidHydroelasticProperties(&wall_props);
-  AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
-                     &wall_props);
-  plant.RegisterCollisionGeometry(plant.world_body(), X_WQ, HalfSpace{},
-                                  "collision_wall", std::move(wall_props));
-  // Add visual for the wall.
-  plant.RegisterVisualGeometry(plant.world_body(), X_WQ, HalfSpace{},
-                               "visual_wall", gray);
-
-  const RigidBody<double>& compliant_ball =
-      plant.AddRigidBody("CompliantBall", M_Bcm);
-  const RigidBody<double>& rigid_ball = plant.AddRigidBody("RigidBall", M_Bcm);
-
-  // Add sphere geometry for the balls.
-  // Pose of sphere geometry S in body frame B.
-  const RigidTransformd X_BS = RigidTransformd::Identity();
-  // Set material properties for hydroelastics.
+#ifdef BAZEL
   {
-    ProximityProperties ball_props;
-    AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
-                       &ball_props);
-    AddCompliantHydroelasticProperties(FLAGS_resolution_hint,
-                                       hydroelastic_modulus, &ball_props);
-    plant.RegisterCollisionGeometry(compliant_ball, X_BS, Sphere(radius),
-                                    "collision", std::move(ball_props));
-
-    plant.RegisterVisualGeometry(compliant_ball, X_BS, Sphere(radius), "visual",
-                                 orange);
+    std::string error;
+    #ifdef BAZEL_CURRENT_REPOSITORY
+    // bazel 6
+    std::unique_ptr<Runfiles> runfiles(
+      Runfiles::Create(argv[0], BAZEL_CURRENT_REPOSITORY, &error));
+    #else
+    // bazel 5
+    std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv[0], &error));
+    #endif
+    if (nullptr == runfiles) {
+      throw std::runtime_error(error);
+    }
+    AddScene(
+      runfiles->Rlocation("drake_ros_examples/examples/"),
+      &plant);
   }
-  {
-    ProximityProperties ball_props;
-    AddContactMaterial(dissipation, {} /* point stiffness */, surface_friction,
-                       &ball_props);
-    AddRigidHydroelasticProperties(radius, &ball_props);
-    plant.RegisterCollisionGeometry(rigid_ball, X_BS, Sphere(radius),
-                                    "collision", std::move(ball_props));
-
-    plant.RegisterVisualGeometry(rigid_ball, X_BS, Sphere(radius), "visual",
-                                 orange);
-  }
-
-  // Gravity acting in the -z direction.
-  plant.mutable_gravity_field().set_gravity_vector(-g * Vector3d::UnitZ());
+#else
+  (void) argc;
+  (void) argv;
+  AddScene(
+    ament_index_cpp::get_package_share_directory("drake_ros_examples"),
+    &plant);
+#endif
 
   plant.set_contact_model(ContactModel::kHydroelasticWithFallback);
   plant.Finalize();
@@ -194,23 +160,6 @@ int do_main() {
   // Create a context for this system:
   std::unique_ptr<Context<double>> diagram_context =
       diagram->CreateDefaultContext();
-  Context<double>& plant_context =
-      diagram->GetMutableSubsystemContext(plant, diagram_context.get());
-
-  // Set the initial poses for the balls.
-  {
-    RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
-    RigidTransformd X_WB(R_WB, Vector3d(0.0, 0.0, 3.0));
-    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("CompliantBall"),
-                          X_WB);
-  }
-
-  {
-    RotationMatrixd R_WB(RollPitchYawd(M_PI / 180.0 * Vector3d(0.0, 0.0, 0.0)));
-    RigidTransformd X_WB(R_WB, Vector3d(0.0, radius * 4, 3.0));
-    plant.SetFreeBodyPose(&plant_context, plant.GetBodyByName("RigidBall"),
-                          X_WB);
-  }
 
   Simulator<double> simulator(*diagram, std::move(diagram_context));
 
@@ -233,5 +182,6 @@ int do_main() {
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  return do_main();
+
+  return do_main(argc, argv);
 }
