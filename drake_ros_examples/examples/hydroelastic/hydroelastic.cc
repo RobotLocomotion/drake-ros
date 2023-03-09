@@ -81,9 +81,6 @@ using MultibodyPlantd = drake::multibody::MultibodyPlant<double>;
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
-DEFINE_double(resolution_hint, 0.5,
-              "Measure of typical mesh edge length in meters."
-              " Smaller numbers produce a denser mesh");
 
 DEFINE_bool(use_drake_visualizer, false,
             "Use drake-visualizer instead of RViz.");
