@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-#include "lodepng/lodepng.h"
+#include "viz/lodepng/lodepng.h"
 #include <Eigen/Core>
 #include <builtin_interfaces/msg/time.hpp>
 #include <drake/common/drake_copyable.h>

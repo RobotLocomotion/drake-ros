@@ -42,11 +42,11 @@
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/lcm/lcm_publisher_system.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_interface_system.h>
-#include <drake_ros_core/ros_publisher_system.h>
-#include <drake_ros_viz/contact_markers_system.h>
-#include <drake_ros_viz/rviz_visualizer.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_interface_system.h>
+#include <drake_ros/core/ros_publisher_system.h>
+#include <drake_ros/viz/contact_markers_system.h>
+#include <drake_ros/viz/rviz_visualizer.h>
 #include <gflags/gflags.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 

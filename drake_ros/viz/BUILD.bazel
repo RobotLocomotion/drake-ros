@@ -21,7 +21,6 @@ cc_library(
         "lodepng/lodepng.cpp",
         "lodepng/lodepng.h",
     ],
-    copts = ["-Iviz/"],
     hdrs = ["lodepng/lodepng.h"],
 )
 
