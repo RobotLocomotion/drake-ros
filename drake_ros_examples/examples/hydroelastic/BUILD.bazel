@@ -30,6 +30,8 @@ ros_cc_binary(
     ],
 )
 
+# TODO(sloretz) Add Python example
+
 ros_py_test(
     name = "hydroelastic_test",
     srcs = ["test/hydroelastic_test.py"],
