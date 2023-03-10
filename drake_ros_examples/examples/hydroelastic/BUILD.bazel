@@ -12,7 +12,6 @@ ros_cc_binary(
         ":hydroelastic.sdf",
     ],
     local_defines = ["BAZEL"],
-    visibility = ["//visibility:public"],
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
         "@drake//common:find_resource",
