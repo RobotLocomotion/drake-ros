@@ -41,7 +41,7 @@ if(BUILD_TESTING)
     find_package(ament_cmake_pycodestyle REQUIRED)
 
     ament_clang_format(CONFIG_FILE .clang-format)
-    ament_cpplint(EXCLUDE "viz/lodepng/lodepng.h" "viz/lodepng/lodepng.cpp"))
+    ament_cpplint(EXCLUDE "viz/lodepng/lodepng.h" "viz/lodepng/lodepng.cpp")
     # TODO(Aditya) : Remove the --exclude once https://github.com/ament/ament_lint/pull/435
     # is released into ROS Humble.
     ament_pycodestyle(--config pycodestyle.ini --exclude
@@ -77,6 +77,7 @@ ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rosidl_runtime_c)
 ament_export_dependencies(rosidl_typesupport_cpp)
+ament_export_dependencies(tf2_eigen)
 ament_export_dependencies(tf2_ros)
 ament_export_dependencies(visualization_msgs)
 

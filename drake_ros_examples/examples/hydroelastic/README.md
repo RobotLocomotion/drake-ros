@@ -25,10 +25,10 @@ ros2 run drake_ros_examples hydroelastic
 
 Run RViz in a different terminal with your ROS installation sourced to visualize.
 
-```
+```bash
 # Using bazel
 bazel run @ros2//:rviz2 -- -d `pwd`/examples/hydroelastic/hydroelastic.rviz
 
 # Using Colcon/CMake
-rviz2 -d collisions.rviz
+rviz2 -d `ros2 pkg prefix --share drake_ros_examples`/hydroelastic/hydroelastic.rviz
 ```
