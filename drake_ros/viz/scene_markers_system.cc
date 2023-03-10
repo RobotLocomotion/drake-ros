@@ -20,7 +20,6 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-
 #include "drake_ros/core/geometry_conversions.h"
 #include "drake_ros/tf2/name_conventions.h"
 #include "drake_ros/viz/defaults.h"

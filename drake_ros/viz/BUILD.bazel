@@ -16,12 +16,12 @@ cc_library(
 
 cc_library(
     name = "lodepng",
-    visibility = ["//:__subpackages__"],
     srcs = [
         "lodepng/lodepng.cpp",
         "lodepng/lodepng.h",
     ],
     hdrs = ["lodepng/lodepng.h"],
+    visibility = ["//:__subpackages__"],
 )
 
 # TODO(sloretz) more granular targets for static linking
