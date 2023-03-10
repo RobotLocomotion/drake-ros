@@ -8,7 +8,7 @@
 #include <signal.h>
 
 #include <fmt/format.h>
-#include <gflags/glflags.h>
+#include <gflags/gflags.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64.hpp>
