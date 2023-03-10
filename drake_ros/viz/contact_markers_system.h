@@ -44,13 +44,18 @@ struct ContactMarkersParams {
 /// markers for all contacts found in a SceneGraph, using Context time for
 /// each `visualization_msgs/msg/Marker` message.
 ///
-/// It has one input port:
-/// - *contact_results* (abstract): expects contact results from a
-///   MultibodyPlant.
+/// @system
+/// name: JointStiffnessController
+/// input_ports:
+/// - contact_results
+/// output_ports:
+/// - contact_markers
+/// @endsystem
 ///
-/// It has one output port:
-/// - *contact_markers* (abstract): all scene geometries, as a
-///   visualization_msg::msg::MarkerArray message.
+/// The *contact_results* port expects contact results from a MultibodyPlant.
+///
+/// The *contact_markers* port outputs all scene geometries as a
+/// visualization_msg::msg::MarkerArray message.
 class ContactMarkersSystem : public drake::systems::LeafSystem<double> {
  public:
   ContactMarkersSystem(const drake::multibody::MultibodyPlant<double>& plant,
