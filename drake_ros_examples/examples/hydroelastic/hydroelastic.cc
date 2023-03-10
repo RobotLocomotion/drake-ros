@@ -137,12 +137,10 @@ int do_main(int argc, char** argv) {
     meshcat = std::make_shared<Meshcat>();
     // Visualize with meshcat
     MeshcatVisualizerParams params;
-    params.delete_on_initialization_event = false;
     MeshcatVisualizerd::AddToBuilder(&builder, scene_graph, meshcat,
                                      std::move(params));
 
     ContactVisualizerParams cparams;
-    cparams.newtons_per_meter = 60.0;
     ContactVisualizerd::AddToBuilder(&builder, plant, meshcat,
                                      std::move(cparams));
   }
