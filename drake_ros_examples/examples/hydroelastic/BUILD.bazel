@@ -13,8 +13,10 @@ ros_cc_binary(
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
         "@drake//common:find_resource",
-        "@drake//geometry:drake_visualizer",
+        "@drake//geometry:meshcat",
+        "@drake//geometry:meshcat_visualizer",
         "@drake//lcmtypes:contact_results_for_viz",
+        "@drake//multibody/meshcat",
         "@drake//multibody/parsing:parser",
         "@drake//multibody/plant",
         "@drake//multibody/plant:contact_results_to_lcm",

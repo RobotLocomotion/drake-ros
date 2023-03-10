@@ -8,12 +8,13 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <drake/common/value.h>
-#include <drake/geometry/drake_visualizer.h>
 #include <drake/geometry/geometry_frame.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/geometry/geometry_instance.h>
 #include <drake/geometry/geometry_roles.h>
 #include <drake/geometry/kinematics_vector.h>
+#include <drake/geometry/meshcat.h>
+#include <drake/geometry/meshcat_visualizer.h>
 #include <drake/geometry/proximity_properties.h>
 #include <drake/geometry/query_object.h>
 #include <drake/geometry/query_results/contact_surface.h>
@@ -22,6 +23,7 @@
 #include <drake/lcm/drake_lcm.h>
 #include <drake/lcmt_contact_results_for_viz.hpp>
 #include <drake/math/rigid_transform.h>
+#include "drake/multibody/meshcat/contact_visualizer.h"
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/contact_results_to_lcm.h>
 #include <drake/multibody/plant/multibody_plant.h>
@@ -51,11 +53,16 @@ using drake::geometry::AddCompliantHydroelasticProperties;
 using drake::geometry::AddContactMaterial;
 using drake::geometry::AddRigidHydroelasticProperties;
 using drake::geometry::HalfSpace;
+using drake::geometry::Meshcat;
+using drake::geometry::MeshcatVisualizerParams;
+using drake::geometry::MeshcatVisualizerd;
 using drake::geometry::ProximityProperties;
 using drake::geometry::Sphere;
 using drake::math::RigidTransformd;
 using drake::math::RollPitchYawd;
 using drake::math::RotationMatrixd;
+using drake::multibody::meshcat::ContactVisualizerParams;
+using drake::multibody::meshcat::ContactVisualizerd;
 using drake::multibody::AddMultibodyPlantSceneGraph;
 using drake::multibody::ContactModel;
 using drake::multibody::CoulombFriction;
@@ -77,13 +84,12 @@ using std::make_unique;
 
 using MultibodyPlantd = drake::multibody::MultibodyPlant<double>;
 
-
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
 
-DEFINE_bool(use_drake_visualizer, false,
-            "Use drake-visualizer instead of RViz.");
+DEFINE_bool(use_meshcat, false,
+            "Enable meshcat visualizer.");
 
 namespace drake_ros_examples {
 void AddScene(const std::string &package_path, MultibodyPlantd* plant) {
@@ -130,28 +136,36 @@ int do_main(int argc, char ** argv) {
   plant.set_contact_model(ContactModel::kHydroelasticWithFallback);
   plant.Finalize();
 
-  if (FLAGS_use_drake_visualizer) {
-    // Visualize with drake-visualizer
-    drake::geometry::DrakeVisualizerd::AddToBuilder(&builder, scene_graph);
-    drake::multibody::ConnectContactResultsToDrakeVisualizer(&builder, plant,
-                                                             scene_graph);
-  } else {
-    // Visualize with RViz
-    drake_ros_core::init();
-    auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
-        std::make_unique<DrakeRos>("collisions"));
+  std::shared_ptr<Meshcat> meshcat;
+  if (FLAGS_use_meshcat) {
+    meshcat = std::make_shared<Meshcat>();
+    // Visualize with meshcat
+    MeshcatVisualizerParams params;
+    params.delete_on_initialization_event = false;
+    MeshcatVisualizerd::AddToBuilder(
+        &builder, scene_graph, meshcat, std::move(params));
 
-    auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
-        ros_interface_system->get_ros_interface());
-
-    rviz_visualizer.RegisterMultibodyPlant(&plant);
-
-    builder.Connect(scene_graph.get_query_output_port(),
-                    rviz_visualizer.get_graph_query_input_port());
-
-    ConnectContactResultsToRviz(&builder, plant, scene_graph,
-                                ros_interface_system->get_ros_interface());
+    ContactVisualizerParams cparams;
+    cparams.newtons_per_meter = 60.0;
+    ContactVisualizerd::AddToBuilder(
+        &builder, plant, meshcat, std::move(cparams));
   }
+
+  // Visualize with RViz
+  drake_ros_core::init();
+  auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
+      std::make_unique<DrakeRos>("collisions"));
+
+  auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
+      ros_interface_system->get_ros_interface());
+
+  rviz_visualizer.RegisterMultibodyPlant(&plant);
+
+  builder.Connect(scene_graph.get_query_output_port(),
+                  rviz_visualizer.get_graph_query_input_port());
+
+  ConnectContactResultsToRviz(&builder, plant, scene_graph,
+                              ros_interface_system->get_ros_interface());
 
   auto diagram = builder.Build();
 
