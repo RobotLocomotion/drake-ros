@@ -60,6 +60,7 @@ struct FullBodyName {
 };
 // End copied code
 
+// TODO(sloretz) make this conversion a public API
 void convert_color(const drake::geometry::Rgba& color,
                    std_msgs::msg::ColorRGBA& color_out) {
   color_out.r = color.r();
