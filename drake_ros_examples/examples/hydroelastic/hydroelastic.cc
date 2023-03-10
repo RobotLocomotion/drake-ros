@@ -28,6 +28,8 @@
 #include <drake/multibody/plant/contact_results_to_lcm.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/analysis/simulator.h>
+#include <drake/systems/analysis/simulator_config.h>
+#include <drake/systems/analysis/simulator_config_functions.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/continuous_state.h>
 #include <drake/systems/framework/diagram_builder.h>
@@ -70,9 +72,11 @@ using drake::multibody::SpatialInertia;
 using drake::multibody::UnitInertia;
 using drake::multibody::meshcat::ContactVisualizerd;
 using drake::multibody::meshcat::ContactVisualizerParams;
+using drake::systems::ApplySimulatorConfig;
 using drake::systems::Context;
 using drake::systems::DiagramBuilder;
 using drake::systems::Simulator;
+using drake::systems::SimulatorConfig;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
 using drake_ros_viz::ConnectContactResultsToRviz;
@@ -168,10 +172,12 @@ int do_main(int argc, char** argv) {
       diagram->CreateDefaultContext();
 
   Simulator<double> simulator(*diagram, std::move(diagram_context));
+  SimulatorConfig conf;
+  conf.target_realtime_rate = FLAGS_real_time ? 1.f : 0.f;
+  ApplySimulatorConfig(conf, &simulator);
 
   auto& simulator_context = simulator.get_mutable_context();
 
-  simulator.set_target_realtime_rate(FLAGS_real_time ? 1.f : 0.f);
   simulator.Initialize();
 
   // Step the simulator in 0.1s intervals

@@ -23,6 +23,7 @@ ros_cc_binary(
         "@drake//multibody/plant",
         "@drake//multibody/plant:contact_results_to_lcm",
         "@drake//systems/analysis:simulator",
+        "@drake//systems/analysis:simulator_config_functions",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/primitives:constant_vector_source",
         "@drake_ros_repo//:drake_ros",
