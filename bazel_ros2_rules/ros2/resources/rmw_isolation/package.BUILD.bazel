@@ -70,10 +70,10 @@ ros_cc_test(
     srcs = ["test/rmw_isolation_test.cc"],
     args = ["5"],
     rmw_implementation = "rmw_cyclonedds_cpp",
+    linkopts = ["-lfmt"],
     deps = [
         "@ros2//:rclcpp_cc",
         "@ros2//:std_msgs_cc",
         "@ros2//resources/rmw_isolation:rmw_isolation_cc",
-        "@fmt",
     ],
 )
