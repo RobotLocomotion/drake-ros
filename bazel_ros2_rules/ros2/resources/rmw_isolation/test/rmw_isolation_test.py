@@ -1,5 +1,6 @@
 import os
 from multiprocessing import Process
+import sys
 import tempfile
 from time import sleep
 
@@ -48,7 +49,6 @@ class Listener(rclpy.node.Node):
 # Launch a process for the talker or the listener.
 def launch_node(id, node_type="talker"):
     # Create an isolated enviroment.
-    os.environ["PYTHONBUFFERED"] = '0'
     log_directory = tempfile.TemporaryDirectory()
     os.environ["ROS_LOG_DIR"] = log_directory.name
 
@@ -63,6 +63,7 @@ def launch_node(id, node_type="talker"):
     try:
         if node_type == "talker":
             rclpy.spin(Talker(id))
+            main()
         elif node_type == "listener":
             rclpy.spin(Listener(id))
     except rclpy.executors.ExternalShutdownException:
@@ -73,9 +74,11 @@ def launch_node(id, node_type="talker"):
         rclpy.shutdown()
         raise
 
-if __name__ == "__main__":
+def main():
     # Number of isolated talker-listener pairs.
     number_of_isolated_pairs = 5
+    if len(sys.argv) == 2:
+        number_of_isolated_pairs = int(sys.argv[1])
 
     # Declare processes.
     talker_processes = [Process(target=launch_node, args=(i, "talker")) for i in range(number_of_isolated_pairs)]
@@ -96,3 +99,6 @@ if __name__ == "__main__":
     for talker, listener in zip(talker_processes, listener_processes):
         talker.kill()
         listener.kill()
+
+if __name__ == "__main__":
+    main()

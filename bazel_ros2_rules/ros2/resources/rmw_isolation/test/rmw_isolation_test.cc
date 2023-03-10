@@ -2,10 +2,12 @@
 #include <chrono>
 #include <memory>
 #include <filesystem>
-#include <array>
+#include <vector>
 
 #include <unistd.h>
 #include <signal.h>
+
+#include <fmt/format.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64.hpp>
@@ -51,15 +53,15 @@ class Listener : public rclcpp::Node {
  private:
   void topicCallback(const std_msgs::msg::Float64::SharedPtr msg) {
     if (msg->data != id_) {
-      throw std::runtime_error("I heard '" + std::to_string(msg->data) + "' yet " +
-                               "I was expecting '" + std::to_string(id_) + "'!");
+      throw std::runtime_error(fmt::format("I heard '{0}' yet "
+                               "I was expecting '{1}'!", msg->data, id_));
     }
     ++expectedMessagesCount_;
   }
 
   void timerCallback() const {
     if (0u == expectedMessagesCount_) {
-      throw std::runtime_error("I did not hear '" + std::to_string(id_) + "' even once!");
+      throw std::runtime_error(fmt::format("I did not hear '{0}' even once!", id_));
     }
     rclcpp::shutdown();
   }
@@ -71,26 +73,26 @@ class Listener : public rclcpp::Node {
 };
 
 // Launch a process for the talker or the listener.
-pid_t launch_node(int argc, char* argv[], int id, const std::string& nodeType="talker"){
+pid_t launchNode(int argc, char* argv[], int id, const std::string& node_type="talker"){
   // Launch a new process.
-  auto processId = fork();
-  // Return to the parent process.
-  if (processId != 0){
-    return processId;
+  auto process_id = fork();
+  // We are in the parent process. Return the child process id.
+  if (process_id != 0){
+    return process_id;
   }
 
   // Create an isolated environment.
-  auto logDirectory = std::filesystem::temp_directory_path().string().c_str();
-  setenv("ROS_LOG_DIR", logDirectory, 1);
-  auto directoryPath = std::filesystem::current_path() / std::to_string(id);
-  if (!std::filesystem::exists(directoryPath)){
-    std::filesystem::create_directory(directoryPath);
+  auto log_directory = std::filesystem::temp_directory_path().string().c_str();
+  setenv("ROS_LOG_DIR", log_directory, 1);
+  auto directory_path = std::filesystem::current_path() / std::to_string(id);
+  if (!std::filesystem::exists(directory_path)){
+    std::filesystem::create_directory(directory_path);
   }
 
-  ros2::isolate_rmw_by_path(argv[0], directoryPath);
+  ros2::isolate_rmw_by_path(argv[0], directory_path);
 
   rclcpp::init(argc, argv);
-  if (nodeType == "talker"){
+  if (node_type == "talker"){
     rclcpp::spin(std::make_shared<Talker>(id));
   } else {
     rclcpp::spin(std::make_shared<Listener>(id));
@@ -99,32 +101,35 @@ pid_t launch_node(int argc, char* argv[], int id, const std::string& nodeType="t
   return 0;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]){
   // Number of isolated talker-listener pairs.
-  const int numberOfIsoaltedPairs = 3;
+  int number_of_isolated_pairs = 5;
+  if (argc == 2){
+    number_of_isolated_pairs = std::stoi(argv[1]);
+  }
 
   // Start the processes.
-  std::array<int, numberOfIsoaltedPairs> talkerProcesses;
-  std::array<int, numberOfIsoaltedPairs> listenerProcesses;
+  std::vector<int> talker_processes;
+  std::vector<int> listener_processes;
   // Start the talkers.
-  for (int i = 0; i < numberOfIsoaltedPairs; i++){
-    talkerProcesses[i] = launch_node(argc, argv, i, "talker");
+  for (int i = 0; i < number_of_isolated_pairs; i++){
+    talker_processes.push_back(launchNode(argc, argv, i, "talker"));
   }
 
   // Wait for the talkers to start.
   sleep(1.0);
 
   // Start the listeners.
-  for (int i = 0; i < numberOfIsoaltedPairs; i++){
-    listenerProcesses[i] = launch_node(argc, argv, i, "listener");
+  for (int i = 0; i < number_of_isolated_pairs; i++){
+    listener_processes.push_back(launchNode(argc, argv, i, "listener"));
   }
 
   sleep(2.0);
 
   // Kill the talkers and listeners.
-  for (int i = 0; i < numberOfIsoaltedPairs; i++){
-    kill(talkerProcesses[i], SIGTERM);
-    kill(listenerProcesses[i], SIGTERM);
+  for (int i = 0; i < number_of_isolated_pairs; i++){
+    kill(talker_processes[i], SIGTERM);
+    kill(listener_processes[i], SIGTERM);
   }
 
   return 0;
