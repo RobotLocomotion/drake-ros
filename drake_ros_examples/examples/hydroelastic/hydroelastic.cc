@@ -171,7 +171,6 @@ int do_main(int argc, char** argv) {
 
   auto& simulator_context = simulator.get_mutable_context();
 
-  simulator.get_mutable_integrator().set_maximum_step_size(1.0 / 50.0);
   simulator.set_target_realtime_rate(FLAGS_real_time ? 1.f : 0.f);
   simulator.Initialize();
 
