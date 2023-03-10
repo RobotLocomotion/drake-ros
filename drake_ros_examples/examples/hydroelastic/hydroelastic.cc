@@ -188,6 +188,5 @@ int do_main(int argc, char** argv) {
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-
   return drake_ros_examples::do_main(argc, argv);
 }
