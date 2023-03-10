@@ -32,7 +32,7 @@ struct ContactMarkersParams {
 /// each `visualization_msgs/msg/Marker` message.
 ///
 /// @system
-/// name: JointStiffnessController
+/// name: ContactMarkersSystem
 /// input_ports:
 /// - contact_results
 /// output_ports:
