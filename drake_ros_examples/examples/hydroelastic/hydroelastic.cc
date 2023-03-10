@@ -85,6 +85,7 @@ DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
 DEFINE_bool(use_drake_visualizer, false,
             "Use drake-visualizer instead of RViz.");
 
+namespace drake_ros_examples {
 void AddScene(const std::string &package_path, MultibodyPlantd* plant) {
   auto parser = Parser(plant);
   parser.package_map().Add("drake_ros_examples", package_path);
@@ -176,9 +177,10 @@ int do_main(int argc, char ** argv) {
 
   return 0;
 }
+}  // drake_ros_examples
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  return do_main(argc, argv);
+  return drake_ros_examples::do_main(argc, argv);
 }
