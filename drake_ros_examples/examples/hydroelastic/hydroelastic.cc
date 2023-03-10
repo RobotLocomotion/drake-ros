@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 
+#include "drake/multibody/meshcat/contact_visualizer.h"
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <drake/common/value.h>
 #include <drake/geometry/geometry_frame.h>
@@ -23,7 +24,6 @@
 #include <drake/lcm/drake_lcm.h>
 #include <drake/lcmt_contact_results_for_viz.hpp>
 #include <drake/math/rigid_transform.h>
-#include "drake/multibody/meshcat/contact_visualizer.h"
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/contact_results_to_lcm.h>
 #include <drake/multibody/plant/multibody_plant.h>
@@ -54,15 +54,13 @@ using drake::geometry::AddContactMaterial;
 using drake::geometry::AddRigidHydroelasticProperties;
 using drake::geometry::HalfSpace;
 using drake::geometry::Meshcat;
-using drake::geometry::MeshcatVisualizerParams;
 using drake::geometry::MeshcatVisualizerd;
+using drake::geometry::MeshcatVisualizerParams;
 using drake::geometry::ProximityProperties;
 using drake::geometry::Sphere;
 using drake::math::RigidTransformd;
 using drake::math::RollPitchYawd;
 using drake::math::RotationMatrixd;
-using drake::multibody::meshcat::ContactVisualizerParams;
-using drake::multibody::meshcat::ContactVisualizerd;
 using drake::multibody::AddMultibodyPlantSceneGraph;
 using drake::multibody::ContactModel;
 using drake::multibody::CoulombFriction;
@@ -70,6 +68,8 @@ using drake::multibody::Parser;
 using drake::multibody::RigidBody;
 using drake::multibody::SpatialInertia;
 using drake::multibody::UnitInertia;
+using drake::multibody::meshcat::ContactVisualizerd;
+using drake::multibody::meshcat::ContactVisualizerParams;
 using drake::systems::Context;
 using drake::systems::DiagramBuilder;
 using drake::systems::Simulator;
@@ -88,11 +88,10 @@ DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
 
-DEFINE_bool(use_meshcat, false,
-            "Enable meshcat visualizer.");
+DEFINE_bool(use_meshcat, false, "Enable meshcat visualizer.");
 
 namespace drake_ros_examples {
-void AddScene(const std::string &package_path, MultibodyPlantd* plant) {
+void AddScene(const std::string& package_path, MultibodyPlantd* plant) {
   auto parser = Parser(plant);
   parser.package_map().Add("drake_ros_examples", package_path);
 
@@ -102,7 +101,7 @@ void AddScene(const std::string &package_path, MultibodyPlantd* plant) {
       (fs_path / "hydroelastic/hydroelastic.sdf").string());
 }
 
-int do_main(int argc, char ** argv) {
+int do_main(int argc, char** argv) {
   DiagramBuilder<double> builder;
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
@@ -110,27 +109,24 @@ int do_main(int argc, char ** argv) {
 #ifdef BAZEL
   {
     std::string error;
-    #ifdef BAZEL_CURRENT_REPOSITORY
+#ifdef BAZEL_CURRENT_REPOSITORY
     // bazel 6
     std::unique_ptr<Runfiles> runfiles(
-      Runfiles::Create(argv[0], BAZEL_CURRENT_REPOSITORY, &error));
-    #else
+        Runfiles::Create(argv[0], BAZEL_CURRENT_REPOSITORY, &error));
+#else
     // bazel 5
     std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv[0], &error));
-    #endif
+#endif
     if (nullptr == runfiles) {
       throw std::runtime_error(error);
     }
-    AddScene(
-      runfiles->Rlocation("drake_ros_examples/examples/"),
-      &plant);
+    AddScene(runfiles->Rlocation("drake_ros_examples/examples/"), &plant);
   }
 #else
-  (void) argc;
-  (void) argv;
-  AddScene(
-    ament_index_cpp::get_package_share_directory("drake_ros_examples"),
-    &plant);
+  (void)argc;
+  (void)argv;
+  AddScene(ament_index_cpp::get_package_share_directory("drake_ros_examples"),
+           &plant);
 #endif
 
   plant.set_contact_model(ContactModel::kHydroelasticWithFallback);
@@ -142,13 +138,13 @@ int do_main(int argc, char ** argv) {
     // Visualize with meshcat
     MeshcatVisualizerParams params;
     params.delete_on_initialization_event = false;
-    MeshcatVisualizerd::AddToBuilder(
-        &builder, scene_graph, meshcat, std::move(params));
+    MeshcatVisualizerd::AddToBuilder(&builder, scene_graph, meshcat,
+                                     std::move(params));
 
     ContactVisualizerParams cparams;
     cparams.newtons_per_meter = 60.0;
-    ContactVisualizerd::AddToBuilder(
-        &builder, plant, meshcat, std::move(cparams));
+    ContactVisualizerd::AddToBuilder(&builder, plant, meshcat,
+                                     std::move(cparams));
   }
 
   // Visualize with RViz
@@ -191,7 +187,7 @@ int do_main(int argc, char ** argv) {
 
   return 0;
 }
-}  // drake_ros_examples
+}  // namespace drake_ros_examples
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
