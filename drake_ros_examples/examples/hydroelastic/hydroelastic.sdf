@@ -69,6 +69,7 @@
             <drake:mu_static>0.3</drake:mu_static>
             <drake:mesh_resolution_hint>0.5</drake:mesh_resolution_hint>
             <drake:hunt_crossley_dissipation>5</drake:hunt_crossley_dissipation>
+            <!-- TODO(sloretz) make compliant instead of rigid -->
             <drake:rigid_hydroelastic/>
           </drake:proximity_properties>
         </collision>
@@ -97,6 +98,7 @@
             <drake:mu_static>0.3</drake:mu_static>
             <drake:mesh_resolution_hint>0.5</drake:mesh_resolution_hint>
             <drake:hunt_crossley_dissipation>5</drake:hunt_crossley_dissipation>
+            <!-- TODO(sloretz) make compliant instead of rigid -->
             <drake:rigid_hydroelastic/>
           </drake:proximity_properties>
         </collision>
@@ -125,6 +127,7 @@
             <drake:mu_static>0.3</drake:mu_static>
             <drake:mesh_resolution_hint>0.5</drake:mesh_resolution_hint>
             <drake:hunt_crossley_dissipation>5</drake:hunt_crossley_dissipation>
+            <!-- TODO(sloretz) make compliant instead of rigid -->
             <drake:rigid_hydroelastic/>
           </drake:proximity_properties>
         </collision>
