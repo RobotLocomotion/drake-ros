@@ -1,3 +1,4 @@
+import argparse
 import os
 from multiprocessing import Process
 import sys
@@ -75,14 +76,15 @@ def launch_node(id, node_type="talker"):
         raise
 
 def main():
-    # Number of isolated talker-listener pairs.
-    number_of_isolated_pairs = 5
-    if len(sys.argv) == 2:
-        number_of_isolated_pairs = int(sys.argv[1])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--number_of_isolated_pairs", type=int, default=5)
+    args = parser.parse_args()
 
     # Declare processes.
-    talker_processes = [Process(target=launch_node, args=(i, "talker")) for i in range(number_of_isolated_pairs)]
-    listener_processes = [Process(target=launch_node, args=(i, "listener")) for i in range(number_of_isolated_pairs)]
+    talker_processes = [Process(target=launch_node, args=(i, "talker"))
+                        for i in range(args.number_of_isolated_pairs)]
+    listener_processes = [Process(target=launch_node, args=(i, "listener"))
+                          for i in range(args.number_of_isolated_pairs)]
 
     # Start the processes.
     for talker in talker_processes:

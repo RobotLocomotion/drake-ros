@@ -8,6 +8,7 @@
 #include <signal.h>
 
 #include <fmt/format.h>
+#include <gflags/glflags.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64.hpp>
@@ -15,6 +16,8 @@
 #include "rmw_isolation/rmw_isolation.h"
 
 using std::placeholders::_1;
+
+DEFINE_int32(number_of_isolated_pairs, 5, "Number of isolated talker-listener pairs");
 
 class Talker : public rclcpp::Node {
  public:
@@ -73,11 +76,11 @@ class Listener : public rclcpp::Node {
 };
 
 // Launch a process for the talker or the listener.
-pid_t launchNode(int argc, char* argv[], int id, const std::string& node_type="talker"){
+pid_t LaunchNode(int argc, char* argv[], int id, const std::string& node_type="talker"){
   // Launch a new process.
   auto process_id = fork();
-  // We are in the parent process. Return the child process id.
   if (process_id != 0){
+    // We are in the parent process. Return the child process id.
     return process_id;
   }
 
@@ -102,32 +105,28 @@ pid_t launchNode(int argc, char* argv[], int id, const std::string& node_type="t
 }
 
 int main(int argc, char* argv[]){
-  // Number of isolated talker-listener pairs.
-  int number_of_isolated_pairs = 5;
-  if (argc == 2){
-    number_of_isolated_pairs = std::stoi(argv[1]);
-  }
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   // Start the processes.
   std::vector<int> talker_processes;
   std::vector<int> listener_processes;
   // Start the talkers.
-  for (int i = 0; i < number_of_isolated_pairs; i++){
-    talker_processes.push_back(launchNode(argc, argv, i, "talker"));
+  for (int i = 0; i < FLAGS_number_of_isolated_pairs; i++){
+    talker_processes.push_back(LaunchNode(argc, argv, i, "talker"));
   }
 
   // Wait for the talkers to start.
   sleep(1.0);
 
   // Start the listeners.
-  for (int i = 0; i < number_of_isolated_pairs; i++){
-    listener_processes.push_back(launchNode(argc, argv, i, "listener"));
+  for (int i = 0; i < FLAGS_number_of_isolated_pairs; i++){
+    listener_processes.push_back(LaunchNode(argc, argv, i, "listener"));
   }
 
   sleep(2.0);
 
   // Kill the talkers and listeners.
-  for (int i = 0; i < number_of_isolated_pairs; i++){
+  for (int i = 0; i < FLAGS_number_of_isolated_pairs; i++){
     kill(talker_processes[i], SIGTERM);
     kill(listener_processes[i], SIGTERM);
   }
