@@ -102,7 +102,7 @@ void create_color(double value, double& red, double& green, double& blue) {
   }
 }
 
-std::vector<uint8_t> GenerateHeatmapPng(){
+std::vector<uint8_t> GenerateHeatmapPng() {
   // Make a heatmap texture
   size_t kWidth = 1024;
   size_t kHeight = 1;
