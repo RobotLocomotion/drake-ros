@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include "viz/lodepng/lodepng.h"
 #include <Eigen/Core>
 #include <builtin_interfaces/msg/time.hpp>
 #include <drake/common/drake_copyable.h>
@@ -31,6 +30,11 @@
 #include <tf2_eigen/tf2_eigen.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include <vtkImageData.h>
+#include <vtkNew.h>
+#include <vtkPNGWriter.h>
+#include <vtkSmartPointer.h>
+#include <vtkUnsignedCharArray.h>
 
 namespace drake_ros_viz {
 
@@ -135,17 +139,35 @@ ContactMarkersSystem::ContactMarkersSystem(
           .get_index();
 
   // Make a heatmap texture
-  const size_t kTextureSize = 1024;
-  std::vector<uint8_t> image(kTextureSize * 4);
+  size_t kWidth = 1024;
+  size_t kHeight = 1;
+  size_t kNumChannels = 4;
+  vtkNew<vtkImageData> vtk_image;
+  vtk_image->SetDimensions(kWidth, kHeight, 1);
+  vtk_image->AllocateScalars(VTK_UNSIGNED_CHAR, kNumChannels);
+
+  auto image_ptr =
+      reinterpret_cast<unsigned char*>(vtk_image->GetScalarPointer());
   double red, green, blue;
-  for (size_t i = 0; i < kTextureSize; i++) {
-    create_color(static_cast<double>(i) / kTextureSize, red, green, blue);
-    image[(i * 4) + 0] = (uint8_t)(red * 255.0);
-    image[(i * 4) + 1] = (uint8_t)(green * 255.0);
-    image[(i * 4) + 2] = (uint8_t)(blue * 255.0);
-    image[(i * 4) + 3] = (uint8_t)(255);
+  for (size_t w = 0; w < kWidth; ++w) {
+    const size_t offset = w * kNumChannels;
+    create_color(static_cast<double>(w) / kWidth, red, green, blue);
+    image_ptr[offset + 0] = static_cast<unsigned char>(red * 255.0);
+    image_ptr[offset + 1] = static_cast<unsigned char>(green * 255.0);
+    image_ptr[offset + 2] = static_cast<unsigned char>(blue * 255.0);
+    image_ptr[offset + 3] = 255;
   }
-  lodepng::encode(impl_->texture, image, kTextureSize, 1);
+
+  auto image_writer = vtkSmartPointer<vtkPNGWriter>::New();
+  image_writer->SetWriteToMemory(true);
+  image_writer->SetInputData(vtk_image.GetPointer());
+  image_writer->Write();
+  auto vtk_results = image_writer->GetResult();
+  auto data_itr = vtk_results->Begin();
+  while (data_itr != vtk_results->End()) {
+    impl_->texture.push_back(*data_itr);
+    ++data_itr;
+  }
 
   // Mostly Copied from:
   // https://github.com/RobotLocomotion/drake/blob/

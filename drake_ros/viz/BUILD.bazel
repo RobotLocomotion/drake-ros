@@ -11,17 +11,8 @@ cc_library(
         "@ros2//:rclcpp_cc",
         "@ros2//:tf2_eigen_cc",
         "@ros2//:visualization_msgs_cc",
+        "@vtk//:vtkIOImage",
     ],
-)
-
-cc_library(
-    name = "lodepng",
-    srcs = [
-        "lodepng/lodepng.cpp",
-        "lodepng/lodepng.h",
-    ],
-    hdrs = ["lodepng/lodepng.h"],
-    visibility = ["//:__subpackages__"],
 )
 
 # TODO(sloretz) more granular targets for static linking
@@ -39,7 +30,6 @@ cc_library(
     include_prefix = "drake_ros/viz",
     visibility = ["//visibility:public"],
     deps = [
-        ":lodepng",
         ":odr_safe_deps",
         "//core",
         "//tf2",
