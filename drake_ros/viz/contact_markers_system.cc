@@ -101,6 +101,42 @@ void create_color(double value, double& red, double& green, double& blue) {
     blue = std::clamp(1.0 - (value - 0.25) * 4.0, 0.0, 1.0);
   }
 }
+
+std::vector<uint8_t> GenerateHeatmapPng(){
+  // Make a heatmap texture
+  size_t kWidth = 1024;
+  size_t kHeight = 1;
+  size_t kNumChannels = 4;
+  vtkNew<vtkImageData> vtk_image;
+  vtk_image->SetDimensions(kWidth, kHeight, 1);
+  vtk_image->AllocateScalars(VTK_UNSIGNED_CHAR, kNumChannels);
+
+  auto image_ptr =
+      reinterpret_cast<unsigned char*>(vtk_image->GetScalarPointer());
+  double red, green, blue;
+  for (size_t w = 0; w < kWidth; ++w) {
+    const size_t offset = w * kNumChannels;
+    create_color(static_cast<double>(w) / kWidth, red, green, blue);
+    image_ptr[offset + 0] = static_cast<unsigned char>(red * 255.0);
+    image_ptr[offset + 1] = static_cast<unsigned char>(green * 255.0);
+    image_ptr[offset + 2] = static_cast<unsigned char>(blue * 255.0);
+    image_ptr[offset + 3] = 255;
+  }
+
+  auto image_writer = vtkSmartPointer<vtkPNGWriter>::New();
+  image_writer->SetWriteToMemory(true);
+  image_writer->SetInputData(vtk_image.GetPointer());
+  image_writer->Write();
+  auto vtk_results = image_writer->GetResult();
+  auto data_itr = vtk_results->Begin();
+  std::vector<uint8_t> texture;
+  while (data_itr != vtk_results->End()) {
+    texture.push_back(*data_itr);
+    ++data_itr;
+  }
+  return texture;
+}
+
 }  // namespace
 
 class ContactMarkersSystem::ContactMarkersSystemPrivate {
@@ -138,36 +174,7 @@ ContactMarkersSystem::ContactMarkersSystem(
                                       &ContactMarkersSystem::CalcContactMarkers)
           .get_index();
 
-  // Make a heatmap texture
-  size_t kWidth = 1024;
-  size_t kHeight = 1;
-  size_t kNumChannels = 4;
-  vtkNew<vtkImageData> vtk_image;
-  vtk_image->SetDimensions(kWidth, kHeight, 1);
-  vtk_image->AllocateScalars(VTK_UNSIGNED_CHAR, kNumChannels);
-
-  auto image_ptr =
-      reinterpret_cast<unsigned char*>(vtk_image->GetScalarPointer());
-  double red, green, blue;
-  for (size_t w = 0; w < kWidth; ++w) {
-    const size_t offset = w * kNumChannels;
-    create_color(static_cast<double>(w) / kWidth, red, green, blue);
-    image_ptr[offset + 0] = static_cast<unsigned char>(red * 255.0);
-    image_ptr[offset + 1] = static_cast<unsigned char>(green * 255.0);
-    image_ptr[offset + 2] = static_cast<unsigned char>(blue * 255.0);
-    image_ptr[offset + 3] = 255;
-  }
-
-  auto image_writer = vtkSmartPointer<vtkPNGWriter>::New();
-  image_writer->SetWriteToMemory(true);
-  image_writer->SetInputData(vtk_image.GetPointer());
-  image_writer->Write();
-  auto vtk_results = image_writer->GetResult();
-  auto data_itr = vtk_results->Begin();
-  while (data_itr != vtk_results->End()) {
-    impl_->texture.push_back(*data_itr);
-    ++data_itr;
-  }
+  impl_->texture = GenerateHeatmapPng();
 
   // Mostly Copied from:
   // https://github.com/RobotLocomotion/drake/blob/
