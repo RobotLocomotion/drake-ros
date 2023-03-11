@@ -26,6 +26,8 @@ ros_cc_binary(
         "@drake//systems/analysis:simulator_config_functions",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/primitives:constant_vector_source",
+        "@drake//visualization:visualization_config",
+        "@drake//visualization:visualization_config_functions",
         "@drake_ros_repo//:drake_ros",
         "@gflags",
     ],

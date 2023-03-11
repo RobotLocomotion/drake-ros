@@ -20,6 +20,8 @@
 #include <drake/systems/analysis/simulator_config_functions.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/diagram_builder.h>
+#include <drake/visualization/visualization_config.h>
+#include <drake/visualization/visualization_config_functions.h>
 #include <drake_ros/core/drake_ros.h>
 #include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/core/ros_publisher_system.h>
@@ -49,6 +51,8 @@ using drake::systems::Context;
 using drake::systems::DiagramBuilder;
 using drake::systems::Simulator;
 using drake::systems::SimulatorConfig;
+using drake::visualization::ApplyVisualizationConfig;
+using drake::visualization::VisualizationConfig;
 using drake_ros_core::DrakeRos;
 using drake_ros_core::RosInterfaceSystem;
 using drake_ros_viz::ConnectContactResultsToRviz;
@@ -107,10 +111,9 @@ int do_main(int argc, char** argv) {
   std::shared_ptr<Meshcat> meshcat;
   if (FLAGS_use_meshcat) {
     meshcat = std::make_shared<Meshcat>();
-    // Visualize with meshcat
-    MeshcatVisualizerParams params;
-    MeshcatVisualizerd::AddToBuilder(&builder, scene_graph, meshcat,
-                                     std::move(params));
+    const VisualizationConfig config;
+    ApplyVisualizationConfig(config, &builder, nullptr, &plant, &scene_graph,
+                             meshcat);
 
     ContactVisualizerParams cparams;
     ContactVisualizerd::AddToBuilder(&builder, plant, meshcat,
