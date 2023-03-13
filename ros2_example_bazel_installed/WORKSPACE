@@ -45,7 +45,8 @@ load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
 new_local_repository(
     name = "fmt",
     path = "fmt",
-    build_file_content = """cc_library(name = "fmt", linkopts=["-lfmt"], visibility = ["//visibility:public"])""",
+    build_file_content = """cc_library(name = "fmt", linkopts=["-lfmt"],
+                            visibility = ["//visibility:public"])""",
 )
 
 git_repository(
