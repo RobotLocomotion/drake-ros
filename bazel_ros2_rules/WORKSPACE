@@ -12,17 +12,6 @@ http_archive(
     ],
 )
 
-# TODO(Aditya): Replace with proper repository rule.
-new_local_repository(
-    name = "fmt",
-    build_file_contents = """cc_library(name = "fmt", linkopts=["-lfmt"])""",
-)
-
-new_local_repository(
-    name = "gflags",
-    build_file_contents = """cc_library(name = "gflags")""",
-)
-
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
