@@ -8,7 +8,8 @@
 #include "subscription.h"  // NOLINT(build/include)
 #include <drake/systems/framework/abstract_values.h>
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 namespace {
 // A synchronized queue of `MessageT` messages.
 template <typename MessageT>
@@ -110,4 +111,5 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
   uu_events.AddEvent(drake::systems::UnrestrictedUpdateEvent<double>(
       drake::systems::TriggerType::kTimed, callback));
 }
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros

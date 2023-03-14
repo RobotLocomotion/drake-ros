@@ -9,7 +9,8 @@
 
 #include "drake_ros/core/serializer_interface.h"
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 /** A (de)serialization interface implementation that is
  bound to C++ ROS messages of `MessageT` type. */
 template <typename MessageT>
@@ -40,4 +41,5 @@ class Serializer : public SerializerInterface {
  private:
   rclcpp::Serialization<MessageT> protocol_;
 };
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros

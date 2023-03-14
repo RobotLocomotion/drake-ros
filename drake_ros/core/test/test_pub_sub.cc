@@ -13,13 +13,13 @@
 #include "drake_ros/core/ros_publisher_system.h"
 #include "drake_ros/core/ros_subscriber_system.h"
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_core::RosPublisherSystem;
-using drake_ros_core::RosSubscriberSystem;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::core::RosPublisherSystem;
+using drake_ros::core::RosSubscriberSystem;
 
 TEST(Integration, sub_to_pub) {
-  drake_ros_core::init(0, nullptr);
+  drake_ros::core::init(0, nullptr);
 
   drake::systems::DiagramBuilder<double> builder;
 
@@ -90,7 +90,7 @@ TEST(Integration, sub_to_pub) {
     EXPECT_EQ(rx_msgs_direct_sub_out.back()->uint64_value, i);
   }
 
-  drake_ros_core::shutdown();
+  drake_ros::core::shutdown();
 }
 
 // Only available in Bazel.

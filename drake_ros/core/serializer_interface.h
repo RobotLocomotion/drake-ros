@@ -6,7 +6,8 @@
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 /** An interface for (de)serialization of a ROS message.
 
  This interface deals with ROS messages of a fixed message
@@ -42,4 +43,5 @@ class SerializerInterface {
   /** Returns a reference to the ROS message typesupport. */
   virtual const rosidl_message_type_support_t* GetTypeSupport() const = 0;
 };
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros

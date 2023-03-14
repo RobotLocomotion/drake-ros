@@ -15,10 +15,10 @@
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_core::RosPublisherSystem;
-using drake_ros_core::RosSubscriberSystem;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::core::RosPublisherSystem;
+using drake_ros::core::RosSubscriberSystem;
 
 class NorGate : public drake::systems::LeafSystem<double> {
  public:
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 
   rclcpp::QoS qos{10};
 
-  drake_ros_core::init();
+  drake_ros::core::init();
   auto sys_ros_interface = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("rs_flip_flop_node"));
   auto sys_pub_Q =

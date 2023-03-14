@@ -6,7 +6,8 @@
 
 #include "drake_ros/viz/name_conventions.h"
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 namespace internal {
 
 std::string ReplaceAllOccurrences(std::string string, const std::string& target,
@@ -81,4 +82,5 @@ std::string CalcHierarchicalMarkerNamespace(
 }
 
 }  // namespace internal
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros
