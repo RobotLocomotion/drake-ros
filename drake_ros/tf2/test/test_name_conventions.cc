@@ -29,7 +29,7 @@ TEST(NameConventions, CalcTfFrameNameWithBody) {
   // Scoped model name with empty body name
   EXPECT_EQ("model_scope/model_name/unnamed_body_123/456",
             drake_ros::tf2::internal::CalcTfFrameName("model_scope::model_name",
-                                                     "", 123, 456));
+                                                      "", 123, 456));
 }
 
 TEST(NameConventions, CalcTfFrameNameWithoutBody) {

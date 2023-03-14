@@ -174,10 +174,10 @@ void DefCore(py::module m) {
         py::arg("point"));
 
   // Orientation
-  m.def("RosQuaternionToQuaternion", &drake_ros::core::RosQuaternionToQuaternion,
-        py::arg("quat"));
-  m.def("QuaternionToRosQuaternion", &drake_ros::core::QuaternionToRosQuaternion,
-        py::arg("quat"));
+  m.def("RosQuaternionToQuaternion",
+        &drake_ros::core::RosQuaternionToQuaternion, py::arg("quat"));
+  m.def("QuaternionToRosQuaternion",
+        &drake_ros::core::QuaternionToRosQuaternion, py::arg("quat"));
   m.def("RosQuaternionToRotationMatrix",
         &drake_ros::core::RosQuaternionToRotationMatrix, py::arg("quat"));
   m.def("RotationMatrixToRosQuaternion",
@@ -206,10 +206,10 @@ void DefCore(py::module m) {
         py::arg("twist"));
   m.def("Vector6ToRosTwist", &drake_ros::core::Vector6ToRosTwist,
         py::arg("vector"));
-  m.def("RosTwistToSpatialVelocity", &drake_ros::core::RosTwistToSpatialVelocity,
-        py::arg("twist"));
-  m.def("SpatialVelocityToRosTwist", &drake_ros::core::SpatialVelocityToRosTwist,
-        py::arg("velocity"));
+  m.def("RosTwistToSpatialVelocity",
+        &drake_ros::core::RosTwistToSpatialVelocity, py::arg("twist"));
+  m.def("SpatialVelocityToRosTwist",
+        &drake_ros::core::SpatialVelocityToRosTwist, py::arg("velocity"));
 
   // Spatial Acceleration
   m.def("RosAccelToVector6", &drake_ros::core::RosAccelToVector6,
