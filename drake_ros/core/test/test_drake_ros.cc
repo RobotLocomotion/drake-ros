@@ -8,12 +8,12 @@
 
 #include "drake_ros/core/drake_ros.h"
 
-using drake_ros_core::DrakeRos;
+using drake_ros::core::DrakeRos;
 
 TEST(DrakeRos, default_construct) {
-  drake_ros_core::init();
+  drake_ros::core::init();
   EXPECT_NO_THROW(std::make_unique<DrakeRos>("default_node"));
-  EXPECT_TRUE(drake_ros_core::shutdown());
+  EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
 TEST(DrakeRos, local_context) {

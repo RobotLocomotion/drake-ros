@@ -15,7 +15,7 @@
 
 #include "drake_ros/viz/scene_markers_system.h"
 
-using drake_ros_viz::SceneMarkersSystem;
+using drake_ros::viz::SceneMarkersSystem;
 
 static constexpr char kSourceName[] = "test";
 static constexpr double kTolerance{1e-6};

@@ -1,6 +1,7 @@
 #include "drake_ros/core/geometry_conversions.h"
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 
 Eigen::Vector3d RosPointToVector3(const geometry_msgs::msg::Point& point) {
   return Eigen::Vector3d(point.x, point.y, point.z);
@@ -183,4 +184,5 @@ geometry_msgs::msg::Wrench SpatialForceToRosWrench(
   return result;
 }
 
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros

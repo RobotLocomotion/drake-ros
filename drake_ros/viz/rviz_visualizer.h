@@ -7,7 +7,8 @@
 #include <drake/systems/framework/diagram.h>
 #include <drake_ros/core/drake_ros.h>
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
 /// Set of parameters that configure an RvizVisualizer.
 struct RvizVisualizerParams {
@@ -41,7 +42,7 @@ class RvizVisualizer : public drake::systems::Diagram<double> {
     @param[in] ros interface to a live ROS node to publish from.
     @param[in] params optional rviz visualizer configurations.
     */
-  explicit RvizVisualizer(drake_ros_core::DrakeRos* ros,
+  explicit RvizVisualizer(drake_ros::core::DrakeRos* ros,
                           RvizVisualizerParams params = {});
 
   ~RvizVisualizer() override;
@@ -61,4 +62,5 @@ class RvizVisualizer : public drake::systems::Diagram<double> {
   std::unique_ptr<RvizVisualizerPrivate> impl_;
 };
 
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros

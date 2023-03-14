@@ -9,7 +9,8 @@
 
 #include "drake_ros/core/serializer_interface.h"
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 struct RosPublisherSystem::Impl {
   // Interface for message (de)serialization.
   std::unique_ptr<SerializerInterface> serializer;
@@ -89,4 +90,5 @@ drake::systems::EventStatus RosPublisherSystem::PublishInput(
   impl_->pub->publish(impl_->serializer->Serialize(input));
   return drake::systems::EventStatus::Succeeded();
 }
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros

@@ -17,9 +17,9 @@
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_viz::RvizVisualizer;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::viz::RvizVisualizer;
 
 using drake::examples::manipulation_station::ManipulationStation;
 using drake::systems::Adder;
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, false);
   drake::systems::DiagramBuilder<double> builder;
 
-  drake_ros_core::init();
+  drake_ros::core::init();
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("iiwa_manipulator_node"));
 

@@ -11,7 +11,8 @@
 
 #include "drake_ros/tf2/scene_tf_system.h"
 
-namespace drake_ros_tf2 {
+namespace drake_ros {
+namespace tf2 {
 
 class SceneTfBroadcasterSystem::Impl {
  public:
@@ -20,13 +21,13 @@ class SceneTfBroadcasterSystem::Impl {
 };
 
 SceneTfBroadcasterSystem::SceneTfBroadcasterSystem(
-    drake_ros_core::DrakeRos* ros, SceneTfBroadcasterParams params)
+    drake_ros::core::DrakeRos* ros, SceneTfBroadcasterParams params)
     : impl_(new Impl()) {
   drake::systems::DiagramBuilder<double> builder;
 
   impl_->scene_tf = builder.AddSystem<SceneTfSystem>();
 
-  using drake_ros_core::RosPublisherSystem;
+  using drake_ros::core::RosPublisherSystem;
   auto scene_tf_publisher =
       builder.AddSystem(RosPublisherSystem::Make<tf2_msgs::msg::TFMessage>(
           params.tf_topic_name, tf2_ros::DynamicBroadcasterQoS(), ros,
@@ -57,4 +58,5 @@ SceneTfBroadcasterSystem::get_graph_query_input_port() const {
   return get_input_port(impl_->graph_query_port_index);
 }
 
-}  // namespace drake_ros_tf2
+}  // namespace tf2
+}  // namespace drake_ros

@@ -12,9 +12,10 @@
 #include "drake_ros/core/geometry_conversions.h"
 #include "drake_ros/tf2/name_conventions.h"
 
-namespace drake_ros_tf2 {
+namespace drake_ros {
+namespace tf2 {
 
-using drake_ros_core::RigidTransformToRosTransform;
+using drake_ros::core::RigidTransformToRosTransform;
 
 class SceneTfSystem::Impl {
  public:
@@ -150,4 +151,5 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
   }
 }
 
-}  // namespace drake_ros_tf2
+}  // namespace tf2
+}  // namespace drake_ros

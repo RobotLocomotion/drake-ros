@@ -6,7 +6,8 @@
 
 #include "internal_name_conventions.h"  // NOLINT
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
 MarkerNamespaceFunction GetFlatMarkerNamespaceFunction(
     const std::optional<std::string>& marker_namespace_prefix) {
@@ -50,4 +51,5 @@ MarkerNamespaceFunction GetHierarchicalMarkerNamspaceFunction(
   };
 }
 
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros
