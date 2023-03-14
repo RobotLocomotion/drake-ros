@@ -128,3 +128,38 @@ ros_py_test(
     main = "test/odr_py_test.py",
     deps = [":drake_ros_py"],
 )
+
+pybind_py_library(
+    name = "ros_message_type_caster_test_via_specific_types_py",
+    testonly = 1,
+    cc_deps = [
+        ":python_bindings_internal_hdrs",
+        "//:drake_ros_shared_library",
+    ],
+    cc_so_name = "ros_message_type_caster_test_via_specific_types",
+    cc_srcs = ["test/ros_message_type_caster_test_via_specific_types_py.cc"],
+    py_deps = ["@ros2//:rclpy_py"],
+)
+
+pybind_py_library(
+    name = "ros_message_type_caster_test_via_all_py",
+    testonly = 1,
+    cc_deps = [
+        ":python_bindings_internal_hdrs",
+        "//:drake_ros_shared_library",
+    ],
+    cc_so_name = "ros_message_type_caster_test_via_all",
+    cc_srcs = ["test/ros_message_type_caster_test_via_all_py.cc"],
+    py_deps = ["@ros2//:rclpy_py"],
+)
+
+ros_py_test(
+    name = "ros_message_type_caster_test",
+    srcs = ["test/ros_message_type_caster_test.py"],
+    main = "test/ros_message_type_caster_test.py",
+    deps = [
+        ":ros_message_type_caster_test_via_all_py",
+        ":ros_message_type_caster_test_via_specific_types_py",
+        "@ros2//:geometry_msgs_py",
+    ],
+)
