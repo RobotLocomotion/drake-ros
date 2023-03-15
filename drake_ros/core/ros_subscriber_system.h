@@ -58,3 +58,6 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
 };
 }  // namespace core
 }  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_core = drake_ros::core;

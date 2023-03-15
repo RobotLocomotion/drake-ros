@@ -64,3 +64,6 @@ class RvizVisualizer : public drake::systems::Diagram<double> {
 
 }  // namespace viz
 }  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_viz = drake_ros::viz;
