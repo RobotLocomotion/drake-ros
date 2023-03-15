@@ -1,3 +1,5 @@
+#include <string>
+
 #include <Eigen/Geometry>
 #include <drake/common/eigen_types.h>
 #include <geometry_msgs/msg/point.hpp>
@@ -9,57 +11,62 @@
 
 namespace py = pybind11;
 
-#define ROS_MSG_TYPECAST(cpp_msg_type, py_package, py_msg, py_msg_combined)  \
-  template <>                                                                \
-  struct type_caster<cpp_msg_type> {                                         \
-   public:                                                                   \
-    PYBIND11_TYPE_CASTER(cpp_msg_type, _(py_msg_combined));                  \
-                                                                             \
-    bool load(handle src, bool) {                                            \
-      handle cls = module::import(py_package).attr(py_msg);                  \
-      if (!isinstance(src, cls)) {                                           \
-        return false;                                                        \
-      }                                                                      \
-      object source = reinterpret_borrow<object>(src);                       \
-                                                                             \
-      object py_serialize =                                                  \
-          module::import("rclpy.serialization").attr("serialize_message");   \
-      bytes pybytes = py_serialize(source);                                  \
-      const std::string content = pybytes;                                   \
-      const auto content_size = content.size() + 1;                          \
-                                                                             \
-      rclcpp::SerializedMessage serialized_message(content_size);            \
-      auto& rcl_handle = serialized_message.get_rcl_serialized_message();    \
-      std::memcpy(rcl_handle.buffer, content.c_str(), content.size());       \
-      rcl_handle.buffer[content.size()] = '\0';                              \
-      rcl_handle.buffer_length = content_size;                               \
-                                                                             \
-      rclcpp::Serialization<cpp_msg_type> protocol;                          \
-      protocol.deserialize_message(&serialized_message, &value);             \
-                                                                             \
-      return true;                                                           \
-    }                                                                        \
-                                                                             \
-    static handle cast(cpp_msg_type src, return_value_policy policy,         \
-                       handle parent) {                                      \
-      (void)policy;                                                          \
-      (void)parent;                                                          \
-                                                                             \
-      rclcpp::SerializedMessage serialized_message;                          \
-      rclcpp::Serialization<cpp_msg_type> protocol;                          \
-      protocol.serialize_message(&src, &serialized_message);                 \
-                                                                             \
-      auto& rcl_handle = serialized_message.get_rcl_serialized_message();    \
-      object py_deserialize =                                                \
-          module::import("rclpy.serialization").attr("deserialize_message"); \
-      object msg_type = module::import(py_package).attr(py_msg);             \
-      std::string content_string((char*)rcl_handle.buffer,                   \
-                                 serialized_message.size());                 \
-      object instance = py_deserialize(bytes(content_string), msg_type);     \
-                                                                             \
-      instance.inc_ref();                                                    \
-      return instance;                                                       \
-    }                                                                        \
+#define ROS_MSG_TYPECAST(cpp_msg_type, py_package, py_msg, py_msg_combined)    \
+  template <>                                                                  \
+  struct type_caster<cpp_msg_type> {                                           \
+   public:                                                                     \
+    PYBIND11_TYPE_CASTER(cpp_msg_type, _(py_msg_combined));                    \
+                                                                               \
+    bool load(handle src, bool) {                                              \
+      handle cls = module::import(py_package).attr(py_msg);                    \
+      if (!isinstance(src, cls)) {                                             \
+        return false;                                                          \
+      }                                                                        \
+      object source = reinterpret_borrow<object>(src);                         \
+                                                                               \
+      object check_for_type_support =                                          \
+          module::import("rclpy.type_support").attr("check_for_type_support"); \
+      object msg_type = module::import(py_package).attr(py_msg);               \
+      check_for_type_support(msg_type);                                        \
+      object py_serialize =                                                    \
+          module::import("rclpy.serialization").attr("serialize_message");     \
+      bytes pybytes = py_serialize(source);                                    \
+      const std::string content = pybytes;                                     \
+      const auto content_size = content.size() + 1;                            \
+                                                                               \
+      rclcpp::SerializedMessage serialized_message(content_size);              \
+      auto& rcl_handle = serialized_message.get_rcl_serialized_message();      \
+      std::memcpy(rcl_handle.buffer, content.c_str(), content.size());         \
+      rcl_handle.buffer[content.size()] = '\0';                                \
+      rcl_handle.buffer_length = content_size;                                 \
+                                                                               \
+      rclcpp::Serialization<cpp_msg_type> protocol;                            \
+      protocol.deserialize_message(&serialized_message, &value);               \
+                                                                               \
+      return true;                                                             \
+    }                                                                          \
+                                                                               \
+    static handle cast(cpp_msg_type src, return_value_policy policy,           \
+                       handle parent) {                                        \
+      (void)policy;                                                            \
+      (void)parent;                                                            \
+                                                                               \
+      rclcpp::SerializedMessage serialized_message;                            \
+      rclcpp::Serialization<cpp_msg_type> protocol;                            \
+      protocol.serialize_message(&src, &serialized_message);                   \
+                                                                               \
+      auto& rcl_handle = serialized_message.get_rcl_serialized_message();      \
+      object py_deserialize =                                                  \
+          module::import("rclpy.serialization").attr("deserialize_message");   \
+      object msg_type = module::import(py_package).attr(py_msg);               \
+      std::string content_string(reinterpret_cast<char*>(rcl_handle.buffer),   \
+                                 serialized_message.size());                   \
+      content_string.push_back('\0');                                          \
+      object instance = py_deserialize(bytes(content_string), msg_type);       \
+                                                                               \
+      instance.inc_ref();                                                      \
+      return instance;                                                         \
+    }                                                                          \
   };
 
 namespace PYBIND11_NAMESPACE {
