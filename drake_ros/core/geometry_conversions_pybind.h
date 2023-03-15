@@ -11,14 +11,15 @@
 
 namespace py = pybind11;
 
-#define ROS_MSG_TYPECAST(cpp_msg_type, py_package, py_msg, py_msg_combined)    \
+#define ROS_MSG_TYPECAST(PKG_NAME, PKG_SUBDIR, MSG_NAME)                       \
   template <>                                                                  \
-  struct type_caster<cpp_msg_type> {                                           \
+  struct type_caster<PKG_NAME::PKG_SUBDIR::MSG_NAME> {                         \
    public:                                                                     \
-    PYBIND11_TYPE_CASTER(cpp_msg_type, _(py_msg_combined));                    \
+    PYBIND11_TYPE_CASTER(PKG_NAME::PKG_SUBDIR::MSG_NAME,                       \
+                         _(#PKG_NAME "." #PKG_SUBDIR "." #MSG_NAME));          \
                                                                                \
     bool load(handle src, bool) {                                              \
-      handle cls = module::import(py_package).attr(py_msg);                    \
+      handle cls = module::import(#PKG_NAME "." #PKG_SUBDIR).attr(#MSG_NAME);  \
       if (!isinstance(src, cls)) {                                             \
         return false;                                                          \
       }                                                                        \
@@ -26,7 +27,8 @@ namespace py = pybind11;
                                                                                \
       object check_for_type_support =                                          \
           module::import("rclpy.type_support").attr("check_for_type_support"); \
-      object msg_type = module::import(py_package).attr(py_msg);               \
+      object msg_type =                                                        \
+          module::import(#PKG_NAME "." #PKG_SUBDIR).attr(#MSG_NAME);           \
       check_for_type_support(msg_type);                                        \
       object py_serialize =                                                    \
           module::import("rclpy.serialization").attr("serialize_message");     \
@@ -40,25 +42,25 @@ namespace py = pybind11;
       rcl_handle.buffer[content.size()] = '\0';                                \
       rcl_handle.buffer_length = content_size;                                 \
                                                                                \
-      rclcpp::Serialization<cpp_msg_type> protocol;                            \
+      rclcpp::Serialization<PKG_NAME::PKG_SUBDIR::MSG_NAME> protocol;          \
       protocol.deserialize_message(&serialized_message, &value);               \
-                                                                               \
       return true;                                                             \
     }                                                                          \
                                                                                \
-    static handle cast(cpp_msg_type src, return_value_policy policy,           \
-                       handle parent) {                                        \
+    static handle cast(PKG_NAME::PKG_SUBDIR::MSG_NAME src,                     \
+                       return_value_policy policy, handle parent) {            \
       (void)policy;                                                            \
       (void)parent;                                                            \
                                                                                \
       rclcpp::SerializedMessage serialized_message;                            \
-      rclcpp::Serialization<cpp_msg_type> protocol;                            \
+      rclcpp::Serialization<PKG_NAME::PKG_SUBDIR::MSG_NAME> protocol;          \
       protocol.serialize_message(&src, &serialized_message);                   \
                                                                                \
       auto& rcl_handle = serialized_message.get_rcl_serialized_message();      \
       object py_deserialize =                                                  \
           module::import("rclpy.serialization").attr("deserialize_message");   \
-      object msg_type = module::import(py_package).attr(py_msg);               \
+      object msg_type =                                                        \
+          module::import(#PKG_NAME "." #PKG_SUBDIR).attr(#MSG_NAME);           \
       std::string content_string(reinterpret_cast<char*>(rcl_handle.buffer),   \
                                  serialized_message.size());                   \
       content_string.push_back('\0');                                          \
@@ -72,22 +74,14 @@ namespace py = pybind11;
 namespace PYBIND11_NAMESPACE {
 namespace detail {
 
-ROS_MSG_TYPECAST(geometry_msgs::msg::Quaternion, "geometry_msgs.msg",
-                 "Quaternion", "geometry_msgs.msg.Quaternion")
-ROS_MSG_TYPECAST(geometry_msgs::msg::Point, "geometry_msgs.msg", "Point",
-                 "geometry_msgs.msg.Point")
-ROS_MSG_TYPECAST(geometry_msgs::msg::Vector3, "geometry_msgs.msg", "Vector3",
-                 "geometry_msgs.msg.Vector3")
-ROS_MSG_TYPECAST(geometry_msgs::msg::Twist, "geometry_msgs.msg", "Twist",
-                 "geometry_msgs.msg.Twist")
-ROS_MSG_TYPECAST(geometry_msgs::msg::Accel, "geometry_msgs.msg", "Accel",
-                 "geometry_msgs.msg.Accel")
-ROS_MSG_TYPECAST(geometry_msgs::msg::Wrench, "geometry_msgs.msg", "Wrench",
-                 "geometry_msgs.msg.Wrench")
-ROS_MSG_TYPECAST(geometry_msgs::msg::Pose, "geometry_msgs.msg", "Pose",
-                 "geometry_msgs.msg.Pose")
-ROS_MSG_TYPECAST(geometry_msgs::msg::Transform, "geometry_msgs.msg",
-                 "Transform", "geometry_msgs.msg.Transform")
+ROS_MSG_TYPECAST(geometry_msgs, msg, Quaternion)
+ROS_MSG_TYPECAST(geometry_msgs, msg, Point)
+ROS_MSG_TYPECAST(geometry_msgs, msg, Vector3)
+ROS_MSG_TYPECAST(geometry_msgs, msg, Twist)
+ROS_MSG_TYPECAST(geometry_msgs, msg, Accel)
+ROS_MSG_TYPECAST(geometry_msgs, msg, Wrench)
+ROS_MSG_TYPECAST(geometry_msgs, msg, Pose)
+ROS_MSG_TYPECAST(geometry_msgs, msg, Transform)
 
 }  // namespace detail
 }  // namespace PYBIND11_NAMESPACE
