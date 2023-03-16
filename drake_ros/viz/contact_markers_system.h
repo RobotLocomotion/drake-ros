@@ -14,7 +14,8 @@
 #include <drake_ros/viz/defaults.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
 /// Set of parameters that configure a ContactMarkersSystem.
 struct ContactMarkersParams {
@@ -95,5 +96,6 @@ ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
-    drake_ros_core::DrakeRos* ros, ContactConnectionParams = {});
-}  // namespace drake_ros_viz
+    core::DrakeRos* ros, ContactConnectionParams = {});
+}  // namespace viz
+}  // namespace drake_ros

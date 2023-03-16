@@ -53,11 +53,11 @@ using drake::systems::Simulator;
 using drake::systems::SimulatorConfig;
 using drake::visualization::ApplyVisualizationConfig;
 using drake::visualization::VisualizationConfig;
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_viz::ConnectContactResultsToRviz;
-using drake_ros_viz::ContactMarkersParams;
-using drake_ros_viz::RvizVisualizer;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::viz::ConnectContactResultsToRviz;
+using drake_ros::viz::ContactMarkersParams;
+using drake_ros::viz::RvizVisualizer;
 
 using MultibodyPlantd = drake::multibody::MultibodyPlant<double>;
 
@@ -121,7 +121,7 @@ int do_main(int argc, char** argv) {
   }
 
   // Visualize with RViz
-  drake_ros_core::init();
+  drake_ros::core::init();
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("collisions"));
 

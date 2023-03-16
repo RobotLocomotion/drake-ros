@@ -5,7 +5,8 @@
 #include <drake/systems/framework/diagram.h>
 #include <rclcpp/qos.hpp>
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
 /// Publish triggers for scene markers
 const std::unordered_set<drake::systems::TriggerType> kDefaultPublishTriggers{
@@ -22,4 +23,5 @@ const rclcpp::QoS kDefaultMarkersQos(1);
 
 /// Quality of service settings for markers topics
 const rclcpp::Duration kMarkerLifetime{rclcpp::Duration::from_nanoseconds(1e9)};
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros

@@ -36,7 +36,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkUnsignedCharArray.h>
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
 namespace {
 // Copied from:
@@ -259,7 +260,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     ball_msg.scale.z = kPointBallDiameter;
 
     ball_msg.pose.position =
-        drake_ros_core::Vector3ToRosPoint(contact_info.contact_point());
+        core::Vector3ToRosPoint(contact_info.contact_point());
 
     output_value->markers.push_back(ball_msg);
 
@@ -289,8 +290,8 @@ void ContactMarkersSystem::CalcContactMarkers(
     const auto p_WEnd = p_WC - p_CL_W;
 
     geometry_msgs::msg::Point start =
-        drake_ros_core::Vector3ToRosPoint(p_WStart);
-    geometry_msgs::msg::Point end = drake_ros_core::Vector3ToRosPoint(p_WEnd);
+        core::Vector3ToRosPoint(p_WStart);
+    geometry_msgs::msg::Point end = core::Vector3ToRosPoint(p_WEnd);
 
     normal_msg.points.push_back(start);
     normal_msg.points.push_back(end);
@@ -444,10 +445,10 @@ ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
     const drake::geometry::SceneGraph<double>& scene_graph,
-    drake_ros_core::DrakeRos* ros, ContactConnectionParams params) {
+    core::DrakeRos* ros, ContactConnectionParams params) {
   // System that publishes ROS messages
   auto* markers_publisher =
-      builder->AddSystem(drake_ros_core::RosPublisherSystem::Make<
+      builder->AddSystem(core::RosPublisherSystem::Make<
                          visualization_msgs::msg::MarkerArray>(
           params.markers_topic, params.markers_qos, ros,
           params.publish_triggers, params.publish_period));
@@ -465,4 +466,5 @@ ContactMarkersSystem* ConnectContactResultsToRviz(
 
   return contact_markers;
 }
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros
