@@ -289,8 +289,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     const auto p_WStart = p_WC + p_CL_W;
     const auto p_WEnd = p_WC - p_CL_W;
 
-    geometry_msgs::msg::Point start =
-        core::Vector3ToRosPoint(p_WStart);
+    geometry_msgs::msg::Point start = core::Vector3ToRosPoint(p_WStart);
     geometry_msgs::msg::Point end = core::Vector3ToRosPoint(p_WEnd);
 
     normal_msg.points.push_back(start);
@@ -444,12 +443,11 @@ ContactMarkersSystem::get_markers_output_port() const {
 ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
-    const drake::geometry::SceneGraph<double>& scene_graph,
-    core::DrakeRos* ros, ContactConnectionParams params) {
+    const drake::geometry::SceneGraph<double>& scene_graph, core::DrakeRos* ros,
+    ContactConnectionParams params) {
   // System that publishes ROS messages
-  auto* markers_publisher =
-      builder->AddSystem(core::RosPublisherSystem::Make<
-                         visualization_msgs::msg::MarkerArray>(
+  auto* markers_publisher = builder->AddSystem(
+      core::RosPublisherSystem::Make<visualization_msgs::msg::MarkerArray>(
           params.markers_topic, params.markers_qos, ros,
           params.publish_triggers, params.publish_period));
 

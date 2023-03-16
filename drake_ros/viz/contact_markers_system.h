@@ -95,7 +95,7 @@ struct ContactConnectionParams {
 ContactMarkersSystem* ConnectContactResultsToRviz(
     drake::systems::DiagramBuilder<double>* builder,
     const drake::multibody::MultibodyPlant<double>& plant,
-    const drake::geometry::SceneGraph<double>& scene_graph,
-    core::DrakeRos* ros, ContactConnectionParams = {});
+    const drake::geometry::SceneGraph<double>& scene_graph, core::DrakeRos* ros,
+    ContactConnectionParams = {});
 }  // namespace viz
 }  // namespace drake_ros
