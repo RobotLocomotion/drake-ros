@@ -24,7 +24,6 @@ def ros_cc_binary(
         name,
         rmw_implementation = None,
         cc_binary_rule = native.cc_binary,
-        cc_reexec_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
         shim = "reexec",
         **kwargs):
@@ -39,7 +38,6 @@ def ros_cc_binary(
         name: C/C++ binary target name
         rmw_implementation: optional RMW implementation to run against
         cc_binary_rule: optional cc_binary() rule override
-        cc_unshimmed_binary_rule: optional cc_binary() rule override
         cc_library_rule: optional cc_library() rule override
         shim: optional tactic to use for shimming ("reexec" or "ldwrap")
 
@@ -119,7 +117,7 @@ def ros_cc_binary(
             deps = ["@bazel_ros2_rules//ros2:dload_shim_cc"],
             tags = shim_tags,
         )
-        cc_reexec_binary_rule(name = name, **shim_kwargs)
+        cc_binary_rule(name = name, **shim_kwargs)
     elif shim == "ldwrap":
         # Codegen a main function that performs the actions.
         main_name = "_{}_ldwrap_main".format(name)
@@ -168,7 +166,6 @@ def ros_cc_test(
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
         cc_test_rule = native.cc_test,
-        shim = "reexec",
         **kwargs):
     """
     Builds a C/C++ test and wraps it with a shim that will inject the minimal
@@ -180,26 +177,47 @@ def ros_cc_test(
     Args:
         name: C/C++ test target name
         rmw_implementation: optional RMW implementation to run against
-        cc_binary_rule: optional cc_binary() rule override
-        cc_library_rule: optional cc_library() rule override
+        cc_binary_rule: optional cc_binary() rule override.
+        cc_library_rule: optional cc_library() rule override (currently unused)
         cc_test_rule: optional cc_test() rule override
-        shim: see ros_cc_binary for details
 
-    Additional keyword arguments are forwarded to the `cc_test_rule`.
+    Additional keyword arguments are forwarded to the `cc_test_rule` and to the
+    `cc_binary_rule` (minus the test specific ones).
     """
+    if "shim" in kwargs:
+        fail("ros_cc_test does not support the shim= option yet.")
 
-    # We need to force testonly=True when calling ros_cc_binary; therefore, it
-    # can't appear as one of the kwargs.
-    testonly = kwargs.pop("testonly", True)
-    if not testonly:
-        fail("Cannot set testonly=False for a ros_cc_test rule.")
-    ros_cc_binary(
-        name,
-        rmw_implementation = rmw_implementation,
-        cc_binary_rule = cc_test_rule,
-        cc_reexec_binary_rule = cc_binary_rule,
-        cc_library_rule = cc_library_rule,
-        shim = shim,
-        testonly = True,
-        **kwargs
+    noshim_name = "_" + name + "_noshim"
+    noshim_kwargs = remove_test_specific_kwargs(kwargs)
+    noshim_kwargs.update(testonly = True)
+    shim_env_changes = dict(RUNTIME_ENVIRONMENT)
+    if rmw_implementation:
+        noshim_kwargs, test_env_changes = \
+            incorporate_rmw_implementation(
+                noshim_kwargs,
+                shim_env_changes,
+                rmw_implementation = rmw_implementation,
+            )
+
+    cc_binary_rule(
+        name = noshim_name,
+        **noshim_kwargs
     )
+
+    shim_name = "_" + name + "_shim.cc"
+    shim_kwargs = filter_to_only_common_kwargs(kwargs)
+    shim_kwargs.update(testonly = True)
+    dload_cc_reexec(
+        name = shim_name,
+        target = ":" + noshim_name,
+        env_changes = shim_env_changes,
+        **shim_kwargs
+    )
+
+    kwargs.update(
+        srcs = [shim_name],
+        data = [":" + noshim_name],
+        deps = ["@bazel_ros2_rules//ros2:dload_shim_cc"],
+        tags = ["nolint"] + kwargs.get("tags", []),
+    )
+    cc_test_rule(name = name, **kwargs)
