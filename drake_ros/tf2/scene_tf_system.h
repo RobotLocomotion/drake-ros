@@ -7,7 +7,8 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <tf2_msgs/msg/tf_message.hpp>
 
-namespace drake_ros_tf2 {
+namespace drake_ros {
+namespace tf2 {
 /** System for SceneGraph frame transforms aggregation as a ROS tf2 message.
 
  This system outputs a `tf2_msgs/msg/TFMessage` populated with the
@@ -62,4 +63,8 @@ class SceneTfSystem : public drake::systems::LeafSystem<double> {
 
   std::unique_ptr<Impl> impl_;
 };
-}  // namespace drake_ros_tf2
+}  // namespace tf2
+}  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_tf2 = drake_ros::tf2;

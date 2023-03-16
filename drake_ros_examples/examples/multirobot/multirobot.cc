@@ -19,8 +19,8 @@
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
 
 using drake::systems::ConstantVectorSource;
 using drake::systems::Simulator;
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
   drake::systems::DiagramBuilder<double> builder;
 
   // Initilise the ROS infrastructure
-  drake_ros_core::init();
+  drake_ros::core::init();
   // Create a Drake system to interface with ROS
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("multirobot_node"));
@@ -47,17 +47,17 @@ int main(int argc, char** argv) {
   const double viz_dt = 1 / 32.0;
   // Add a TF2 broadcaster to provide task frame information
   auto scene_tf_broadcaster =
-      builder.AddSystem<drake_ros_tf2::SceneTfBroadcasterSystem>(
+      builder.AddSystem<drake_ros::tf2::SceneTfBroadcasterSystem>(
           ros_interface_system->get_ros_interface(),
-          drake_ros_tf2::SceneTfBroadcasterParams{
+          drake_ros::tf2::SceneTfBroadcasterParams{
               {TriggerType::kPeriodic}, viz_dt, "/tf"});
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_tf_broadcaster->get_graph_query_input_port());
 
   // Add a system to output the visualisation markers for rviz
-  auto scene_visualizer = builder.AddSystem<drake_ros_viz::RvizVisualizer>(
+  auto scene_visualizer = builder.AddSystem<drake_ros::viz::RvizVisualizer>(
       ros_interface_system->get_ros_interface(),
-      drake_ros_viz::RvizVisualizerParams{
+      drake_ros::viz::RvizVisualizerParams{
           {TriggerType::kPeriodic}, viz_dt, true});
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_visualizer->get_graph_query_input_port());

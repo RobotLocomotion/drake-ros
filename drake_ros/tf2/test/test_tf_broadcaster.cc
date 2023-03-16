@@ -22,13 +22,13 @@
 
 #include "drake_ros/tf2/scene_tf_broadcaster_system.h"
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_tf2::SceneTfBroadcasterParams;
-using drake_ros_tf2::SceneTfBroadcasterSystem;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::tf2::SceneTfBroadcasterParams;
+using drake_ros::tf2::SceneTfBroadcasterSystem;
 
 TEST(SceneTfBroadcasting, NominalCase) {
-  drake_ros_core::init();
+  drake_ros::core::init();
 
   drake::systems::DiagramBuilder<double> builder;
 
@@ -121,7 +121,7 @@ TEST(SceneTfBroadcasting, NominalCase) {
   EXPECT_DOUBLE_EQ(odom_to_base_link.transform.rotation.z, R_OB.z());
   EXPECT_DOUBLE_EQ(odom_to_base_link.transform.rotation.w, R_OB.w());
 
-  EXPECT_TRUE(drake_ros_core::shutdown());
+  EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
 // Only available in Bazel.

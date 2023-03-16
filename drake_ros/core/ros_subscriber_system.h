@@ -11,7 +11,8 @@
 #include "drake_ros/core/serializer.h"
 #include "drake_ros/core/serializer_interface.h"
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 /** A system that can subscribe to ROS messages.
  It subscribes to a ROS topic and makes ROS messages available on
  its sole output port.
@@ -55,4 +56,8 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
   struct Impl;
   std::unique_ptr<Impl> impl_;
 };
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_core = drake_ros::core;

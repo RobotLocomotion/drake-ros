@@ -6,7 +6,8 @@
 
 #include "internal_name_conventions.h"  // NOLINT
 
-namespace drake_ros_tf2 {
+namespace drake_ros {
+namespace tf2 {
 
 std::string GetTfFrameName(
     const drake::multibody::Body<double>& body,
@@ -51,4 +52,5 @@ std::string GetTfFrameName(
   return GetTfFrameName(inspector, plants, inspector.GetFrameId(geometry_id));
 }
 
-}  // namespace drake_ros_tf2
+}  // namespace tf2
+}  // namespace drake_ros

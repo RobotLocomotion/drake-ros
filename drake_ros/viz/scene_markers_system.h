@@ -11,7 +11,8 @@
 #include <drake_ros/viz/name_conventions.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
 /// Set of parameters that configure a SceneMarkersSystem.
 struct SceneMarkersParams {
@@ -100,4 +101,8 @@ class SceneMarkersSystem : public drake::systems::LeafSystem<double> {
   std::unique_ptr<SceneMarkersSystemPrivate> impl_;
 };
 
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_viz = drake_ros::viz;

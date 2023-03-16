@@ -17,9 +17,9 @@ using drake::systems::TriggerType;
 void DefTf2(py::module m) {
   m.doc() = "Python wrapper for drake_ros.tf2";
 
-  using drake_ros_core::DrakeRos;
-  using drake_ros_tf2::SceneTfBroadcasterParams;
-  using drake_ros_tf2::SceneTfBroadcasterSystem;
+  using drake_ros::core::DrakeRos;
+  using drake_ros::tf2::SceneTfBroadcasterParams;
+  using drake_ros::tf2::SceneTfBroadcasterSystem;
 
   py::module::import("drake_ros.core");
 

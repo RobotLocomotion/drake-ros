@@ -8,7 +8,8 @@
 #include <rmw/serialized_message.h>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 namespace internal {
 // A type-erased version of rclcpp:::Subscription<Message>.
 // This class conforms to the ROS 2 C++ style for consistency.
@@ -60,4 +61,8 @@ class Subscription final : public rclcpp::SubscriptionBase {
   std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback_;
 };
 }  // namespace internal
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_core = drake_ros::core;

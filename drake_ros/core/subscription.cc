@@ -5,7 +5,8 @@
 
 #include <rclcpp/version.h>
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 namespace internal {
 namespace {
 // Copied from rosbag2_transport rosbag2_get_subscription_options
@@ -80,4 +81,5 @@ void Subscription::return_serialized_message(
   message.reset();
 }
 }  // namespace internal
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros

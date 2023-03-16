@@ -11,9 +11,9 @@
 namespace drake_ros {
 namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
-using drake_ros_core::DrakeRos;
-using drake_ros_viz::RvizVisualizer;
-using drake_ros_viz::RvizVisualizerParams;
+using drake_ros::core::DrakeRos;
+using drake_ros::viz::RvizVisualizer;
+using drake_ros::viz::RvizVisualizerParams;
 
 using drake::systems::Diagram;
 using drake::systems::TriggerType;

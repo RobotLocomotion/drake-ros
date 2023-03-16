@@ -41,7 +41,8 @@ expressing it).
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/wrench.hpp>
 
-namespace drake_ros_core {
+namespace drake_ros {
+namespace core {
 
 // Vector / Translation.
 
@@ -127,4 +128,8 @@ drake::multibody::SpatialForce<double> RosWrenchToSpatialForce(
 geometry_msgs::msg::Wrench SpatialForceToRosWrench(
     const drake::multibody::SpatialForce<double>& force);
 
-}  // namespace drake_ros_core
+}  // namespace core
+}  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_core = drake_ros::core;
