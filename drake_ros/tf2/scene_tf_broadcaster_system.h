@@ -60,3 +60,6 @@ class SceneTfBroadcasterSystem : public drake::systems::Diagram<double> {
 };
 }  // namespace tf2
 }  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_tf2 = drake_ros::tf2;

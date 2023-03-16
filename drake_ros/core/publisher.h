@@ -26,3 +26,6 @@ class Publisher final : public rclcpp::PublisherBase {
 }  // namespace internal
 }  // namespace core
 }  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_core = drake_ros::core;
