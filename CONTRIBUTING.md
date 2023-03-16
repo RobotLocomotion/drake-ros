@@ -9,6 +9,8 @@ guide](https://drake.mit.edu/code_style_guide.html).
 
 For an example of using `colcon`, please see `../drake_ros_examples`.
 
+To build and run all tests, use `./run_all_tests.sh`.
+
 ## Continuous Integration
 
 This repository uses GitHub Actions to perform CI.
