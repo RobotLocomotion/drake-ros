@@ -12,25 +12,38 @@ The simulation publishes the following topics:
 * `/scene_markers/collision` (collision geometry of all the robots)
 * `/scene_markers/visual` (visual representation of all the robots)
 
-## How to run the example
+## How To
 
-Run either the C++ executable or the Python script.
-For the C++ version of the example, run the executable.
+First, run the visualizer by launching RViz:
 
-```
-ros2 run drake_ros_examples multirobot
-```
-
-For the Python version of the example, run the Python script.
-
-```
-ros2 run drake_ros_examples multirobot.py
-```
-
-In a separate terminal, launch RViz and provide the path to the configuration file to visualise the robots.
-
-```
+```sh
+# Using Colcon/CMake
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix drake_ros_examples)/share/drake_ros_examples/multirobot.rviz
+
+# Using bazel
+bazel run @ros2//:rviz2 -- -d `pwd`/examples/multirobot/multirobot.rviz
 ```
 
-You should observe a 10x10 array of manipulators flopping about under the influence of gravity.
+In a separate terminal, run either the C++ executable or the Python script.
+
+```sh
+# Using Colcon/CMake
+# C++
+ros2 run drake_ros_examples multirobot
+# Python
+ros2 run drake_ros_examples multirobot.py
+
+# Using bazel
+# C++
+bazel run //examples/multirobot:multirobot
+# Python
+bazel run //examples/multirobot:multirobot_py
+```
+
+You should observe a 5 x 5 array of manipulators flopping about under the influence of gravity.
+
+**Note***: If you restart the simulation but not RViz, you should click RViz's
+"Reset" button so that TF does not get tripped up on stale data.
+
+**Note**: All terminals should have their environment setup appropriately. See
+`drake_ros_examples` for an example of how to do so.

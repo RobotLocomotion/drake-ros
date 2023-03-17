@@ -2,13 +2,22 @@
 
 [![drake-ros continuous integration](https://github.com/RobotLocomotion/drake-ros/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/RobotLocomotion/drake-ros/actions/workflows/main.yml?query=branch%3Amain)
 
+## Getting Started
+
+See [`drake_ros_examples`](./drake_ros_examples) for an example of
+getting started with both Drake and ROS 2 using `colcon`.
+
+If you are using Bazel to build , please see
+[`ros2_example_bazel_installed`](./ros2_example_bazel_installed).
+
 ## About
 
 The intended function of this repository is to provide the following ROS 2
 capability:
 
 - API for integration between Drake and ROS 2 components. See the
-  `drake_ros_*` packages.
+  `drake_ros` package.
+- Examples using this API in the `drake_ros_examples` package.
 - Bazel Starlark macros and tooling to enable ingesting (already built) ROS 2
   workspaces from either installed locations or tarballs in
   [`bazel_ros2_rules`](./bazel_ros2_rules).
@@ -23,6 +32,13 @@ with the Gazebo and broader ROS ecosystem:
 - An example of fetching Gazebo or ROS models, rendering them, and ensuring
   mesh and geometry offsets are consistently interpreted between Drake and
   Gazebo. This may adjust the constituent URDF and/or SDFormat models.
+
+## Supported Configurations:
+
+  - Ubuntu 22.04 + ROS 2 Humble (Recommended)
+  - Ubuntu 20.04 + ROS 2 Rolling
+  - Architecture: x86_64 (amd64)
+  - Bazel >= 5.0
 
 ## Usable! But No Stability Commitment
 

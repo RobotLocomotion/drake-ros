@@ -1,0 +1,70 @@
+load("@ros2//:ros_cc.bzl", "ros_cc_test")
+
+# Dependencies for both static and shared libraries that will not violate ODR.
+cc_library(
+    name = "odr_safe_deps",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//core:odr_safe_deps",
+        "//tf2:odr_safe_deps",
+        "@ros2//:geometry_msgs_cc",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:visualization_msgs_cc",
+    ],
+)
+
+# TODO(sloretz) more granular targets for static linking
+cc_library(
+    name = "viz",
+    srcs = glob(
+        [
+            "*.cc",
+            "*.h",
+        ],
+    ),
+    hdrs = glob(
+        ["*.h"],
+    ),
+    include_prefix = "drake_ros/viz",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":odr_safe_deps",
+        "//core",
+        "//tf2",
+        "@drake//common",
+        "@drake//geometry",
+        "@drake//math",
+        "@drake//multibody/plant",
+        "@drake//systems/framework",
+    ],
+)
+
+ros_cc_test(
+    name = "test_name_conventions",
+    size = "small",
+    srcs = ["test/test_name_conventions.cc"],
+    includes = ["."],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":viz",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+ros_cc_test(
+    name = "test_scene_markers",
+    size = "small",
+    srcs = ["test/test_scene_markers.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":viz",
+        "@com_google_googletest//:gtest_main",
+        "@drake//common",
+        "@drake//geometry",
+        "@drake//math",
+        "@drake//multibody/plant",
+        "@drake//systems/framework",
+        "@drake//systems/primitives",
+        "@ros2//:visualization_msgs_cc",
+    ],
+)

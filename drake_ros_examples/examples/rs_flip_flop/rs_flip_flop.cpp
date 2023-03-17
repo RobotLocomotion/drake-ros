@@ -1,16 +1,3 @@
-// Copyright 2020 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 #include <memory>
 #include <utility>
@@ -18,16 +5,20 @@
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_interface_system.h>
-#include <drake_ros_core/ros_publisher_system.h>
-#include <drake_ros_core/ros_subscriber_system.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_interface_system.h>
+#include <drake_ros/core/ros_publisher_system.h>
+#include <drake_ros/core/ros_subscriber_system.h>
+#include <gflags/gflags.h>
 #include <std_msgs/msg/bool.hpp>
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_core::RosPublisherSystem;
-using drake_ros_core::RosSubscriberSystem;
+DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
+              "How many seconds to run the simulation");
+
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::core::RosPublisherSystem;
+using drake_ros::core::RosSubscriberSystem;
 
 class NorGate : public drake::systems::LeafSystem<double> {
  public:
@@ -87,7 +78,8 @@ class Memory : public drake::systems::LeafSystem<double> {
   }
 };
 
-int main() {
+int main(int argc, char** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, false);
   // NOR gate RS flip flop example
   // Input topics /S and /R are active high (true is logic 1 and false is logic
   // 0)
@@ -103,7 +95,7 @@ int main() {
 
   rclcpp::QoS qos{10};
 
-  drake_ros_core::init();
+  drake_ros::core::init();
   auto sys_ros_interface = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("rs_flip_flop_node"));
   auto sys_pub_Q =
@@ -151,8 +143,13 @@ int main() {
 
   auto& simulator_context = simulator->get_mutable_context();
 
-  while (true) {
-    simulator->AdvanceTo(simulator_context.get_time() + 0.1);
+  // Step the simulator in 0.1s intervals
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_sec) {
+    const double next_time =
+        std::min(FLAGS_simulation_sec, simulator_context.get_time() + kStep);
+    simulator->AdvanceTo(next_time);
   }
+
   return 0;
 }

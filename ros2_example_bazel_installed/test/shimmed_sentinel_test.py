@@ -42,16 +42,31 @@ class TestShim(unittest.TestCase):
 
         self._mock_shimmed_env = {SHIM_SENTINEL: ""}
 
-    def test_shimmed_once_cc(self):
+    def test_shimmed_once_cc_reexec(self):
         stdout = run_bazel_target(
-            "ros2_example_bazel_installed/shimmed_sentinel_cc", {})
+            "ros2_example_bazel_installed/shimmed_sentinel_cc_reexec", {})
         result = json.loads(stdout)
         self.assertTrue(result['shimmed'])
         self.assertTrue(result['AMENT_PREFIX_PATH present'])
 
-    def test_mock_shimmed_twice_cc(self):
+    def test_shimmed_once_cc_ldwrap(self):
         stdout = run_bazel_target(
-            "ros2_example_bazel_installed/shimmed_sentinel_cc",
+            "ros2_example_bazel_installed/shimmed_sentinel_cc_ldwrap", {})
+        result = json.loads(stdout)
+        self.assertTrue(result['shimmed'])
+        self.assertTrue(result['AMENT_PREFIX_PATH present'])
+
+    def test_mock_shimmed_twice_cc_reexec(self):
+        stdout = run_bazel_target(
+            "ros2_example_bazel_installed/shimmed_sentinel_cc_reexec",
+            self._mock_shimmed_env)
+        result = json.loads(stdout)
+        self.assertTrue(result['shimmed'])
+        self.assertFalse(result['AMENT_PREFIX_PATH present'])
+
+    def test_mock_shimmed_twice_cc_ldwrap(self):
+        stdout = run_bazel_target(
+            "ros2_example_bazel_installed/shimmed_sentinel_cc_ldwrap",
             self._mock_shimmed_env)
         result = json.loads(stdout)
         self.assertTrue(result['shimmed'])
