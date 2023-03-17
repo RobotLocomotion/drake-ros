@@ -93,11 +93,12 @@ void DefCore(py::module m) {
   // them in sync, like pydrake does.
   py::class_<DrakeRos>(m, "DrakeRos");
 
+  using drake_ros::core::ClockSystem;
   py::class_<ClockSystem, LeafSystem<double>>(m, "ClockSystem")
       .def_static(
           "AddToBuilder",
           [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
-             const std::string& topic_name, const drake_ros_core::QoS& qos,
+             const std::string& topic_name, const QoS& qos,
              const std::unordered_set<drake::systems::TriggerType>&
                  pub_triggers,
              double publish_period) {
@@ -115,7 +116,7 @@ void DefCore(py::module m) {
           },
           py::arg("builder"), py::arg("ros"), py::kw_only(),
           py::arg("topic_name") = std::string{"/clock"},
-          py::arg("qos") = drake_ros_core::QoS(rclcpp::ClockQoS()),
+          py::arg("qos") = drake_ros::QoS(rclcpp::ClockQoS()),
           py::arg("publish_triggers") =
               std::unordered_set<drake::systems::TriggerType>{
                   RosPublisherSystem::kDefaultTriggerTypes},

@@ -33,6 +33,7 @@ cc_library(
         "@drake//math:geometric_transform",
         "@drake//multibody/math:spatial_algebra",
         "@drake//systems/framework:leaf_system",
+        "@drake//systems/framework:diagram_builder",
     ],
 )
 

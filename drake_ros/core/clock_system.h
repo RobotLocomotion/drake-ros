@@ -20,11 +20,11 @@
 
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_core/ros_publisher_system.h>
+#include <drake_ros/core/ros_publisher_system.h>
 #include <rclcpp/qos.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
 
-namespace drake_ros_core {
+namespace drake_ros::core {
 /** A system that convert's drake's time to a rosgraph_msgs/msg/Clock message.
  */
 class ClockSystem : public drake::systems::LeafSystem<double> {
