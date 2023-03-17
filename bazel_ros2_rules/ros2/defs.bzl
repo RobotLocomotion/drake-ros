@@ -4,6 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "patch", "update_attrs")
 load("//tools:execute.bzl", "execute_or_fail")
 
 COMMON_FILES_MANIFEST = [
+    "ament_index.bzl",
     "ros_cc.bzl",
     "ros_py.bzl",
     "rosidl.bzl",

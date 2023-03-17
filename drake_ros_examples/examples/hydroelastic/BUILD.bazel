@@ -1,15 +1,23 @@
 # -*- mode: python -*-
 # vi: set ft=python :
 
+load("@ros2//:ament_index.bzl", "ament_index_share_files")
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary")
 load("@ros2//:ros_py.bzl", "ros_py_test")
+
+ament_index_share_files(
+    name = "hydroelastic_share",
+    package_name = "drake_ros_examples",
+    srcs = [":hydroelastic.sdf"],
+    strip_prefix = "examples/",
+)
 
 ros_cc_binary(
     name = "hydroelastic",
     srcs = ["hydroelastic.cc"],
     data = [
-        ":hydroelastic.sdf",
+        ":hydroelastic_share",
     ],
     local_defines = ["BAZEL"],
     deps = [

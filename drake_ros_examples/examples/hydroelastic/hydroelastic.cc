@@ -30,14 +30,6 @@
 #include <gflags/gflags.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#ifdef BAZEL
-// Bazel can't run programs that expect the filesystem hierarchy standard.
-// We must know about bazel runfiles to access files when built by bazel.
-#include "tools/cpp/runfiles/runfiles.h"
-
-using bazel::tools::cpp::runfiles::Runfiles;
-#endif
-
 using drake::geometry::Meshcat;
 using drake::geometry::MeshcatVisualizerd;
 using drake::geometry::MeshcatVisualizerParams;
@@ -67,8 +59,10 @@ DEFINE_bool(real_time, true, "Set to false to run as fast as possible");
 DEFINE_bool(use_meshcat, false, "Enable meshcat visualizer.");
 
 namespace drake_ros_examples {
-void AddScene(const std::string& package_path, MultibodyPlantd* plant) {
+void AddScene(MultibodyPlantd* plant) {
   auto parser = Parser(plant);
+  const auto package_path = ament_index_cpp::get_package_share_directory(
+    "drake_ros_examples");
   parser.package_map().Add("drake_ros_examples", package_path);
 
   std::filesystem::path fs_path{
@@ -77,33 +71,12 @@ void AddScene(const std::string& package_path, MultibodyPlantd* plant) {
       (fs_path / "hydroelastic/hydroelastic.sdf").string());
 }
 
-int do_main(int argc, char** argv) {
+int do_main() {
   DiagramBuilder<double> builder;
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(&builder, 0.0);
 
-#ifdef BAZEL
-  {
-    std::string error;
-#ifdef BAZEL_CURRENT_REPOSITORY
-    // bazel 6
-    std::unique_ptr<Runfiles> runfiles(
-        Runfiles::Create(argv[0], BAZEL_CURRENT_REPOSITORY, &error));
-#else
-    // bazel 5
-    std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv[0], &error));
-#endif
-    if (nullptr == runfiles) {
-      throw std::runtime_error(error);
-    }
-    AddScene(runfiles->Rlocation("drake_ros_examples/examples/"), &plant);
-  }
-#else
-  (void)argc;
-  (void)argv;
-  AddScene(ament_index_cpp::get_package_share_directory("drake_ros_examples"),
-           &plant);
-#endif
+  AddScene(&plant);
 
   plant.set_contact_model(ContactModel::kHydroelasticWithFallback);
   plant.Finalize();
@@ -165,5 +138,5 @@ int do_main(int argc, char** argv) {
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  return drake_ros_examples::do_main(argc, argv);
+  return drake_ros_examples::do_main();
 }
