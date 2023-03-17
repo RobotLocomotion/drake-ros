@@ -61,8 +61,8 @@ DEFINE_bool(use_meshcat, false, "Enable meshcat visualizer.");
 namespace drake_ros_examples {
 void AddScene(MultibodyPlantd* plant) {
   auto parser = Parser(plant);
-  const auto package_path = ament_index_cpp::get_package_share_directory(
-    "drake_ros_examples");
+  const auto package_path =
+      ament_index_cpp::get_package_share_directory("drake_ros_examples");
   parser.package_map().Add("drake_ros_examples", package_path);
 
   std::filesystem::path fs_path{
