@@ -11,7 +11,6 @@ blob/master/ament_cmake_core/doc/resource_index.md
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("//tools:ament_index.bzl", "AmentIndex")
 
-
 def _ament_index_share_files_impl(ctx):
     # declare that a "package" with the given name exists
     package_marker_path = paths.join(
