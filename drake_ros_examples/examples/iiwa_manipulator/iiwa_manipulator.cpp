@@ -1,17 +1,3 @@
-// Copyright 2021 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include <cmath>
 #include <memory>
 #include <utility>
@@ -23,13 +9,17 @@
 #include <drake/systems/primitives/adder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/primitives/sine.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/ros_interface_system.h>
-#include <drake_ros_viz/rviz_visualizer.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/ros_interface_system.h>
+#include <drake_ros/viz/rviz_visualizer.h>
+#include <gflags/gflags.h>
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_viz::RvizVisualizer;
+DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
+              "How many seconds to run the simulation");
+
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::viz::RvizVisualizer;
 
 using drake::examples::manipulation_station::ManipulationStation;
 using drake::systems::Adder;
@@ -37,10 +27,11 @@ using drake::systems::ConstantVectorSource;
 using drake::systems::Simulator;
 using drake::systems::Sine;
 
-int main() {
+int main(int argc, char** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, false);
   drake::systems::DiagramBuilder<double> builder;
 
-  drake_ros_core::init();
+  drake_ros::core::init();
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("iiwa_manipulator_node"));
 
@@ -108,8 +99,12 @@ int main() {
       manipulation_station->GetIiwaPosition(manipulation_station_context));
   constants.get_mutable_value()[0] = -M_PI / 4.;
 
-  while (true) {
-    simulator->AdvanceTo(simulator_context.get_time() + 0.1);
+  // Step the simulator in 0.1s intervals
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_sec) {
+    const double next_time =
+        std::min(FLAGS_simulation_sec, simulator_context.get_time() + kStep);
+    simulator->AdvanceTo(next_time);
   }
   return 0;
 }

@@ -1,0 +1,77 @@
+load("@ros2//:ros_cc.bzl", "ros_cc_test")
+
+# Dependencies for both static and shared libraries that will not violate ODR.
+cc_library(
+    name = "odr_safe_deps",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@eigen",
+        "@ros2//:geometry_msgs_cc",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:rosidl_runtime_c_cc",
+        "@ros2//:rosidl_typesupport_cpp_cc",
+    ],
+)
+
+# TODO(sloretz) more granular targets for static linking
+cc_library(
+    name = "core",
+    srcs = glob(
+        [
+            "*.cc",
+            "*.h",
+        ],
+    ),
+    hdrs = glob(
+        ["*.h"],
+    ),
+    include_prefix = "drake_ros/core",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":odr_safe_deps",
+        "@drake//common:essential",
+        "@drake//math:geometric_transform",
+        "@drake//multibody/math:spatial_algebra",
+        "@drake//systems/framework:leaf_system",
+    ],
+)
+
+ros_cc_test(
+    name = "test_pub_sub",
+    size = "small",
+    srcs = ["test/test_pub_sub.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:test_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
+    name = "test_drake_ros",
+    size = "small",
+    srcs = ["test/test_drake_ros.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@ros2//:rclcpp_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
+    name = "test_geometry_conversions",
+    size = "small",
+    srcs = ["test/test_geometry_conversions.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
