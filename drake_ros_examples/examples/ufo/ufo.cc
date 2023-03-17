@@ -8,23 +8,23 @@
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_core/drake_ros.h>
-#include <drake_ros_core/geometry_conversions.h>
-#include <drake_ros_core/ros_interface_system.h>
-#include <drake_ros_core/ros_subscriber_system.h>
-#include <drake_ros_tf2/scene_tf_broadcaster_system.h>
-#include <drake_ros_viz/rviz_visualizer.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/geometry_conversions.h>
+#include <drake_ros/core/ros_interface_system.h>
+#include <drake_ros/core/ros_subscriber_system.h>
+#include <drake_ros/tf2/scene_tf_broadcaster_system.h>
+#include <drake_ros/viz/rviz_visualizer.h>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
 using drake::multibody::BodyIndex;
 using drake::multibody::ModelInstanceIndex;
 using drake::multibody::Parser;
 using drake::systems::AbstractStateIndex;
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_core::RosSubscriberSystem;
-using drake_ros_tf2::SceneTfBroadcasterSystem;
-using drake_ros_viz::RvizVisualizer;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::core::RosSubscriberSystem;
+using drake_ros::tf2::SceneTfBroadcasterSystem;
+using drake_ros::viz::RvizVisualizer;
 using Eigen::Quaterniond;
 using Eigen::Vector3d;
 
@@ -294,7 +294,7 @@ class RosPoseGlue : public LeafSystemd {
     const auto& goal_pose =
         input_port.Eval<geometry_msgs::msg::PoseStamped>(context);
 
-    *output = drake_ros_core::RosPoseToRigidTransform(goal_pose.pose);
+    *output = drake_ros::core::RosPoseToRigidTransform(goal_pose.pose);
   }
 };
 
@@ -382,7 +382,7 @@ std::unique_ptr<Diagramd> BuildSimulation() {
 }
 
 int main() {
-  drake_ros_core::init();
+  drake_ros::core::init();
 
   std::unique_ptr<Diagramd> diagram = BuildSimulation();
   std::unique_ptr<Contextd> diagram_context = diagram->CreateDefaultContext();
