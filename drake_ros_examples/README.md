@@ -13,7 +13,7 @@ To build it for Jammy with ROS 2 Humble using `colcon` and `ament` (ROS 2's buil
 tooling and CMake infrastructure)
 
 1. [Install ROS Humble](https://docs.ros.org/en/humble/Installation.html) \
-   Taken from the website (be sure to review thiese commands before executing!)
+   Taken from the website (be sure to review these commands before executing!)
 
    ```sh
    sudo apt install software-properties-common
@@ -22,11 +22,18 @@ tooling and CMake infrastructure)
    sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
    sudo apt update
+   # Install the desktop user entry point.
    sudo apt install ros-humble-desktop
+   # Install dev tools.
+   sudo apt install ros-dev-tools
 
    # Update dependencies index.
    rosdep update
    ```
+
+   For other entry points aside from `ros-humble-desktop`, please see the
+   Humble section of REP 2001: \
+   <https://www.ros.org/reps/rep-2001.html#humble-hawksbill-may-2022-ongoing>
 
 1. Source your ROS installation
 
