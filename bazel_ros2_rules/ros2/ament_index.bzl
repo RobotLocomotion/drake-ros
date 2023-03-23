@@ -84,6 +84,16 @@ Note that this works only when bazel creates runfiles links,
 and not just a *.runfiles_manifest (which it might do on an unsupported
 platform like Windows, or with `--nobuild_runfile_links`).
 
+Note that the same package_name should never be used in two different
+calls to `ament_index_share_files` given to the same target.
+This is called "overriding", and it's not currently supported.
+Currently if the two calls to `ament_index_share_files` also have
+the same value for "prefix", then a target depending on both may
+be able to find resources from both rules, but that behavior is not
+guaranteed.
+TODO(sloretz) detect and error when a target is given two ament indexes
+with the same package.
+
 Args:
     package_name: name of a ROS 2 package to which these share files belong
     srcs: files to put into the share directory
