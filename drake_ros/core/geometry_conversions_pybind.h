@@ -14,23 +14,19 @@
 
 namespace py = pybind11;
 
-#define ROS_MSG_TYPECAST(PKG_NAME, MSG_STR, MSG_NAME)                     \
-  template <>                                                             \
-  struct type_caster<PKG_NAME::MSG_STR::MSG_NAME> {                       \
-   public:                                                                \
-    PYBIND11_TYPE_CASTER(PKG_NAME::MSG_STR::MSG_NAME,                     \
-                         _(#PKG_NAME "." #MSG_STR "." #MSG_NAME));        \
-                                                                          \
-    bool load(handle src, bool) {                                         \
-      return RosMessagePyToCpp<PKG_NAME::MSG_STR::MSG_NAME>(src, &value); \
-    }                                                                     \
-                                                                          \
-    static handle cast(PKG_NAME::MSG_STR::MSG_NAME src,                   \
-                       return_value_policy policy, handle parent) {       \
-      (void)policy;                                                       \
-      (void)parent;                                                       \
-      return RosMessageCppToPy<PKG_NAME::MSG_STR::MSG_NAME>(src);         \
-    }                                                                     \
+#define ROS_MSG_PYBIND_TYPECAST(T)                                            \
+  template <>                                                                 \
+  struct type_caster<T> {                                                     \
+   public:                                                                    \
+    PYBIND11_TYPE_CASTER(T, _(""));                                           \
+                                                                              \
+    bool load(handle src, bool) { return RosMessagePyToCpp<T>(src, &value); } \
+                                                                              \
+    static handle cast(T src, return_value_policy policy, handle parent) {    \
+      (void)policy;                                                           \
+      (void)parent;                                                           \
+      return RosMessageCppToPy<T>(src);                                       \
+    }                                                                         \
   };
 
 namespace PYBIND11_NAMESPACE {
@@ -108,14 +104,14 @@ py::object RosMessageCppToPy(T src) {
   return instance;
 }
 
-ROS_MSG_TYPECAST(geometry_msgs, msg, Quaternion)
-ROS_MSG_TYPECAST(geometry_msgs, msg, Point)
-ROS_MSG_TYPECAST(geometry_msgs, msg, Vector3)
-ROS_MSG_TYPECAST(geometry_msgs, msg, Twist)
-ROS_MSG_TYPECAST(geometry_msgs, msg, Accel)
-ROS_MSG_TYPECAST(geometry_msgs, msg, Wrench)
-ROS_MSG_TYPECAST(geometry_msgs, msg, Pose)
-ROS_MSG_TYPECAST(geometry_msgs, msg, Transform)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Quaternion)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Point)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Vector3)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Twist)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Accel)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Wrench)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Pose)
+ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Transform)
 
 }  // namespace detail
 }  // namespace PYBIND11_NAMESPACE
