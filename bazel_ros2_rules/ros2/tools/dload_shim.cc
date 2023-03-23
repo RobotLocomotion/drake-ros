@@ -18,6 +18,16 @@ using bazel::tools::cpp::runfiles::Runfiles;
 namespace bazel_ros2_rules {
 
 namespace {
+
+std::string GetOrAbort(Runfiles* runfiles, const char *loc) {
+  std::string result = runfiles->Rlocation(loc);
+  if (result.empty()) {
+    std::cerr << "DLOAD SHIM ERROR: Cannot find " << loc << std::endl;
+    std::abort();
+  }
+  return result;
+}
+
 std::unique_ptr<Runfiles> CreateRunfiles(const char* argv0) {
   std::string error;
   std::unique_ptr<Runfiles> runfiles(Runfiles::Create(argv0, &error));
@@ -71,13 +81,13 @@ void ApplyEnvironmentActions(
         if (actions[i].size() != 2) {
           std::abort();
         }
-        value_stream << runfiles->Rlocation(actions[i][1]);
+        value_stream << GetOrAbort(runfiles.get(), actions[i][1]);
       } else if (actions[i][0] == kPathPrepend) {
         if (actions[i].size() < 2) {
           std::abort();
         }
         for (size_t j = 1; j < actions[i].size(); ++j) {
-          value_stream << runfiles->Rlocation(actions[i][j]) << ":";
+          value_stream << GetOrAbort(runfiles.get(), actions[i][j]) << ":";
         }
 
         const char * raw_value = getenv(names[i]);
