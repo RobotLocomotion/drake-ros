@@ -80,10 +80,9 @@ files they expect.
     d = ament_index_cpp::get_package_share_directory("package_name")
     file = join(d, "short_path of file")
 
-Note that this works only when bazel is able to create a real runfiles
-folder.
-It situations where bazel creates a runfiles manifest, the ament index
-won't be accessible.
+Note that this works only when bazel creates runfiles links,
+and not just a *.runfiles_manifest (which it might do on an unsupported
+platform like Windows, or with `--nobuild_runfile_links`).
 
 Args:
     package_name: name of a ROS 2 package to which these share files belong
