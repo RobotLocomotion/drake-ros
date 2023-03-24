@@ -14,9 +14,11 @@
 
 namespace py = pybind11;
 
-#define ROS_MSG_PYBIND_TYPECAST(T)                                            \
-  template <>                                                                 \
-  struct type_caster<T> {                                                     \
+// Generic (C++ <-> Python) typecaster for all ROS 2 messages.
+#define ROS_MSG_PYBIND_TYPECAST_ALL()                                         \
+  template <typename T>                                                       \
+  struct type_caster<                                                         \
+      T, std::enable_if_t<rosidl_generator_traits::is_message<T>::value>> {   \
    public:                                                                    \
     PYBIND11_TYPE_CASTER(T, _(""));                                           \
                                                                               \
@@ -104,14 +106,8 @@ py::object RosMessageCppToPy(T src) {
   return instance;
 }
 
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Quaternion)
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Point)
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Vector3)
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Twist)
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Accel)
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Wrench)
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Pose)
-ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Transform)
+// Generic typecaster for all ROS 2 messages.
+ROS_MSG_PYBIND_TYPECAST_ALL();
 
 }  // namespace detail
 }  // namespace PYBIND11_NAMESPACE
