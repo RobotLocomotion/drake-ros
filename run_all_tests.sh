@@ -15,6 +15,7 @@ cd $(dirname "$me")
 set -x
 (./fix_bazel_lint.sh --test ) && \
 (cd bazel_ros2_rules             && bazel build //...) && \
+(cd bazel_ros2_rules             && bazel test //...) && \
 (cd drake_ros                    && bazel test //...) && \
 (cd drake_ros_examples           && bazel test //...) && \
 (cd ros2_example_bazel_installed && bazel test //... @ros2//...) && \
