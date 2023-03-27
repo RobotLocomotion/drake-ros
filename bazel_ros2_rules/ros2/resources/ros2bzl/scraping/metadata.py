@@ -34,8 +34,15 @@ def parse_package_xml(path_to_package_xml):
 def parse_plugins_description_xml(path_to_plugins_description_xml):
     plugins_description_xml = ET.parse(path_to_plugins_description_xml)
     root = plugins_description_xml.getroot()
-    assert root.tag == 'library'
-    return dict(plugin_libraries=[root.attrib['path']])
+    libraries = []
+    assert root.tag in ['class_libraries', 'library']
+    if 'class_libraries' == root.tag:
+        for child in root.findall('library'):
+            libraries.append(child.attrib['path'])
+    else:
+        libraries.append(root.attrib['path'])
+    assert libraries
+    return dict(plugin_libraries=libraries)
 
 
 def find_executables(base_path):

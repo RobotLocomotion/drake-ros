@@ -23,3 +23,24 @@ py_library(
 )
 
 run_calculate_rosidl_capitalization_tests()
+
+py_library(
+    name = "cmake_tools_py",
+    srcs = glob(["resources/cmake_tools/**/*.py"]),
+    imports = ["resources"],
+    visibility = ["//visibility:private"],
+)
+
+py_library(
+    name = "ros2bzl_py",
+    srcs = glob(["resources/ros2bzl/**/*.py"]),
+    imports = ["resources"],
+    visibility = ["//visibility:private"],
+    deps = [":cmake_tools_py"],
+)
+
+py_test(
+    name = "plugin_xml_parsing_test",
+    srcs = ["plugin_xml_parsing_test.py"],
+    deps = [":ros2bzl_py"],
+)

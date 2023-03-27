@@ -1,6 +1,5 @@
 import os
 
-import ament_index_python
 import cmake_tools
 
 from ros2bzl.scraping.metadata import collect_cmake_package_metadata
@@ -8,6 +7,8 @@ from ros2bzl.scraping.metadata import collect_ros_package_metadata
 
 
 def list_all_executables():
+    # Delay import to allow testing most of ros2bzl without a ros2 workspace
+    import ament_index_python
     executables = {}
     for prefix in ament_index_python.get_packages_with_prefixes().values():
         bindir = os.path.join(prefix, 'bin')
@@ -23,6 +24,8 @@ def list_all_executables():
 
 
 def index_all_packages():
+    # Delay import to allow testing most of ros2bzl without a ros2 workspace
+    import ament_index_python
     packages = {
         name: collect_ros_package_metadata(name, prefix)
         for name, prefix in
@@ -87,6 +90,8 @@ def build_dependency_graph(packages, include=None, exclude=None):
 
 
 def scrape_distribution(include=None, exclude=None):
+    # Delay import to allow testing most of ros2bzl without a ros2 workspace
+    import ament_index_python
     packages, dependency_graph = build_dependency_graph(
         index_all_packages(), include, exclude)
     executables = list_all_executables()
