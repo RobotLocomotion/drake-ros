@@ -31,6 +31,22 @@ namespace py = pybind11;
     }                                                                         \
   };
 
+// Generic (C++ <-> Python) typecaster for a specific ROS 2 message.
+#define ROS_MSG_PYBIND_TYPECAST(T)                                            \
+  template <>                                                                 \
+  struct type_caster<T> {                                                     \
+   public:                                                                    \
+    PYBIND11_TYPE_CASTER(T, _(""));                                           \
+                                                                              \
+    bool load(handle src, bool) { return RosMessagePyToCpp<T>(src, &value); } \
+                                                                              \
+    static handle cast(T src, return_value_policy policy, handle parent) {    \
+      (void)policy;                                                           \
+      (void)parent;                                                           \
+      return RosMessageCppToPy<T>(src);                                       \
+    }                                                                         \
+  };
+
 namespace PYBIND11_NAMESPACE {
 namespace detail {
 
@@ -108,6 +124,16 @@ py::object RosMessageCppToPy(T src) {
 
 // Generic typecaster for all ROS 2 messages.
 ROS_MSG_PYBIND_TYPECAST_ALL();
+
+// Generic typecaster for specific ROS 2 messages.
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Quaternion);
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Point);
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Vector3);
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Twist);
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Accel);
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Wrench);
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Pose);
+// ROS_MSG_PYBIND_TYPECAST(geometry_msgs::msg::Transform);
 
 }  // namespace detail
 }  // namespace PYBIND11_NAMESPACE
