@@ -31,6 +31,8 @@ using drake_ros::core::shutdown;
 using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
 
+using py_rvp = pybind11::return_value_policy;
+
 // A (de)serialization interface implementation for Python ROS messages
 // that can be overriden from Python itself.
 class PySerializerInterface : public py::wrapper<SerializerInterface> {
@@ -105,7 +107,6 @@ void DefCore(py::module m) {
             auto [clock_system, pub_system] = ClockSystem::AddToBuilder(
                 builder, ros, topic_name, qos, pub_triggers, publish_period);
 
-            using py_rvp = pybind11::return_value_policy;
             py::object py_builder = py::cast(builder, py_rvp::reference);
             py::list result;
             result.append(
