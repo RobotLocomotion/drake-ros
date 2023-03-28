@@ -8,6 +8,7 @@ find_package(geometry_msgs REQUIRED)
 
 
 set(HEADERS
+  "clock_system.h"
   "drake_ros.h"
   "geometry_conversions.h"
   "geometry_conversions_pybind.h"
