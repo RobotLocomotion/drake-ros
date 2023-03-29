@@ -1,5 +1,6 @@
 """Python wrapper for drake_ros.core."""
 
+from drake_ros._cc.core import ClockSystem
 from drake_ros._cc.core import init
 from drake_ros._cc.core import Isometry3ToRosPose
 from drake_ros._cc.core import Isometry3ToRosTransform
@@ -97,6 +98,7 @@ RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 
 __all__ = [
+    'ClockSystem',
     'DrakeRosInterface',
     'Isometry3ToRosPose',
     'Isometry3ToRosTransform',
