@@ -14,6 +14,8 @@
 
 namespace py = pybind11;
 
+// TODO(Aditya): Apply constexpr message name to type caster macro
+// after https://github.com/ros2/rosidl/issues/734 is resolved.
 // Generic (C++ <-> Python) typecaster for all ROS 2 messages.
 #define ROS_MSG_PYBIND_TYPECAST_ALL()                                       \
   template <typename T>                                                     \
@@ -33,6 +35,8 @@ namespace py = pybind11;
     }                                                                       \
   };
 
+// TODO(Aditya): Apply constexpr message name to type caster macro
+// after https://github.com/ros2/rosidl/issues/734 is resolved.
 // Generic (C++ <-> Python) typecaster for a specific ROS 2 message.
 #define ROS_MSG_PYBIND_TYPECAST(T)                                         \
   template <>                                                              \
