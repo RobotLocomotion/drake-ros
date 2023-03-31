@@ -1,5 +1,6 @@
 #include <regex>
 #include <string>
+#include <type_traits>
 
 #include <Eigen/Geometry>
 #include <drake/common/eigen_types.h>
@@ -14,46 +15,17 @@
 
 namespace py = pybind11;
 
-// TODO(Aditya): Apply constexpr message name to type caster macro
-// after https://github.com/ros2/rosidl/issues/734 is resolved.
 // Generic (C++ <-> Python) typecaster for all ROS 2 messages.
-#define ROS_MSG_PYBIND_TYPECAST_ALL()                                       \
-  template <typename T>                                                     \
-  struct type_caster<                                                       \
-      T, std::enable_if_t<rosidl_generator_traits::is_message<T>::value>> { \
-   public:                                                                  \
-    PYBIND11_TYPE_CASTER(T, _(""));                                         \
-                                                                            \
-    bool load(handle src, bool) {                                           \
-      return drake_ros::core::RosMessagePyToCpp<T>(src, &value);            \
-    }                                                                       \
-                                                                            \
-    static handle cast(T src, return_value_policy policy, handle parent) {  \
-      (void)policy;                                                         \
-      (void)parent;                                                         \
-      return drake_ros::core::RosMessageCppToPy<T>(src);                    \
-    }                                                                       \
-  };
+#define ROS_MSG_PYBIND_TYPECAST_ALL()                                     \
+  template <typename T>                                                   \
+  struct type_caster<                                                     \
+      T, std::enable_if_t<rosidl_generator_traits::is_message<T>::value>> \
+      : public generic_type_caster<T> {};
 
-// TODO(Aditya): Apply constexpr message name to type caster macro
-// after https://github.com/ros2/rosidl/issues/734 is resolved.
 // Generic (C++ <-> Python) typecaster for a specific ROS 2 message.
-#define ROS_MSG_PYBIND_TYPECAST(T)                                         \
-  template <>                                                              \
-  struct type_caster<T> {                                                  \
-   public:                                                                 \
-    PYBIND11_TYPE_CASTER(T, _(""));                                        \
-                                                                           \
-    bool load(handle src, bool) {                                          \
-      return drake_ros::core::RosMessagePyToCpp<T>(src, &value);           \
-    }                                                                      \
-                                                                           \
-    static handle cast(T src, return_value_policy policy, handle parent) { \
-      (void)policy;                                                        \
-      (void)parent;                                                        \
-      return drake_ros::core::RosMessageCppToPy<T>(src);                   \
-    }                                                                      \
-  };
+#define ROS_MSG_PYBIND_TYPECAST(T) \
+  template <>                      \
+  struct type_caster<T> : public generic_type_caster<T> {};
 
 namespace drake_ros {
 namespace core {
@@ -131,5 +103,30 @@ py::object RosMessageCppToPy(T src) {
   instance.inc_ref();
   return instance;
 }
+
 }  // namespace core
 }  // namespace drake_ros
+
+namespace PYBIND11_NAMESPACE {
+namespace detail {
+
+// TODO(Aditya): Apply constexpr message name to type caster macro
+// after https://github.com/ros2/rosidl/issues/734 is resolved.
+template <typename T>
+struct generic_type_caster {
+ public:
+  PYBIND11_TYPE_CASTER(T, py::detail::_(""));
+
+  bool load(py::handle src, bool) {
+    return drake_ros::core::RosMessagePyToCpp<T>(src, &value);
+  }
+
+  static py::handle cast(T src, return_value_policy policy, py::handle parent) {
+    (void)policy;
+    (void)parent;
+    return drake_ros::core::RosMessageCppToPy<T>(src);
+  }
+};
+
+}  // namespace detail
+}  // namespace PYBIND11_NAMESPACE
