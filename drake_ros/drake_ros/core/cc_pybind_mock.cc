@@ -29,26 +29,11 @@ namespace drake_ros {
 namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
 using drake_ros_core::DrakeRos;
-using drake_ros_core::init;
-using drake_ros_core::shutdown;
 
 void DefTestTypecasting(py::module m) {
   m.doc() = "Python bindings for drake_ros.mock";
 
   py::class_<DrakeRos>(m, "DrakeRos");
-
-  m.def(
-      "init",
-      [](std::vector<std::string> args) {
-        std::vector<const char*> raw_args;
-        raw_args.reserve(args.size());
-        for (auto& arg : args) {
-          raw_args.push_back(arg.c_str());
-        }
-        init(raw_args.size(), raw_args.data());
-      },
-      py::arg("args") = std::vector<std::string>{});
-  m.def("shutdown", &shutdown);
 
   m.def("testTypecasting",
         &drake_ros::mock_test::testTypecasting<geometry_msgs::msg::Polygon>,
