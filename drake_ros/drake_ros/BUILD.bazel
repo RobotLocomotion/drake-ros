@@ -32,6 +32,23 @@ pybind_py_library(
     ],
 )
 
+pybind_py_library(
+    name = "cc_py_generic_typecaster",
+    cc_deps = [
+        ":python_bindings_internal_hdrs",
+        "//:drake_ros_shared_library",
+    ],
+    cc_so_name = "_cc_generic_typecaster",
+    cc_srcs = [
+        "cc_py_generic_typecaster.cc",
+        "core/cc_pybind_mock.cc",
+    ],
+    py_deps = [
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+    ],
+)
+
 py_library(
     name = "drake_ros_py",
     srcs = [
@@ -105,4 +122,14 @@ ros_py_test(
     srcs = ["test/odr_py_test.py"],
     main = "test/odr_py_test.py",
     deps = [":drake_ros_py"],
+)
+
+ros_py_test(
+    name = "generic_typecaster_test",
+    srcs = ["test/generic_typecaster_test.py"],
+    main = "test/generic_typecaster_test.py",
+    deps = [
+        ":cc_py_generic_typecaster",
+        "@ros2//:geometry_msgs_py",
+    ],
 )
