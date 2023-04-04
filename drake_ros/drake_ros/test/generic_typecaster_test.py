@@ -31,7 +31,7 @@ def test_msg_quaternion():
     q.z = 3.0
     q.w = 4.0
 
-    msg_converted = temp.testTypecasting(msg=q)
+    msg_converted = ros_msg_typecaster.testTypecasting(msg=q)
     assert q == msg_converted
 
 
