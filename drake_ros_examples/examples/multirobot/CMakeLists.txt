@@ -1,11 +1,9 @@
 add_executable(multirobot multirobot.cc)
 target_link_libraries(multirobot
   drake::drake
-  drake_ros::core
   drake_ros::drake_ros_core
   drake_ros::drake_ros_tf2
   drake_ros::drake_ros_viz
-  drake_ros::py_drake_ros_core
   gflags_shared
 )
 

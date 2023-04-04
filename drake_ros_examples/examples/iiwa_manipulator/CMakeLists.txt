@@ -3,7 +3,6 @@ target_link_libraries(iiwa_manipulator
   drake::drake
   drake_ros::drake_ros_core
   drake_ros::drake_ros_viz
-  drake_ros::py_drake_ros_core
   gflags_shared
 )
 

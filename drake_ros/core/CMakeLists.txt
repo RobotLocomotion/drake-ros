@@ -28,6 +28,7 @@ foreach(hdr ${HEADERS})
 endforeach()
 
 add_library(drake_ros_core
+  clock_system.cc
   drake_ros.cc
   geometry_conversions.cc
   publisher.cc
