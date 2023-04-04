@@ -41,4 +41,4 @@ class ClockSystem : public drake::systems::LeafSystem<double> {
   void CalcClock(const drake::systems::Context<double>& context,
                  rosgraph_msgs::msg::Clock* output_value) const;
 };
-}  // namespace drake_ros_core
+}  // namespace drake_ros::core
