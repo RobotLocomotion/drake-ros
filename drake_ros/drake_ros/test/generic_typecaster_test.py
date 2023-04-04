@@ -3,7 +3,7 @@ import random
 import sys
 
 import drake_ros
-import drake_ros._cc_generic_typecaster as temp
+import drake_ros._cc_generic_typecaster as ros_msg_typecaster
 
 from geometry_msgs.msg import Polygon, Point32, Quaternion
 
@@ -18,7 +18,7 @@ def test_msg_polygon():
         point.z = float(random.randint(1, 100))
         p.points.append(point)
     print(p.points)
-    msg_converted = temp.testTypecasting(msg=p)
+    msg_converted = ros_msg_typecaster.testTypecasting(msg=p)
     assert p == msg_converted
 
 # This message is typecasted using geometry_messages_pybind.h

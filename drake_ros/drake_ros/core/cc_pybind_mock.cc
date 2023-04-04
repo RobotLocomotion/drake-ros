@@ -31,7 +31,7 @@ namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 using drake_ros_core::DrakeRos;
 
 void DefTestTypecasting(py::module m) {
-  m.doc() = "Python bindings for testing the geenric typecaster";
+  m.doc() = "Python bindings for testing the generic typecaster";
 
   py::class_<DrakeRos>(m, "DrakeRos");
 
