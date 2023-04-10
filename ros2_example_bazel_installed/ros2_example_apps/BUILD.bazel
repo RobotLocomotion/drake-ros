@@ -196,6 +196,7 @@ ros_py_test(
     deps = [
         "@bazel_tools//tools/python/runfiles",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@ros2//:std_msgs_py",
     ],
 )
 
