@@ -47,7 +47,7 @@ def launch_node(directory_path, node_type="talker"):
     log_directory = tempfile.TemporaryDirectory()
     os.environ["ROS_LOG_DIR"] = log_directory.name
 
-    # RMW isoaltion is implemented using a dedicated path
+    # RMW isolation is implemented using a dedicated path
     # for the config file. Invoking isolate_rmw_by_path()
     # before rclpy.init() isolates this process and the nodes in it.
     from rmw_isolation import isolate_rmw_by_path
