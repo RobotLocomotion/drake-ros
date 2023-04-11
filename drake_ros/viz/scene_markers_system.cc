@@ -1,17 +1,3 @@
-// Copyright 2021 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "drake_ros/viz/scene_markers_system.h"
 
 #include <unordered_map>
@@ -38,9 +24,10 @@
 #include "drake_ros/tf2/name_conventions.h"
 #include "drake_ros/viz/name_conventions.h"
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
-using drake_ros_core::RigidTransformToRosPose;
+using drake_ros::core::RigidTransformToRosPose;
 
 namespace {
 
@@ -78,7 +65,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker_array_ = marker_array;
 
     prototype_marker_.header.frame_id =
-        drake_ros_tf2::GetTfFrameName(inspector, plants, geometry_id);
+        drake_ros::tf2::GetTfFrameName(inspector, plants, geometry_id);
     prototype_marker_.ns = marker_namespace;
     prototype_marker_.id = marker_id;
     prototype_marker_.action = visualization_msgs::msg::Marker::MODIFY;
@@ -407,4 +394,5 @@ SceneMarkersSystem::get_markers_output_port() const {
   return get_output_port(impl_->scene_markers_port_index);
 }
 
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros

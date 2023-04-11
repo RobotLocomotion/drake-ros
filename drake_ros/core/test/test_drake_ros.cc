@@ -1,17 +1,4 @@
-// Copyright 2021 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+#include <cstdlib>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -21,12 +8,12 @@
 
 #include "drake_ros/core/drake_ros.h"
 
-using drake_ros_core::DrakeRos;
+using drake_ros::core::DrakeRos;
 
 TEST(DrakeRos, default_construct) {
-  drake_ros_core::init();
+  drake_ros::core::init();
   EXPECT_NO_THROW(std::make_unique<DrakeRos>("default_node"));
-  EXPECT_TRUE(drake_ros_core::shutdown());
+  EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
 TEST(DrakeRos, local_context) {
@@ -39,6 +26,14 @@ TEST(DrakeRos, local_context) {
   // Should not have initialized global context
   EXPECT_FALSE(rclcpp::contexts::get_global_default_context()->is_valid());
   context->shutdown("done");
+}
+
+TEST(DrakeRos, environment) {
+  // The unit testing environment should always be shimmed to have proper
+  // environment variables. Check that at least this one test case is shimmed.
+  // If yes, it's likely that shimming is correct everywhere else, too.
+  const char* const ament_prefix_path = std::getenv("AMENT_PREFIX_PATH");
+  ASSERT_NE(ament_prefix_path, nullptr);
 }
 
 // Only available in Bazel.

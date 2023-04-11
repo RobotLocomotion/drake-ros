@@ -1,16 +1,3 @@
-// Copyright 2021 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 #pragma once
 
 #include <optional>
@@ -20,7 +7,8 @@
 #include <drake/geometry/scene_graph_inspector.h>
 #include <drake/multibody/plant/multibody_plant.h>
 
-namespace drake_ros_viz {
+namespace drake_ros {
+namespace viz {
 
 /** A functor that returns the marker namespace given information of a geometry.
   @param[in] inspector inspector for a given SceneGraph's data.
@@ -51,4 +39,8 @@ MarkerNamespaceFunction GetFlatMarkerNamespaceFunction(
 MarkerNamespaceFunction GetHierarchicalMarkerNamespaceFunction(
     const std::optional<std::string>& marker_namespace_prefix = std::nullopt);
 
-}  // namespace drake_ros_viz
+}  // namespace viz
+}  // namespace drake_ros
+
+// Legacy spelling for backwards compatibility.
+namespace drake_ros_viz = drake_ros::viz;

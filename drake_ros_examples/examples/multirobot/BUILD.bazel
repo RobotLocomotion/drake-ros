@@ -1,0 +1,56 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+load("@ros2//:ros_py.bzl", "ros_py_test")
+
+ros_cc_binary(
+    name = "multirobot",
+    srcs = ["multirobot.cc"],
+    data = [
+        "@drake//manipulation/models/iiwa_description:models",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//common:find_resource",
+        "@drake//geometry:drake_visualizer",
+        "@drake//multibody/parsing:parser",
+        "@drake//multibody/plant",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@drake//systems/primitives:constant_vector_source",
+        "@drake_ros_repo//core",
+        "@drake_ros_repo//tf2",
+        "@drake_ros_repo//viz",
+        "@gflags",
+    ],
+)
+
+ros_py_binary(
+    name = "multirobot_py",
+    srcs = ["multirobot.py"],
+    data = [
+        "@drake//manipulation/models/iiwa_description:models",
+    ],
+    main = "multirobot.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//bindings/pydrake",
+        "@drake_ros_repo//:drake_ros_py",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+ros_py_test(
+    name = "multirobot_test",
+    srcs = ["test/multirobot_test.py"],
+    data = [
+        ":multirobot",
+        ":multirobot_py",
+    ],
+    main = "test/multirobot_test.py",
+    deps = [
+        "//:bazel_ros_testing_py",
+    ],
+)

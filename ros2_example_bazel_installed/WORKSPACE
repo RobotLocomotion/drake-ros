@@ -1,6 +1,7 @@
 workspace(name = "ros2_example_bazel_installed")
 
 load("//tools:environ.bzl", "environment_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 environment_repository(
     name = "ros2_example_bazel_installed_environ",
@@ -39,6 +40,20 @@ add_bazel_ros2_rules_dependencies()
 
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
+
+# TODO(Aditya): Replace with a proper rule later.
+new_local_repository(
+    name = "fmt",
+    path = "fmt",
+    build_file_content = """cc_library(name = "fmt", linkopts=["-lfmt"],
+                            visibility = ["//visibility:public"])""",
+)
+
+git_repository(
+    name = "com_github_gflags_gflags",
+    tag = "v2.2.2",
+    remote = "https://github.com/gflags/gflags.git",
+)
 
 # Please keep this list sorted
 ROS2_PACKAGES = [

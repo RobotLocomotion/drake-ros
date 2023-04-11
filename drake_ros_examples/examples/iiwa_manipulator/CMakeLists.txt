@@ -3,6 +3,7 @@ target_link_libraries(iiwa_manipulator
   drake::drake
   drake_ros::drake_ros_core
   drake_ros::drake_ros_viz
+  gflags_shared
 )
 
 install(
@@ -14,4 +15,9 @@ install(
   TARGETS
     iiwa_manipulator
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  FILES iiwa_manipulator.rviz
+  DESTINATION share/${PROJECT_NAME}
 )

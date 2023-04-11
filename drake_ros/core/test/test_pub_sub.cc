@@ -1,17 +1,3 @@
-// Copyright 2021 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include <memory>
 #include <utility>
 #include <vector>
@@ -27,13 +13,13 @@
 #include "drake_ros/core/ros_publisher_system.h"
 #include "drake_ros/core/ros_subscriber_system.h"
 
-using drake_ros_core::DrakeRos;
-using drake_ros_core::RosInterfaceSystem;
-using drake_ros_core::RosPublisherSystem;
-using drake_ros_core::RosSubscriberSystem;
+using drake_ros::core::DrakeRos;
+using drake_ros::core::RosInterfaceSystem;
+using drake_ros::core::RosPublisherSystem;
+using drake_ros::core::RosSubscriberSystem;
 
 TEST(Integration, sub_to_pub) {
-  drake_ros_core::init(0, nullptr);
+  drake_ros::core::init(0, nullptr);
 
   drake::systems::DiagramBuilder<double> builder;
 
@@ -104,7 +90,7 @@ TEST(Integration, sub_to_pub) {
     EXPECT_EQ(rx_msgs_direct_sub_out.back()->uint64_value, i);
   }
 
-  drake_ros_core::shutdown();
+  drake_ros::core::shutdown();
 }
 
 // Only available in Bazel.

@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-# Copyright 2022 Open Source Robotics Foundation, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+"""
+NOR gate RS flip flop example
+Input topics /S and /R are active high (true is logic 1 and false is logic 0)
+Output topics  /Q and /Q_not are active low (true is logic 0 and false is logic 1)
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_core import RosPublisherSystem
-from drake_ros_core import RosSubscriberSystem
+Input/Output table
+S: false R: false | Q: no change  Q_not: no change
+S: true  R: false | Q: false      Q_not: true
+S: false R: true  | Q: true       Q_not: false
+S: true  R: true  | Q: invalid    Q_not: invalid
+"""
+import argparse
+
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.core import RosPublisherSystem
+from drake_ros.core import RosSubscriberSystem
 
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
@@ -74,18 +73,16 @@ class Memory(LeafSystem):
 
 
 def main():
-    # NOR gate RS flip flop example
-    # Input topics /S and /R are active high (true is logic 1 and false is logic 0)
-    # Output topics  /Q and /Q_not are active low (true is logic 0 and false is logic 1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--simulation_sec',
+        type=float,
+        default=float('inf'),
+        help='How many seconds to run the simulation')
+    args = parser.parse_args()
 
-    # Input/Output table
-    # S: false R: false | Q: no change  Q_not: no change
-    # S: true  R: false | Q: false      Q_not: true
-    # S: false R: true  | Q: true       Q_not: false
-    # S: true  R: true  | Q: invalid    Q_not: invalid
+    drake_ros.core.init()
     builder = DiagramBuilder()
-
-    drake_ros_core.init()
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem("rs_flip_flop_node"))
 
     qos = QoSProfile(depth=10)
@@ -142,8 +139,13 @@ def main():
     simulator_context = simulator.get_mutable_context()
     simulator.set_target_realtime_rate(1.0)
 
-    while True:
-        simulator.AdvanceTo(simulator_context.get_time() + 0.1)
+    # Step the simulator in 0.1s intervals
+    step = 0.1
+    while simulator_context.get_time() < args.simulation_sec:
+        next_time = min(
+            simulator_context.get_time() + step, args.simulation_sec,
+        )
+        simulator.AdvanceTo(next_time)
 
 
 if __name__ == '__main__':

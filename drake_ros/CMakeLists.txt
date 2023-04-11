@@ -19,9 +19,21 @@ find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 add_subdirectory(core)
 add_subdirectory(tf2)
 add_subdirectory(viz)
+# Python bindings
+add_subdirectory(drake_ros)
 
-# Install core python file because ament function can't be used in CMake subdirectory
-ament_python_install_module(core/drake_ros_core.py)
+# Ament installation must happen in top-level, including Python package
+# installation.
+# TODO(sloretz) exclude drake_ros/test folder
+ament_python_install_package(drake_ros)
+
+# Generate same python package in build directory for use in tests to allow
+# for non-install-space testing of this package. For more information, see
+#https://github.com/ros2/ros2_documentation/issues/3373
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/py/")
+file(COPY "drake_ros"
+  DESTINATION "${PROJECT_BINARY_DIR}/py/"
+  PATTERN "drake_ros/test" EXCLUDE)
 
 if(BUILD_TESTING)
     find_package(ament_cmake_clang_format REQUIRED)
@@ -30,7 +42,10 @@ if(BUILD_TESTING)
 
     ament_clang_format(CONFIG_FILE .clang-format)
     ament_cpplint()
-    ament_pycodestyle(--config pycodestyle.ini)
+    # TODO(Aditya) : Remove the --exclude once https://github.com/ament/ament_lint/pull/435
+    # is released into ROS Humble.
+    ament_pycodestyle(--config pycodestyle.ini --exclude
+      "${CMAKE_CURRENT_SOURCE_DIR}/drake_ros/test")
 endif()
 
 ### Drake library path environment hook

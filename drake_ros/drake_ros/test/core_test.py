@@ -1,22 +1,11 @@
-# Copyright 2021 Open Source Robotics Foundation, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import os
+import sys
 
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.framework import TriggerType
+
+import pytest
 
 import rclpy
 from rclpy.qos import DurabilityPolicy
@@ -26,10 +15,10 @@ from rclpy.qos import ReliabilityPolicy
 
 from test_msgs.msg import BasicTypes
 
-import drake_ros_core
-from drake_ros_core import RosInterfaceSystem
-from drake_ros_core import RosPublisherSystem
-from drake_ros_core import RosSubscriberSystem
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.core import RosPublisherSystem
+from drake_ros.core import RosSubscriberSystem
 
 
 def isolate_if_using_bazel():
@@ -41,7 +30,7 @@ def isolate_if_using_bazel():
 
 def test_nominal_case():
     isolate_if_using_bazel()
-    drake_ros_core.init()
+    drake_ros.core.init()
 
     builder = DiagramBuilder()
 
@@ -116,4 +105,8 @@ def test_nominal_case():
         assert len(rx_msgs_direct_sub_out) == rx_msgs_count_after_pubsub
         assert rx_msgs_direct_sub_out[-1].uint64_value == i
 
-    drake_ros_core.shutdown()
+    drake_ros.core.shutdown()
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main(sys.argv))
