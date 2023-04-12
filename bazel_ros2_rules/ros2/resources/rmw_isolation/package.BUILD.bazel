@@ -1,8 +1,8 @@
 # -*- python -*-
 # vi: set ft=python :
 
-load("//:ros_cc.bzl", "ros_cc_binary")
-load("//:ros_py.bzl", "ros_py_binary")
+load("//:ros_cc.bzl", "ros_cc_binary", "ros_cc_test")
+load("//:ros_py.bzl", "ros_py_binary", "ros_py_test")
 
 py_library(
     name = "module_py",
@@ -49,78 +49,32 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-ros_py_binary(
-    name = "isolated_talker_py",
-    srcs = ["test/isolated_talker.py"],
-    main = "test/isolated_talker.py",
-    deps = [
-        "//:rclpy_py",
-        "//:std_msgs_py",
-        ":rmw_isolation_py",
-    ],
-    rmw_implementation = "rmw_cyclonedds_cpp",
-    legacy_create_init = False,
-)
-
-ros_py_binary(
-    name = "isolated_listener_py",
-    srcs = ["test/isolated_listener.py"],
-    main = "test/isolated_listener.py",
-    deps = [
-        "//:rclpy_py",
-        "//:std_msgs_py",
-        ":rmw_isolation_py",
-    ],
-    rmw_implementation = "rmw_cyclonedds_cpp",
-    legacy_create_init = False,
-)
-
-sh_test(
+ros_py_test(
     name = "rmw_isolation_py_test",
-    srcs = ["test/rmw_isolation_test.sh"],
-    args = [
-        "$(location :isolated_talker_py)",
-        "$(location :isolated_listener_py)",
+    srcs = ["test/rmw_isolation_test.py"],
+    main = "test/rmw_isolation_test.py",
+    args = ["--number_of_isolated_pairs", "5"],
+    data = [
+        "@ros2",
     ],
-    data = [":isolated_talker_py", ":isolated_listener_py"],
-    size = "small",
-    # Set flaky because collision rates are non-zero,
-    # See ROS 2 Skylark tooling README.md for further reference.
-    flaky = True,
-)
-
-ros_cc_binary(
-    name = "isolated_talker_cc",
-    srcs = ["test/isolated_talker.cc"],
     deps = [
-        "//:rclcpp_cc",
-        "//:std_msgs_cc",
-        ":rmw_isolation_cc",
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "//:std_msgs_py",
     ],
-    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
-ros_cc_binary(
-    name = "isolated_listener_cc",
-    srcs = ["test/isolated_listener.cc"],
-    deps = [
-        "//:rclcpp_cc",
-        "//:std_msgs_cc",
-        ":rmw_isolation_cc",
-    ],
-    rmw_implementation = "rmw_cyclonedds_cpp",
-)
-
-sh_test(
+ros_cc_test(
     name = "rmw_isolation_cc_test",
-    srcs = ["test/rmw_isolation_test.sh"],
-    args = [
-        "$(location :isolated_talker_cc)",
-        "$(location :isolated_listener_cc)",
-    ],
-    data = [":isolated_talker_cc", ":isolated_listener_cc"],
     size = "small",
-    # Set flaky because collision rates are non-zero,
-    # See ROS 2 Skylark tooling README.md for further reference.
-    flaky = True,
+    srcs = ["test/rmw_isolation_test.cc"],
+    args = ["--number_of_isolated_pairs", "5"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        "@ros2//:rclcpp_cc",
+        "@ros2//:std_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+        "@com_github_gflags_gflags//:gflags",
+        "@fmt",
+    ],
 )

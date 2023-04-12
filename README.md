@@ -26,13 +26,6 @@ capability:
 - Examples for using these APIs and Bazel macros in
   [`ros2_example_bazel_installed`](./ros2_example_bazel_installed).
 
-In addition to ROS 2, this repository also provides some tools for interacting
-with the Gazebo and broader ROS ecosystem:
-
-- An example of fetching Gazebo or ROS models, rendering them, and ensuring
-  mesh and geometry offsets are consistently interpreted between Drake and
-  Gazebo. This may adjust the constituent URDF and/or SDFormat models.
-
 ## Supported Configurations:
 
   - Ubuntu 22.04 + ROS 2 Humble (Recommended)

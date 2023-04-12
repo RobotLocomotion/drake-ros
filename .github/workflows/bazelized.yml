@@ -29,7 +29,10 @@ jobs:
         run: du -hs $(readlink -f /home/runner/.cache/ci)
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
-      - name: Configure Bazel for CI
+      - name: Configure Bazel for CI (bazel_ros2_rules)
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: bazel_ros2_rules
+      - name: Configure Bazel for CI (ros2_example_bazel_installed)
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: ros2_example_bazel_installed
       - name: Install prerequisites
@@ -43,9 +46,15 @@ jobs:
       - name: Test lint
         run: ./fix_bazel_lint.sh --test
         working-directory: .
-      - name: Build Bazel workspace
+      - name: Build Bazel workspace (bazel_ros2_rules)
+        run: bazel build //...
+        working-directory: bazel_ros2_rules
+      - name: Test Bazel workspace (bazel_ros2_rules)
+        run: bazel test //...
+        working-directory: bazel_ros2_rules
+      - name: Build Bazel workspace (ros2_example_installed)
         run: bazel build //...
         working-directory: ros2_example_bazel_installed
-      - name: Test Bazel workspace
+      - name: Test Bazel workspace (ros2_example_installed)
         run: bazel test //... @ros2//...
         working-directory: ros2_example_bazel_installed
