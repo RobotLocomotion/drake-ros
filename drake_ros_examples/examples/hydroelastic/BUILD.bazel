@@ -1,0 +1,58 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+load("@ros2//:ament_index.bzl", "ament_index_share_files")
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+load("@ros2//:ros_py.bzl", "ros_py_test")
+
+# We use `ament_index_share_files` so we can write code that can find
+# resources both when built by CMake and by Bazel.
+ament_index_share_files(
+    name = "hydroelastic_share",
+    package_name = "drake_ros_examples",
+    srcs = [":hydroelastic.sdf"],
+    strip_prefix = "examples/",
+)
+
+ros_cc_binary(
+    name = "hydroelastic",
+    srcs = ["hydroelastic.cc"],
+    data = [
+        ":hydroelastic_share",
+    ],
+    local_defines = ["BAZEL"],
+    deps = [
+        "@bazel_tools//tools/cpp/runfiles",
+        "@drake//common:find_resource",
+        "@drake//geometry:meshcat",
+        "@drake//geometry:meshcat_visualizer",
+        "@drake//lcmtypes:contact_results_for_viz",
+        "@drake//multibody/meshcat",
+        "@drake//multibody/parsing:parser",
+        "@drake//multibody/plant",
+        "@drake//multibody/plant:contact_results_to_lcm",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/analysis:simulator_config_functions",
+        "@drake//systems/framework:diagram_builder",
+        "@drake//systems/primitives:constant_vector_source",
+        "@drake//visualization:visualization_config",
+        "@drake//visualization:visualization_config_functions",
+        "@drake_ros_repo//:drake_ros",
+        "@gflags",
+    ],
+)
+
+# TODO(sloretz) Add Python example
+
+ros_py_test(
+    name = "hydroelastic_test",
+    srcs = ["test/hydroelastic_test.py"],
+    data = [
+        ":hydroelastic",
+    ],
+    main = "test/hydroelastic_test.py",
+    deps = [
+        "//:bazel_ros_testing_py",
+    ],
+)

@@ -77,6 +77,9 @@ void ApplyEnvironmentActions(
           std::abort();
         }
         for (size_t j = 1; j < actions[i].size(); ++j) {
+          // Not seeing explicitly set values in your environment variable?
+          // Rlocation returns an empty string if the path cannot be found,
+          // or contains "./", "../", etc.
           value_stream << runfiles->Rlocation(actions[i][j]) << ":";
         }
 

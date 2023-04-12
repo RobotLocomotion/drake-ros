@@ -62,7 +62,7 @@ struct SingleSphereSceneTestDetails {
       EXPECT_EQ(marker.id, static_cast<int>(i));
       EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
-      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.sec, 1);
       EXPECT_EQ(marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(marker.frame_locked);
       constexpr double kDiameter = 2. * kRadius;
@@ -130,7 +130,7 @@ struct SingleEllipsoidSceneTestDetails {
       EXPECT_EQ(marker.id, static_cast<int>(i));
       EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::SPHERE);
-      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.sec, 1);
       EXPECT_EQ(marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(marker.frame_locked);
       EXPECT_DOUBLE_EQ(marker.scale.x, 2. * kLengthA);
@@ -196,7 +196,7 @@ struct SingleCylinderSceneTestDetails {
       EXPECT_EQ(marker.id, static_cast<int>(i));
       EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CYLINDER);
-      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.sec, 1);
       EXPECT_EQ(marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(marker.frame_locked);
       constexpr double kDiameter = 2. * kRadius;
@@ -260,7 +260,7 @@ struct SingleHalfSpaceSceneTestDetails {
       EXPECT_EQ(marker.id, static_cast<int>(i));
       EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
-      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.sec, 1);
       EXPECT_EQ(marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(marker.frame_locked);
       EXPECT_GT(marker.scale.x, 10.0);
@@ -319,7 +319,7 @@ struct SingleBoxSceneTestDetails {
       EXPECT_EQ(marker.id, static_cast<int>(i));
       EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::CUBE);
-      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.sec, 1);
       EXPECT_EQ(marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(marker.frame_locked);
       EXPECT_DOUBLE_EQ(marker.scale.x, kWidth);
@@ -388,7 +388,7 @@ struct SingleCapsuleSceneTestDetails {
       EXPECT_EQ(body_marker.id, static_cast<int>(i * 3));
       EXPECT_EQ(body_marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(body_marker.type, visualization_msgs::msg::Marker::CYLINDER);
-      EXPECT_EQ(body_marker.lifetime.sec, 0);
+      EXPECT_EQ(body_marker.lifetime.sec, 1);
       EXPECT_EQ(body_marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(body_marker.frame_locked);
       constexpr double kDiameter = 2. * kRadius;
@@ -417,7 +417,7 @@ struct SingleCapsuleSceneTestDetails {
       EXPECT_EQ(upper_cap_marker.action,
                 visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(upper_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
-      EXPECT_EQ(upper_cap_marker.lifetime.sec, 0);
+      EXPECT_EQ(upper_cap_marker.lifetime.sec, 1);
       EXPECT_EQ(upper_cap_marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(upper_cap_marker.frame_locked);
       EXPECT_DOUBLE_EQ(upper_cap_marker.scale.x, kDiameter);
@@ -445,7 +445,7 @@ struct SingleCapsuleSceneTestDetails {
       EXPECT_EQ(lower_cap_marker.action,
                 visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(lower_cap_marker.type, visualization_msgs::msg::Marker::SPHERE);
-      EXPECT_EQ(lower_cap_marker.lifetime.sec, 0);
+      EXPECT_EQ(lower_cap_marker.lifetime.sec, 1);
       EXPECT_EQ(lower_cap_marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(lower_cap_marker.frame_locked);
       EXPECT_DOUBLE_EQ(lower_cap_marker.scale.x, kDiameter);
@@ -508,7 +508,7 @@ struct SingleMeshSceneTestDetails {
       EXPECT_EQ(marker.id, static_cast<int>(i));
       EXPECT_EQ(marker.action, visualization_msgs::msg::Marker::MODIFY);
       EXPECT_EQ(marker.type, visualization_msgs::msg::Marker::MESH_RESOURCE);
-      EXPECT_EQ(marker.lifetime.sec, 0);
+      EXPECT_EQ(marker.lifetime.sec, 1);
       EXPECT_EQ(marker.lifetime.nanosec, 0u);
       EXPECT_TRUE(marker.frame_locked);
       EXPECT_EQ(marker.mesh_resource, std::string("file://") + kFilename);
