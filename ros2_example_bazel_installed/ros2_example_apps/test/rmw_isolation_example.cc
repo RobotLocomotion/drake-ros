@@ -6,6 +6,7 @@
 
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64.hpp>
@@ -53,6 +54,9 @@ class Listener : public rclcpp::Node {
  private:
   void topicCallback(const std_msgs::msg::Float64::SharedPtr msg) {
     ++expectedMessagesCount_;
+    if (expectedMessagesCount_ >= 2) {
+      rclcpp::shutdown();
+    }
   }
 
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr subscription_;
@@ -69,13 +73,6 @@ pid_t LaunchNode(int argc, char* argv[], const std::string& directory_path,
     return process_id;
   }
 
-  // Create a logging directory for ROS.
-  auto log_directory = std::filesystem::temp_directory_path().string().c_str();
-  setenv("ROS_LOG_DIR", log_directory, 1);
-
-  // RMW isolation is implemented using a dedicated path
-  // for the config file. Invoking isolate_rmw_by_path()
-  // before rclcpp::init() isolates this process and the nodes in it.
   ros2::isolate_rmw_by_path(argv[0], directory_path);
 
   rclcpp::init(argc, argv);
@@ -100,17 +97,11 @@ int main(int argc, char* argv[]){
   // from rest of the system. For e.g, if one were to run a new subscriber on the /chatter topic,
   // the data published by the talker would not be visible.
   auto talker_process = LaunchNode(argc, argv, directory_path, "talker");
-  // Wait for the talker to start.
-  sleep(1.0);
-
-  // Start the listener.
   auto listener_process = LaunchNode(argc, argv, directory_path, "listener");
 
-  sleep(2.0);
-
-  // Kill the nodes.
-  kill(talker_process, SIGTERM);
-  kill(listener_process, SIGTERM);
+  // Wait for the listener to exit, then kill the talker.
+  waitpid(listener_process, NULL, 0);
+  kill(talker_process, SIGINT);
 
   return 0;
 }

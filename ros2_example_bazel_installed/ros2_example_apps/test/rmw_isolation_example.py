@@ -6,6 +6,7 @@ from time import sleep
 
 import rclpy
 import rclpy.node
+from rmw_isolation import isolate_rmw_by_path
 import std_msgs
 from std_msgs.msg import Float64
 
@@ -40,17 +41,11 @@ class Listener(rclpy.node.Node):
 
     def _topic_callback(self, _):
         self._expected_messages_received += 1
+        if self._expected_messages_received >= 2:
+            rclpy.shutdown()
 
 # Launch a process for the talker or the listener.
 def launch_node(directory_path, node_type="talker"):
-    # Create a logging directory for ROS.
-    log_directory = tempfile.TemporaryDirectory()
-    os.environ["ROS_LOG_DIR"] = log_directory.name
-
-    # RMW isolation is implemented using a dedicated path
-    # for the config file. Invoking isolate_rmw_by_path()
-    # before rclpy.init() isolates this process and the nodes in it.
-    from rmw_isolation import isolate_rmw_by_path
     isolate_rmw_by_path(directory_path)
 
     # Start the ROS node.
@@ -78,19 +73,17 @@ def main():
     # for rmw isoaltion, and hence will be able to talk to each other but will be isolated
     # from rest of the system. For e.g, if one were to run a new subscriber on the /chatter topic,
     # the data published by the talker would not be visible.
+    # Note that you can also use something like subprocess.Popen() if that is more convenient for your workflow.
     talker_process = Process(target=launch_node, args=(directory_path, "talker"))
     listener_process = Process(target=launch_node, args=(directory_path, "listener"))
 
-    # Wait for the talker to start.
+    # Start the talker and listener.
     talker_process.start()
-    sleep(1.0)
-
     listener_process.start()
 
-    sleep(2)
-
+    # Wait for the listener to exit, then kill the talker.
+    listener_process.join()
     talker_process.kill()
-    listener_process.kill()
 
 if __name__ == "__main__":
     main()
