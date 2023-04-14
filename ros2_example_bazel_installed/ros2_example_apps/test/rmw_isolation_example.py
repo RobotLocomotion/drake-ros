@@ -45,9 +45,7 @@ class Listener(rclpy.node.Node):
             rclpy.shutdown()
 
 # Launch a process for the talker or the listener.
-def launch_node(directory_path, node_type="talker"):
-    isolate_rmw_by_path(directory_path)
-
+def launch_node(node_type="talker"):
     # Start the ROS node.
     rclpy.init()
     try:
@@ -74,8 +72,9 @@ def main():
     # from rest of the system. For e.g, if one were to run a new subscriber on the /chatter topic,
     # the data published by the talker would not be visible.
     # Note that you can also use something like subprocess.Popen() if that is more convenient for your workflow.
-    talker_process = Process(target=launch_node, args=(directory_path, "talker"))
-    listener_process = Process(target=launch_node, args=(directory_path, "listener"))
+    isolate_rmw_by_path(directory_path)
+    talker_process = Process(target=launch_node, args=("talker"))
+    listener_process = Process(target=launch_node, args=("listener"))
 
     # Start the talker and listener.
     talker_process.start()

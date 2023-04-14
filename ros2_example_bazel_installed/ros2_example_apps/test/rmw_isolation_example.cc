@@ -64,16 +64,12 @@ class Listener : public rclcpp::Node {
 };
 
 // Launch a process for the talker or the listener.
-pid_t LaunchNode(int argc, char* argv[], const std::string& directory_path,
-    const std::string& node_type="talker"){
-  // Launch a new process.
+pid_t LaunchNode(int argc, char* argv[], const std::string& node_type="talker"){
   auto process_id = fork();
   if (process_id != 0){
     // We are in the parent process. Return the child process id.
     return process_id;
   }
-
-  ros2::isolate_rmw_by_path(argv[0], directory_path);
 
   rclcpp::init(argc, argv);
   if (node_type == "talker"){
@@ -96,8 +92,10 @@ int main(int argc, char* argv[]){
   // for rmw isoaltion, and hence will be able to talk to each other but will be isolated
   // from rest of the system. For e.g, if one were to run a new subscriber on the /chatter topic,
   // the data published by the talker would not be visible.
-  auto talker_process = LaunchNode(argc, argv, directory_path, "talker");
-  auto listener_process = LaunchNode(argc, argv, directory_path, "listener");
+  // Note that you can also execute a separate program using functions like `system()` if you so choose.
+  ros2::isolate_rmw_by_path(argv[0], directory_path);
+  auto talker_process = LaunchNode(argc, argv, "talker");
+  auto listener_process = LaunchNode(argc, argv, "listener");
 
   // Wait for the listener to exit, then kill the talker.
   waitpid(listener_process, NULL, 0);
