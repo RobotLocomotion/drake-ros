@@ -29,11 +29,11 @@ class Talker : public rclcpp::Node {
     publisher_ = this->create_publisher<std_msgs::msg::Float64>("chatter", 10);
     timer_ = this->create_wall_timer(
         std::chrono::duration<double>(0.1),
-        std::bind(&Talker::timerCallback, this));
+        std::bind(&Talker::TimerCallback, this));
   }
 
  private:
-  void timerCallback() const {
+  void TimerCallback() const {
     std_msgs::msg::Float64 message;
     message.data = 1.0;
     publisher_->publish(message);
@@ -48,19 +48,19 @@ class Listener : public rclcpp::Node {
   Listener()
       : rclcpp::Node("listener_example") {
     subscription_ = this->create_subscription<std_msgs::msg::Float64>(
-        "chatter", 10, std::bind(&Listener::topicCallback, this, _1));
+        "chatter", 10, std::bind(&Listener::TopicCallback, this, _1));
   }
 
  private:
-  void topicCallback(const std_msgs::msg::Float64::SharedPtr msg) {
-    ++expectedMessagesCount_;
-    if (expectedMessagesCount_ >= 2) {
+  void TopicCallback(const std_msgs::msg::Float64::SharedPtr msg) {
+    ++messages_count_;
+    if (messages_count_ >= 2) {
       rclcpp::shutdown();
     }
   }
 
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr subscription_;
-  size_t expectedMessagesCount_{0u};
+  size_t messages_count_{0u};
 };
 
 // Launch a process for the talker or the listener.

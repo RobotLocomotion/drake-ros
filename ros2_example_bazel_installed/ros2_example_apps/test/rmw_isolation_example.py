@@ -37,11 +37,11 @@ class Listener(rclpy.node.Node):
             'chatter',
             self._topic_callback,
             10)
-        self._expected_messages_received = 0
+        self._messages_received = 0
 
     def _topic_callback(self, _):
-        self._expected_messages_received += 1
-        if self._expected_messages_received >= 2:
+        self._messages_received += 1
+        if self._messages_received >= 2:
             rclpy.shutdown()
 
 # Launch a process for the talker or the listener.
