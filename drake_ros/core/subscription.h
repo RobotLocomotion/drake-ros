@@ -5,6 +5,7 @@
 
 #include <rclcpp/qos.hpp>
 #include <rclcpp/subscription_base.hpp>
+#include <rclcpp/version.h>
 #include <rmw/serialized_message.h>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
@@ -23,6 +24,7 @@ class Subscription final : public rclcpp::SubscriptionBase {
 
   ~Subscription();
 
+#if RCLCPP_VERSION_GTE(18, 0, 0)
   rclcpp::dynamic_typesupport::DynamicMessageType::SharedPtr
   get_shared_dynamic_message_type() override
   {
@@ -70,6 +72,7 @@ class Subscription final : public rclcpp::SubscriptionBase {
     throw rclcpp::exceptions::UnimplementedError(
             "handle_dynamic_message is not implemented for Subscription");
   }
+#endif
 
  protected:
   // Borrow a new message.
