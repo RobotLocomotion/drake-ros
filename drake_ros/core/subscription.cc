@@ -23,11 +23,11 @@ Subscription::Subscription(
     const rclcpp::QoS& qos,
     std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback)
 #if RCLCPP_VERSION_GTE(18, 0, 0)
-    : rclcpp::SubscriptionBase(node_base, ts, topic_name,
-                               subscription_options(qos),
-                               /* event_callbacks */ {},
-                               /* use_default_callbacks */ true,
-                               /* subscription_type */ rclcpp::SubscriptionType::SERIALIZED_MESSAGE),
+    : rclcpp::SubscriptionBase(
+          node_base, ts, topic_name, subscription_options(qos),
+          /* event_callbacks */ {},
+          /* use_default_callbacks */ true,
+          /* subscription_type */ rclcpp::SubscriptionType::SERIALIZED_MESSAGE),
 #else
     : rclcpp::SubscriptionBase(node_base, ts, topic_name,
                                subscription_options(qos),
