@@ -27,7 +27,7 @@ Subscription::Subscription(
                                subscription_options(qos),
                                /* event_callbacks */ {},
                                /* use_default_callbacks */ true,
-                               /* is_serialized */ true),
+                               /* subscription_type */ rclcpp::SubscriptionType::SERIALIZED_MESSAGE),
 #else
     : rclcpp::SubscriptionBase(node_base, ts, topic_name,
                                subscription_options(qos),
