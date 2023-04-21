@@ -54,6 +54,21 @@ ros_cc_test(
 )
 
 ros_cc_test(
+    name = "test_clock_system",
+    size = "small",
+    srcs = ["test/test_clock_system.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@ros2//:rclcpp_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
     name = "test_drake_ros",
     size = "small",
     srcs = ["test/test_drake_ros.cc"],

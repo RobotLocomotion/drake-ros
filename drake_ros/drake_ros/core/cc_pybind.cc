@@ -20,6 +20,7 @@
 namespace drake_ros {
 namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
+using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
 using drake_ros::core::init;
 using drake_ros::core::RosInterfaceSystem;
@@ -95,7 +96,6 @@ void DefCore(py::module m) {
   // them in sync, like pydrake does.
   py::class_<DrakeRos>(m, "DrakeRos");
 
-  using drake_ros::core::ClockSystem;
   py::class_<ClockSystem, LeafSystem<double>>(m, "ClockSystem")
       .def_static(
           "AddToBuilder",
