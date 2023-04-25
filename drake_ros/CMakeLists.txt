@@ -16,6 +16,17 @@ find_package(drake REQUIRED)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3)
+find_package(rclcpp REQUIRED)
+find_package(rosidl_runtime_c REQUIRED)
+find_package(rosidl_typesupport_cpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_eigen REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(VTK REQUIRED)
+
 add_subdirectory(core)
 add_subdirectory(tf2)
 add_subdirectory(viz)

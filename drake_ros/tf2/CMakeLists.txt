@@ -1,8 +1,3 @@
-find_package(geometry_msgs REQUIRED)
-find_package(drake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(tf2_ros REQUIRED)
-
 set(HEADERS
   "name_conventions.h"
   "scene_tf_broadcaster_system.h"

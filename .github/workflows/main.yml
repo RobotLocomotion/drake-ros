@@ -31,6 +31,7 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.4
         with:
           required-ros-distributions: ${{matrix.ros_distro}}
+          use-ros2-testing: "true"
       - name: Cope with Python 2 pollution
         run: apt-get update && apt-get install -y python-is-python3
       - name: Build and test all packages
