@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <world name="hydroelastic_scene">
+    <light type="directional" name="sun">
+    </light>
+    <model name="compliant_ball">
+      <pose>0 0 3.0 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <inertia>
+            <ixx>1.0</ixx>
+            <iyy>1.0</iyy>
+            <izz>1.0</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+          <mass>10</mass>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+            <sphere>
+              <radius>0.5</radius>
+            </sphere>
+          </geometry>
+          <drake:proximity_properties>
+            <drake:mu_dynamic>0.3</drake:mu_dynamic>
+            <drake:mu_static>0.3</drake:mu_static>
+            <drake:mesh_resolution_hint>0.5</drake:mesh_resolution_hint>
+            <drake:hydroelastic_modulus>1000</drake:hydroelastic_modulus>
+            <drake:hunt_crossley_dissipation>5</drake:hunt_crossley_dissipation>
+            <drake:compliant_hydroelastic/>
+          </drake:proximity_properties>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <sphere>
+              <radius>0.5</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <diffuse>1.0 0.55 0.0 0.5</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="rigid_ball">
+      <pose>0 2 3.0 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <inertia>
+            <ixx>1.0</ixx>
+            <iyy>1.0</iyy>
+            <izz>1.0</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+          <mass>10</mass>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+            <sphere>
+              <radius>0.5</radius>
+            </sphere>
+          </geometry>
+          <drake:proximity_properties>
+            <drake:mu_dynamic>0.3</drake:mu_dynamic>
+            <drake:mu_static>0.3</drake:mu_static>
+            <drake:mesh_resolution_hint>0.5</drake:mesh_resolution_hint>
+            <drake:hunt_crossley_dissipation>5</drake:hunt_crossley_dissipation>
+            <!-- TODO(sloretz) make compliant instead of rigid -->
+            <drake:rigid_hydroelastic/>
+          </drake:proximity_properties>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <sphere>
+              <radius>0.5</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <diffuse>1.0 0.55 0.0 0.5</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="inclined_plane">
+      <static>true</static>
+      <pose degrees="true">0 -10 0 -90 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane/>
+          </geometry>
+          <drake:proximity_properties>
+            <drake:mu_dynamic>0.3</drake:mu_dynamic>
+            <drake:mu_static>0.3</drake:mu_static>
+            <drake:mesh_resolution_hint>0.5</drake:mesh_resolution_hint>
+            <drake:hunt_crossley_dissipation>5</drake:hunt_crossley_dissipation>
+            <!-- TODO(sloretz) make compliant instead of rigid -->
+            <drake:rigid_hydroelastic/>
+          </drake:proximity_properties>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <size>50 5</size>
+            </plane>
+          </geometry>
+          <material>
+            <diffuse>0.5 0.5 0.5 0.5</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vertical_plane">
+      <static>true</static>
+      <pose>0 0 0 0.15 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane/>
+          </geometry>
+          <drake:proximity_properties>
+            <drake:mu_dynamic>0.3</drake:mu_dynamic>
+            <drake:mu_static>0.3</drake:mu_static>
+            <drake:mesh_resolution_hint>0.5</drake:mesh_resolution_hint>
+            <drake:hunt_crossley_dissipation>5</drake:hunt_crossley_dissipation>
+            <!-- TODO(sloretz) make compliant instead of rigid -->
+            <drake:rigid_hydroelastic/>
+          </drake:proximity_properties>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <size>50 50</size>
+            </plane>
+          </geometry>
+          <material>
+            <diffuse>0.5 0.5 0.5 0.5</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

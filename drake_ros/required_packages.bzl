@@ -4,6 +4,7 @@ DRAKE_ROS_REQUIRED_PACKAGES = [
     "rclcpp",
     "rosidl_runtime_c",
     "rosidl_typesupport_cpp",
+    "tf2_eigen",
     "tf2_ros",
     "visualization_msgs",
 ]

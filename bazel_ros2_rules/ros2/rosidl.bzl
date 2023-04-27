@@ -266,7 +266,9 @@ rosidl_generate_ament_index_entry = rule(
             allow_empty = False,
             allow_files = True,
         ),
-        prefix = attr.string(default = "."),
+        # A prefix is required because the shim can't prepend the runfiles
+        # root to AMENT_PREFIX_PATH
+        prefix = attr.string(default = "rosidl_generate_ament_index_entry"),
     ),
     implementation = _rosidl_generate_ament_index_entry_impl,
     output_to_genfiles = True,

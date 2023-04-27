@@ -1,8 +1,6 @@
-find_package(geometry_msgs REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(visualization_msgs REQUIRED)
-
 set(HEADERS
+  "contact_markers_system.h"
+  "defaults.h"
   "name_conventions.h"
   "rviz_visualizer.h"
   "scene_markers_system.h"
@@ -19,6 +17,7 @@ add_library(drake_ros_viz
   name_conventions.cc
   rviz_visualizer.cc
   scene_markers_system.cc
+  contact_markers_system.cc
 )
 
 target_link_libraries(drake_ros_viz PUBLIC
@@ -26,9 +25,12 @@ target_link_libraries(drake_ros_viz PUBLIC
     drake_ros_core
     drake_ros_tf2
     rclcpp::rclcpp
+    tf2_eigen::tf2_eigen
     ${geometry_msgs_TARGETS}
     ${visualization_msgs_TARGETS}
 )
+target_link_libraries(drake_ros_viz PRIVATE
+  VTK::IOImage)
 
 target_include_directories(drake_ros_viz
   PUBLIC

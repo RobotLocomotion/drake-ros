@@ -15,6 +15,7 @@ find_package(drake REQUIRED)
 find_package(drake_ros REQUIRED)
 find_package(gflags REQUIRED COMPONENTS shared)
 
+add_subdirectory(examples/hydroelastic)
 add_subdirectory(examples/iiwa_manipulator)
 add_subdirectory(examples/multirobot)
 add_subdirectory(examples/rs_flip_flop)
