@@ -240,3 +240,29 @@ ros_py_test(
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )
+
+ros_py_test(
+    name = "rmw_isolation_example_py_test",
+    srcs = ["test/rmw_isolation_example.py"],
+    data = [
+        "@ros2",
+    ],
+    main = "test/rmw_isolation_example.py",
+    deps = [
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//:std_msgs_py",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+)
+
+ros_cc_test(
+    name = "rmw_isolation_example_cc_test",
+    size = "small",
+    srcs = ["test/rmw_isolation_example.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        "@ros2//:rclcpp_cc",
+        "@ros2//:std_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
