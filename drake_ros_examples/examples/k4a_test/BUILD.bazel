@@ -1,0 +1,16 @@
+load("@ros2//:ros_py.bzl", "ros_py_binary")
+
+ros_py_binary(
+    name = "k4a_py",
+    srcs = ["k4a.py"],
+    main = "k4a.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//bindings/pydrake",
+        "@drake_ros_repo//:drake_ros_py",
+        "@ros2//:rclpy_py",
+        "@ros2//:sensor_msgs_py",
+        "@ros2//:geometry_msgs_py",
+        "@ros2//:tf2_msgs_py",
+    ],
+)
