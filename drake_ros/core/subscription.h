@@ -5,6 +5,7 @@
 
 #include <rclcpp/qos.hpp>
 #include <rclcpp/subscription_base.hpp>
+#include <rclcpp/version.h>
 #include <rmw/serialized_message.h>
 #include <rosidl_runtime_c/message_type_support_struct.h>
 
@@ -22,6 +23,50 @@ class Subscription final : public rclcpp::SubscriptionBase {
       std::function<void(std::shared_ptr<rclcpp::SerializedMessage>)> callback);
 
   ~Subscription();
+
+#if RCLCPP_VERSION_GTE(18, 0, 0)
+  rclcpp::dynamic_typesupport::DynamicMessageType::SharedPtr
+  get_shared_dynamic_message_type() override {
+    throw rclcpp::exceptions::UnimplementedError(
+        "get_shared_dynamic_message_type is not implemented for Subscription");
+  }
+
+  rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr
+  get_shared_dynamic_message() override {
+    throw rclcpp::exceptions::UnimplementedError(
+        "get_shared_dynamic_message is not implemented for Subscription");
+  }
+
+  rclcpp::dynamic_typesupport::DynamicSerializationSupport::SharedPtr
+  get_shared_dynamic_serialization_support() override {
+    throw rclcpp::exceptions::UnimplementedError(
+        "get_shared_dynamic_serialization_support is not implemented for "
+        "Subscription");
+  }
+
+  rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr
+  create_dynamic_message() override {
+    throw rclcpp::exceptions::UnimplementedError(
+        "create_dynamic_message is not implemented for Subscription");
+  }
+
+  void return_dynamic_message(
+      rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr& message)
+      override {
+    (void)message;
+    throw rclcpp::exceptions::UnimplementedError(
+        "return_dynamic_message is not implemented for Subscription");
+  }
+
+  void handle_dynamic_message(
+      const rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr& message,
+      const rclcpp::MessageInfo& message_info) override {
+    (void)message;
+    (void)message_info;
+    throw rclcpp::exceptions::UnimplementedError(
+        "handle_dynamic_message is not implemented for Subscription");
+  }
+#endif
 
  protected:
   // Borrow a new message.

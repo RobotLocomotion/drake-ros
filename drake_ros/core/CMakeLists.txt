@@ -1,12 +1,3 @@
-
-find_package(eigen3_cmake_module REQUIRED)
-find_package(Eigen3)
-find_package(rclcpp REQUIRED)
-find_package(rosidl_runtime_c REQUIRED)
-find_package(rosidl_typesupport_cpp REQUIRED)
-find_package(geometry_msgs REQUIRED)
-
-
 set(HEADERS
   "clock_system.h"
   "drake_ros.h"

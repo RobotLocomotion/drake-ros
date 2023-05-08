@@ -4,6 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "patch", "update_attrs")
 load("//tools:execute.bzl", "execute_or_fail")
 
 COMMON_FILES_MANIFEST = [
+    "ament_index.bzl",
     "ros_cc.bzl",
     "ros_py.bzl",
     "rosidl.bzl",
@@ -17,11 +18,8 @@ COMMON_FILES_MANIFEST = [
     "resources/rmw_isolation/rmw_isolation.cc",
     "resources/rmw_isolation/rmw_isolation.h",
     "resources/rmw_isolation/rmw_isolation.py",
-    "resources/rmw_isolation/test/isolated_listener.cc",
-    "resources/rmw_isolation/test/isolated_listener.py",
-    "resources/rmw_isolation/test/isolated_talker.cc",
-    "resources/rmw_isolation/test/isolated_talker.py",
-    "resources/rmw_isolation/test/rmw_isolation_test.sh",
+    "resources/rmw_isolation/test/rmw_isolation_test.py",
+    "resources/rmw_isolation/test/rmw_isolation_test.cc",
     "resources/ros2bzl/__init__.py",
     "resources/ros2bzl/resources.py",
     "resources/ros2bzl/sandboxing.py",

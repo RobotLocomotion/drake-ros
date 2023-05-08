@@ -17,12 +17,14 @@
   <buildtool_depend>eigen3_cmake_module</buildtool_depend>
   <build_depend>eigen</build_depend>
 
+  <depend>libvtk9-dev</depend>
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
   <depend>rosgraph_msgs</depend>
   <depend>rosidl_runtime_c</depend>
   <depend>rosidl_typesupport_cpp</depend>
   <depend>geometry_msgs</depend>
+  <depend>tf2_eigen</depend>
   <depend>visualization_msgs</depend>
 
   <test_depend>ament_cmake_clang_format</test_depend>
