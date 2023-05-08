@@ -18,24 +18,29 @@ class QoS : public rclcpp::QoS {
 };
 }  // namespace drake_ros
 
-namespace pybind11 {
-namespace detail {
+namespace drake_ros {
+namespace drake_ros_py {
+using namespace std;
+using handle = py::handle;
+using object = py::object;
+using return_value_policy = py::return_value_policy;
+using none = py::none;
 // TODO(hidmic): rely on rclpy.qos.QoSProfile when and if a pybind11 binding
 // is introduced upstream. See https://github.com/ros2/rclpy/issues/843.
-template <>
-struct type_caster<drake_ros::QoS> {
+template <typename T>
+struct qos_type_caster {
  public:
   // declares local 'value' of type QoS
-  PYBIND11_TYPE_CASTER(drake_ros::QoS, _("rclpy.qos.QoSProfile"));
+  PYBIND11_TYPE_CASTER(drake_ros::QoS, py::detail::_("rclpy.qos.QoSProfile"));
 
   // Convert from Python rclpy.qos.QoSProfile to QoS
   bool load(handle src, bool) {
-    handle cls = module::import("rclpy.qos").attr("QoSProfile");
+    handle cls = py::module::import("rclpy.qos").attr("QoSProfile");
     if (!isinstance(src, cls)) {
       return false;
     }
 
-    object source = reinterpret_borrow<object>(src);
+    object source = py::reinterpret_borrow<object>(src);
     // history                          : enum int
     // depth                            : int
     // reliability                      : enum int
@@ -87,7 +92,7 @@ struct type_caster<drake_ros::QoS> {
 
     const auto& rmw_qos = src.get_rmw_qos_profile();
 
-    object duration = module::import("rclpy.duration").attr("Duration");
+    object duration = py::module::import("rclpy.duration").attr("Duration");
 
     object lifespan_duration =
         duration(pybind11::arg("seconds") = rmw_qos.lifespan.sec,
@@ -102,7 +107,7 @@ struct type_caster<drake_ros::QoS> {
         pybind11::arg("nanoseconds") = rmw_qos.liveliness_lease_duration.nsec);
 
     object instance =
-        module::import("rclpy.qos")
+        py::module::import("rclpy.qos")
             .attr("QoSProfile")(
                 pybind11::arg("history") =
                     static_cast<ssize_t>(rmw_qos.history),
@@ -123,5 +128,12 @@ struct type_caster<drake_ros::QoS> {
     return instance;
   }
 };
-}  // namespace detail
-}  // namespace pybind11
+}  // namespace drake_ros
+}  // namespace drake_ros_py
+
+namespace pybind11 {
+namespace detail {
+  template <>
+  struct type_caster<drake_ros::QoS> : public drake_ros::drake_ros_py::qos_type_caster<drake_ros::QoS> {};
+}  // namespace drake_ros_py
+}  // namespace drake_ros
