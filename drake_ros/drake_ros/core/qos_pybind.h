@@ -128,12 +128,13 @@ struct qos_type_caster {
     return instance;
   }
 };
-}  // namespace drake_ros
 }  // namespace drake_ros_py
+}  // namespace drake_ros
 
 namespace pybind11 {
 namespace detail {
-  template <>
-  struct type_caster<drake_ros::QoS> : public drake_ros::drake_ros_py::qos_type_caster<drake_ros::QoS> {};
-}  // namespace drake_ros_py
-}  // namespace drake_ros
+template <>
+struct type_caster<drake_ros::QoS>
+    : public drake_ros::drake_ros_py::qos_type_caster<drake_ros::QoS> {};
+}  // namespace detail
+}  // namespace pybind11
