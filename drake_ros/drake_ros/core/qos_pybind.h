@@ -20,7 +20,8 @@ class QoS : public rclcpp::QoS {
 
 namespace drake_ros {
 namespace drake_ros_py {
-using namespace std;
+using std::enable_if_t;
+using std::remove_cv_t;
 using handle = py::handle;
 using object = py::object;
 using return_value_policy = py::return_value_policy;
