@@ -92,8 +92,8 @@ struct qos_type_caster {
   }
 
   // Convert from Python QoS to rclpy.qos.QoSProfile
-  static py::handle cast(
-      drake_ros::QoS src, py::return_value_policy policy, py::handle parent) {
+  static py::handle cast(drake_ros::QoS src, py::return_value_policy policy,
+                         py::handle parent) {
     (void)policy;
     (void)parent;
 
@@ -116,8 +116,7 @@ struct qos_type_caster {
     py::object instance =
         py::module::import("rclpy.qos")
             .attr("QoSProfile")(
-                py::arg("history") =
-                    static_cast<ssize_t>(rmw_qos.history),
+                py::arg("history") = static_cast<ssize_t>(rmw_qos.history),
                 py::arg("depth") = static_cast<size_t>(rmw_qos.depth),
                 py::arg("reliability") =
                     static_cast<ssize_t>(rmw_qos.reliability),

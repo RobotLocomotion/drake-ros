@@ -2,8 +2,8 @@
 
 #include <rclcpp/time.hpp>
 
-using drake_ros_core::ClockSystem;
-using drake_ros_core::RosPublisherSystem;
+using drake_ros::core::ClockSystem;
+using drake_ros::core::RosPublisherSystem;
 
 ClockSystem::ClockSystem() {
   DeclareAbstractOutputPort("clock", &ClockSystem::CalcClock);
