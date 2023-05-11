@@ -1,4 +1,5 @@
 set(HEADERS
+  "clock_system.h"
   "drake_ros.h"
   "geometry_conversions.h"
   "geometry_conversions_pybind.h"
@@ -18,6 +19,7 @@ foreach(hdr ${HEADERS})
 endforeach()
 
 add_library(drake_ros_core
+  clock_system.cc
   drake_ros.cc
   geometry_conversions.cc
   publisher.cc

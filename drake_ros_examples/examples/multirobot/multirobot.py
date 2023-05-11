@@ -8,6 +8,7 @@ import pathlib
 import numpy
 
 import drake_ros.core
+from drake_ros.core import ClockSystem
 from drake_ros.core import RosInterfaceSystem
 from drake_ros.tf2 import SceneTfBroadcasterSystem
 from drake_ros.tf2 import SceneTfBroadcasterParams
@@ -42,6 +43,7 @@ def main():
     drake_ros.core.init()
     # Create a Drake system to interface with ROS
     sys_ros_interface = builder.AddSystem(RosInterfaceSystem('multirobot'))
+    ClockSystem.AddToBuilder(builder, sys_ros_interface.get_ros_interface())
 
     # Add a multibody plant and a scene graph to hold the robots
     plant, scene_graph = AddMultibodyPlant(

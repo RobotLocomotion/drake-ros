@@ -32,6 +32,7 @@ cc_library(
         "@drake//common:essential",
         "@drake//math:geometric_transform",
         "@drake//multibody/math:spatial_algebra",
+        "@drake//systems/framework:diagram_builder",
         "@drake//systems/framework:leaf_system",
     ],
 )
@@ -48,6 +49,21 @@ ros_cc_test(
         "@drake//systems/framework:diagram_builder",
         "@ros2//:rclcpp_cc",
         "@ros2//:test_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
+    name = "test_clock_system",
+    size = "small",
+    srcs = ["test/test_clock_system.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@ros2//:rclcpp_cc",
         "@ros2//resources/rmw_isolation:rmw_isolation_cc",
     ],
 )

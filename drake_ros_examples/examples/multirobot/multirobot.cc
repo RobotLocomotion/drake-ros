@@ -10,6 +10,7 @@
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
+#include <drake_ros/core/clock_system.h>
 #include <drake_ros/core/drake_ros.h>
 #include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/tf2/scene_tf_broadcaster_system.h>
@@ -19,6 +20,7 @@
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 
+using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
 using drake_ros::core::RosInterfaceSystem;
 
@@ -36,6 +38,8 @@ int main(int argc, char** argv) {
   // Create a Drake system to interface with ROS
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("multirobot_node"));
+  ClockSystem::AddToBuilder(&builder,
+                            ros_interface_system->get_ros_interface());
 
   // Add a multibody plant and a scene graph to hold the robots
   drake::multibody::MultibodyPlantConfig plant_config;

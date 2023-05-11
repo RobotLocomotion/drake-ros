@@ -9,6 +9,7 @@
 #include <drake/systems/primitives/adder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/primitives/sine.h>
+#include <drake_ros/core/clock_system.h>
 #include <drake_ros/core/drake_ros.h>
 #include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/viz/rviz_visualizer.h>
@@ -17,6 +18,7 @@
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");
 
+using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
 using drake_ros::core::RosInterfaceSystem;
 using drake_ros::viz::RvizVisualizer;
@@ -34,6 +36,8 @@ int main(int argc, char** argv) {
   drake_ros::core::init();
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("iiwa_manipulator_node"));
+  ClockSystem::AddToBuilder(&builder,
+                            ros_interface_system->get_ros_interface());
 
   auto manipulation_station = builder.AddSystem<ManipulationStation>();
   manipulation_station->SetupClutterClearingStation();
