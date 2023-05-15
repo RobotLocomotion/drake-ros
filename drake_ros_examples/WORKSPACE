@@ -60,11 +60,11 @@ drake_ros_fail_if_missing_required_packages(ROS_PACKAGES)
 #     url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa
 # )
 
- ros2_local_repository(
-     name = "ros2",
-     include_packages = ROS_PACKAGES,
-     workspaces = ["/home/aditya/Downloads/local_humble_tarball/ros2-linux"],
- )
+ros2_local_repository(
+    name = "ros2",
+    include_packages = ROS_PACKAGES,
+    workspaces = ["/home/aditya/Downloads/local_humble_tarball/ros2-linux"],
+)
 
 load("@drake_ros_repo//:drake.bzl", "DRAKE_SUGGESTED_VERSION")
 
