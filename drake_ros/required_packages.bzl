@@ -7,6 +7,7 @@ DRAKE_ROS_REQUIRED_PACKAGES = [
     "tf2_eigen",
     "tf2_ros",
     "visualization_msgs",
+    "rmw_cyclonedds_cpp"
 ]
 
 DRAKE_ROS_TEST_DEPENDENCIES = [
