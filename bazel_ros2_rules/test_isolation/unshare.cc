@@ -80,16 +80,15 @@ int main(int argc, char ** argv) {
         die("the only interface is not a loopback interface");
     }
 
-    // Enable multicast if it's not already enabled.
-    if (!(ioctl_request.ifr_flags & IFF_MULTICAST)) {
+    // Enable multicast
+    ioctl_request.ifr_flags |= IFF_MULTICAST;
+    // Bring up interface
+    ioctl_request.ifr_flags |= IFF_UP;
 
-        ioctl_request.ifr_flags |= IFF_MULTICAST;
-
-        int err = ioctl(fd, SIOCSIFFLAGS, &ioctl_request);
-        if (0 != err) {
-            perror("ioctl");
-            die("failed to set interface flags");
-        }
+    err = ioctl(fd, SIOCSIFFLAGS, &ioctl_request);
+    if (0 != err) {
+        perror("ioctl");
+        die("failed to set interface flags");
     }
 
     freeifaddrs(ifaddr);
