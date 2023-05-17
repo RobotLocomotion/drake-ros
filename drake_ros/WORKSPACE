@@ -25,11 +25,13 @@ load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
 load("//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
 load("//:required_packages.bzl", "DRAKE_ROS_TEST_DEPENDENCIES")
 
+DRAKE_ROS_ALL_DEPENDENCIES = \
+    DRAKE_ROS_REQUIRED_PACKAGES + DRAKE_ROS_TEST_DEPENDENCIES
+
 # Use ROS 2
 ros2_local_repository(
     name = "ros2",
-    include_packages = DRAKE_ROS_REQUIRED_PACKAGES +
-    DRAKE_ROS_TEST_DEPENDENCIES,
+    include_packages = DRAKE_ROS_ALL_DEPENDENCIES,
     workspaces = ["/opt/ros/humble"],
 )
 
