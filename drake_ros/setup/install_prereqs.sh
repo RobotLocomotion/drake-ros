@@ -19,5 +19,5 @@ apt update; apt upgrade
 apt install ros-humble-desktop
 apt install ros-dev-tools
 apt install python3 python3-toposort
-apt install ros-humble-test-msgs
+apt install ros-humble-test-msgs ros-humble-rmw-cyclonedds-cpp
 
