@@ -64,24 +64,24 @@ dpkg_install_from_curl \
   https://releases.bazel.build/5.1.0/release/bazel_5.1.0-linux-x86_64.deb \
   3d54055f764cfb61b5416f0a45d2d3df19c30d301d4da81565595cbe2e36a220
 
-# TODO(hidmic): install distributions from debians when Drake supports 22.04
 if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
-  # Install dependencies for ROS 2 Rolling on Jammy tarball
-  ROS2_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
-  if ! grep "${ROS2_APT_SOURCE}" /etc/apt/sources.list.d/ros2.list; then
-    echo ${ROS2_APT_SOURCE} | tee /etc/apt/sources.list.d/ros2.list
-  fi
-
-  apt update && apt install python3-rosdep
-  [[ -d /etc/ros/rosdep ]] || rosdep init
-  as-user rosdep update --rosdistro=rolling
-
-  # TODO(hidmic): be very explicit about what installation mechanisms we allow
-  # NOTE: since no ROS distributions has been sourced or specified yet,
-  # force Python version to 3.x (which is standard in ROS 2 distributions)
-  SETUP_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
-  apt install $(env ROS_PYTHON_VERSION=3 rosdep resolve \
-    $(cat ${SETUP_DIR}/prereq-rosdep-keys.txt) 2>/dev/null | grep -v '^#') libssl-dev
+  apt update && apt install locales
+  locale-gen en_US en_US.UTF-8
+  update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+  export LANG=en_US.UTF-8
+  
+  apt install software-properties-common
+  add-apt-repository universe
+  
+  apt update && apt install curl -y
+  curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+  
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" |  tee /etc/apt/sources.list.d/ros2.list > /dev/null
+  
+  apt update; apt upgrade
+  
+  apt install ros-humble-desktop
+  apt install ros-dev-tools
 fi
 
 # Install Python dependencies
