@@ -1,8 +1,15 @@
-
-
-cc_binary(
-    name = "unshare",
-    srcs = ["unshare.cc"],
+cc_library(
+    name = "create_linux_namespaces_cc",
+    srcs = ["create_linux_namespaces.cc"],
+    hdrs = ["create_linux_namespaces.h"],
+    visibility = ["//visibility:public"],
 )
 
-cc_test
+cc_binary(
+    name = "isolate",
+    srcs = ["isolate.cc"],
+    deps = [
+        ":create_linux_namespaces_cc",
+    ],
+    visibility = ["//visibility:public"],
+)
