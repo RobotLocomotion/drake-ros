@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <vector>
  
 #include <errno.h>
 #include <sched.h>
@@ -20,12 +21,17 @@
 
 
 void die(const char * message) {
-    std::cout << "TEST_ISOLATION: " << message << ".\n";
+    std::cerr << "TEST_ISOLATION: " << message << ".\n";
     exit(-1);
 }
 
 
 int main(int argc, char ** argv) {
+    if (argc < 2) {
+        die("shim must be given a command to execute");
+    }
+    // TODO die if the first argument is not an absolute path, or doesn't exist.
+
     // Create linux namespaces for the current process
     // * A new user namespace to avoid needing CAP_SYS_ADMIN to create
     //   network and IPC namespaces
@@ -76,7 +82,6 @@ int main(int argc, char ** argv) {
 
     // Enable multicast if it's not already enabled.
     if (!(ioctl_request.ifr_flags & IFF_MULTICAST)) {
-        std::cout << "Multicast is not enabled on the interface\n";
 
         ioctl_request.ifr_flags |= IFF_MULTICAST;
 
@@ -89,9 +94,17 @@ int main(int argc, char ** argv) {
 
     freeifaddrs(ifaddr);
 
-    // TODO(sloretz) Exec test process
+    // Have to copy new a new array that terminates with a null pointer.
+    std::vector<char *> new_argv;
+    for (int i = 1; i < argc; ++i) {
+        new_argv.push_back(argv[i]);
+    }
+    new_argv.push_back(nullptr);
 
+    // Exec a new process - should never return!
+    execv(new_argv.at(0), &new_argv.at(0));
 
-    // Unhappy code so I see output from bazel_test without having to look up the bazel CLI flag
+    perror("execv");
+    die("Call to execv failed");
     return -1;
 }

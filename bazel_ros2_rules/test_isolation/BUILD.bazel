@@ -1,6 +1,8 @@
 
 
-cc_test(
+cc_binary(
     name = "unshare",
     srcs = ["unshare.cc"],
 )
+
+cc_test
