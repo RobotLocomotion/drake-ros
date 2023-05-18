@@ -51,6 +51,7 @@ py_library(
 ros_py_test(
     name = "core_test",
     srcs = ["test/core_test.py"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     main = "test/core_test.py",
     deps = [
         ":drake_ros_py",
@@ -64,6 +65,7 @@ ros_py_test(
 ros_py_test(
     name = "tf2_test",
     srcs = ["test/tf2_test.py"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     main = "test/tf2_test.py",
     deps = [
         ":drake_ros_py",
@@ -77,6 +79,7 @@ ros_py_test(
 ros_py_test(
     name = "viz_test",
     srcs = ["test/viz_test.py"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     main = "test/viz_test.py",
     deps = [
         ":drake_ros_py",
@@ -90,6 +93,7 @@ ros_py_test(
 ros_py_test(
     name = "geometry_conversions_test",
     srcs = ["test/geometry_conversions_test.py"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     main = "test/geometry_conversions_test.py",
     deps = [
         ":drake_ros_py",
