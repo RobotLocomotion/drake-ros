@@ -19,7 +19,7 @@ int main(int argc, char ** argv) {
         die("Failed to fully create isolated environment");
     }
 
-    // Have to copy new a new array that terminates with a null pointer.
+    // Copy to a new array that terminates with a null pointer at the end.
     std::vector<char *> new_argv;
     for (int i = 1; i < argc; ++i) {
         new_argv.push_back(argv[i]);
