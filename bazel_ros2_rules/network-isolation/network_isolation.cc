@@ -1,4 +1,4 @@
-#include "create_linux_namespaces.h"
+#include "network_isolation.h"
 
 #include <errno.h>
 #include <sched.h>
@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace bazel_ros2_rules {
+namespace network_isolation {
 
 void error(const char * message)
 {
@@ -84,4 +84,4 @@ bool create_linux_namespaces()
     freeifaddrs(ifaddr);
     return true;
 }
-}  // namespace bazel_ros2_rules
+}  // namespace network_isolation

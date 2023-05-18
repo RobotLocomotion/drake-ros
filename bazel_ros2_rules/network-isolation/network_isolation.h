@@ -1,6 +1,6 @@
 #pragma once
 
-namespace bazel_ros2_rules {
+namespace network_isolation {
 /// Creates linux namespaces suitable for isolating ROS 2 traffic.
 ///
 /// The new namespaces are:
@@ -19,4 +19,4 @@ namespace bazel_ros2_rules {
 /// \return true iff the namespaces were created successfully.
 bool create_linux_namespaces();
 
-}  // namespace bazel_ros2_rules
+}  // namespace network_isolation
