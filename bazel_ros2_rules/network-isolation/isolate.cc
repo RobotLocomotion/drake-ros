@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "create_linux_namespaces.h"
+#include "network_isolation.h"
 
 void die(const char * message) {
     std::cerr << "isolate: " << message << ".\n";
@@ -15,7 +15,7 @@ int main(int argc, char ** argv) {
         die("shim must be given a command to execute");
     }
 
-    if (not bazel_ros2_rules::create_linux_namespaces()) {
+    if (!network_isolation::create_linux_namespaces()) {
         die("Failed to fully create isolated environment");
     }
 

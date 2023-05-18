@@ -1,7 +1,7 @@
 cc_library(
-    name = "create_linux_namespaces_cc",
-    srcs = ["create_linux_namespaces.cc"],
-    hdrs = ["create_linux_namespaces.h"],
+    name = "network_isolation_cc",
+    srcs = ["network_isolation.cc"],
+    hdrs = ["network_isolation.h"],
     visibility = ["//visibility:public"],
 )
 
@@ -9,7 +9,7 @@ cc_binary(
     name = "isolate",
     srcs = ["isolate.cc"],
     deps = [
-        ":create_linux_namespaces_cc",
+        ":network_isolation_cc",
     ],
     visibility = ["//visibility:public"],
 )
