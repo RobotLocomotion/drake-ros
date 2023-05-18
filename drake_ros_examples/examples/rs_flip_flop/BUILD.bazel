@@ -23,8 +23,8 @@ ros_cc_binary(
 ros_py_binary(
     name = "rs_flip_flop_py",
     srcs = ["rs_flip_flop.py"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
     main = "rs_flip_flop.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
@@ -37,12 +37,12 @@ ros_py_binary(
 ros_py_test(
     name = "rs_flip_flop_test",
     srcs = ["test/rs_flip_flop_test.py"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
     data = [
         ":rs_flip_flop",
         ":rs_flip_flop_py",
     ],
     main = "test/rs_flip_flop_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "//:bazel_ros_testing_py",
     ],

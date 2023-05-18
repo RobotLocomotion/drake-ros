@@ -18,11 +18,11 @@ ament_index_share_files(
 ros_cc_binary(
     name = "hydroelastic",
     srcs = ["hydroelastic.cc"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
     data = [
         ":hydroelastic_share",
     ],
     local_defines = ["BAZEL"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
         "@drake//common:find_resource",
@@ -49,11 +49,11 @@ ros_cc_binary(
 ros_py_test(
     name = "hydroelastic_test",
     srcs = ["test/hydroelastic_test.py"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
     data = [
         ":hydroelastic",
     ],
     main = "test/hydroelastic_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "//:bazel_ros_testing_py",
     ],

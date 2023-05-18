@@ -8,10 +8,10 @@ load("@ros2//:ros_py.bzl", "ros_py_test")
 ros_cc_binary(
     name = "multirobot",
     srcs = ["multirobot.cc"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
     data = [
         "@drake//manipulation/models/iiwa_description:models",
     ],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     visibility = ["//visibility:public"],
     deps = [
         "@drake//common:find_resource",
@@ -31,11 +31,11 @@ ros_cc_binary(
 ros_py_binary(
     name = "multirobot_py",
     srcs = ["multirobot.py"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
     data = [
         "@drake//manipulation/models/iiwa_description:models",
     ],
     main = "multirobot.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
@@ -47,12 +47,12 @@ ros_py_binary(
 ros_py_test(
     name = "multirobot_test",
     srcs = ["test/multirobot_test.py"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
     data = [
         ":multirobot",
         ":multirobot_py",
     ],
     main = "test/multirobot_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "//:bazel_ros_testing_py",
     ],
