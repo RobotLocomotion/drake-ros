@@ -13,3 +13,18 @@ cc_binary(
     ],
     visibility = ["//visibility:public"],
 )
+
+# Create a CPython extension
+cc_binary(
+    name = "libnetwork_isolation_py.so",
+    linkshared = True,
+    linkstatic = False,
+    srcs = ["network_isolation_py.cc"],
+    deps = ["@python//:python_cc"],
+)
+
+py_library(
+    name = "libnetwork_isolation_py",
+    data = [":libnetwork_isolation_py.so"],
+    visibility = ["//visibility:public"],
+)
