@@ -77,7 +77,7 @@ ROS2_PACKAGES = [
 ros2_local_repository(
     name = "ros2" if not ROS2_DISTRO_PREFIX else "ros2_ignored",
     include_packages = ROS2_PACKAGES,
-    workspaces = ["/opt/ros/rolling"],
+    workspaces = ["/opt/ros/humble"],
 )
 
 ros2_local_repository(
