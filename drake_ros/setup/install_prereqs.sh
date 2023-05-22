@@ -16,8 +16,10 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 
 apt update; apt upgrade
 
-apt install ros-humble-desktop
 apt install ros-dev-tools
+rosdep init
+rosdep update
+rosdep install --from-paths . --rosdistro=humble
+
 apt install python3 python3-toposort
-apt install ros-humble-test-msgs ros-humble-rmw-cyclonedds-cpp
 
