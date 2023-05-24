@@ -26,10 +26,6 @@
   <depend>geometry_msgs</depend>
   <depend>tf2_eigen</depend>
   <depend>visualization_msgs</depend>
-  <depend>tf2_py</depend>
-  <depend>rmw_cyclonedds_cpp</depend>
-  <depend>test_msgs</depend>
-  <depend>tf2_ros_py</depend>
 
   <test_depend>ament_cmake_clang_format</test_depend>
   <test_depend>ament_cmake_cpplint</test_depend>

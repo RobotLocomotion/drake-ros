@@ -19,7 +19,12 @@ apt update; apt upgrade
 apt install ros-dev-tools
 rosdep init
 rosdep update
-rosdep install --from-paths . --rosdistro=humble
 
+cd "$( dirname -- "$0"; )"
+rosdep install --from-paths ../ --rosdistro=humble
+
+apt install ros-humble-test-msgs ros-humble-tf2-ros-py ros-humble-rmw-cyclonedds-cpp ros-humble-tf2-py
+
+# Required for bazel_ros2_rules
 apt install python3 python3-toposort
 
