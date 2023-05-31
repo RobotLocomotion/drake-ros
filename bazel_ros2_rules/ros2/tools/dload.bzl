@@ -59,7 +59,7 @@ def get_dload_shim_attributes():
             cfg = "target",
         ),
         "env_changes": attr.string_list_dict(),
-        "network_isolation": attr.bool(default=False),
+        "network_isolation": attr.bool(default = False),
     }
 
 def do_dload_shim(ctx, template, to_list):

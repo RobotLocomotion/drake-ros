@@ -189,5 +189,7 @@ def ros_py_test(
         tags = ["nolint"] + kwargs.get("tags", []),
     )
     if network_isolation:
-        kwargs['deps'].append("@bazel_ros2_rules//network_isolation:network_isolation_py")
+        kwargs["deps"].append(
+            "@bazel_ros2_rules//network_isolation:network_isolation_py",
+        )
     py_test_rule(name = name, **kwargs)
