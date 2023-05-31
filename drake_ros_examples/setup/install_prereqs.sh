@@ -21,7 +21,8 @@ apt install ros-dev-tools ros-humble-rmw-cyclonedds-cpp ros-humble-rviz2 ros-hum
 rosdep init
 rosdep update
 
-cd "$( dirname -- "$0"; )"
+SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIRECTORY
 rosdep install --from-paths ../../drake_ros --rosdistro=humble
 rosdep install --from-paths ../ --rosdistro=humble
 

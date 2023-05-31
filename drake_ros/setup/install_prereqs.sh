@@ -20,7 +20,8 @@ apt install ros-dev-tools
 rosdep init
 rosdep update
 
-cd "$( dirname -- "$0"; )"
+SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIRECTORY
 rosdep install --from-paths ../ --rosdistro=humble
 
 apt install ros-humble-test-msgs ros-humble-tf2-ros-py ros-humble-rmw-cyclonedds-cpp ros-humble-tf2-py
