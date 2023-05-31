@@ -8,18 +8,18 @@ cc_library(
 cc_binary(
     name = "isolate",
     srcs = ["isolate.cc"],
+    visibility = ["//visibility:public"],
     deps = [
         ":network_isolation_cc",
     ],
-    visibility = ["//visibility:public"],
 )
 
 # Create a CPython extension
 cc_binary(
     name = "network_isolation_py.so",
+    srcs = ["network_isolation_py.cc"],
     linkshared = True,
     linkstatic = False,
-    srcs = ["network_isolation_py.cc"],
     deps = [
         ":network_isolation_cc",
         "@python_dev//:headers",
