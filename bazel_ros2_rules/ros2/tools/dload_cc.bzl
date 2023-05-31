@@ -12,7 +12,7 @@ load(
     "get_dload_shim_attributes",
 )
 
-_ISOLATE_IMPORT = '#include "network-isolation/network_isolation.h"'
+_ISOLATE_IMPORT = '#include "network_isolation/network_isolation.h"'
 _ISOLATE_CALL_OR_RETURN = """\
 if (!network_isolation::create_linux_namespaces()) {{
   return -1;

@@ -223,5 +223,5 @@ def ros_cc_test(
         tags = ["nolint"] + kwargs.get("tags", []),
     )
     if network_isolation:
-        kwargs['deps'].append("@bazel_ros2_rules//network-isolation:network_isolation_cc")
+        kwargs['deps'].append("@bazel_ros2_rules//network_isolation:network_isolation_cc")
     cc_test_rule(name = name, **kwargs)
