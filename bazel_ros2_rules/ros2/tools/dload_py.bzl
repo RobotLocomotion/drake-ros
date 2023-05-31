@@ -51,7 +51,9 @@ def _to_py_list(collection):
 
 def _dload_py_shim_impl(ctx):
     template = _resolve_isolation(
-        _DLOAD_PY_SHIM_TEMPLATE, ctx.attr.network_isolation)
+        _DLOAD_PY_SHIM_TEMPLATE,
+        ctx.attr.network_isolation,
+    )
     return do_dload_shim(ctx, template, _to_py_list)
 
 dload_py_shim = rule(
