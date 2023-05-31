@@ -16,15 +16,18 @@ cc_binary(
 
 # Create a CPython extension
 cc_binary(
-    name = "libnetwork_isolation_py.so",
+    name = "network_isolation_py.so",
     linkshared = True,
     linkstatic = False,
     srcs = ["network_isolation_py.cc"],
-    deps = ["@python//:python_cc"],
+    deps = [
+        ":network_isolation_cc",
+        "@python_dev//:headers",
+    ],
 )
 
 py_library(
-    name = "libnetwork_isolation_py",
-    data = [":libnetwork_isolation_py.so"],
+    name = "network_isolation_py",
+    data = [":network_isolation_py.so"],
     visibility = ["//visibility:public"],
 )

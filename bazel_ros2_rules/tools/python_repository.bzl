@@ -1,6 +1,6 @@
 """
-Finds local system Python headers and libraries using python-config and
-makes them available to be used as a C/C++ dependency.
+Find local system Python headers and libraries and
+make them available to be used as a C/C++ dependency.
 
 This implementation is inspired by the one in Drake, but uses
 sysconfig instead.
