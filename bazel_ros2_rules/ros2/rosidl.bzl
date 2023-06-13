@@ -1361,12 +1361,15 @@ def rosidl_interfaces_group(
         native.alias(
             name = real_name + "_defs",
             actual = name + "_defs",
+            **kwargs
         )
         native.alias(
             name = real_name + "_cc",
             actual = name + "_cc",
+            **kwargs
         )
         native.alias(
             name = real_name + "_py",
             actual = name + "_py",
+            **kwargs
         )
