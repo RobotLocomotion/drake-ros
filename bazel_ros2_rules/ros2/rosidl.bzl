@@ -1316,6 +1316,18 @@ def rosidl_interfaces_group(
 
     Additional keyword arguments are those common to all rules.
     """
+
+    # Workaround ros2/rosidl_typesupport#120
+    # The introspection type supports assume the library name is the same as
+    # the package name (aka "group" here). If the ROS workspace supports
+    # multiple typesupports then the introspection type support will fail
+    # to load.
+    # Workaround by making the library name the same as the group name, and
+    # make aliases for those targets.
+    real_name = name
+    if group != None:
+        name = group
+
     rosidl_definitions_filegroup(
         name = _make_public_name(name, "_defs"),
         group = group or name,
@@ -1344,3 +1356,17 @@ def rosidl_interfaces_group(
         py_library_rule = py_library_rule,
         **kwargs
     )
+
+    if real_name != name:
+        native.alias(
+            name = real_name + "_defs",
+            actual = name + "_defs",
+        )
+        native.alias(
+            name = real_name + "_cc",
+            actual = name + "_cc",
+        )
+        native.alias(
+            name = real_name + "_py",
+            actual = name + "_py",
+        )
