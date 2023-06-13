@@ -27,7 +27,6 @@ from std_msgs.msg import Bool
 
 from rclpy.qos import QoSProfile
 
-from group_name.msg import Foobar
 
 class NorGate(LeafSystem):
 
