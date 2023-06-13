@@ -11,6 +11,7 @@
 #include <drake_ros/core/ros_subscriber_system.h>
 #include <gflags/gflags.h>
 #include <std_msgs/msg/bool.hpp>
+#include <group_name/msg/foobar.hpp>
 
 DEFINE_double(simulation_sec, std::numeric_limits<double>::infinity(),
               "How many seconds to run the simulation");

@@ -4,12 +4,20 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary")
 load("@ros2//:ros_py.bzl", "ros_py_test")
+load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
+
+rosidl_interfaces_group(
+    name = "label_name",
+    group = "group_name",
+    interfaces = glob(["msg/*.msg"])
+)
 
 ros_cc_binary(
     name = "rs_flip_flop",
     srcs = ["rs_flip_flop.cpp"],
     visibility = ["//visibility:public"],
     deps = [
+        ":label_name_cc",
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/framework:leaf_system",
@@ -17,6 +25,7 @@ ros_cc_binary(
         "@gflags",
         "@ros2//:std_msgs_cc",
     ],
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 ros_py_binary(
@@ -25,11 +34,13 @@ ros_py_binary(
     main = "rs_flip_flop.py",
     visibility = ["//visibility:public"],
     deps = [
+        ":label_name_py",
         "@drake//bindings/pydrake",
         "@drake_ros_repo//:drake_ros_py",
         "@ros2//:rclpy_py",
         "@ros2//:std_msgs_py",
     ],
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 ros_py_test(
@@ -43,4 +54,5 @@ ros_py_test(
     deps = [
         "//:bazel_ros_testing_py",
     ],
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )

@@ -20,6 +20,7 @@ ros_cc_binary(
         "@drake_ros_repo//viz",
         "@gflags",
     ],
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 ros_py_binary(
@@ -32,6 +33,7 @@ ros_py_binary(
         "@drake_ros_repo//:drake_ros_py",
         "@ros2//:rclpy_py",
     ],
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 ros_py_test(
@@ -45,4 +47,5 @@ ros_py_test(
     deps = [
         "//:bazel_ros_testing_py",
     ],
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )
