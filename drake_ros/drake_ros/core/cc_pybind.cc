@@ -91,10 +91,78 @@ void DefCore(py::module m) {
   py::module::import("pydrake.math");
   py::module::import("pydrake.common.eigen_geometry");
 
+  {
+    using Class = rclcpp::NodeOptions;
+    py::class_<Class>(m, "CppNodeOptions", py::module_local())
+        .def(ParamInit<Class>())
+        .def_property(
+            "arguments", [](const Class& self) { return self.arguments(); },
+            [](Class* self, const std::vector<std::string>& value) {
+              self->arguments(value);
+            })
+        .def_property(
+            "use_global_arguments",
+            [](const Class& self) { return self.use_global_arguments(); },
+            [](Class* self, bool value) { self->use_global_arguments(value); })
+        .def_property(
+            "enable_rosout",
+            [](const Class& self) { return self.enable_rosout(); },
+            [](Class* self, bool value) { self->enable_rosout(value); })
+        .def_property(
+            "use_intra_process_comms",
+            [](const Class& self) { return self.use_intra_process_comms(); },
+            [](Class* self, bool value) {
+              self->use_intra_process_comms(value);
+            })
+        .def_property(
+            "start_parameter_event_publisher",
+            [](const Class& self) {
+              return self.start_parameter_event_publisher();
+            },
+            [](Class* self, bool value) {
+              self->start_parameter_event_publisher(value);
+            })
+        .def_property(
+            "use_clock_thread",
+            [](const Class& self) { return self.use_clock_thread(); },
+            [](Class* self, bool value) { self->use_clock_thread(value); })
+        .def_property(
+            "allow_undeclared_parameters",
+            [](const Class& self) {
+              return self.allow_undeclared_parameters();
+            },
+            [](Class* self, bool value) {
+              self->allow_undeclared_parameters(value);
+            })
+        .def_property(
+            "automatically_declare_parameters_from_overrides",
+            [](const Class& self) {
+              return self.automatically_declare_parameters_from_overrides();
+            },
+            [](Class* self, bool value) {
+              self->automatically_declare_parameters_from_overrides(value);
+            });
+  }
+
+  // N.B. We purposefully do not make this `py::module_local()`, as it seems to
+  // cause a segfault for downstream bindings, at least for the
+  // RobotLocomotion/pybind11 fork.
+  py::class_<rclcpp::Node, std::shared_ptr<rclcpp::Node>>(m, "CppNode")
+      .def(py::init<const std::string&, rclcpp::NodeOptions>(),
+           py::arg("node_name"),
+           py::arg("node_options") = rclcpp::NodeOptions{})
+      .def("get_name", &rclcpp::Node::get_name);
+
   // TODD(hidmic): populate Python docstrings with
   // C++ docstrings. Consider using mkdoc to keep
   // them in sync, like pydrake does.
-  py::class_<DrakeRos>(m, "DrakeRos");
+  py::class_<DrakeRos>(m, "DrakeRos")
+      .def(py::init<const std::string&, rclcpp::NodeOptions>(),
+           py::arg("node_name"),
+           py::arg("node_options") = rclcpp::NodeOptions{})
+      .def("get_node", [](const DrakeRos& self) {
+        return self.get_node().shared_from_this();
+      });
 
   py::class_<ClockSystem, LeafSystem<double>>(m, "ClockSystem")
       .def_static(
