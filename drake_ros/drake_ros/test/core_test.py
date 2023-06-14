@@ -16,6 +16,9 @@ from rclpy.qos import ReliabilityPolicy
 from test_msgs.msg import BasicTypes
 
 import drake_ros.core
+from drake_ros.core import CppNode
+from drake_ros.core import CppNodeOptions
+from drake_ros.core import DrakeRos
 from drake_ros.core import RosInterfaceSystem
 from drake_ros.core import RosPublisherSystem
 from drake_ros.core import RosSubscriberSystem
@@ -28,10 +31,16 @@ def isolate_if_using_bazel():
         isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
 
 
-def test_nominal_case():
-    isolate_if_using_bazel()
+@pytest.fixture
+def drake_ros_fixture():
     drake_ros.core.init()
+    try:
+        yield
+    finally:
+        drake_ros.core.shutdown()
 
+
+def test_nominal_case(drake_ros_fixture):
     builder = DiagramBuilder()
 
     system_ros = builder.AddSystem(
@@ -105,8 +114,21 @@ def test_nominal_case():
         assert len(rx_msgs_direct_sub_out) == rx_msgs_count_after_pubsub
         assert rx_msgs_direct_sub_out[-1].uint64_value == i
 
-    drake_ros.core.shutdown()
+
+def test_cpp_node(drake_ros_fixture):
+    cpp_node_options = CppNodeOptions(use_global_arguments=False)
+    assert not cpp_node_options.use_global_arguments
+    node_cpp = CppNode("direct_node", node_options=cpp_node_options)
+    assert node_cpp.get_name() == "direct_node"
+
+    drake_ros = DrakeRos("sample_node")
+    assert isinstance(drake_ros.get_node(), CppNode)
+
+
+def main():
+    isolate_if_using_bazel()
+    sys.exit(pytest.main(sys.argv))
 
 
 if __name__ == '__main__':
-    sys.exit(pytest.main(sys.argv))
+    main()

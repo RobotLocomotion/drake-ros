@@ -19,6 +19,7 @@ pybind_py_library(
     cc_deps = [
         ":python_bindings_internal_hdrs",
         "//:drake_ros_shared_library",
+        "@drake//bindings/pydrake:pydrake_pybind",
     ],
     cc_so_name = "_cc",
     cc_srcs = [
