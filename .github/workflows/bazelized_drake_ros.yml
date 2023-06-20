@@ -24,8 +24,6 @@ jobs:
         run: du -hs $(readlink -f /home/runner/.cache/ci)
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
-      - name: Get latest apt data
-        run: sudo apt-get update
       - name: Configure drake_ros Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros
@@ -39,6 +37,8 @@ jobs:
       - name: Download Drake
         run: bazel build @drake//:module_py
         working-directory: drake_ros
+      - name: Get latest apt data
+        run: sudo apt-get update
       - name: Install Drake's dependencies
         run: yes | sudo ./bazel-drake_ros/external/drake/setup/ubuntu/install_prereqs.sh
         working-directory: drake_ros
