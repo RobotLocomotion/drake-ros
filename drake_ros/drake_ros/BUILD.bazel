@@ -57,11 +57,14 @@ pybind_py_library(
         "@ros2//:rclcpp_cc",
         "@ros2//:std_msgs_cc",
     ],
-    cc_so_name = "test_pub_and_sub_cc",
+    # See comment in neighboring CMakeLists.txt as to why we name organize this
+    # Python module in this fashion.
+    cc_so_name = "test/drake_ros_test_pub_and_sub_cc",
     cc_srcs = ["test/test_pub_and_sub_cc_py.cc"],
     py_deps = [
         ":drake_ros_py",
     ],
+    py_imports = ["test"],
 )
 
 ros_py_test(

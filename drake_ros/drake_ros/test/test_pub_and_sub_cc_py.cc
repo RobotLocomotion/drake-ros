@@ -12,7 +12,7 @@ using std_msgs::msg::Int32;
 
 class CppPubAndSub {
  public:
-  CppPubAndSub(rclcpp::Node::SharedPtr node) : node_(node) {
+  explicit CppPubAndSub(rclcpp::Node::SharedPtr node) : node_(node) {
     sub_ = node_->create_subscription<Int32>(
         "/cpp_sub", 1, [this](const Int32& message) { value_ = message.data; });
     pub_ = node_->create_publisher<Int32>("/cpp_pub", 1);
@@ -36,7 +36,7 @@ class CppPubAndSub {
   int value_{-1};
 };
 
-PYBIND11_MODULE(test_pub_and_sub_cc, m) {
+PYBIND11_MODULE(drake_ros_test_pub_and_sub_cc, m) {
   py::module_::import("drake_ros.core");
 
   py::class_<CppPubAndSub>(m, "CppPubAndSub")

@@ -23,7 +23,7 @@ from drake_ros.core import DrakeRos
 from drake_ros.core import RosInterfaceSystem
 from drake_ros.core import RosPublisherSystem
 from drake_ros.core import RosSubscriberSystem
-from drake_ros.test_pub_and_sub_cc import CppPubAndSub
+from drake_ros_test_pub_and_sub_cc import CppPubAndSub
 
 
 def isolate_if_using_bazel():
@@ -36,9 +36,11 @@ def isolate_if_using_bazel():
 @pytest.fixture
 def drake_ros_fixture():
     drake_ros.core.init()
+    rclpy.init()
     try:
         yield
     finally:
+        rclpy.shutdown()
         drake_ros.core.shutdown()
 
 
@@ -72,7 +74,6 @@ def test_nominal_case(drake_ros_fixture):
 
     simulator_context = simulator.get_mutable_context()
 
-    rclpy.init()
     direct_ros_node = rclpy.create_node('sub_to_pub_py')
 
     # Create publisher talking to subscriber system.
@@ -138,7 +139,7 @@ def test_cpp_node(drake_ros_fixture):
     fixture = CppPubAndSub(node=node_cpp)
     # Show that we can publish from C++ to Python.
     fixture.Publish(value=10)
-    rclpy.spin_once(node_py, timeout_sec=1e-6)
+    rclpy.spin_once(node_py, timeout_sec=0.)
     assert sub_value == 10
     message = Int32()
     message.data = 100
