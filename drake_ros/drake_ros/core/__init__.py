@@ -2,6 +2,9 @@
 
 from drake_ros._cc.core import ClockSystem
 from drake_ros._cc.core import init
+from drake_ros._cc.core import CppNode
+from drake_ros._cc.core import CppNodeOptions
+from drake_ros._cc.core import DrakeRos
 from drake_ros._cc.core import Isometry3ToRosPose
 from drake_ros._cc.core import Isometry3ToRosTransform
 from drake_ros._cc.core import QuaternionToRosQuaternion
@@ -42,6 +45,12 @@ from pydrake.systems.framework import TriggerType
 from rclpy.serialization import serialize_message
 from rclpy.serialization import deserialize_message
 from rclpy.type_support import check_for_type_support
+
+
+def _setattr_kwargs(obj, kwargs):
+    # For `ParamInit` in `drake_ros_pybind.h`.
+    for name, value in kwargs.items():
+        setattr(obj, name, value)
 
 
 class PySerializer(SerializerInterface):

@@ -40,7 +40,7 @@ add_bazel_ros2_rules_dependencies()
 load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
 ros2_local_repository(
     name = "ros2",
-    workspace = ["/opt/ros/<distro>"],
+    workspaces = ["/opt/ros/<distro>"],
 )
 ```
 
