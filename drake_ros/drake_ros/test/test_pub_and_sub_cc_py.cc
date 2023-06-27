@@ -24,8 +24,11 @@ class CppPubAndSub {
     pub_->publish(std::move(message));
   }
 
-  int SpinAndReturnLatest() {
-    rclcpp::spin_some(node_);
+  int SpinAndReturnLatest(double timeout_sec) {
+    rclcpp::executors::SingleThreadedExecutor exec;
+    exec.add_node(node_);
+    const std::chrono::nanoseconds timeout(static_cast<int>(timeout_sec * 1e9));
+    exec.spin_some(timeout);
     return value_;
   }
 
@@ -42,7 +45,8 @@ PYBIND11_MODULE(drake_ros_test_pub_and_sub_cc, m) {
   py::class_<CppPubAndSub>(m, "CppPubAndSub")
       .def(py::init<rclcpp::Node::SharedPtr>(), py::arg("node"))
       .def("Publish", &CppPubAndSub::Publish, py::arg("value"))
-      .def("SpinAndReturnLatest", &CppPubAndSub::SpinAndReturnLatest);
+      .def("SpinAndReturnLatest", &CppPubAndSub::SpinAndReturnLatest,
+           py::arg("timeout_sec"));
 }
 
 }  // namespace
