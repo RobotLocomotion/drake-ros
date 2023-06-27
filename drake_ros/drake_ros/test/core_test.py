@@ -125,9 +125,9 @@ def assert_equal_for_cyclone_dds(actual, expected, name):
     if is_cyclone_dds:
         assert actual == expected
     else:
-        # TODO(eric.cousineau): At least for rmw_fastrtps_cpp, the behavior of
-        # publishing and receiving a message seems much less reliable than
-        # cyclone. Demote errors to warnings in this case.
+        # TODO(#286): At least for rmw_fastrtps_cpp, the behavior of publishing
+        # and receiving a message seems much less reliable than cyclone. Demote
+        # errors to warnings in this case.
         if actual != expected:
             warnings.warn(
                 f"WARNING! For RMW_IMPLEMENTATION={rmw_implementation}, "
