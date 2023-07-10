@@ -5,7 +5,18 @@ load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
 load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
+load("@ros2//:ros_launch.bzl", "ros_launch")
 load("//tools:cmd_test.bzl", "cmd_test")
+
+ros_launch(
+    name = "example_launch_yaml",
+    launch_file = "example_launch.yaml",
+)
+
+ros_launch(
+    name = "example_launch_xml",
+    launch_file = "example_launch.xml",
+)
 
 rosidl_interfaces_group(
     name = "ros2_example_apps_msgs",

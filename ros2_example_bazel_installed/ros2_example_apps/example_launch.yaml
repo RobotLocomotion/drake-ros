@@ -1,0 +1,3 @@
+launch:
+-   log:
+        message: Hello world!

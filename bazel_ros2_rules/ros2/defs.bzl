@@ -7,6 +7,7 @@ COMMON_FILES_MANIFEST = [
     "ament_index.bzl",
     "ros_cc.bzl",
     "ros_py.bzl",
+    "ros_launch.bzl",
     "rosidl.bzl",
     "_calculate_rosidl_capitalization.bzl",
     "resources/cmake_tools/__init__.py",
