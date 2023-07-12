@@ -44,3 +44,13 @@ py_test(
     srcs = ["plugin_xml_parsing_test.py"],
     deps = [":ros2bzl_py"],
 )
+
+filegroup(
+    name = "ros_launch_template",
+    srcs = [
+        "ros_launch.py.tpl",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
