@@ -21,6 +21,7 @@ liborocos-kdl-dev
 libqt5-core
 libqt5-gui
 libqt5-opengl
+libqt5-svg
 libqt5-widgets
 libsqlite3-dev
 libx11-dev
@@ -63,6 +64,7 @@ python3-pytest
 python3-qt5-bindings
 python3-rosdistro-modules
 python3-setuptools
+python3-vcstool
 python3-yaml
 qtbase5-dev
 spdlog
