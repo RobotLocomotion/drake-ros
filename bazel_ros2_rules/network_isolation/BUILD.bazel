@@ -19,7 +19,7 @@ cc_binary(
     name = "network_isolation_py.so",
     srcs = ["network_isolation_py.cc"],
     linkshared = True,
-    linkstatic = False,
+    linkstatic = True,
     deps = [
         ":network_isolation_cc",
         "@python_dev//:headers",
