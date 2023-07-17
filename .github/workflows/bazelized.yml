@@ -55,9 +55,6 @@ jobs:
       - name: Build Bazel workspace (ros2_example_installed)
         run: bazel build //...
         working-directory: ros2_example_bazel_installed
-      - name: XXX Sloretz debug missing shared library
-        run: find -L . -name "libexternal_Sbazel_Uros2_Urules_Snetwork_Uisolation_Slibnetwork_Uisolation_Ucc.so"
-        working-directory: ros2_example_bazel_installed
       - name: Test Bazel workspace (ros2_example_installed)
         run: bazel test //... @ros2//...
         working-directory: ros2_example_bazel_installed
