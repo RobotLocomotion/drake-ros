@@ -37,8 +37,6 @@ jobs:
       - name: Download Drake
         run: bazel build @drake//:module_py
         working-directory: drake_ros
-      - name: Get latest apt data
-        run: sudo apt-get update
       - name: Install Drake's dependencies
         run: yes | sudo ./bazel-drake_ros/external/drake/setup/ubuntu/install_prereqs.sh
         working-directory: drake_ros
