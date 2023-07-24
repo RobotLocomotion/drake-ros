@@ -33,7 +33,7 @@ jobs:
         run: rosdep update
       - name: Install bazel_ros2_rules dependencies
         # TODO(sloretz) make bazel_ros2_rules/setup/install_prereqs.sh
-        run: sudo apt install python3 python3-toposort
+        run: sudo apt --no-install-recommends install python3 python3-toposort
       - name: Download Drake
         run: bazel build @drake//:module_py
         working-directory: drake_ros
@@ -44,7 +44,7 @@ jobs:
         # TODO(sloretz) can't use rosdep here because we need the archive downloaded,
         # but can't download the archive with bazel until we have the dependencies installed
         # so bazel_ros2_rules can inspect it.
-        run: sudo apt-get install -y libconsole-bridge-dev
+        run: sudo apt --no-install-recommends install -y libconsole-bridge-dev
       # CI for drake_ros.
       - name: Build drake_ros
         run: bazel build //...
