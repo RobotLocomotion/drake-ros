@@ -52,6 +52,9 @@ jobs:
       - name: Test drake_ros
         run: bazel test //...
         working-directory: drake_ros
+      - name: Clean up drake_ros
+        run: bazel clean --expunge_async
+        working-directory: drake_ros
       # CI for drake_ros_examples.
       - name: Install additional ROS dependencies for drake_ros_examples
         run: yes | sudo ./setup/install_prereqs.sh
