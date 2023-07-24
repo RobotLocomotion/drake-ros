@@ -53,7 +53,7 @@ jobs:
         run: bazel test //...
         working-directory: drake_ros
       - name: Clean up drake_ros
-        run: bazel clean --expunge_async
+        run: bazel clean
         working-directory: drake_ros
       # CI for drake_ros_examples.
       - name: Install additional ROS dependencies for drake_ros_examples
@@ -63,7 +63,7 @@ jobs:
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros_examples
       - name: Build drake_ros_examples
-        run: bazel build --sandbox_debug //...
+        run: bazel build //...
         working-directory: drake_ros_examples
       - name: Test drake_ros_examples
         run: bazel test //...
