@@ -96,7 +96,7 @@ ros_py_binary(
   ],
 )
 
-ros_py_binary(
+ros_py_test(
   name = "network_isolation_test",
   srcs = ["test/network_isolation_test.py"],
   main = "test/network_isolation_test.py",
