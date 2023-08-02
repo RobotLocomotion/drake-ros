@@ -87,23 +87,23 @@ ros_cc_test(
 )
 
 ros_py_binary(
-  name = "talker_listener_isolated_py",
-  srcs = ["test/talker_listener.py"],
-  main = "test/talker_listener.py",
-  deps = [
-    "@ros2//:rclpy_py",
-    "@ros2//:std_msgs_py",
-  ],
+    name = "talker_listener_isolated_py",
+    srcs = ["test/talker_listener.py"],
+    main = "test/talker_listener.py",
+    deps = [
+        "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py",
+    ],
 )
 
 ros_py_test(
-  name = "network_isolation_test",
-  srcs = ["test/network_isolation_test.py"],
-  main = "test/network_isolation_test.py",
-  deps = [
-    "//:talker_listener_isolated_py",
-  ],
-  data = [
-    "@bazel_ros2_rules//network_isolation:isolate",
-  ],
+    name = "network_isolation_test",
+    srcs = ["test/network_isolation_test.py"],
+    data = [
+        "@bazel_ros2_rules//network_isolation:isolate",
+    ],
+    main = "test/network_isolation_test.py",
+    deps = [
+        "//:talker_listener_isolated_py",
+    ],
 )
