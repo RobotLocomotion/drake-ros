@@ -135,7 +135,7 @@ def ros_py_test(
         rmw_implementation = None,
         py_binary_rule = native.py_binary,
         py_test_rule = native.py_test,
-        network_isolation = True,
+        network_isolation = False,
         **kwargs):
     """
     Builds a Python test and wraps it with a shim that will inject the minimal

@@ -85,3 +85,25 @@ ros_cc_test(
     srcs = ["test/use_console_bridge.cc"],
     deps = ["@ros2//:console_bridge_vendor_cc"],
 )
+
+ros_py_binary(
+  name = "talker_listener_isolated_py",
+  srcs = ["test/talker_listener.py"],
+  main = "test/talker_listener.py",
+  deps = [
+    "@ros2//:rclpy_py",
+    "@ros2//:std_msgs_py",
+  ],
+)
+
+ros_py_binary(
+  name = "network_isolation_test",
+  srcs = ["test/network_isolation_test.py"],
+  main = "test/network_isolation_test.py",
+  deps = [
+    "//:talker_listener_isolated_py",
+  ],
+  data = [
+    "@bazel_ros2_rules//network_isolation:isolate",
+  ],
+)

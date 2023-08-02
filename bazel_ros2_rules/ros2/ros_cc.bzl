@@ -166,7 +166,7 @@ def ros_cc_test(
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
         cc_test_rule = native.cc_test,
-        network_isolation = True,
+        network_isolation = False,
         **kwargs):
     """
     Builds a C/C++ test and wraps it with a shim that will inject the minimal
