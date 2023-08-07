@@ -77,9 +77,9 @@ int main(int argc, char** argv) {
   size_t kNumRows = 5;
   size_t kNumCols = 5;
   std::vector<std::vector<drake::multibody::ModelInstanceIndex>> models;
-  for (uint8_t xx = 0; xx < kNumRows; ++xx) {
+  for (size_t xx = 0; xx < kNumRows; ++xx) {
     std::vector<drake::multibody::ModelInstanceIndex> models_xx;
-    for (uint8_t yy = 0; yy < kNumCols; ++yy) {
+    for (size_t yy = 0; yy < kNumCols; ++yy) {
       // Load the model from the file and give it a name based on its X and Y
       // coordinates in the array
       std::stringstream model_instance_name;
