@@ -16,3 +16,9 @@ install(FILES
   hydroelastic.rviz
   DESTINATION share/${PROJECT_NAME}/hydroelastic/
 )
+
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*_launch.py"
+)
