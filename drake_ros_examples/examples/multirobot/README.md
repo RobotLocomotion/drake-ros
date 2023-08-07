@@ -39,6 +39,13 @@ bazel run //examples/multirobot:multirobot
 # Python
 bazel run //examples/multirobot:multirobot_py
 ```
+Or use ROS 2 Launch:
+```sh
+# Using ROS 2 Launch (C++)
+ros2 launch drake_ros_examples multirobot_cc_launch.py
+# or (Python)
+ros2 launch drake_ros_examples multirobot_py_launch.py
+``` 
 
 You should observe a 5 x 5 array of manipulators flopping about under the influence of gravity.
 
