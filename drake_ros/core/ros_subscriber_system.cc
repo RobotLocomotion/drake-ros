@@ -88,11 +88,11 @@ void RosSubscriberSystem::DoCalcNextUpdateTime(
 
   // Create a unrestricted event and tie the handler to the corresponding
   // function.
-  drake::systems::UnrestrictedUpdateEvent<double>::UnrestrictedUpdateCallback
-      callback = [this, serialized_message{std::move(message)}](
-                     const drake::systems::Context<double>&,
-                     const drake::systems::UnrestrictedUpdateEvent<double>&,
-                     drake::systems::State<double>* state) {
+  auto callback = [this, serialized_message{std::move(message)}](
+                      const drake::systems::System<double>&,
+                      const drake::systems::Context<double>&,
+                      const drake::systems::UnrestrictedUpdateEvent<double>&,
+                      drake::systems::State<double>* state) {
         // Deserialize the message and store it in the abstract state on the
         // context
         drake::systems::AbstractValues& abstract_state =
