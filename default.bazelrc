@@ -1,0 +1,17 @@
+# Use C++17.
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
+
+# Default test options.
+test --test_output=errors
+test --test_summary=terse
+
+# Put ROS logs into /tmp
+build --action_env=ROS_HOME=/tmp/.ros
+# Signal that ROS logging to file system needs to be disabled in tests
+test --test_env=ROS_HOME=/does_not_exist/instead_please_reconfigure_in_test
+# Disable ROS communication with other machines
+test --test_env=ROS_LOCALHOST_ONLY=1
+
+# Try to import user-specific configuration local to workspace.
+try-import %workspace%/user.bazelrc
