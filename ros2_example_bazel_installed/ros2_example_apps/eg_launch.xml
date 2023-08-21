@@ -1,0 +1,4 @@
+<launch>
+  <execute_bazel_target target="eg_talker"/>
+  <execute_bazel_target target="eg_listener"/>
+</launch>
