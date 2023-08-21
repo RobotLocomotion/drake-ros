@@ -22,6 +22,17 @@ py_library(
     deps = ["@bazel_tools//tools/python/runfiles"],
 )
 
+py_library(
+    name = "roslaunch_util.py",
+    srcs = [
+        "tools/roslaunch_util/__init__.py",
+        "tools/roslaunch_util/roslaunch_util.py",
+        "tools/roslaunch_util/setup.py",
+    ],
+    visibility = ["//visibility:public"],
+    deps = ["@bazel_tools//tools/python/runfiles"],
+)
+
 run_calculate_rosidl_capitalization_tests()
 
 py_library(
