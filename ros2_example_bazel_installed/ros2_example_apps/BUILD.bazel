@@ -4,6 +4,7 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
 load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
+load("@ros2//:ros_py.bzl", "ros_launch")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 load("//tools:cmd_test.bzl", "cmd_test")
 
@@ -197,6 +198,15 @@ ros_py_binary(
     deps = [
         ":ros2_example_apps_msgs_py",
         "@ros2//:rclpy_py",
+    ],
+)
+
+ros_launch(
+    name = "roslaunch",
+    launch_file = "eg_launch.py",
+    # Should contain executables to be run.
+    data = [
+        "eg_talker.py",
     ],
 )
 
