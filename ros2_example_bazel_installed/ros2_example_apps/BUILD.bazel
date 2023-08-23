@@ -202,7 +202,7 @@ ros_py_binary(
 )
 
 ros_launch(
-    name = "roslaunch",
+    name = "roslaunch_eg",
     launch_file = "eg_launch.py",
     # Should contain executables to be run.
     data = [

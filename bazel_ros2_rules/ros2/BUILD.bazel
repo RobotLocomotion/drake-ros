@@ -22,8 +22,8 @@ py_library(
     deps = ["@bazel_tools//tools/python/runfiles"],
 )
 
-py_binary(
-    name = "roslaunch_base",
+py_library(
+    name = "roslaunch_base.py",
     srcs = ["tools/roslaunch_base.py"],
     visibility = ["//visibility:public"],
     deps = ["@bazel_tools//tools/python/runfiles"],
