@@ -136,32 +136,24 @@ def _impl_ros_launch(ctx):
 
 def ros_launch(
         name,
-        main = "@bazel_ros2_rules//ros2:roslaunch_util.py",
         launch_file = None,
-        node_targets = [],
-        **kwargs):
-    
-    if "deps" not in kwargs.keys():
-      kwargs["deps"] = []
-    if "data" not in kwargs.keys():
-      kwargs["data"] = []
-    if "srcs" not in kwargs.keys():
-      kwargs["srcs"] = []
-    if "args" not in kwargs.keys():
-      kwargs["args"] = []
+        node_targets = []):
 
-    kwargs["deps"] += ["@ros2//:ros2"]
-    kwargs["deps"] += ["@bazel_ros2_rules//ros2:roslaunch_util.py"]
-    kwargs["srcs"] = ["@bazel_ros2_rules//ros2:roslaunch_util.py"]
+    deps = ["@ros2//:ros2",  "@bazel_ros2_rules//ros2:roslaunch_util.py"]
+    srcs = ["@bazel_ros2_rules//ros2:roslaunch_util.py"]
 
-    kwargs["data"] += [launch_file]
-    kwargs["data"] += node_targets
-    kwargs["args"] += [launch_file]
+    data = [launch_file]
+    data += node_targets
+    args = [launch_file]
 
     ros_py_binary(
       name = name,
-      main = main,
-      **kwargs)
+      main = "@bazel_ros2_rules//ros2:roslaunch_util.py",
+      deps = deps,
+      srcs = srcs,
+      data = data,
+      args = args,
+      )
 
 def ros_py_test(
         name,
