@@ -220,6 +220,7 @@ ros_cc_binary(
     ],
 )
 
+# Uses a python launch file to spawn the talker and listener.
 ros_launch(
     name = "roslaunch_eg_py",
     launch_file = "eg_launch.py",
@@ -229,6 +230,7 @@ ros_launch(
     ],
 )
 
+# Uses an xml launch file to spawn the talker and listener.
 ros_launch(
     name = "roslaunch_eg_xml",
     launch_file = "eg_launch.xml",
