@@ -1,8 +1,9 @@
 import subprocess
 import sys
 
-print("ARGS: ", sys.argv[1:])
+# print("ARGS: ", sys.argv[1:])
 launch_file_name = sys.argv[1]
+# TODO (Aditya) : dir should not be hardcoded here.
 launch_file_dir = "ros2_example_apps"
 
 roslaunch_cli = "./external/ros2/ros2"

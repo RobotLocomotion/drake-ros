@@ -130,14 +130,15 @@ def ros_py_binary(
     )
     py_binary_rule(name = name, **kwargs)
 
+# Use impl pattern here, obtain the workspace from ctx.
 def _impl_ros_launch(ctx):
   pass
 
 def ros_launch(
         name,
-        main = "@bazel_ros2_rules//ros2:roslaunch_base.py",
-        launch_file_dir = None,
+        main = "@bazel_ros2_rules//ros2:roslaunch_util.py",
         launch_file = None,
+        node_targets = [],
         **kwargs):
     
     if "deps" not in kwargs.keys():
@@ -150,10 +151,11 @@ def ros_launch(
       kwargs["args"] = []
 
     kwargs["deps"] += ["@ros2//:ros2"]
-    kwargs["deps"] += ["@bazel_ros2_rules//ros2:roslaunch_base.py"]
-    kwargs["srcs"] = ["@bazel_ros2_rules//ros2:roslaunch_base.py"]
+    kwargs["deps"] += ["@bazel_ros2_rules//ros2:roslaunch_util.py"]
+    kwargs["srcs"] = ["@bazel_ros2_rules//ros2:roslaunch_util.py"]
 
     kwargs["data"] += [launch_file]
+    kwargs["data"] += node_targets
     kwargs["args"] += [launch_file]
 
     ros_py_binary(

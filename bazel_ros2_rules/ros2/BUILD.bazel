@@ -23,8 +23,8 @@ py_library(
 )
 
 py_library(
-    name = "roslaunch_base.py",
-    srcs = ["tools/roslaunch_base.py"],
+    name = "roslaunch_util.py",
+    srcs = ["tools/roslaunch_util.py"],
     visibility = ["//visibility:public"],
     deps = ["@bazel_tools//tools/python/runfiles"],
 )

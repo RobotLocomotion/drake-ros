@@ -204,14 +204,37 @@ ros_py_binary(
 # ROS launch example.
 ros_py_binary(
     name = "eg_talker",
-    srcs = ["eg_talker.py"],
+    srcs = ["roslaunch_eg_nodes/eg_talker.py"],
+    deps = [
+        "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py",
+    ]
+)
+
+ros_cc_binary(
+    name = "eg_listener",
+    srcs = ["roslaunch_eg_nodes/eg_listener.cpp"],
+    deps = [
+        "@ros2//:rclcpp_cc",
+        "@ros2//:std_msgs_cc",
+    ],
 )
 
 ros_launch(
-    name = "roslaunch_eg",
+    name = "roslaunch_eg_py",
     launch_file = "eg_launch.py",
-    deps = [
+    node_targets = [
         ":eg_talker",
+        ":eg_listener",
+    ],
+)
+
+ros_launch(
+    name = "roslaunch_eg_xml",
+    launch_file = "eg_launch.xml",
+    node_targets = [
+        ":eg_talker",
+        ":eg_listener",
     ],
 )
 
