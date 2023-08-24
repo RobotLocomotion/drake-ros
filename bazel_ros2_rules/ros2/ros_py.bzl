@@ -130,10 +130,6 @@ def ros_py_binary(
     )
     py_binary_rule(name = name, **kwargs)
 
-# Use impl pattern here, obtain the workspace from ctx.
-def _impl_ros_launch(ctx):
-  pass
-
 def ros_launch(
         name,
         launch_file = None,

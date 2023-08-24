@@ -1,14 +1,17 @@
 import subprocess
 import sys
+import os
 
-# print("ARGS: ", sys.argv[1:])
+def find(name, path):
+    for root, _, files in os.walk(path):
+        if name in files:
+            return os.path.relpath(os.path.join(root, name))
+
 launch_file_name = sys.argv[1]
-# TODO (Aditya) : dir should not be hardcoded here.
-launch_file_dir = "ros2_example_apps"
 
 roslaunch_cli = "./external/ros2/ros2"
 action = "launch"
-launch_file = launch_file_dir + "/" + launch_file_name
+# TODO : Is there a better way to locate the launch file exactly ?
+launch_file = find(launch_file_name, os.getcwd())
 
 subprocess.run([roslaunch_cli, action, launch_file])
-# subprocess.run(["/bin/bash"])
