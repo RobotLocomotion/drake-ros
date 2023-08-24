@@ -201,12 +201,17 @@ ros_py_binary(
     ],
 )
 
+# ROS launch example.
+ros_py_binary(
+    name = "eg_talker",
+    srcs = ["eg_talker.py"],
+)
+
 ros_launch(
     name = "roslaunch_eg",
     launch_file = "eg_launch.py",
-    # Should contain executables to be run.
-    data = [
-        "eg_talker.py",
+    deps = [
+        ":eg_talker",
     ],
 )
 

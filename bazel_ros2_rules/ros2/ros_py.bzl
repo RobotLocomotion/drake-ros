@@ -130,6 +130,9 @@ def ros_py_binary(
     )
     py_binary_rule(name = name, **kwargs)
 
+def _impl_ros_launch(ctx):
+  pass
+
 def ros_launch(
         name,
         main = "@bazel_ros2_rules//ros2:roslaunch_base.py",
@@ -143,12 +146,15 @@ def ros_launch(
       kwargs["data"] = []
     if "srcs" not in kwargs.keys():
       kwargs["srcs"] = []
+    if "args" not in kwargs.keys():
+      kwargs["args"] = []
 
     kwargs["deps"] += ["@ros2//:ros2"]
     kwargs["deps"] += ["@bazel_ros2_rules//ros2:roslaunch_base.py"]
     kwargs["srcs"] = ["@bazel_ros2_rules//ros2:roslaunch_base.py"]
 
     kwargs["data"] += [launch_file]
+    kwargs["args"] += [launch_file]
 
     ros_py_binary(
       name = name,
