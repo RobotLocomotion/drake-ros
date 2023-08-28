@@ -1,5 +1,4 @@
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
 from roslaunch_util import ExecuteBazelTarget
 
 def generate_launch_description():
