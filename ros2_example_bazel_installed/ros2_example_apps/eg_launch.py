@@ -1,14 +1,11 @@
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
+from roslaunch_util import ExecuteBazelTarget
 
 def generate_launch_description():
     return LaunchDescription([
-        # Running a talker python node.
-        ExecuteProcess(
-            cmd=['python3','ros2_example_apps/roslaunch_eg_nodes/eg_talker.py'],
-        ),
-        # Running a listener cpp node.
-        ExecuteProcess(
-            cmd=['./ros2_example_apps/eg_listener'],
-        ),
+        # Running a talker written in python.
+        ExecuteBazelTarget('eg_talker'),
+        # Running a listener written in cpp.
+        ExecuteBazelTarget('eg_listener'),
     ])
