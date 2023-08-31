@@ -3,6 +3,7 @@ import sys
 import os
 
 from launch.actions import ExecuteProcess
+from launch.frontend import expose_action
 
 def find_rel_path(name, path):
     for root, _, files in os.walk(path):
@@ -10,11 +11,19 @@ def find_rel_path(name, path):
             return os.path.relpath(os.path.join(root, name))
 
 # Launch action to wrap over ExecuteProcess.
-def ExecuteBazelTarget(bazel_target_name):
-    target_path = find_rel_path(bazel_target_name, os.getcwd())
-    return ExecuteProcess(
-            cmd = [target_path]
-        )
+@expose_action('execute_bazel_target')
+class ExecuteBazelTarget(ExecuteProcess):
+    def __init__(self,target,**kwargs):
+        super().__init__(cmd=[find_rel_path(target, os.getcwd())],
+                         **kwargs)
+
+    # TODO : Implement this
+    @classmethod
+    def parse(cls, entity, parser):
+        pass
+
+    def execute(self, context):
+        return super().execute(context)
 
 if __name__ == '__main__':
     launch_file_name = sys.argv[1]
