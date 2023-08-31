@@ -5,6 +5,12 @@ import os
 from launch.actions import ExecuteProcess
 from launch.frontend import expose_action
 
+# This util file serves as a wrapper over the cmdline
+# way to run launch, using "ros2 launch launch_file.py".
+# The ros_launch() bazel rule starts this script, which
+# gets run as a ros_py_binary(). This way we get the ros
+# environment set up for us for free.
+
 def find_rel_path(name, path):
     for root, _, files in os.walk(path):
         if name in files:
@@ -27,8 +33,11 @@ class ExecuteBazelTarget(ExecuteProcess):
         return super().execute(context)
 
 if __name__ == '__main__':
-    # TODO: How do I stop installing this every time ?
+    # TODO (Aditya): How do I stop installing this every time ?
+    # Required to get xml launch working, as we need to register an entry
+    # point for launch extensions.
     os.system("pip install ../bazel_ros2_rules/ros2/tools/roslaunch_util >/dev/null 2>&1")
+    # Actual launch files should be able to import the custom action now.
     env = {**os.environ, 'PYTHONPATH': os.getcwd() + '/external/bazel_ros2_rules/ros2/tools:'
            + os.environ['PYTHONPATH']}
 
@@ -39,6 +48,5 @@ if __name__ == '__main__':
     # TODO : Is there a better way to locate the launch file exactly ?
     launch_file = find_rel_path(launch_file_name, os.getcwd())
 
+    # This basically runs "ros2 launch launch_file"
     subprocess.run([roslaunch_cli, action, launch_file], env=env)
-    # TODO (Aditya): For debugging, to be removed
-    # subprocess.run(["/bin/bash"], env=env)
