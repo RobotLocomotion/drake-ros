@@ -24,9 +24,11 @@ py_library(
 
 py_library(
     name = "roslaunch_util.py",
-    srcs = ["tools/roslaunch_util/roslaunch_util.py",
-    "tools/roslaunch_util/__init__.py",
-    "tools/roslaunch_util/setup.py"],
+    srcs = [
+        "tools/roslaunch_util/__init__.py",
+        "tools/roslaunch_util/roslaunch_util.py",
+        "tools/roslaunch_util/setup.py",
+    ],
     visibility = ["//visibility:public"],
     deps = ["@bazel_tools//tools/python/runfiles"],
 )

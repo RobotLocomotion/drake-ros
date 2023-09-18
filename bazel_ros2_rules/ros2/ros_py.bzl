@@ -134,8 +134,7 @@ def ros_launch(
         name,
         launch_file = None,
         node_targets = []):
-
-    deps = ["@ros2//:ros2",  "@bazel_ros2_rules//ros2:roslaunch_util.py"]
+    deps = ["@ros2//:ros2", "@bazel_ros2_rules//ros2:roslaunch_util.py"]
     srcs = ["@bazel_ros2_rules//ros2:roslaunch_util.py"]
 
     data = [launch_file]
@@ -143,13 +142,13 @@ def ros_launch(
     args = [launch_file]
 
     ros_py_binary(
-      name = name,
-      main = "@bazel_ros2_rules//ros2:roslaunch_util.py",
-      deps = deps,
-      srcs = srcs,
-      data = data,
-      args = args,
-      )
+        name = name,
+        main = "@bazel_ros2_rules//ros2:roslaunch_util.py",
+        deps = deps,
+        srcs = srcs,
+        data = data,
+        args = args,
+    )
 
 def ros_py_test(
         name,

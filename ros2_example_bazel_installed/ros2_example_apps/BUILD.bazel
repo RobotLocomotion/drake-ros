@@ -208,7 +208,7 @@ ros_py_binary(
     deps = [
         "@ros2//:rclpy_py",
         "@ros2//:std_msgs_py",
-    ]
+    ],
 )
 
 ros_cc_binary(
