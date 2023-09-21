@@ -22,8 +22,6 @@ jobs:
           key: bazel
       - name: Check cache
         run: du -hs $(readlink -f /home/runner/.cache/ci)
-      - name: Remove needrestart
-        run: sudo apt remove -y needrestart
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
       - name: Configure drake_ros Bazel for CI
@@ -53,6 +51,9 @@ jobs:
         working-directory: drake_ros
       - name: Test drake_ros
         run: bazel test //...
+        working-directory: drake_ros
+      - name: Clean up drake_ros
+        run: bazel clean
         working-directory: drake_ros
       # CI for drake_ros_examples.
       - name: Install additional ROS dependencies for drake_ros_examples
