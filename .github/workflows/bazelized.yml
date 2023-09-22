@@ -13,7 +13,7 @@ on:
 jobs:
   bazel_build_and_test:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: ros:rolling-ros-base-jammy
       # This is required for running lldb.
