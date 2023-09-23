@@ -78,3 +78,6 @@ jobs:
       - name: Test drake_ros_examples
         run: bazel test //...
         working-directory: drake_ros_examples
+      - name: Clean up drake_ros_examples
+        run: bazel clean
+        working-directory: drake_ros_examples
