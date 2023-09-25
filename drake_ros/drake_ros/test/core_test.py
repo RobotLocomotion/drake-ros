@@ -28,10 +28,13 @@ from drake_ros_test_pub_and_sub_cc import CppPubAndSub
 
 
 def isolate_if_using_bazel():
-    if 'TEST_TMPDIR' in os.environ:
-        # This package can only be imported when using bazel_ros2_rules
-        from rmw_isolation import isolate_rmw_by_path
-        isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
+    # Do not require `make_unique_ros_isolation_env` module for CMake.
+    # TODO(eric.cousineau): Expose this to CMake in better location..
+    try:
+        from bazel_ros_env import make_unique_ros_isolation_env
+        os.environ.update(make_unique_ros_isolation_env())
+    except ImportError:
+        assert "TEST_TMPDIR" not in os.environ
 
 
 @pytest.fixture
