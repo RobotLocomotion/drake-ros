@@ -78,7 +78,7 @@ ros_py_test(
         "@ros2//:rclpy_py",
         "@ros2//:std_msgs_py",
         "@ros2//:test_msgs_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 
@@ -91,7 +91,7 @@ ros_py_test(
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
         "@ros2//:tf2_ros_py_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 
@@ -104,7 +104,7 @@ ros_py_test(
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
         "@ros2//:visualization_msgs_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 

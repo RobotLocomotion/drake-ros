@@ -1,0 +1,13 @@
+# -*- python -*-
+# vi: set ft=python :
+
+py_library(
+    name = "bazel_ros_env_py",
+    srcs = ["bazel_ros_env.py"],
+    visibility = ["//visibility:public"],
+    imports = ["."],
+    deps = [
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@rules_python//python/runfiles",
+    ],
+)
