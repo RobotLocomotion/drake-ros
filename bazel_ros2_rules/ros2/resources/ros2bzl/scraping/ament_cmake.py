@@ -152,7 +152,10 @@ def collect_ament_cmake_package_properties(name, metadata):
         project_path = Path(project_path)
         build_path = project_path.joinpath('build')
         build_path.mkdir()
-        codemodel = cmake_tools.get_cmake_codemodel(project_path, build_path)
+        try:
+            codemodel = cmake_tools.get_cmake_codemodel(project_path, build_path)
+        except RuntimeError as e:
+            raise RuntimeError(f"Error occured while generating build for {name}")
 
         # Should only be one SHARED_LIBRARY target
         target = None
