@@ -1,16 +1,5 @@
-# Perform optimized builds.
-build -c opt
-
-# Use C++17.
-build --cxxopt=-std=c++17
-build --host_cxxopt=-std=c++17
-
-# Use Python 3.
-build --python_path=/usr/bin/python3
-
-# Default test options.
-test --test_output=errors
-test --test_summary=terse
+# Import base-level build configuration.
+import %workspace%/../default.bazelrc
 
 # Try to import user-specific configuration local to workspace.
 try-import %workspace%/user.bazelrc
