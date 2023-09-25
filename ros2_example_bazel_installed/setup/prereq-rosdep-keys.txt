@@ -57,7 +57,6 @@ python3-pytest
 python3-qt5-bindings
 python3-rosdistro-modules
 python3-setuptools
-python3-vcstool
 python3-yaml
 qtbase5-dev
 sdl2
