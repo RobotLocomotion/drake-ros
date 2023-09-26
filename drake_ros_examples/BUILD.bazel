@@ -6,14 +6,3 @@ py_test(
         "@drake_ros_repo//:drake_ros_py",
     ],
 )
-
-py_library(
-    name = "bazel_ros_testing_py",
-    testonly = 1,
-    srcs = ["test/bazel_ros_testing.py"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
-        "@rules_python//python/runfiles",
-    ],
-)
