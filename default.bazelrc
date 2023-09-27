@@ -1,0 +1,24 @@
+# Use C++17.
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
+
+# Use Python 3.
+build --python_path=/usr/bin/python3
+
+# Put build-time ROS logs into /tmp
+build --action_env=ROS_HOME=/tmp/.ros
+
+# Default test options.
+test --test_output=errors
+test --test_summary=terse
+
+# Prevent ROS 2 messages from leaking into or outside of tests.
+# At present, this error message is not fully traceable. As of 2022-11-03, it
+# appears as follows:
+# "failed to initialize rcl: ROS_DOMAIN_ID is not an integral number".
+# See https://github.com/RobotLocomotion/drake-ros/issues/187 for possible
+# improvements.
+build --test_env=ROS_DOMAIN_ID=INVALID_PLEASE_USE_RMW_ISOLATION
+test --test_env=ROS_HOME=/does_not_exist/instead_please_reconfigure_in_test
+# Disable ROS communication with other machines
+test --test_env=ROS_LOCALHOST_ONLY=1

@@ -1,15 +1,17 @@
 # This is symlinked by `./workflows/bazelized*.yml` actions in order to alter
-# Bazel's configuration for CI. This is similar to Drake's CI configuration:
-# https://github.com/RobotLocomotion/drake-ci/blob/0f2c2158/user.bazelrc#L42
+# Bazel's configuration for CI. This is similar to drake-blender's CI
+# configuration:
+# https://github.com/RobotLocomotion/drake-blender/blob/c4a33f80/.github/ci.bazelrc
 
+# Dump configuration details to the log.
 common --announce_rc=yes
+
 common --experimental_ui_max_stdouterr_bytes=5242880
 common --keep_going=yes
-
 test --test_summary=short
 
 # Paths for caching Bazel externals and disk cache.
-fetch --repository_cache /home/runner/.cache/ci/bazel_externals
-build --repository_cache /home/runner/.cache/ci/bazel_externals
-fetch --disk_cache /home/runner/.cache/ci/bazel_local_disk
-build --disk_cache /home/runner/.cache/ci/bazel_local_disk
+fetch --repository_cache /home/runner/.cache/bazel_ci/bazel_externals
+build --repository_cache /home/runner/.cache/bazel_ci/bazel_externals
+fetch --disk_cache /home/runner/.cache/bazel_ci/bazel_local_disk
+build --disk_cache /home/runner/.cache/bazel_ci/bazel_local_disk
