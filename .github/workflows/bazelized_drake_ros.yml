@@ -36,6 +36,8 @@ jobs:
         run: |
           sudo rm -rf \
           /usr/share/dotnet \
+          /usr/share/man \
+          /usr/share/doc \
           /opt/ghc \
           /usr/local/share/boost \
           "$AGENT_TOOLSDIRECTORY" || true
