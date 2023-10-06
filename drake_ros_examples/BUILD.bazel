@@ -1,4 +1,6 @@
-py_test(
+load("@ros2//:ros_py.bzl", "ros_py_test")
+
+ros_py_test(
     name = "drake_ros_py_import_test",
     srcs = ["test/drake_ros_py_import_test.py"],
     main = "test/drake_ros_py_import_test.py",
