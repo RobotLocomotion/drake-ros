@@ -29,7 +29,7 @@ Other than these, there is a standalone executable target called ``isolate`` whi
 There are 3 ways to use this feature :
 
 ## Using ``ros_cc_test()`` rule :
-There is now an extra argument (``network_isolation``) available to the rule, so we can modify a test in ``ros2_example_bazel_installed/ros2_example_apps/BUILD.bazel`` as : 
+There is now an extra argument (``network_isolation``) available to the rule, so for e.g. we can modify a test in ``ros2_example_bazel_installed/ros2_example_apps/BUILD.bazel`` as : 
 
 ```
 ros_cc_test(
@@ -47,6 +47,8 @@ ros_cc_test(
     ],
 )
 ```
+
+Whatever processes are spawned by this test will be contained in a namespace, and will be able to talk to each other, but not to any other ros nodes running outside of this test. 
 
 ## Using the ``ros_py_test()`` rule :
 Similarly for the python test rule, we can add ``network_isolation`` to ``True``. Consider this section in ``drake_ros_examples/examples/iiwa_manipulator/BUILD.bazel`` :
@@ -67,9 +69,11 @@ ros_py_test(
 )
 ```
 
+Similarly, the ros nodes spawned in this test can only talk to each other, and not other nodes running on the system at the same time, even if you have multiple instances of this test running in different terminals.
+
 
 ## Using the ``isolate`` target:
-As mentioned before, the ``isolate`` target is meant to be used in a generic way and will isolate the process provided to it, i.e. : 
+As mentioned before, the ``isolate`` target is meant to be used in a generic way and will isolate **any** process provided to it provided it is available in the bazel sandbox, for e.g. : 
 ```
 cd bazel_ros2_rules
 bazel run //network_isolation:isolate -- /bin/bash -c "echo HELLO_WORLD"
