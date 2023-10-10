@@ -6,8 +6,8 @@ new network namespace to prevent cross talk via the network, and new IPC namespa
 The existing dload_shim is used to pass on the required argument and isolate the tests.
 
 ## Why do we need this ?
-When running ROS2 tests in parallel, they might publish on the same topics and there might be cross talk between tests. rmw config or ROS domain id based isolation is possible,
-but it does not scale well, due to limited ports and domain id available. Linux namespaces provide a generic and a scalable way to solve this problem.
+When running ROS2 tests in parallel, they might publish on the same topics and there might be cross talk between tests. RMW config or ROS domain id based isolation is possible,
+but it does not scale well, due to limited ports and domain ids available. Linux namespaces provide a generic and a scalable way to solve this problem.
 
 ## Why not isolate individual targets instead of tests ?
 Isolation using the namespace approach requires 3 namespaces, or "credentials" for processes to talk to each other, or be in the same realm : IPC, user and network namespaces.
@@ -25,7 +25,7 @@ The logic lives in the following targets, which are meant to be used with the ba
 Other than these, there is a standalone executable target called ``isolate`` which is meant to be used in a standalone way, and not with the
 ``ros_*_test()`` rules. It isolates the process in the first argument provided to it. This uses the same ``unshare()`` logic as ``network_isolation_cc``.
 
-# Example usage
+# How do we use this feature ?
 There are 3 ways to use this feature :
 
 ## Using ``ros_cc_test()`` rule :
