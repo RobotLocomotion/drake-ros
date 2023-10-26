@@ -102,11 +102,16 @@ def do_dload_shim(ctx, template, to_list):
             env_changes["AMENT_PREFIX_PATH"] = ["path-prepend"]
         if env_changes["AMENT_PREFIX_PATH"][0] != "path-prepend":
             fail("failed assumption - AMENT_PREFIX_PATH was not prepended to")
-        env_changes["AMENT_PREFIX_PATH"].extend(
-            ctx.attr.target[AggregatedAmentIndexes].prefixes,
-        )
+        ament_prefixes = ctx.attr.target[AggregatedAmentIndexes].prefixes
+
+        # Deduplicate entries to avoid hitting 'Argument list too long' errors.
+        ament_prefixes = depset(ament_prefixes).to_list()
+        env_changes["AMENT_PREFIX_PATH"].extend(ament_prefixes)
 
     envvars = env_changes.keys()
+
+    # TODO(eric.cousineau): Should deduplicate entries for path-prepend and
+    # path-append.
     actions = env_changes.values()
 
     shim_content = template.format(
