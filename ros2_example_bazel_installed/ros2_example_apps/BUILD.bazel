@@ -227,11 +227,12 @@ ros_py_test(
     srcs = ["test/custom_message_list_test.py"],
     data = [
         # This is the main key. You must provide the generated definitions as
-        # a dependency. It can come through data as is done here, or via any
-        # dependency, such as the C++ (*_cc) or Python (*_py) targets.
+        # a dependency. It can come through data such as the C++ (*_cc) or
+        # Python (*_py) targets as is done here, or directly via the
+        # definitions targets (*_defs).
         # Otherwise, `ros2 interface ...` will indicate the message type is
         # invalid.
-        ":ros2_example_apps_msgs_defs",
+        ":ros2_example_apps_msgs_py",
         "@ros2",
     ],
     main = "test/custom_message_list_test.py",
