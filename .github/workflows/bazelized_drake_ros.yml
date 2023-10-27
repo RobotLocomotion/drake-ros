@@ -20,16 +20,16 @@ jobs:
       # Caching.
       # See comments in drake-blender for more details:
       # https://github.com/RobotLocomotion/drake-blender/blob/c4a33f80/.github/workflows/main.yml
-      - uses: actions/cache@v3
+      - uses: actions/cache/restore@v3
         with:
-          path: "/home/runner/.cache/bazel_ci"
+          path: "~/.cache/bazel_ci"
           # We want this key to change to ensure we store the updated cache.
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             bazel_ci-${{ github.ref }}-
             bazel_ci-refs/heads/main-
       - name: Check cache
-        run: du -hs $(readlink -f /home/runner/.cache/bazel_ci) || true
+        run: du -hs $(readlink -f ~/.cache/bazel_ci) || true
 
       # Setup.
       - name: Simplify apt upgrades
@@ -81,3 +81,12 @@ jobs:
       - name: Clean up drake_ros_examples
         run: bazel clean
         working-directory: drake_ros_examples
+      # Save the updated cache snapshots, so we never do the same work twice.
+      # By default, actions/cache only saves after a successful workflow, but
+      # our caches are bags of files where we only ever add new files (not change
+      # an existing files), so it's always safe to snapshot.
+      - uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: "~/.cache/bazel_ci"
+          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
