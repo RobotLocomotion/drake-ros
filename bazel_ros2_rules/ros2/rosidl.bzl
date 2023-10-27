@@ -399,6 +399,7 @@ def rosidl_c_library(
         group,
         interfaces,
         includes = [],
+        data = [],
         deps = [],
         cc_library_rule = native.cc_library,
         **kwargs):
@@ -411,6 +412,7 @@ def rosidl_c_library(
         interfaces: interface definition files, only files are allowed
         includes: optional interface definition includes, both files and
             filegroups are allowed.
+        data: optional data dependencies.
         deps: optional library dependencies.
         cc_library_rule: optional cc_library() rule override.
 
@@ -460,6 +462,7 @@ def rosidl_c_library(
         srcs = generated_c_sources,
         hdrs = generated_c_headers,
         includes = [include],
+        data = data,
         deps = deps,
         **kwargs
     )
@@ -469,6 +472,7 @@ def rosidl_cc_library(
         group,
         interfaces,
         includes = [],
+        data = [],
         deps = [],
         cc_library_rule = native.cc_library,
         **kwargs):
@@ -480,6 +484,7 @@ def rosidl_cc_library(
         group: interface group name (i.e. ROS 2 package name).
         interfaces: interface definition files.
         includes: optional interface definition includes.
+        data: optional data dependencies.
         deps: optional library dependencies.
         cc_library_rule: optional cc_library() rule override.
 
@@ -518,6 +523,7 @@ def rosidl_cc_library(
         name = name,
         hdrs = generated_cc_headers,
         includes = [include],
+        data = data,
         deps = deps + [
             REPOSITORY_ROOT + ":rosidl_runtime_cpp_cc",
         ],
@@ -533,6 +539,7 @@ def rosidl_py_library(
         interfaces,
         typesupports,
         includes = [],
+        data = [],
         c_deps = [],
         py_deps = [],
         cc_binary_rule = native.cc_binary,
@@ -550,6 +557,7 @@ def rosidl_py_library(
             C typesupport libraries, from typesupport name to
             library target label.
         includes: optional interface definition includes.
+        data: optional data dependencies.
         c_deps: optional Python C extension dependencies.
         py_deps: optional Python dependencies.
         cc_binary_rule: optional cc_binary() rule override.
@@ -637,7 +645,7 @@ def rosidl_py_library(
         name = name,
         srcs = generated_py_sources,
         imports = [import_],
-        data = py_data,
+        data = data + py_data,
         deps = py_deps,
         **kwargs
     )
@@ -647,6 +655,7 @@ def rosidl_typesupport_fastrtps_cc_library(
         group,
         interfaces,
         includes = [],
+        data = [],
         deps = [],
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
@@ -659,6 +668,7 @@ def rosidl_typesupport_fastrtps_cc_library(
         group: interface group name (i.e. ROS 2 package name).
         interfaces: interface definition files.
         includes: optional interface definition includes.
+        data: optional data dependencies.
         deps: optional library dependencies.
         cc_binary_rule: optional cc_binary() rule override.
         cc_library_rule: optional cc_library() rule override.
@@ -702,6 +712,7 @@ def rosidl_typesupport_fastrtps_cc_library(
     cc_binary_rule(
         name = name,
         srcs = generated_cc_sources,
+        data = data,
         deps = deps + [
             _make_private_label(name, "_hdrs"),
             REPOSITORY_ROOT + ":fastcdr_cc",
@@ -719,6 +730,7 @@ def rosidl_typesupport_fastrtps_c_library(
         group,
         interfaces,
         includes = [],
+        data = [],
         deps = [],
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
@@ -731,6 +743,7 @@ def rosidl_typesupport_fastrtps_c_library(
         group: interface group name (i.e. ROS 2 package name).
         interfaces: interface definition files.
         includes: optional interface definition includes.
+        data: optional data dependencies.
         deps: optional library dependencies.
         cc_binary_rule: optional cc_binary() rule override.
         cc_library_rule: optional cc_library() rule override.
@@ -775,6 +788,7 @@ def rosidl_typesupport_fastrtps_c_library(
         name = name,
         srcs = generated_c_sources,
         linkshared = True,
+        data = data,
         deps = deps + [
             _make_private_label(name, "_hdrs"),
             REPOSITORY_ROOT + ":fastcdr_cc",
@@ -792,6 +806,7 @@ def rosidl_typesupport_introspection_c_library(
         group,
         interfaces,
         includes = [],
+        data = [],
         deps = [],
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
@@ -804,6 +819,7 @@ def rosidl_typesupport_introspection_c_library(
         group: interface group name (i.e. ROS 2 package name).
         interfaces: interface definition files.
         includes: optional interface definition includes.
+        data: optional data dependencies.
         deps: optional library dependencies.
         cc_binary_rule: optional cc_binary() rule override.
         cc_library_rule: optional cc_library() rule override.
@@ -849,6 +865,7 @@ def rosidl_typesupport_introspection_c_library(
         name = name,
         srcs = generated_c_sources,
         linkshared = True,
+        data = data,
         deps = deps + [
             _make_private_label(name, "_hdrs"),
             REPOSITORY_ROOT + ":rosidl_typesupport_introspection_c_cc",
@@ -861,6 +878,7 @@ def rosidl_typesupport_introspection_cc_library(
         group,
         interfaces,
         includes = [],
+        data = [],
         deps = [],
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
@@ -873,6 +891,7 @@ def rosidl_typesupport_introspection_cc_library(
         group: interface group name (i.e. ROS 2 package name).
         interfaces: interface definition files.
         includes: optional interface definition includes.
+        data: optional data dependencies.
         deps: optional library dependencies.
         cc_binary_rule: optional cc_binary() rule override.
         cc_library_rule: optional cc_library() rule override.
@@ -918,6 +937,7 @@ def rosidl_typesupport_introspection_cc_library(
         name = name,
         srcs = generated_cc_sources,
         linkshared = True,
+        data = data,
         deps = deps + [
             _make_private_label(name, "_hdrs"),
             REPOSITORY_ROOT + ":rosidl_runtime_c_cc",
@@ -934,6 +954,7 @@ def rosidl_typesupport_c_library(
         interfaces,
         typesupports,
         includes = [],
+        data = [],
         deps = [],
         cc_binary_rule = native.cc_binary,
         **kwargs):
@@ -948,6 +969,7 @@ def rosidl_typesupport_c_library(
             C typesupport libraries, from typesupport name to
             library target label.
         includes: optional interface definition includes
+        data: optional data dependencies
         deps: optional library dependencies
         cc_binary_rule: optional cc_binary() rule override
 
@@ -982,7 +1004,7 @@ def rosidl_typesupport_c_library(
         srcs = generated_sources,
         includes = [include],
         linkshared = True,
-        data = typesupports.values(),
+        data = data + typesupports.values(),
         deps = deps + [
             _make_private_label(label, "_hdrs")
             for label in typesupports.values()
@@ -1000,6 +1022,7 @@ def rosidl_typesupport_cc_library(
         interfaces,
         typesupports,
         includes = [],
+        data = [],
         deps = [],
         cc_binary_rule = native.cc_binary,
         **kwargs):
@@ -1014,6 +1037,7 @@ def rosidl_typesupport_cc_library(
             C++ typesupport libraries, from typesupport name to
             library target label.
         includes: optional interface definition includes
+        data: optional data dependencies
         deps: optional library dependencies
         cc_binary_rule: optional cc_binary() rule override
 
@@ -1044,7 +1068,7 @@ def rosidl_typesupport_cc_library(
     cc_binary_rule(
         name = name,
         srcs = generated_cc_sources,
-        data = typesupports.values(),
+        data = data + typesupports.values(),
         includes = [include],
         linkshared = True,
         deps = deps + [
@@ -1062,6 +1086,7 @@ def rosidl_typesupport_cc_library(
 def rosidl_cc_support(
         name,
         interfaces,
+        data,
         deps,
         group = None,
         cc_binary_rule = native.cc_binary,
@@ -1075,6 +1100,7 @@ def rosidl_cc_support(
     Args:
         name: interface group name, used as prefix for target names
         interfaces: interface definition files
+        data: optional data dependencies
         deps: optional interface group dependencies
         group: optional interface group name override, useful when
             target name cannot be forced to match the intended package
@@ -1158,6 +1184,7 @@ def rosidl_cc_support(
         srcs = [
             _make_public_label(name, "__rosidl_typesupport_cpp"),
         ] + typesupports.values(),
+        data = data,
         deps = [_make_private_label(name, "__rosidl_cpp")],
         linkstatic = True,
         **kwargs
@@ -1166,6 +1193,7 @@ def rosidl_cc_support(
 def rosidl_py_support(
         name,
         interfaces,
+        data,
         deps,
         group = None,
         cc_binary_rule = native.cc_binary,
@@ -1180,6 +1208,7 @@ def rosidl_py_support(
     Args:
         name: interface group name, used as prefix for target names
         interfaces: interface definition files
+        data: optional data dependencies
         deps: optional interface group dependencies
         group: optional interface group name override, useful when
             target name cannot be forced to match the intended package
@@ -1277,6 +1306,7 @@ def rosidl_py_support(
         group = group or name,
         interfaces = interfaces,
         includes = [_make_public_label(dep, "_defs") for dep in deps],
+        data = data,
         py_deps = [_make_public_label(dep, "_py") for dep in deps],
         c_deps = [_make_public_label(name, "_c")] + [
             _make_public_label(dep, "_c")
@@ -1291,6 +1321,7 @@ def rosidl_py_support(
 def rosidl_interfaces_group(
         name,
         interfaces,
+        data = [],
         deps = [],
         group = None,
         cc_binary_rule = native.cc_binary,
@@ -1306,6 +1337,7 @@ def rosidl_interfaces_group(
     Args:
         name: interface group name, used as prefix for target names
         interfaces: interface definition files
+        data: optional data dependencies
         deps: optional interface group dependencies
         group: optional interface group name override, useful when
             target name cannot be forced to match the intended package
@@ -1328,8 +1360,11 @@ def rosidl_interfaces_group(
     if group != None:
         name = group
 
+    defs_name = _make_public_name(name, "_defs")
+    data = data + [defs_name]
+
     rosidl_definitions_filegroup(
-        name = _make_public_name(name, "_defs"),
+        name = defs_name,
         group = group or name,
         interfaces = interfaces,
         includes = [_make_public_label(dep, "_defs") for dep in deps],
@@ -1338,9 +1373,10 @@ def rosidl_interfaces_group(
 
     rosidl_cc_support(
         name,
-        interfaces,
-        deps,
-        group,
+        interfaces = interfaces,
+        data = data,
+        deps = deps,
+        group = group,
         cc_binary_rule = cc_binary_rule,
         cc_library_rule = cc_library_rule,
         **kwargs
@@ -1348,9 +1384,10 @@ def rosidl_interfaces_group(
 
     rosidl_py_support(
         name,
-        interfaces,
-        deps,
-        group,
+        interfaces = interfaces,
+        data = data,
+        deps = deps,
+        group = group,
         cc_binary_rule = cc_binary_rule,
         cc_library_rule = cc_library_rule,
         py_library_rule = py_library_rule,
