@@ -9,4 +9,5 @@ apt_install () {
   apt-get -q install --no-install-recommends "$@"
 }
 
+apt-get update
 apt_install $(cat_without_comments packages-ros2.txt)
