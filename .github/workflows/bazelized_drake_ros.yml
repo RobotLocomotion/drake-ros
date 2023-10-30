@@ -27,9 +27,11 @@ jobs:
           path: "~/.cache/bazel_ci"
           # We want this key to change to ensure we store the updated cache.
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          # N.B. We share in all directions (main -> PR, and PR -> main). This
+          # should only cause an issue if we encounter cache poisoning, which
+          # should not be too frequent (if at all).
           restore-keys: |
-            bazel_ci-${{ github.ref }}-
-            bazel_ci-refs/heads/main-
+            bazel_ci-
       - name: Check cache
         run: du -hs $(readlink -f ~/.cache/bazel_ci) || true
 
