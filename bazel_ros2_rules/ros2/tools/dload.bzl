@@ -104,9 +104,23 @@ def do_dload_shim(ctx, template, to_list):
             fail("failed assumption - AMENT_PREFIX_PATH was not prepended to")
         ament_prefixes = ctx.attr.target[AggregatedAmentIndexes].prefixes
 
+        lib_folders = []
+        for prefix in ament_prefixes:
+            folder_name = prefix.split("/")[-1]
+            if (folder_name == "lib"):
+                lib_folders.append(prefix)
+
+        if len(lib_folders) > 0:
+            if "AMENT_PREFIX_PATH" not in env_changes:
+                env_changes["LD_LIBRARY_PATH"] = ["path-prepend"]
+
         # Deduplicate entries to avoid hitting 'Argument list too long' errors.
         ament_prefixes = depset(ament_prefixes).to_list()
+        lib_folders = depset(lib_folders).to_list()
         env_changes["AMENT_PREFIX_PATH"].extend(ament_prefixes)
+        env_changes["LD_LIBRARY_PATH"].extend(lib_folders)
+
+    envvars = env_changes.keys()
 
     envvars = env_changes.keys()
 

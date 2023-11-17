@@ -1083,6 +1083,47 @@ def rosidl_typesupport_cc_library(
         **kwargs
     )
 
+def _symlink_impl(ctx):
+    filename = paths.join(
+        ctx.attr.prefix,
+        "lib" + ctx.attr.pkgname + ".so",
+    )
+
+    library = ctx.actions.declare_file(filename)
+    ctx.actions.symlink(
+        output = library,
+        target_file = ctx.executable.executable,
+        is_executable = True,
+    )
+
+    runfiles_symlinks = {
+        filename: library
+    }
+
+    return [
+        AmentIndex(prefix = ctx.attr.prefix),
+        DefaultInfo(
+            executable = library,
+            files = depset(direct = [library]),
+            # runfiles = ctx.runfiles(root_symlinks = runfiles_symlinks),
+            runfiles = ctx.runfiles(root_symlinks = runfiles_symlinks),
+    )]
+
+
+symlink = rule(
+    _symlink_impl,
+    attrs = {
+        "executable": attr.label(
+            executable = True,
+            cfg = "target",
+        ),
+        "prefix": attr.string(default = "rosidl_generate_ament_index_entry/lib"),
+        'pkgname': attr.string(mandatory = True),
+    },
+    executable = True,
+    doc = "Creates a new target for the given executable.",
+)
+
 def rosidl_cc_support(
         name,
         interfaces,
@@ -1145,6 +1186,15 @@ def rosidl_cc_support(
         typesupports["rosidl_typesupport_introspection_cpp"] = \
             _make_public_label(name, "__rosidl_typesupport_introspection_cpp")
 
+        symlink(
+            name = name + "_copy_cc_rosidl_typesupport_introspection_cpp",
+            executable = ":" +_make_public_name(name, "__rosidl_typesupport_introspection_cpp"),
+            pkgname = _make_public_name(name, "__rosidl_typesupport_introspection_cpp"),
+            testonly = False,
+            tags = ["manual"],
+            visibility = ["//visibility:public"],
+        )
+
     if "rosidl_typesupport_fastrtps_cpp" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_fastrtps_cc_library(
             name = _make_public_name(
@@ -1165,6 +1215,15 @@ def rosidl_cc_support(
         typesupports["rosidl_typesupport_fastrtps_cpp"] = \
             _make_public_label(name, "__rosidl_typesupport_fastrtps_cpp")
 
+        symlink(
+            name = name + "_copy_cc_rosidl_typesupport_fastrtps_cpp",
+            executable = ":" +_make_public_name(name, "__rosidl_typesupport_fastrtps_cpp"),
+            pkgname = _make_public_name(name, "__rosidl_typesupport_fastrtps_cpp"),
+            testonly = False,
+            tags = ["manual"],
+            visibility = ["//visibility:public"],
+        )
+
     rosidl_typesupport_cc_library(
         name = _make_public_name(name, "__rosidl_typesupport_cpp"),
         typesupports = typesupports,
@@ -1177,6 +1236,15 @@ def rosidl_cc_support(
         ],
         cc_binary_rule = cc_binary_rule,
         **kwargs
+    )
+
+    symlink(
+        name = name + "_copy_cc_rosidl_typesupport_cpp",
+        executable = ":" +_make_public_name(name, "__rosidl_typesupport_cpp"),
+        pkgname = _make_public_name(name, "__rosidl_typesupport_cpp"),
+        testonly = False,
+        tags = ["manual"],
+        visibility = ["//visibility:public"],
     )
 
     cc_library_rule(
@@ -1254,6 +1322,15 @@ def rosidl_py_support(
         typesupports["rosidl_typesupport_introspection_c"] = \
             _make_public_label(name, "__rosidl_typesupport_introspection_c")
 
+        symlink(
+            name = name + "_copy_py_rosidl_typesupport_introspection_c",
+            executable = ":" +_make_public_name(name, "__rosidl_typesupport_introspection_c"),
+            pkgname = _make_public_name(name, "__rosidl_typesupport_introspection_c"),
+            testonly = False,
+            tags = ["manual"],
+            visibility = ["//visibility:public"],
+        )
+
     if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_fastrtps_c_library(
             name = _make_public_name(
@@ -1274,6 +1351,15 @@ def rosidl_py_support(
         typesupports["rosidl_typesupport_fastrtps_c"] = \
             _make_public_label(name, "__rosidl_typesupport_fastrtps_c")
 
+        symlink(
+            name = name + "_copy_py_rosidl_typesupport_fastrtps_c",
+            executable = ":" +_make_public_name(name, "__rosidl_typesupport_fastrtps_c"),
+            pkgname = _make_public_name(name, "__rosidl_typesupport_fastrtps_c"),
+            testonly = False,
+            tags = ["manual"],
+            visibility = ["//visibility:public"],
+        )
+
     rosidl_typesupport_c_library(
         name = _make_public_name(name, "__rosidl_typesupport_c"),
         typesupports = typesupports,
@@ -1289,6 +1375,15 @@ def rosidl_py_support(
     )
     typesupports["rosidl_typesupport_c"] = \
         _make_public_label(name, "__rosidl_typesupport_c")
+
+    symlink(
+        name = name + "_copy_py_rosidl_typesupport_c",
+        executable = ":" +_make_public_name(name, "__rosidl_typesupport_c"),
+        pkgname = _make_public_name(name, "__rosidl_typesupport_c"),
+        testonly = False,
+        tags = ["manual"],
+        visibility = ["//visibility:public"],
+    )
 
     cc_library_rule(
         name = _make_public_name(name, "_c"),
