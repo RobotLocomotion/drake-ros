@@ -1,5 +1,5 @@
 DRAKE_SUGGESTED_VERSION = struct(
-    url = "https://github.com/RobotLocomotion/drake/archive/refs/tags/v1.22.0.tar.gz",  # noqa
-    sha256 = "78cf62c177c41f8415ade172c1e6eb270db619f07c4b043d5148e1f35be8da09",  # noqa,
-    strip_prefix = "drake-1.22.0",
+    url = "https://github.com/RobotLocomotion/drake/archive/refs/tags/v1.23.0.tar.gz",  # noqa
+    sha256 = "2e64bca9d5fe942170617d8109ec7ffe5df095d821743c9a619d38599229d03f",  # noqa,
+    strip_prefix = "drake-1.23.0",
 )
