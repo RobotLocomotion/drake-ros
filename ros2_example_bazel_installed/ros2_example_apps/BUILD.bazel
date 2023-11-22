@@ -205,25 +205,18 @@ ros_py_binary(
     name = "ap_custom_msg_rosbag",
     srcs = ["ap_custom_msg_rosbag.py"],
     data = [
-        # Provide both Python and C++ IDL to see if it can get picked up...
-        ":ros2_example_apps_msgs_py",
-        ":ros2_example_apps_msgs_cc",
-        # "@ros2//:rosidl_typesupport_cpp_cc",
-        # "@ros2//:rosidl_typesupport_cpp_py",
         "//ros2_example_common:ros2_example_common_msgs_sl_fastrtps_cpp",
         "//ros2_example_common:ros2_example_common_msgs_sl_introspection_cpp",
         "//ros2_example_common:ros2_example_common_msgs_sl_typesupport_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_fastrtps_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_introspection_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_typesupport_cpp",
-
         # Binaries to run.
         ":simple_talker",
         "@ros2",
     ],
     main = "ap_custom_msg_rosbag.py",
     deps = [
-        "@bazel_tools//tools/python/runfiles",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
     rmw_implementation = "rmw_cyclonedds_cpp",
@@ -233,21 +226,12 @@ ros_py_test(
     name = "custom_message_rosbag_test",
     srcs = ["test/custom_message_rosbag_test.py"],
     data = [
-        # Provide both Python and C++ IDL to see if it can get picked up...
-        ":ros2_example_apps_msgs_py",
-        ":ros2_example_apps_msgs_cc",
         "//ros2_example_common:ros2_example_common_msgs_sl_fastrtps_cpp",
         "//ros2_example_common:ros2_example_common_msgs_sl_introspection_cpp",
         "//ros2_example_common:ros2_example_common_msgs_sl_typesupport_cpp",
-        "//ros2_example_common:ros2_example_common_msgs_sl_introspection_c",
-        "//ros2_example_common:ros2_example_common_msgs_sl_fastrtps_c",
-        "//ros2_example_common:ros2_example_common_msgs_sl_typesupport_c",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_fastrtps_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_introspection_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_typesupport_cpp",
-        "//ros2_example_apps:ros2_example_apps_msgs_sl_introspection_c",
-        "//ros2_example_apps:ros2_example_apps_msgs_sl_fastrtps_c",
-        "//ros2_example_apps:ros2_example_apps_msgs_sl_typesupport_c",
 
         # Binaries to run.
         ":simple_talker",
