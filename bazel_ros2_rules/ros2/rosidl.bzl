@@ -1252,7 +1252,7 @@ def rosidl_cc_support(
     )
 
     symlink(
-        name = name + "_sl_cpp",
+        name = name + "_sl_typesupport_cpp",
         executable = ":" + _make_public_name(
             name,
             "__rosidl_typesupport_cpp",
@@ -1408,7 +1408,7 @@ def rosidl_py_support(
         _make_public_label(name, "__rosidl_typesupport_c")
 
     symlink(
-        name = name + "_sl_c",
+        name = name + "_sl_typesupport_c",
         executable = ":" + _make_public_name(
             name,
             "__rosidl_typesupport_c",
