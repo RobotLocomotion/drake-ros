@@ -19,7 +19,7 @@ apt update
 apt install ros-dev-tools ros-humble-rmw-cyclonedds-cpp ros-humble-rviz2 ros-humble-ros2cli-common-extensions
 
 rosdep init || true
-rosdep update
+rosdep update --rosdistro=humble
 
 SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIRECTORY
