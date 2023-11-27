@@ -22,9 +22,11 @@ rosdep init || true
 rosdep update
 
 SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd $SCRIPT_DIRECTORY
-rosdep install --from-paths ../../drake_ros --rosdistro=humble
-rosdep install --from-paths ../ --rosdistro=humble
+cd $SCRIPT_DIRECTORY/../..
+rosdep install --from-paths drake_ros --rosdistro=humble
+# TODO(eric.cousineau): This currently fails with
+# `Cannot locate rosdep definition for [drake_ros]`. Should fix.
+# rosdep install --from-paths drake_ros_examples --rosdistro=humble
 
 # Required for bazel_ros2_rules
 apt install python3 python3-toposort
