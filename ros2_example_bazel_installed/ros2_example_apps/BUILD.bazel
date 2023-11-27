@@ -202,8 +202,8 @@ ros_py_binary(
 )
 
 ros_py_binary(
-    name = "ap_custom_msg_rosbag",
-    srcs = ["ap_custom_msg_rosbag.py"],
+    name = "rosbag_record_utility",
+    srcs = ["rosbag_record_utility.py"],
     data = [
         "//ros2_example_common:ros2_example_common_msgs_sl_fastrtps_cpp",
         "//ros2_example_common:ros2_example_common_msgs_sl_introspection_cpp",
@@ -214,7 +214,7 @@ ros_py_binary(
         # Binaries to run.
         "@ros2",
     ],
-    main = "ap_custom_msg_rosbag.py",
+    main = "rosbag_record_utility.py",
     rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
@@ -225,21 +225,14 @@ ros_py_test(
     name = "custom_message_rosbag_test",
     srcs = ["test/custom_message_rosbag_test.py"],
     data = [
-        "//ros2_example_common:ros2_example_common_msgs_sl_fastrtps_cpp",
-        "//ros2_example_common:ros2_example_common_msgs_sl_introspection_cpp",
-        "//ros2_example_common:ros2_example_common_msgs_sl_typesupport_cpp",
-        "//ros2_example_apps:ros2_example_apps_msgs_sl_fastrtps_cpp",
-        "//ros2_example_apps:ros2_example_apps_msgs_sl_introspection_cpp",
-        "//ros2_example_apps:ros2_example_apps_msgs_sl_typesupport_cpp",
-
         # Binaries to run.
         ":simple_talker",
-        "@ros2",
-    ],
+   ],
     main = "test/custom_message_rosbag_test.py",
     deps = [
         "@bazel_tools//tools/python/runfiles",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "rosbag_record_utility"
     ],
 )
 
