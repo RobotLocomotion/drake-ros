@@ -60,9 +60,9 @@ apt install g++ unzip zlib1g-dev
 
 # TODO(sloretz) Make sure the version of bazel is exactly the same as the one used by Drake
 dpkg_install_from_curl \
-  bazel 5.1.0 \
-  https://releases.bazel.build/5.1.0/release/bazel_5.1.0-linux-x86_64.deb \
-  3d54055f764cfb61b5416f0a45d2d3df19c30d301d4da81565595cbe2e36a220
+  bazel 6.4.0 \
+  https://github.com/bazelbuild/bazel/releases/download/6.4.0/bazel_6.4.0-linux-x86_64.deb \
+  9276a1e11f03e9f7492f009803c95bddc307993c9ab3c463721c9f6cdaa2ccc1
 
 if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
   apt update && apt install locales

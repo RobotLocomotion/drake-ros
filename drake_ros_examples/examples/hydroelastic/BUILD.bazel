@@ -55,6 +55,6 @@ ros_py_test(
     main = "test/hydroelastic_test.py",
     rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
-        "//:bazel_ros_testing_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )

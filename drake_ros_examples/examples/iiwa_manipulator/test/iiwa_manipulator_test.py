@@ -1,17 +1,17 @@
 import os
 from subprocess import run
 
-from drake_ros_examples.test.bazel_ros_testing import (
+from bazel_ros_env import (
     Rlocation,
     make_bazel_runfiles_env,
-    maybe_make_test_ros_isolation_env,
+    make_unique_ros_isolation_env,
 )
 
 
 def make_env():
     env = dict(os.environ)
     env.update(make_bazel_runfiles_env())
-    env.update(maybe_make_test_ros_isolation_env())
+    env.update(make_unique_ros_isolation_env())
     return env
 
 
