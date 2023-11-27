@@ -61,6 +61,19 @@ def get_dload_shim_attributes():
         "env_changes": attr.string_list_dict(),
     }
 
+def _workaround_issue311(ament_prefixes, env_changes):
+    # Work around drake-ros#311 and ensure that we have our
+    # ${AMEND_PREFIX_PATH}/lib libraries also exposed on LD_LIBRARY_PATH.
+    lib_folders = []
+    for prefix in ament_prefixes:
+        if prefix.endswith("/lib"):
+            lib_folders.append(prefix)
+    if len(lib_folders) > 0:
+        if "LD_LIBRARY_PATH" not in env_changes:
+            env_changes["LD_LIBRARY_PATH"] = ["path-prepend"]
+    lib_folders = depset(lib_folders).to_list()
+    env_changes["LD_LIBRARY_PATH"].extend(lib_folders)
+
 def do_dload_shim(ctx, template, to_list):
     """
     Implements common dload_shim rule functionality.
@@ -104,23 +117,11 @@ def do_dload_shim(ctx, template, to_list):
             fail("failed assumption - AMENT_PREFIX_PATH was not prepended to")
         ament_prefixes = ctx.attr.target[AggregatedAmentIndexes].prefixes
 
-        lib_folders = []
-        for prefix in ament_prefixes:
-            folder_name = prefix.split("/")[-1]
-            if (folder_name == "lib"):
-                lib_folders.append(prefix)
-
-        if len(lib_folders) > 0:
-            if "AMENT_PREFIX_PATH" not in env_changes:
-                env_changes["LD_LIBRARY_PATH"] = ["path-prepend"]
-
         # Deduplicate entries to avoid hitting 'Argument list too long' errors.
         ament_prefixes = depset(ament_prefixes).to_list()
-        lib_folders = depset(lib_folders).to_list()
         env_changes["AMENT_PREFIX_PATH"].extend(ament_prefixes)
-        env_changes["LD_LIBRARY_PATH"].extend(lib_folders)
 
-    envvars = env_changes.keys()
+        _workaround_issue311(ament_prefixes, env_changes)
 
     envvars = env_changes.keys()
 

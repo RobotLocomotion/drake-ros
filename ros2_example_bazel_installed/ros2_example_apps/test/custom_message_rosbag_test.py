@@ -57,7 +57,7 @@ def attempt_record():
         tmp_dir = "/tmp"
 
     manifest = runfiles.Create()
-    ros2_bin = manifest.Rlocation("ros2/ros2")
+    ros2_bin = manifest.Rlocation("ros2_example_bazel_installed/tools/ros2")
     assert ros2_bin is not None
     talker_bin = manifest.Rlocation(
         "ros2_example_bazel_installed/ros2_example_apps/simple_talker")

@@ -1083,7 +1083,7 @@ def rosidl_typesupport_cc_library(
         **kwargs
     )
 
-def _symlink_impl(ctx):
+def _symlink_typesupport_workaround_issue311_impl(ctx):
     filename = paths.join(
         ctx.attr.prefix,
         "lib" + ctx.attr.pkgname + ".so",
@@ -1109,8 +1109,16 @@ def _symlink_impl(ctx):
         ),
     ]
 
-symlink = rule(
-    _symlink_impl,
+"""
+Symlinks a shared library.
+
+This is done as a workaround to drake-ros#311, where applications like
+`ros2 bag record` may look for typesupport via ${AMENT_PREFIX_PATH}/lib instead
+of using ${LD_LIBRARY_PATH}.
+"""
+
+_symlink_typesupport_workaround_issue311 = rule(
+    _symlink_typesupport_workaround_issue311_impl,
     attrs = {
         "executable": attr.label(
             executable = True,
@@ -1162,6 +1170,7 @@ def rosidl_cc_support(
         **kwargs
     )
 
+    data = list(data)
     typesupports = {}
 
     # NOTE: typesupport binary files must not have any leading
@@ -1187,8 +1196,8 @@ def rosidl_cc_support(
         typesupports["rosidl_typesupport_introspection_cpp"] = \
             _make_public_label(name, "__rosidl_typesupport_introspection_cpp")
 
-        symlink(
-            name = name + "_sl_introspection_cpp",
+        _symlink_typesupport_workaround_issue311(
+            name = name + "_symlink_introspection_cpp",
             executable = ":" + _make_public_name(
                 name,
                 "__rosidl_typesupport_introspection_cpp",
@@ -1197,10 +1206,9 @@ def rosidl_cc_support(
                 name,
                 "__rosidl_typesupport_introspection_cpp",
             ),
-            testonly = False,
-            tags = ["manual"],
-            visibility = ["//visibility:public"],
+            **kwargs
         )
+        data += [name + "_symlink_introspection_cpp"]
 
     if "rosidl_typesupport_fastrtps_cpp" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_fastrtps_cc_library(
@@ -1222,8 +1230,8 @@ def rosidl_cc_support(
         typesupports["rosidl_typesupport_fastrtps_cpp"] = \
             _make_public_label(name, "__rosidl_typesupport_fastrtps_cpp")
 
-        symlink(
-            name = name + "_sl_fastrtps_cpp",
+        _symlink_typesupport_workaround_issue311(
+            name = name + "_symlink_fastrtps_cpp",
             executable = ":" + _make_public_name(
                 name,
                 "__rosidl_typesupport_fastrtps_cpp",
@@ -1232,10 +1240,9 @@ def rosidl_cc_support(
                 name,
                 "__rosidl_typesupport_fastrtps_cpp",
             ),
-            testonly = False,
-            tags = ["manual"],
-            visibility = ["//visibility:public"],
+            **kwargs
         )
+        data += [name + "_symlink_fastrtps_cpp"]
 
     rosidl_typesupport_cc_library(
         name = _make_public_name(name, "__rosidl_typesupport_cpp"),
@@ -1251,8 +1258,8 @@ def rosidl_cc_support(
         **kwargs
     )
 
-    symlink(
-        name = name + "_sl_typesupport_cpp",
+    _symlink_typesupport_workaround_issue311(
+        name = name + "_symlink_typesupport_cpp",
         executable = ":" + _make_public_name(
             name,
             "__rosidl_typesupport_cpp",
@@ -1261,10 +1268,9 @@ def rosidl_cc_support(
             name,
             "__rosidl_typesupport_cpp",
         ),
-        testonly = False,
-        tags = ["manual"],
-        visibility = ["//visibility:public"],
+        **kwargs
     )
+    data += [name + "_symlink_typesupport_cpp"]
 
     cc_library_rule(
         name = _make_public_name(name, "_cc"),
@@ -1316,6 +1322,7 @@ def rosidl_py_support(
         **kwargs
     )
 
+    data = list(data)
     typesupports = {}
 
     # NOTE: typesupport binary files must not have any leading
@@ -1341,8 +1348,8 @@ def rosidl_py_support(
         typesupports["rosidl_typesupport_introspection_c"] = \
             _make_public_label(name, "__rosidl_typesupport_introspection_c")
 
-        symlink(
-            name = name + "_sl_introspection_c",
+        _symlink_typesupport_workaround_issue311(
+            name = name + "_symlink_introspection_c",
             executable = ":" + _make_public_name(
                 name,
                 "__rosidl_typesupport_introspection_c",
@@ -1351,10 +1358,9 @@ def rosidl_py_support(
                 name,
                 "__rosidl_typesupport_introspection_c",
             ),
-            testonly = False,
-            tags = ["manual"],
-            visibility = ["//visibility:public"],
+            **kwargs
         )
+        data += [name + "_symlink_introspection_c"]
 
     if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_fastrtps_c_library(
@@ -1376,8 +1382,8 @@ def rosidl_py_support(
         typesupports["rosidl_typesupport_fastrtps_c"] = \
             _make_public_label(name, "__rosidl_typesupport_fastrtps_c")
 
-        symlink(
-            name = name + "_sl_fastrtps_c",
+        _symlink_typesupport_workaround_issue311(
+            name = name + "_symlink_fastrtps_c",
             executable = ":" + _make_public_name(
                 name,
                 "__rosidl_typesupport_fastrtps_c",
@@ -1386,10 +1392,9 @@ def rosidl_py_support(
                 name,
                 "__rosidl_typesupport_fastrtps_c",
             ),
-            testonly = False,
-            tags = ["manual"],
-            visibility = ["//visibility:public"],
+            **kwargs
         )
+        data += [name + "_symlink_fastrtps_c"]
 
     rosidl_typesupport_c_library(
         name = _make_public_name(name, "__rosidl_typesupport_c"),
@@ -1407,8 +1412,8 @@ def rosidl_py_support(
     typesupports["rosidl_typesupport_c"] = \
         _make_public_label(name, "__rosidl_typesupport_c")
 
-    symlink(
-        name = name + "_sl_typesupport_c",
+    _symlink_typesupport_workaround_issue311(
+        name = name + "_symlink_typesupport_c",
         executable = ":" + _make_public_name(
             name,
             "__rosidl_typesupport_c",
@@ -1417,10 +1422,9 @@ def rosidl_py_support(
             name,
             "__rosidl_typesupport_c",
         ),
-        testonly = False,
-        tags = ["manual"],
-        visibility = ["//visibility:public"],
+        **kwargs
     )
+    data += [name + "_symlink_typesupport_c"]
 
     cc_library_rule(
         name = _make_public_name(name, "_c"),
@@ -1463,8 +1467,11 @@ def rosidl_interfaces_group(
     """
     Generates and builds C++ and Python ROS 2 interfaces.
 
+    To depend on IDL definitions, use the `<name>_defs` target.
     To depend on C++ interfaces, use the `<name>_cc` target.
-    To depend on Python interfaces, use the `<name>_py` target.
+    To depend on Python interfaces, use the `<name>_py` target. You should
+    depend on this target for tools like `ros2 bag record` and
+    `ros2 topic echo` to work.
 
     Args:
         name: interface group name, used as prefix for target names
@@ -1513,11 +1520,13 @@ def rosidl_interfaces_group(
         cc_library_rule = cc_library_rule,
         **kwargs
     )
+    cc_name = _make_public_name(name, "_cc")
 
     rosidl_py_support(
         name,
         interfaces = interfaces,
-        data = data,
+        # Add the C++ target so that we can support `ros2 bag record`.
+        data = data + [cc_name],
         deps = deps,
         group = group,
         cc_binary_rule = cc_binary_rule,
