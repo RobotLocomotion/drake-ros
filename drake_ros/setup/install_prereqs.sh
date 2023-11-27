@@ -18,7 +18,7 @@ apt update
 
 apt install ros-dev-tools
 rosdep init || true
-rosdep update --rosdistro=humble
+rosdep update
 
 SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIRECTORY
