@@ -17,7 +17,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 apt update
 
 apt install ros-dev-tools
-rosdep init
+rosdep init || true
 rosdep update
 
 SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
