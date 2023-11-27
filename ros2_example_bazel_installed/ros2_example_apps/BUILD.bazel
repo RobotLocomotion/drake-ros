@@ -227,12 +227,12 @@ ros_py_test(
     data = [
         # Binaries to run.
         ":simple_talker",
-   ],
+    ],
     main = "test/custom_message_rosbag_test.py",
     deps = [
+        "rosbag_record_utility",
         "@bazel_tools//tools/python/runfiles",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
-        "rosbag_record_utility"
     ],
 )
 
