@@ -71,6 +71,7 @@ ros_py_test(
     name = "core_test",
     srcs = ["test/core_test.py"],
     main = "test/core_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
         ":test_pub_and_sub_cc_py",
@@ -86,6 +87,7 @@ ros_py_test(
     name = "tf2_test",
     srcs = ["test/tf2_test.py"],
     main = "test/tf2_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
         "@drake//bindings/pydrake",
@@ -99,6 +101,7 @@ ros_py_test(
     name = "viz_test",
     srcs = ["test/viz_test.py"],
     main = "test/viz_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
         "@drake//bindings/pydrake",
@@ -112,6 +115,7 @@ ros_py_test(
     name = "geometry_conversions_test",
     srcs = ["test/geometry_conversions_test.py"],
     main = "test/geometry_conversions_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
         "@drake//bindings/pydrake",
@@ -126,6 +130,7 @@ ros_py_test(
     name = "odr_py_test",
     srcs = ["test/odr_py_test.py"],
     main = "test/odr_py_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [":drake_ros_py"],
 )
 
@@ -157,6 +162,7 @@ ros_py_test(
     name = "ros_message_type_caster_test",
     srcs = ["test/ros_message_type_caster_test.py"],
     main = "test/ros_message_type_caster_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":ros_message_type_caster_test_via_all_py",
         ":ros_message_type_caster_test_via_specific_types_py",

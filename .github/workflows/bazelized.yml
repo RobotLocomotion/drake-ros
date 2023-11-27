@@ -15,7 +15,7 @@ jobs:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
     runs-on: ubuntu-22.04
     container:
-      image: ros:rolling-ros-base-jammy
+      image: ros:humble-ros-base-jammy
       # This is required for running lldb.
       # See https://stackoverflow.com/a/73613377/7829525
       options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
