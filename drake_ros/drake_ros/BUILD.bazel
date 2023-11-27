@@ -162,6 +162,7 @@ ros_py_test(
     name = "ros_message_type_caster_test",
     srcs = ["test/ros_message_type_caster_test.py"],
     main = "test/ros_message_type_caster_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":ros_message_type_caster_test_via_all_py",
         ":ros_message_type_caster_test_via_specific_types_py",
