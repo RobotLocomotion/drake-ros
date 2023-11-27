@@ -81,14 +81,12 @@ ROS2_PACKAGES = [
     # "rmw_fastrtps_cpp",
 ]
 
-ros2_local_repository(
-    name = "ros2" if not ROS2_DISTRO_PREFIX else "ros2_ignored",
-    include_packages = ROS2_PACKAGES,
-    workspaces = ["/opt/ros/humble"],
+RESOLVED_PREFIX = (
+    ROS2_DISTRO_PREFIX if ROS2_DISTRO_PREFIX else "/opt/ros/humble"
 )
 
 ros2_local_repository(
-    name = "ros2" if ROS2_DISTRO_PREFIX else "ros2_ignored",
+    name = "ros2",
     include_packages = ROS2_PACKAGES,
-    workspaces = [ROS2_DISTRO_PREFIX],
+    workspaces = [RESOLVED_PREFIX],
 )

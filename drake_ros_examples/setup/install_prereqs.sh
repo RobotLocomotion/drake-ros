@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uo pipefail
+set -euo pipefail
 
 apt update && apt install locales
 locale-gen en_US en_US.UTF-8
@@ -14,7 +14,7 @@ curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr
 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" |  tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
-apt update; apt upgrade
+apt update
 
 apt install ros-dev-tools ros-humble-rmw-cyclonedds-cpp ros-humble-rviz2 ros-humble-ros2cli-common-extensions
 
