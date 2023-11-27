@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -eux -o pipefail
 
 apt update && apt install locales
 locale-gen en_US en_US.UTF-8

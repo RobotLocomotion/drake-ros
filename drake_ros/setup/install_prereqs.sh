@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -eux -o pipefail
 
 apt update && apt install locales
 locale-gen en_US en_US.UTF-8
@@ -28,4 +28,3 @@ apt install ros-humble-test-msgs ros-humble-tf2-ros-py ros-humble-rmw-cyclonedds
 
 # Required for bazel_ros2_rules
 apt install python3 python3-toposort
-
