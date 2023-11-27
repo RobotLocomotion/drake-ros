@@ -205,10 +205,10 @@ ros_py_binary(
     name = "rosbag_record_utility",
     srcs = ["rosbag_record_utility.py"],
     data = [
-        "//ros2_example_common:ros2_example_common_msgs_sl_fastrtps_cpp",
+        # "//ros2_example_common:ros2_example_common_msgs_sl_fastrtps_cpp",
         "//ros2_example_common:ros2_example_common_msgs_sl_introspection_cpp",
         "//ros2_example_common:ros2_example_common_msgs_sl_typesupport_cpp",
-        "//ros2_example_apps:ros2_example_apps_msgs_sl_fastrtps_cpp",
+        # "//ros2_example_apps:ros2_example_apps_msgs_sl_fastrtps_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_introspection_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_typesupport_cpp",
         # Binaries to run.
