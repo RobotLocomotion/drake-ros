@@ -212,7 +212,6 @@ ros_py_binary(
         "//ros2_example_apps:ros2_example_apps_msgs_sl_introspection_cpp",
         "//ros2_example_apps:ros2_example_apps_msgs_sl_typesupport_cpp",
         # Binaries to run.
-        ":simple_talker",
         "@ros2",
     ],
     main = "ap_custom_msg_rosbag.py",
