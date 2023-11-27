@@ -194,11 +194,11 @@ cmd_test(
 ros_py_binary(
     name = "simple_talker",
     srcs = ["simple_talker.py"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":ros2_example_apps_msgs_py",
         "@ros2//:rclpy_py",
     ],
-    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 ros_py_binary(
@@ -215,10 +215,10 @@ ros_py_binary(
         "@ros2",
     ],
     main = "ap_custom_msg_rosbag.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
-    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 ros_py_test(
