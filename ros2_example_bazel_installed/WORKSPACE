@@ -72,6 +72,7 @@ ROS2_PACKAGES = [
     "rclpy",
     "ros2cli",
     "ros2cli_common_extensions",
+    "rosbag2",
     "rosidl_default_generators",
     "tf2_py",
 ] + [

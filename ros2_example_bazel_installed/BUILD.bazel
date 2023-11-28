@@ -85,3 +85,13 @@ ros_cc_test(
     srcs = ["test/use_console_bridge.cc"],
     deps = ["@ros2//:console_bridge_vendor_cc"],
 )
+
+# Provide a roll-up of all generated IDL types for `//tools:ros2`.
+py_library(
+    name = "ros_msgs_all_py",
+    visibility = ["__subpackages__"],
+    deps = [
+        "//ros2_example_apps:ros2_example_apps_msgs_py",
+        "//ros2_example_common:ros2_example_common_msgs_py",
+    ],
+)
