@@ -1,9 +1,11 @@
 set(HEADERS
+  "camera_info_system.h"
   "clock_system.h"
   "drake_ros.h"
   "geometry_conversions.h"
   "geometry_conversions_pybind.h"
   "publisher.h"
+  "rgbd_system.h"
   "ros_interface_system.h"
   "ros_publisher_system.h"
   "ros_subscriber_system.h"
@@ -19,10 +21,12 @@ foreach(hdr ${HEADERS})
 endforeach()
 
 add_library(drake_ros_core
+  camera_info_system.cc
   clock_system.cc
   drake_ros.cc
   geometry_conversions.cc
   publisher.cc
+  rgbd_system.cc
   ros_interface_system.cc
   ros_publisher_system.cc
   ros_subscriber_system.cc
@@ -36,6 +40,7 @@ target_link_libraries(drake_ros_core PUBLIC
   rclcpp::rclcpp
   rosidl_runtime_c::rosidl_runtime_c
   rosidl_typesupport_cpp::rosidl_typesupport_cpp
+  ${sensor_msgs_TARGETS}
 )
 
 target_include_directories(drake_ros_core

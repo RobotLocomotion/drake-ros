@@ -18,6 +18,7 @@ find_package(gflags REQUIRED COMPONENTS shared)
 add_subdirectory(examples/hydroelastic)
 add_subdirectory(examples/iiwa_manipulator)
 add_subdirectory(examples/multirobot)
+add_subdirectory(examples/rgbd)
 add_subdirectory(examples/rs_flip_flop)
 
 if(BUILD_TESTING)

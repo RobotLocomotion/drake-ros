@@ -1,0 +1,18 @@
+add_executable(rgbd rgbd.cpp)
+target_link_libraries(rgbd
+  drake::drake
+  drake_ros::drake_ros_core
+  drake_ros::drake_ros_viz
+  gflags_shared
+)
+
+install(
+  TARGETS
+  rgbd
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(FILES
+  rgbd.sdf
+  DESTINATION share/${PROJECT_NAME}/rgbd/
+)
