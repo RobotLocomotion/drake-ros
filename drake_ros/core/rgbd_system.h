@@ -21,7 +21,8 @@ using drake::systems::sensors::RgbdSensor;
 
 namespace drake_ros::core {
 
-/** A system that convert's drake's time to a sensor_msgs/msg/Image message.
+/** A system that convert's drake's RGBD camera to a sensor_msgs/msg/Image
+ * messages.
  */
 class RGBDSystem : public drake::systems::LeafSystem<double> {
  public:
@@ -47,12 +48,6 @@ class RGBDSystem : public drake::systems::LeafSystem<double> {
         : format(std::move(format_in)), pixel_type(pixel_type_in) {}
     const std::string format;
     const PixelType pixel_type;
-    // NOTE: This is made mutable as a low-cost mechanism for incrementing
-    // image writes without involving the overhead of discrete state.
-    mutable int count{0};
-    // TODO(SeanCurtis-TRI): For copying this system, it may be necessary to
-    // also store the period and start time so that the ports in the copy can
-    // be properly instantiated.
   };
 
   template <PixelType kPixelType>
@@ -65,14 +60,12 @@ class RGBDSystem : public drake::systems::LeafSystem<double> {
   // invariant that port_info_.size() == num_input_ports().
   std::vector<RgbdSensorPortInfo> port_info_;
 
-  // void SetSystem(RgbdSensor * rgbd_system);
-
   /** Add a RGBDSystem and RosPublisherSystem to a diagram builder.
    *
    * This adds both a RGBDSystem and a RosPublisherSystem that publishes
-   * time to a `/image` topic. All nodes should have their `use_sim_time`
-   * parameter set to `True` so they use the published topic as their source of
-   * time.
+   * time to a `/image` and `depth` topics. All nodes should have their
+   * `use_sim_time` parameter set to `True` so they use the published topic as
+   * their source of time.
    */
   static std::pair<RosPublisherSystem*, RosPublisherSystem*> AddToBuilder(
       drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,

@@ -15,7 +15,7 @@
 using drake::systems::sensors::CameraInfo;
 
 namespace drake_ros::core {
-/** A system that convert's drake's time to a sensor_msgs/msg/CameraInfo
+/** A system that convert's drake's camera info to a sensor_msgs/msg/CameraInfo
  * message.
  */
 class CameraInfoSystem : public drake::systems::LeafSystem<double> {
