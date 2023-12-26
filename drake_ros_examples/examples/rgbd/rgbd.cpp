@@ -4,7 +4,6 @@
 #include "drake/geometry/drake_visualizer.h"
 #include "drake/geometry/render_vtk/factory.h"
 #include "drake/geometry/scene_graph.h"
-#include "drake/lcm/drake_lcm.h"
 #include "drake/math/rigid_transform.h"
 #include "drake/multibody/parsing/parser.h"
 #include "drake/multibody/plant/multibody_plant.h"
@@ -12,10 +11,7 @@
 #include "drake/multibody/tree/revolute_joint.h"
 #include "drake/systems/analysis/simulator.h"
 #include "drake/systems/framework/diagram_builder.h"
-#include "drake/systems/lcm/lcm_publisher_system.h"
 #include "drake/systems/sensors/image.h"
-#include "drake/systems/sensors/image_to_lcm_image_array_t.h"
-#include "drake/systems/sensors/image_writer.h"
 #include "drake/systems/sensors/pixel_types.h"
 #include "drake/systems/sensors/rgbd_sensor.h"
 #include "drake/visualization/visualization_config_functions.h"
@@ -29,13 +25,7 @@
 #include <drake_ros/viz/rviz_visualizer.h>
 #include <gflags/gflags.h>
 
-namespace drake {
-namespace examples {
-namespace multibody {
-namespace cart_pole {
-namespace {
-
-using geometry::SceneGraph;
+using drake::geometry::SceneGraph;
 
 // "multibody" namespace is ambiguous here without "drake::".
 using drake::multibody::AddMultibodyPlantSceneGraph;
@@ -51,24 +41,17 @@ using drake_ros::core::RGBDSystem;
 using drake_ros::core::RosInterfaceSystem;
 using drake_ros::viz::RvizVisualizer;
 
-using geometry::render::ColorRenderCamera;
-using geometry::render::DepthRenderCamera;
+using drake::geometry::RenderEngineVtkParams;
+using drake::geometry::render::ColorRenderCamera;
+using drake::geometry::render::DepthRenderCamera;
 
 using drake::math::RigidTransformd;
 using drake::math::RollPitchYawd;
 using Eigen::Vector3d;
 
-using drake::lcm::DrakeLcm;
-
 using drake::systems::TriggerType;
-using drake::systems::lcm::LcmPublisherSystem;
-using drake::systems::sensors::ImageToLcmImageArrayT;
-using drake::systems::sensors::ImageWriter;
 using drake::systems::sensors::PixelType;
 using drake::systems::sensors::RgbdSensor;
-
-using drake::geometry::RenderEngineVtkParams;
-using drake::multibody::ContactModel;
 
 DEFINE_double(target_realtime_rate, 1.0,
               "Desired rate relative to real time.  See documentation for "
@@ -103,7 +86,7 @@ RigidTransformd ParseCameraPose(const std::string& input_str) {
 }
 
 int do_main() {
-  systems::DiagramBuilder<double> builder;
+  drake::systems::DiagramBuilder<double> builder;
 
   // Make and add the cart_pole model.
   auto [cart_pole, scene_graph] =
@@ -147,8 +130,6 @@ int do_main() {
       &builder, ros_interface_system->get_ros_interface(),
       "/depth/camera_info");
 
-  DrakeLcm lcm;
-  drake::geometry::DrakeVisualizerd::AddToBuilder(&builder, scene_graph, &lcm);
   const ColorRenderCamera color_camera{
       {"renderer", {640, 480, M_PI_4}, {0.01, 10.0}, {}}, false};
   const DepthRenderCamera depth_camera{color_camera.core(), {0.01, 10.0}};
@@ -168,39 +149,8 @@ int do_main() {
 
   // Broadcast images via LCM for visualization (requires #18862 to see them).
   const double image_publish_period = 1. / 30;
-  ImageToLcmImageArrayT* image_to_lcm_image_array =
-      builder.template AddSystem<ImageToLcmImageArrayT>();
-  image_to_lcm_image_array->set_name("converter");
-
-  LcmPublisherSystem* image_array_lcm_publisher{nullptr};
-  image_array_lcm_publisher =
-      builder.template AddSystem(LcmPublisherSystem::Make<lcmt_image_array>(
-          "DRAKE_RGBD_CAMERA_IMAGES", &lcm, image_publish_period));
-  image_array_lcm_publisher->set_name("publisher");
-
-  builder.Connect(image_to_lcm_image_array->image_array_t_msg_output_port(),
-                  image_array_lcm_publisher->get_input_port());
-
-  //   ImageWriter* image_writer{nullptr};
-  //   image_writer = builder.template AddSystem<ImageWriter>();
-
   RGBDSystem* rgbd_publisher{nullptr};
   rgbd_publisher = builder.template AddSystem<RGBDSystem>();
-
-  const std::string filename =
-      (std::filesystem::path("/home/ahcorde/drake_ros_ws/images") /
-       "{image_type}_{count:03}")
-          .string();
-
-  const auto& port =
-      image_to_lcm_image_array->DeclareImageInputPort<PixelType::kDepth32F>(
-          "depth");
-  builder.Connect(camera->depth_image_32F_output_port(), port);
-
-  const auto& port_color =
-      image_to_lcm_image_array->DeclareImageInputPort<PixelType::kRgba8U>(
-          "color");
-  builder.Connect(camera->color_image_output_port(), port_color);
 
   const auto& rgbd_port =
       rgbd_publisher->DeclareImageInputPort<PixelType::kRgba8U>(
@@ -222,16 +172,6 @@ int do_main() {
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_tf_broadcaster->get_graph_query_input_port());
 
-  //   const auto& writer_port =
-  //       image_writer->DeclareImageInputPort<PixelType::kDepth32F>(
-  //           "depth", filename, image_publish_period, 0.);
-  //   builder.Connect(camera->depth_image_32F_output_port(), writer_port);
-
-  //   const auto& writer_port_color =
-  //       image_writer->DeclareImageInputPort<PixelType::kRgba8U>(
-  //           "color", filename, image_publish_period, 0.);
-  //   builder.Connect(camera->color_image_output_port(), writer_port_color);
-
   auto [pub_color_system, pub_depth_system] = RGBDSystem::AddToBuilder(
       &builder, ros_interface_system->get_ros_interface());
 
@@ -242,16 +182,15 @@ int do_main() {
                   pub_depth_system->get_input_port());
 
   // Now the model is complete.
-  //   cart_pole.set_contact_model(ContactModel::kPoint);
   cart_pole.Finalize();
 
   auto diagram = builder.Build();
 
   // Create a context for this system:
-  std::unique_ptr<systems::Context<double>> diagram_context =
+  std::unique_ptr<drake::systems::Context<double>> diagram_context =
       diagram->CreateDefaultContext();
   diagram->SetDefaultContext(diagram_context.get());
-  systems::Context<double>& cart_pole_context =
+  drake::systems::Context<double>& cart_pole_context =
       diagram->GetMutableSubsystemContext(cart_pole, diagram_context.get());
 
   // There is no input actuation in this example for the passive dynamics.
@@ -267,7 +206,8 @@ int do_main() {
   cart_slider.set_translation(&cart_pole_context, 0.0);
   pole_pin.set_angle(&cart_pole_context, 2.0);
 
-  systems::Simulator<double> simulator(*diagram, std::move(diagram_context));
+  drake::systems::Simulator<double> simulator(*diagram,
+                                              std::move(diagram_context));
 
   simulator.set_publish_every_time_step(false);
   simulator.set_target_realtime_rate(FLAGS_target_realtime_rate);
@@ -277,17 +217,10 @@ int do_main() {
   return 0;
 }
 
-}  // namespace
-}  // namespace cart_pole
-}  // namespace multibody
-}  // namespace examples
-}  // namespace drake
-
 int main(int argc, char* argv[]) {
   gflags::SetUsageMessage(
       "A simple cart pole demo using Drake's MultibodyPlant,"
-      "with SceneGraph visualization. "
-      "Launch meldis before running this example.");
+      "publishing images and camera info in ROS 2.");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  return drake::examples::multibody::cart_pole::do_main();
+  return do_main();
 }
