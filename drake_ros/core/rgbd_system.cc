@@ -62,9 +62,10 @@ void RGBDSystem::CalcDepthImage(const drake::systems::Context<double>& context,
   float* depth_row_value = reinterpret_cast<float*>(&depth_value->data[0]);
 
   for (size_t x = 0; x < depth_value->data.size() / 4; ++x) {
-    depth_row_value[x] = depth_row[x];
     if (std::numeric_limits<float>::infinity() == depth_row[x]) {
       depth_row_value[x] = 0.0f;
+    } else {
+      depth_row_value[x] = depth_row[x];
     }
   }
 }
@@ -73,16 +74,13 @@ template <PixelType kPixelType>
 const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
     std::string port_name, double publish_period, double start_time) {
   // Test to confirm valid pixel type.
-  static_assert(kPixelType == PixelType::kRgba8U ||
-                    kPixelType == PixelType::kDepth32F ||
-                    kPixelType == PixelType::kDepth16U ||
-                    kPixelType == PixelType::kLabel16I ||
-                    kPixelType == PixelType::kGrey8U,
-                "ImageWriter: the only supported pixel types are: kRgba8U, "
-                "kDepth32F, kDepth16U, kGrey8U, and kLabel16I");
+  static_assert(
+      kPixelType == PixelType::kDepth32F || kPixelType == PixelType::kDepth16U,
+      "ImageWriter: the only supported pixel types are: kDepth32F "
+      "and kDepth16U");
 
   if (publish_period <= 0) {
-    throw std::logic_error("ImageWriter: publish period must be positive");
+    throw std::logic_error("RGBDSystem: publish period must be positive");
   }
 
   // Now configure the system for the valid port declaration.
@@ -108,16 +106,13 @@ template <PixelType kPixelType>
 const InputPort<double>& RGBDSystem::DeclareImageInputPort(
     std::string port_name, double publish_period, double start_time) {
   // Test to confirm valid pixel type.
-  static_assert(kPixelType == PixelType::kRgba8U ||
-                    kPixelType == PixelType::kDepth32F ||
-                    kPixelType == PixelType::kDepth16U ||
-                    kPixelType == PixelType::kLabel16I ||
-                    kPixelType == PixelType::kGrey8U,
-                "ImageWriter: the only supported pixel types are: kRgba8U, "
-                "kDepth32F, kDepth16U, kGrey8U, and kLabel16I");
+  static_assert(
+      kPixelType == PixelType::kRgba8U || kPixelType == PixelType::kGrey8U,
+      "RGBDSystem color image: the only supported pixel types are: kRgba8U "
+      "and kGrey8U");
 
   if (publish_period <= 0) {
-    throw std::logic_error("ImageWriter: publish period must be positive");
+    throw std::logic_error("RGBDSystem: publish period must be positive");
   }
 
   // Now configure the system for the valid port declaration.
@@ -144,18 +139,23 @@ void RGBDSystem::PubImage(const Context<double>& context, int index) const {
   const auto& port = get_input_port(index);
   const Image<kPixelType>& image = port.Eval<Image<kPixelType>>(context);
 
-  image_msgs.data.resize(image.width() * image.height() * 3);
+  int channels = 4;
+  std::string encoding = "rgba8";
+
+  if (kPixelType == PixelType::kRgba8U) {
+    channels = 4;
+    encoding = "rgba8";
+  } else if (kPixelType == PixelType::kGrey8U) {
+    channels = 1;
+    encoding = "mono8";
+  }
+
+  image_msgs.data.resize(image.width() * image.height() * channels);
   image_msgs.height = image.height();
   image_msgs.width = image.width();
-  image_msgs.step = image.width() * 3;
-  image_msgs.encoding = "rgb8";
-  for (int x = 0; x < image.width(); ++x) {
-    for (int y = 0; y < image.height(); ++y) {
-      image_msgs.data[3 * (image.width() * y + x)] = image.at(x, y)[0];
-      image_msgs.data[3 * (image.width() * y + x) + 1] = image.at(x, y)[1];
-      image_msgs.data[3 * (image.width() * y + x) + 2] = image.at(x, y)[2];
-    }
-  }
+  image_msgs.step = image.width() * channels;
+  image_msgs.encoding = encoding;
+  memcpy(&image_msgs.data[0], image.at(0, 0), image_msgs.data.size());
 }
 
 template <PixelType kPixelType>
@@ -163,18 +163,23 @@ void RGBDSystem::PubDepth(const Context<double>& context, int index) const {
   const auto& port = get_input_port(index);
   const Image<kPixelType>& image = port.Eval<Image<kPixelType>>(context);
 
-  depth_msgs.data.resize(image.width() * image.height() * sizeof(float));
+  std::string encoding = "32FC1";
+  int octets = sizeof(float);
+
+  if (kPixelType == PixelType::kDepth32F) {
+    encoding = "32FC1";
+    octets = sizeof(float);
+  } else if (kPixelType == PixelType::kDepth16U) {
+    encoding = "16UC1";
+    octets = sizeof(uint16_t);
+  }
+
+  depth_msgs.data.resize(image.width() * image.height() * octets);
   depth_msgs.height = image.height();
   depth_msgs.width = image.width();
-  depth_msgs.step = image.width() * sizeof(float);
-  depth_msgs.encoding = "32FC1";
-  float* depth_row = reinterpret_cast<float*>(&depth_msgs.data[0]);
-  for (int x = 0; x < image.width(); ++x) {
-    for (int y = 0; y < image.height(); ++y) {
-      float value = image.at(x, y)[0];
-      depth_row[image.width() * y + x] = value;
-    }
-  }
+  depth_msgs.step = image.width() * octets;
+  depth_msgs.encoding = encoding;
+  memcpy(&depth_msgs.data[0], image.at(0, 0), depth_msgs.data.size());
 }
 
 template const InputPort<double>&
@@ -182,78 +187,42 @@ RGBDSystem::DeclareImageInputPort<PixelType::kRgba8U>(std::string port_name,
                                                       double publish_period,
                                                       double start_time);
 template const InputPort<double>&
-RGBDSystem::DeclareImageInputPort<PixelType::kDepth32F>(std::string port_name,
-                                                        double publish_period,
-                                                        double start_time);
-template const InputPort<double>&
-RGBDSystem::DeclareImageInputPort<PixelType::kLabel16I>(std::string port_name,
-                                                        double publish_period,
-                                                        double start_time);
-template const InputPort<double>&
-RGBDSystem::DeclareImageInputPort<PixelType::kDepth16U>(std::string port_name,
-                                                        double publish_period,
-                                                        double start_time);
-template const InputPort<double>&
 RGBDSystem::DeclareImageInputPort<PixelType::kGrey8U>(std::string port_name,
                                                       double publish_period,
                                                       double start_time);
 
 template void RGBDSystem::PubImage<PixelType::kRgba8U>(
     const Context<double>& context, int index) const;
-template void RGBDSystem::PubImage<PixelType::kDepth32F>(
-    const Context<double>& context, int index) const;
-template void RGBDSystem::PubImage<PixelType::kLabel16I>(
-    const Context<double>& context, int index) const;
-template void RGBDSystem::PubImage<PixelType::kDepth16U>(
-    const Context<double>& context, int index) const;
 template void RGBDSystem::PubImage<PixelType::kGrey8U>(
     const Context<double>& context, int index) const;
 
 template const InputPort<double>&
-RGBDSystem::DeclareDepthInputPort<PixelType::kRgba8U>(std::string port_name,
-                                                      double publish_period,
-                                                      double start_time);
-template const InputPort<double>&
 RGBDSystem::DeclareDepthInputPort<PixelType::kDepth32F>(std::string port_name,
-                                                        double publish_period,
-                                                        double start_time);
-template const InputPort<double>&
-RGBDSystem::DeclareDepthInputPort<PixelType::kLabel16I>(std::string port_name,
                                                         double publish_period,
                                                         double start_time);
 template const InputPort<double>&
 RGBDSystem::DeclareDepthInputPort<PixelType::kDepth16U>(std::string port_name,
                                                         double publish_period,
                                                         double start_time);
-template const InputPort<double>&
-RGBDSystem::DeclareDepthInputPort<PixelType::kGrey8U>(std::string port_name,
-                                                      double publish_period,
-                                                      double start_time);
 
-template void RGBDSystem::PubDepth<PixelType::kRgba8U>(
-    const Context<double>& context, int index) const;
 template void RGBDSystem::PubDepth<PixelType::kDepth32F>(
     const Context<double>& context, int index) const;
-template void RGBDSystem::PubDepth<PixelType::kLabel16I>(
-    const Context<double>& context, int index) const;
 template void RGBDSystem::PubDepth<PixelType::kDepth16U>(
-    const Context<double>& context, int index) const;
-template void RGBDSystem::PubDepth<PixelType::kGrey8U>(
     const Context<double>& context, int index) const;
 
 std::pair<RosPublisherSystem*, RosPublisherSystem*> RGBDSystem::AddToBuilder(
     drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
-    const std::string& topic_name, const rclcpp::QoS& qos,
+    const std::string& color_topic_name, const std::string& depth_topic_name,
+    const rclcpp::QoS& qos,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
     double publish_period) {
-  // std::cout << "Add To builder" << std::endl;
   auto* pub_color_system =
       builder->AddSystem(RosPublisherSystem::Make<sensor_msgs::msg::Image>(
-          topic_name, qos, ros, publish_triggers, publish_period));
+          color_topic_name, qos, ros, publish_triggers, publish_period));
 
   auto* pub_depth_system =
       builder->AddSystem(RosPublisherSystem::Make<sensor_msgs::msg::Image>(
-          "depth", qos, ros, publish_triggers, publish_period));
+          depth_topic_name, qos, ros, publish_triggers, publish_period));
 
   return {pub_color_system, pub_depth_system};
 }

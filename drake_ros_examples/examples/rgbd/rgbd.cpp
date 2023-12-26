@@ -104,9 +104,7 @@ int do_main() {
       parser.package_map().GetPath("drake_ros_examples")};
 
   const std::string sdf_url = (fs_path / "rgbd/rgbd.sdf").string();
-  Parser(&cart_pole, &scene_graph).AddAllModelsFromFile(sdf_url);
-
-  // visualization::AddDefaultVisualization(&builder);
+  Parser(&cart_pole, &scene_graph).AddModels(sdf_url);
 
   drake_ros::core::init();
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
@@ -134,7 +132,7 @@ int do_main() {
       {"renderer", {640, 480, M_PI_4}, {0.01, 10.0}, {}}, false};
   const DepthRenderCamera depth_camera{color_camera.core(), {0.01, 10.0}};
   const RigidTransformd X_WB =
-      ParseCameraPose("0.8, 0.0, 0.7, -2.2, 0.0, 1.57");
+      ParseCameraPose("0.0, 1.0, -0.12, 1.57, 3.14, 0.0");
 
   std::get<0>(camera_info_system)
       ->SetCameraInfo(color_camera.core().intrinsics());
@@ -147,7 +145,6 @@ int do_main() {
   builder.Connect(scene_graph.get_query_output_port(),
                   camera->query_object_input_port());
 
-  // Broadcast images via LCM for visualization (requires #18862 to see them).
   const double image_publish_period = 1. / 30;
   RGBDSystem* rgbd_publisher{nullptr};
   rgbd_publisher = builder.template AddSystem<RGBDSystem>();
