@@ -5,16 +5,16 @@
 using drake_ros::core::CameraInfoSystem;
 using drake_ros::core::RosPublisherSystem;
 
-CameraInfoSystem::CameraInfoSystem(): camera_info(1, 1, 1, 1, 0.5, 0.5) {
-  DeclareAbstractOutputPort("CameraInfoSystem", &CameraInfoSystem::CalcCameraInfo);
+CameraInfoSystem::CameraInfoSystem() : camera_info(1, 1, 1, 1, 0.5, 0.5) {
+  DeclareAbstractOutputPort("CameraInfoSystem",
+                            &CameraInfoSystem::CalcCameraInfo);
 }
 
 CameraInfoSystem::~CameraInfoSystem() {}
 
 void CameraInfoSystem::CalcCameraInfo(
     const drake::systems::Context<double>& context,
-    sensor_msgs::msg::CameraInfo* output_value) const
-{
+    sensor_msgs::msg::CameraInfo* output_value) const {
   rclcpp::Time now{0, 0, RCL_ROS_TIME};
   now += rclcpp::Duration::from_seconds(context.get_time());
   output_value->header.stamp = now;
@@ -45,17 +45,16 @@ void CameraInfoSystem::CalcCameraInfo(
   output_value->p[10] = 1.0;
 }
 
-void CameraInfoSystem::SetCameraInfo(const CameraInfo & _camera_info)
-{
+void CameraInfoSystem::SetCameraInfo(const CameraInfo& _camera_info) {
   this->camera_info = _camera_info;
 }
 
-std::tuple<CameraInfoSystem*, RosPublisherSystem*> CameraInfoSystem::AddToBuilder(
+std::tuple<CameraInfoSystem*, RosPublisherSystem*>
+CameraInfoSystem::AddToBuilder(
     drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
     const std::string& topic_name, const rclcpp::QoS& qos,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
-    double publish_period)
-{
+    double publish_period) {
   auto* camera_info_system = builder->AddSystem<CameraInfoSystem>();
 
   auto* pub_system =

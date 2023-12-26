@@ -1,39 +1,33 @@
 #include <memory>
 
-#include <gflags/gflags.h>
-
-#include <ament_index_cpp/get_package_share_directory.hpp>
-
 #include "drake/common/drake_assert.h"
+#include "drake/geometry/drake_visualizer.h"
+#include "drake/geometry/render_vtk/factory.h"
 #include "drake/geometry/scene_graph.h"
+#include "drake/lcm/drake_lcm.h"
+#include "drake/math/rigid_transform.h"
 #include "drake/multibody/parsing/parser.h"
 #include "drake/multibody/plant/multibody_plant.h"
 #include "drake/multibody/tree/prismatic_joint.h"
 #include "drake/multibody/tree/revolute_joint.h"
 #include "drake/systems/analysis/simulator.h"
 #include "drake/systems/framework/diagram_builder.h"
-#include "drake/visualization/visualization_config_functions.h"
-
-#include <drake_ros/core/drake_ros.h>
-#include <drake_ros/core/ros_interface_system.h>
-#include <drake_ros/core/camera_info_system.h>
-#include <drake_ros/core/clock_system.h>
-#include <drake_ros/core/rgbd_system.h>
-#include <drake_ros/viz/rviz_visualizer.h>
-
 #include "drake/systems/lcm/lcm_publisher_system.h"
 #include "drake/systems/sensors/image.h"
 #include "drake/systems/sensors/image_to_lcm_image_array_t.h"
 #include "drake/systems/sensors/image_writer.h"
 #include "drake/systems/sensors/pixel_types.h"
 #include "drake/systems/sensors/rgbd_sensor.h"
+#include "drake/visualization/visualization_config_functions.h"
+#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <drake_ros/core/camera_info_system.h>
+#include <drake_ros/core/clock_system.h>
+#include <drake_ros/core/drake_ros.h>
+#include <drake_ros/core/rgbd_system.h>
+#include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/tf2/scene_tf_broadcaster_system.h>
-
-#include "drake/geometry/drake_visualizer.h"
-
-#include "drake/geometry/render_vtk/factory.h"
-#include "drake/math/rigid_transform.h"
-#include "drake/lcm/drake_lcm.h"
+#include <drake_ros/viz/rviz_visualizer.h>
+#include <gflags/gflags.h>
 
 namespace drake {
 namespace examples {
@@ -52,27 +46,26 @@ using drake::multibody::RevoluteJoint;
 
 using drake_ros::core::CameraInfoSystem;
 using drake_ros::core::ClockSystem;
-using drake_ros::core::RGBDSystem;
 using drake_ros::core::DrakeRos;
+using drake_ros::core::RGBDSystem;
 using drake_ros::core::RosInterfaceSystem;
 using drake_ros::viz::RvizVisualizer;
-
 
 using geometry::render::ColorRenderCamera;
 using geometry::render::DepthRenderCamera;
 
-using Eigen::Vector3d;
 using drake::math::RigidTransformd;
 using drake::math::RollPitchYawd;
+using Eigen::Vector3d;
 
 using drake::lcm::DrakeLcm;
 
-using drake::systems::sensors::PixelType;
-using drake::systems::sensors::RgbdSensor;
+using drake::systems::TriggerType;
 using drake::systems::lcm::LcmPublisherSystem;
 using drake::systems::sensors::ImageToLcmImageArrayT;
 using drake::systems::sensors::ImageWriter;
-using drake::systems::TriggerType;
+using drake::systems::sensors::PixelType;
+using drake::systems::sensors::RgbdSensor;
 
 using drake::geometry::RenderEngineVtkParams;
 using drake::multibody::ContactModel;
@@ -85,9 +78,9 @@ DEFINE_double(simulation_time, 100.0,
               "Desired duration of the simulation in seconds.");
 
 DEFINE_double(time_step, 0,
-            "If greater than zero, the plant is modeled as a system with "
-            "discrete updates and period equal to this time_step. "
-            "If 0, the plant is modeled as a continuous system.");
+              "If greater than zero, the plant is modeled as a system with "
+              "discrete updates and period equal to this time_step. "
+              "If 0, the plant is modeled as a continuous system.");
 
 RigidTransformd ParseCameraPose(const std::string& input_str) {
   const char delimiter = ',';
@@ -117,7 +110,7 @@ int do_main() {
       AddMultibodyPlantSceneGraph(&builder, FLAGS_time_step);
 
   scene_graph.AddRenderer("renderer",
-                           MakeRenderEngineVtk(RenderEngineVtkParams()));
+                          MakeRenderEngineVtk(RenderEngineVtkParams()));
 
   auto parser = Parser(&cart_pole);
 
@@ -127,8 +120,7 @@ int do_main() {
   std::filesystem::path fs_path{
       parser.package_map().GetPath("drake_ros_examples")};
 
-  const std::string sdf_url =
-      (fs_path / "rgbd/rgbd.sdf").string();
+  const std::string sdf_url = (fs_path / "rgbd/rgbd.sdf").string();
   Parser(&cart_pole, &scene_graph).AddAllModelsFromFile(sdf_url);
 
   // visualization::AddDefaultVisualization(&builder);
@@ -148,22 +140,25 @@ int do_main() {
   ClockSystem::AddToBuilder(&builder,
                             ros_interface_system->get_ros_interface());
 
-  auto camera_info_system = CameraInfoSystem::AddToBuilder(&builder,
-                                 ros_interface_system->get_ros_interface());
+  auto camera_info_system = CameraInfoSystem::AddToBuilder(
+      &builder, ros_interface_system->get_ros_interface());
 
-  auto depth_camera_info_system = CameraInfoSystem::AddToBuilder(&builder,
-                                 ros_interface_system->get_ros_interface(),
-                                 "/depth/camera_info");
+  auto depth_camera_info_system = CameraInfoSystem::AddToBuilder(
+      &builder, ros_interface_system->get_ros_interface(),
+      "/depth/camera_info");
 
   DrakeLcm lcm;
   drake::geometry::DrakeVisualizerd::AddToBuilder(&builder, scene_graph, &lcm);
   const ColorRenderCamera color_camera{
       {"renderer", {640, 480, M_PI_4}, {0.01, 10.0}, {}}, false};
   const DepthRenderCamera depth_camera{color_camera.core(), {0.01, 10.0}};
-  const RigidTransformd X_WB = ParseCameraPose("0.8, 0.0, 0.7, -2.2, 0.0, 1.57");
+  const RigidTransformd X_WB =
+      ParseCameraPose("0.8, 0.0, 0.7, -2.2, 0.0, 1.57");
 
-  std::get<0>(camera_info_system)->SetCameraInfo(color_camera.core().intrinsics());
-  std::get<0>(depth_camera_info_system)->SetCameraInfo(depth_camera.core().intrinsics());
+  std::get<0>(camera_info_system)
+      ->SetCameraInfo(color_camera.core().intrinsics());
+  std::get<0>(depth_camera_info_system)
+      ->SetCameraInfo(depth_camera.core().intrinsics());
 
   const auto world_id = scene_graph.world_frame_id();
   RgbdSensor* camera =
@@ -186,14 +181,15 @@ int do_main() {
   builder.Connect(image_to_lcm_image_array->image_array_t_msg_output_port(),
                   image_array_lcm_publisher->get_input_port());
 
-//   ImageWriter* image_writer{nullptr};
-//   image_writer = builder.template AddSystem<ImageWriter>();
+  //   ImageWriter* image_writer{nullptr};
+  //   image_writer = builder.template AddSystem<ImageWriter>();
 
   RGBDSystem* rgbd_publisher{nullptr};
   rgbd_publisher = builder.template AddSystem<RGBDSystem>();
 
   const std::string filename =
-      (std::filesystem::path("/home/ahcorde/drake_ros_ws/images") / "{image_type}_{count:03}")
+      (std::filesystem::path("/home/ahcorde/drake_ros_ws/images") /
+       "{image_type}_{count:03}")
           .string();
 
   const auto& port =
@@ -226,19 +222,18 @@ int do_main() {
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_tf_broadcaster->get_graph_query_input_port());
 
-//   const auto& writer_port =
-//       image_writer->DeclareImageInputPort<PixelType::kDepth32F>(
-//           "depth", filename, image_publish_period, 0.);
-//   builder.Connect(camera->depth_image_32F_output_port(), writer_port);
+  //   const auto& writer_port =
+  //       image_writer->DeclareImageInputPort<PixelType::kDepth32F>(
+  //           "depth", filename, image_publish_period, 0.);
+  //   builder.Connect(camera->depth_image_32F_output_port(), writer_port);
 
-//   const auto& writer_port_color =
-//       image_writer->DeclareImageInputPort<PixelType::kRgba8U>(
-//           "color", filename, image_publish_period, 0.);
-//   builder.Connect(camera->color_image_output_port(), writer_port_color);
+  //   const auto& writer_port_color =
+  //       image_writer->DeclareImageInputPort<PixelType::kRgba8U>(
+  //           "color", filename, image_publish_period, 0.);
+  //   builder.Connect(camera->color_image_output_port(), writer_port_color);
 
-  auto [pub_color_system, pub_depth_system] =
-    RGBDSystem::AddToBuilder(&builder,
-                             ros_interface_system->get_ros_interface());
+  auto [pub_color_system, pub_depth_system] = RGBDSystem::AddToBuilder(
+      &builder, ros_interface_system->get_ros_interface());
 
   builder.Connect(rgbd_publisher->GetOutputPort("rgbd_color"),
                   pub_color_system->get_input_port());
@@ -247,7 +242,7 @@ int do_main() {
                   pub_depth_system->get_input_port());
 
   // Now the model is complete.
-//   cart_pole.set_contact_model(ContactModel::kPoint);
+  //   cart_pole.set_contact_model(ContactModel::kPoint);
   cart_pole.Finalize();
 
   auto diagram = builder.Build();

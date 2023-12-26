@@ -7,16 +7,16 @@
 
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/sensors/camera_info.h>
 #include <drake_ros/core/ros_publisher_system.h>
 #include <rclcpp/qos.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 
-#include <drake/systems/sensors/camera_info.h>
-
 using drake::systems::sensors::CameraInfo;
 
 namespace drake_ros::core {
-/** A system that convert's drake's time to a sensor_msgs/msg/CameraInfo message.
+/** A system that convert's drake's time to a sensor_msgs/msg/CameraInfo
+ * message.
  */
 class CameraInfoSystem : public drake::systems::LeafSystem<double> {
  public:
@@ -26,14 +26,14 @@ class CameraInfoSystem : public drake::systems::LeafSystem<double> {
 
   ~CameraInfoSystem() override;
 
-  void SetCameraInfo(const CameraInfo & _camera_info);
+  void SetCameraInfo(const CameraInfo& _camera_info);
 
   /** Add a CameraInfoSystem and RosPublisherSystem to a diagram builder.
    *
    * This adds both a CameraInfoSystem and a RosPublisherSystem that publishes
-   * time to a `/image/camera_info` topic. All nodes should have their `use_sim_time`
-   * parameter set to `True` so they use the published topic as their source
-   * of time.
+   * time to a `/image/camera_info` topic. All nodes should have their
+   * `use_sim_time` parameter set to `True` so they use the published topic as
+   * their source of time.
    */
   static std::tuple<CameraInfoSystem*, RosPublisherSystem*> AddToBuilder(
       drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
@@ -44,7 +44,7 @@ class CameraInfoSystem : public drake::systems::LeafSystem<double> {
       double publish_period = 0.0);
 
  private:
-    CameraInfo camera_info;
+  CameraInfo camera_info;
 
  protected:
   void CalcCameraInfo(const drake::systems::Context<double>& context,
