@@ -15,7 +15,7 @@ jobs:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Free up space
         run: .github/runner_free_space.sh
 
