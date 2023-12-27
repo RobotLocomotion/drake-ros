@@ -11,8 +11,8 @@
 #include "drake_ros/core/drake_ros.h"
 #include "drake_ros/core/geometry_conversions.h"
 #include "drake_ros/core/geometry_conversions_pybind.h"
-#include "drake_ros/core/rgbd_system.h"
 #include "drake_ros/core/qos_pybind.h"
+#include "drake_ros/core/rgbd_system.h"
 #include "drake_ros/core/ros_interface_system.h"
 #include "drake_ros/core/ros_publisher_system.h"
 #include "drake_ros/core/ros_subscriber_system.h"
@@ -182,33 +182,27 @@ void DefCore(py::module m) {
   py::class_<RGBDSystem, LeafSystem<double>>(m, "RGBDSystem")
       .def(py::init<>())
       .def(
-            "DeclareImageInputPort",
-            [](RGBDSystem& self,
-                drake::systems::sensors::PixelType pixel_type,
-                std::string port_name,
-                double publish_period,
-                double start_time) -> const drake::systems::InputPort<double>& {
-              return self.DeclareImageInputPort(pixel_type,
-                  std::move(port_name),
-                  publish_period, start_time);
-            },
-            py::arg("pixel_type"), py::arg("port_name"),
-            py::arg("publish_period"),
-            py::arg("start_time"), py_rvp::reference_internal)
+          "DeclareImageInputPort",
+          [](RGBDSystem& self, drake::systems::sensors::PixelType pixel_type,
+             std::string port_name, double publish_period,
+             double start_time) -> const drake::systems::InputPort<double>& {
+            return self.DeclareImageInputPort(pixel_type, std::move(port_name),
+                                              publish_period, start_time);
+          },
+          py::arg("pixel_type"), py::arg("port_name"),
+          py::arg("publish_period"), py::arg("start_time"),
+          py_rvp::reference_internal)
       .def(
-            "DeclareDepthInputPort",
-            [](RGBDSystem& self,
-                drake::systems::sensors::PixelType pixel_type,
-                std::string port_name,
-                double publish_period,
-                double start_time) -> const drake::systems::InputPort<double>& {
-              return self.DeclareDepthInputPort(pixel_type,
-                  std::move(port_name),
-                  publish_period, start_time);
-            },
-            py::arg("pixel_type"), py::arg("port_name"),
-            py::arg("publish_period"),
-            py::arg("start_time"), py_rvp::reference_internal)
+          "DeclareDepthInputPort",
+          [](RGBDSystem& self, drake::systems::sensors::PixelType pixel_type,
+             std::string port_name, double publish_period,
+             double start_time) -> const drake::systems::InputPort<double>& {
+            return self.DeclareDepthInputPort(pixel_type, std::move(port_name),
+                                              publish_period, start_time);
+          },
+          py::arg("pixel_type"), py::arg("port_name"),
+          py::arg("publish_period"), py::arg("start_time"),
+          py_rvp::reference_internal)
       .def_static(
           "AddToBuilder",
           [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
@@ -218,7 +212,8 @@ void DefCore(py::module m) {
                  pub_triggers,
              double publish_period) {
             auto [rgba_system, pub_system] = RGBDSystem::AddToBuilder(
-                builder, ros, topic_name, depth_topic_name, qos, pub_triggers, publish_period);
+                builder, ros, topic_name, depth_topic_name, qos, pub_triggers,
+                publish_period);
 
             py::object py_builder = py::cast(builder, py_rvp::reference);
             py::list result;

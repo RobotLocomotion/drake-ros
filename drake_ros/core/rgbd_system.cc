@@ -71,8 +71,8 @@ void RGBDSystem::CalcDepthImage(const drake::systems::Context<double>& context,
 }
 
 const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
-    PixelType pixel_type, std::string port_name,
-    double publish_period, double start_time) {
+    PixelType pixel_type, std::string port_name, double publish_period,
+    double start_time) {
   switch (pixel_type) {
     case PixelType::kRgb8U:
       break;
@@ -85,13 +85,11 @@ const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
       break;
     case PixelType::kDepth16U: {
       return this->template DeclareDepthInputPort<PixelType::kDepth32F>(
-          std::move(port_name), publish_period,
-          start_time);
+          std::move(port_name), publish_period, start_time);
     }
     case PixelType::kDepth32F: {
       return this->template DeclareDepthInputPort<PixelType::kDepth32F>(
-          std::move(port_name), publish_period,
-          start_time);
+          std::move(port_name), publish_period, start_time);
     }
     case PixelType::kLabel16I: {
       break;
@@ -140,8 +138,8 @@ const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
 }
 
 const InputPort<double>& RGBDSystem::DeclareImageInputPort(
-    PixelType pixel_type, std::string port_name,
-    double publish_period, double start_time) {
+    PixelType pixel_type, std::string port_name, double publish_period,
+    double start_time) {
   switch (pixel_type) {
     case PixelType::kRgb8U:
       break;
@@ -149,8 +147,7 @@ const InputPort<double>& RGBDSystem::DeclareImageInputPort(
       break;
     case PixelType::kRgba8U: {
       return this->template DeclareImageInputPort<PixelType::kRgba8U>(
-          std::move(port_name), publish_period,
-          start_time);
+          std::move(port_name), publish_period, start_time);
     }
     case PixelType::kBgra8U:
       break;
@@ -165,8 +162,7 @@ const InputPort<double>& RGBDSystem::DeclareImageInputPort(
     }
     case PixelType::kGrey8U: {
       return this->template DeclareImageInputPort<PixelType::kGrey8U>(
-          std::move(port_name), publish_period,
-          start_time);
+          std::move(port_name), publish_period, start_time);
     }
     default:
       break;
