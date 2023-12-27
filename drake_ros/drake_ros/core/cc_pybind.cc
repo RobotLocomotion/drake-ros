@@ -6,6 +6,7 @@
 #include <pybind11/stl.h>
 #include <rclcpp/qos.hpp>
 
+#include "drake_ros/core/camera_info_system.h"
 #include "drake_ros/core/clock_system.h"
 #include "drake_ros/core/drake_ros.h"
 #include "drake_ros/core/geometry_conversions.h"
@@ -20,6 +21,7 @@
 namespace drake_ros {
 namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
+using drake_ros::core::CameraInfoSystem;
 using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
 using drake_ros::core::init;
@@ -95,6 +97,35 @@ void DefCore(py::module m) {
   // C++ docstrings. Consider using mkdoc to keep
   // them in sync, like pydrake does.
   py::class_<DrakeRos>(m, "DrakeRos");
+
+  py::class_<CameraInfoSystem, LeafSystem<double>>(m, "CameraInfoSystem")
+      .def_static(
+          "AddToBuilder",
+          [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
+             const std::string& topic_name, const QoS& qos,
+             const std::unordered_set<drake::systems::TriggerType>&
+                 pub_triggers,
+             double publish_period) {
+            auto [camera_info_system, pub_system] =
+                CameraInfoSystem::AddToBuilder(builder, ros, topic_name, qos,
+                                               pub_triggers, publish_period);
+
+            py::object py_builder = py::cast(builder, py_rvp::reference);
+            py::list result;
+            result.append(py::cast(camera_info_system,
+                                   py_rvp::reference_internal, py_builder));
+            result.append(
+                py::cast(pub_system, py_rvp::reference_internal, py_builder));
+            return result;
+          },
+          py::arg("builder"), py::arg("ros"), py::kw_only(),
+          py::arg("topic_name") = std::string{"/image/camera_info"},
+          py::arg("qos") = drake_ros::QoS(rclcpp::SensorDataQoS()),
+          py::arg("publish_triggers") =
+              std::unordered_set<drake::systems::TriggerType>{
+                  RosPublisherSystem::kDefaultTriggerTypes},
+          py::arg("publish_period") = 0.0)
+      .def("set_camera_info", &CameraInfoSystem::SetCameraInfo);
 
   py::class_<ClockSystem, LeafSystem<double>>(m, "ClockSystem")
       .def_static(
