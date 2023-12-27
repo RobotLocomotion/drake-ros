@@ -6,6 +6,7 @@ from drake_ros._cc.core import init
 from drake_ros._cc.core import Isometry3ToRosPose
 from drake_ros._cc.core import Isometry3ToRosTransform
 from drake_ros._cc.core import QuaternionToRosQuaternion
+from drake_ros._cc.core import RGBDSystem
 from drake_ros._cc.core import RigidTransformToRosPose
 from drake_ros._cc.core import RigidTransformToRosTransform
 from drake_ros._cc.core import RosAccelToSpatialAcceleration
@@ -106,6 +107,7 @@ __all__ = [
     'Isometry3ToRosTransform',
     'PySerializer',
     'QuaternionToRosQuaternion',
+    'RGBDSystem',
     'RigidTransformToRosPose',
     'RigidTransformToRosTransform',
     'RosAccelToSpatialAcceleration',

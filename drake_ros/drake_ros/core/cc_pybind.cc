@@ -11,6 +11,7 @@
 #include "drake_ros/core/drake_ros.h"
 #include "drake_ros/core/geometry_conversions.h"
 #include "drake_ros/core/geometry_conversions_pybind.h"
+#include "drake_ros/core/rgbd_system.h"
 #include "drake_ros/core/qos_pybind.h"
 #include "drake_ros/core/ros_interface_system.h"
 #include "drake_ros/core/ros_publisher_system.h"
@@ -25,6 +26,7 @@ using drake_ros::core::CameraInfoSystem;
 using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
 using drake_ros::core::init;
+using drake_ros::core::RGBDSystem;
 using drake_ros::core::RosInterfaceSystem;
 using drake_ros::core::RosPublisherSystem;
 using drake_ros::core::RosSubscriberSystem;
@@ -35,6 +37,29 @@ using drake::systems::LeafSystem;
 using drake::systems::TriggerType;
 
 using py_rvp = pybind11::return_value_policy;
+
+// Implementation for `overload_cast_explicit`. We must use this structure so
+// that we can constrain what is inferred. Otherwise, the ambiguity confuses
+// the compiler.
+template <typename Return, typename... Args>
+struct overload_cast_impl {
+  auto operator()(Return (*func)(Args...)) const { return func; }
+
+  template <typename Class>
+  auto operator()(Return (Class::*method)(Args...)) const {
+    return method;
+  }
+
+  template <typename Class>
+  auto operator()(Return (Class::*method)(Args...) const) const {
+    return method;
+  }
+};
+
+/// Provides option to provide explicit signature when
+/// `py::overload_cast<Args...>` fails to infer the Return argument.
+template <typename Return, typename... Args>
+constexpr auto overload_cast_explicit = overload_cast_impl<Return, Args...>{};
 
 // A (de)serialization interface implementation for Python ROS messages
 // that can be overriden from Python itself.
@@ -149,6 +174,64 @@ void DefCore(py::module m) {
           py::arg("builder"), py::arg("ros"), py::kw_only(),
           py::arg("topic_name") = std::string{"/clock"},
           py::arg("qos") = drake_ros::QoS(rclcpp::ClockQoS()),
+          py::arg("publish_triggers") =
+              std::unordered_set<drake::systems::TriggerType>{
+                  RosPublisherSystem::kDefaultTriggerTypes},
+          py::arg("publish_period") = 0.0);
+
+  py::class_<RGBDSystem, LeafSystem<double>>(m, "RGBDSystem")
+      .def(py::init<>())
+      .def(
+            "DeclareImageInputPort",
+            [](RGBDSystem& self,
+                drake::systems::sensors::PixelType pixel_type,
+                std::string port_name,
+                double publish_period,
+                double start_time) -> const drake::systems::InputPort<double>& {
+              return self.DeclareImageInputPort(pixel_type,
+                  std::move(port_name),
+                  publish_period, start_time);
+            },
+            py::arg("pixel_type"), py::arg("port_name"),
+            py::arg("publish_period"),
+            py::arg("start_time"), py_rvp::reference_internal)
+      .def(
+            "DeclareDepthInputPort",
+            [](RGBDSystem& self,
+                drake::systems::sensors::PixelType pixel_type,
+                std::string port_name,
+                double publish_period,
+                double start_time) -> const drake::systems::InputPort<double>& {
+              return self.DeclareDepthInputPort(pixel_type,
+                  std::move(port_name),
+                  publish_period, start_time);
+            },
+            py::arg("pixel_type"), py::arg("port_name"),
+            py::arg("publish_period"),
+            py::arg("start_time"), py_rvp::reference_internal)
+      .def_static(
+          "AddToBuilder",
+          [](drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
+             const std::string& topic_name, const std::string& depth_topic_name,
+             const QoS& qos,
+             const std::unordered_set<drake::systems::TriggerType>&
+                 pub_triggers,
+             double publish_period) {
+            auto [rgba_system, pub_system] = RGBDSystem::AddToBuilder(
+                builder, ros, topic_name, depth_topic_name, qos, pub_triggers, publish_period);
+
+            py::object py_builder = py::cast(builder, py_rvp::reference);
+            py::list result;
+            result.append(
+                py::cast(rgba_system, py_rvp::reference_internal, py_builder));
+            result.append(
+                py::cast(pub_system, py_rvp::reference_internal, py_builder));
+            return result;
+          },
+          py::arg("builder"), py::arg("ros"), py::kw_only(),
+          py::arg("topic_name") = std::string{"/image"},
+          py::arg("depth_topic_name") = std::string{"/depth"},
+          py::arg("qos") = drake_ros::QoS(rclcpp::SystemDefaultsQoS()),
           py::arg("publish_triggers") =
               std::unordered_set<drake::systems::TriggerType>{
                   RosPublisherSystem::kDefaultTriggerTypes},

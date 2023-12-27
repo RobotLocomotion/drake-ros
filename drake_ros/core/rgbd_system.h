@@ -32,11 +32,20 @@ class RGBDSystem : public drake::systems::LeafSystem<double> {
 
   ~RGBDSystem() override;
 
+  const InputPort<double>& DeclareImageInputPort(PixelType pixel_type,
+                                                 std::string port_name,
+                                                 double publish_period,
+                                                 double start_time);
+
   template <PixelType kPixelType>
   const InputPort<double>& DeclareImageInputPort(std::string port_name,
                                                  double publish_period,
                                                  double start_time);
 
+  const InputPort<double>& DeclareDepthInputPort(PixelType pixel_type,
+                                                 std::string port_name,
+                                                 double publish_period,
+                                                 double start_time);
   template <PixelType kPixelType>
   const InputPort<double>& DeclareDepthInputPort(std::string port_name,
                                                  double publish_period,

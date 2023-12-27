@@ -70,6 +70,43 @@ void RGBDSystem::CalcDepthImage(const drake::systems::Context<double>& context,
   }
 }
 
+const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
+    PixelType pixel_type, std::string port_name,
+    double publish_period, double start_time) {
+  switch (pixel_type) {
+    case PixelType::kRgb8U:
+      break;
+    case PixelType::kBgr8U:
+      break;
+    case PixelType::kRgba8U: {
+      break;
+    }
+    case PixelType::kBgra8U:
+      break;
+    case PixelType::kDepth16U: {
+      return this->template DeclareDepthInputPort<PixelType::kDepth32F>(
+          std::move(port_name), publish_period,
+          start_time);
+    }
+    case PixelType::kDepth32F: {
+      return this->template DeclareDepthInputPort<PixelType::kDepth32F>(
+          std::move(port_name), publish_period,
+          start_time);
+    }
+    case PixelType::kLabel16I: {
+      break;
+    }
+    case PixelType::kGrey8U: {
+      break;
+    }
+    default:
+      break;
+  }
+  throw std::logic_error(fmt::format(
+      "RGBDSystem::DeclareDepthInputPort does not support pixel_type={}",
+      static_cast<int>(pixel_type)));
+}
+
 template <PixelType kPixelType>
 const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
     std::string port_name, double publish_period, double start_time) {
@@ -100,6 +137,43 @@ const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
   DeclarePeriodicEvent<PublishEvent<double>>(publish_period, start_time, event);
   port_info_.emplace_back("depth", kPixelType);
   return port;
+}
+
+const InputPort<double>& RGBDSystem::DeclareImageInputPort(
+    PixelType pixel_type, std::string port_name,
+    double publish_period, double start_time) {
+  switch (pixel_type) {
+    case PixelType::kRgb8U:
+      break;
+    case PixelType::kBgr8U:
+      break;
+    case PixelType::kRgba8U: {
+      return this->template DeclareImageInputPort<PixelType::kRgba8U>(
+          std::move(port_name), publish_period,
+          start_time);
+    }
+    case PixelType::kBgra8U:
+      break;
+    case PixelType::kDepth16U: {
+      break;
+    }
+    case PixelType::kDepth32F: {
+      break;
+    }
+    case PixelType::kLabel16I: {
+      break;
+    }
+    case PixelType::kGrey8U: {
+      return this->template DeclareImageInputPort<PixelType::kGrey8U>(
+          std::move(port_name), publish_period,
+          start_time);
+    }
+    default:
+      break;
+  }
+  throw std::logic_error(fmt::format(
+      "RGBDSystem::DeclareImageInputPort does not support pixel_type={}",
+      static_cast<int>(pixel_type)));
 }
 
 template <PixelType kPixelType>
