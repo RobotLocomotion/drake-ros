@@ -5,6 +5,7 @@ target_link_libraries(hydroelastic
   drake::drake
   drake_ros::drake_ros_viz
   gflags
+  ament_index_cpp::ament_index_cpp
 )
 install(
   TARGETS

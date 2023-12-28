@@ -25,17 +25,17 @@ jobs:
     env:
       PYTHONPATH:
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Simplify apt upgrades
         run: $GITHUB_WORKSPACE/.github/simplify_apt_and_upgrades.sh
-      - uses: ros-tooling/setup-ros@v0.4
+      - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{matrix.ros_distro}}
           use-ros2-testing: "true"
       - name: Cope with Python 2 pollution
         run: apt-get update && apt-get install -y python-is-python3
       - name: Build and test all packages
-        uses: ros-tooling/action-ros-ci@v0.2
+        uses: ros-tooling/action-ros-ci@v0.3
         with:
           target-ros2-distro: ${{matrix.ros_distro}}
   test_against_archive:
@@ -54,10 +54,10 @@ jobs:
     env:
       PYTHONPATH:
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Simplify apt upgrades
         run: $GITHUB_WORKSPACE/.github/simplify_apt_and_upgrades.sh
-      - uses: ros-tooling/setup-ros@v0.4
+      - uses: ros-tooling/setup-ros@v0.7
       - name: Install dependencies to build ROS packages
         run: |
           sudo mkdir -p /opt/ros/${{matrix.ros_distro}}

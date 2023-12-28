@@ -22,8 +22,8 @@ jobs:
     container:
       image: ros:noetic-ros-base-focal
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v3
         with:
           path: "/home/runner/.cache/model-interop"
           key: model_interop
