@@ -39,13 +39,11 @@ TEST(Integration, clock_system) {
   auto subscription =
       direct_ros_node->create_subscription<rosgraph_msgs::msg::Clock>(
           "/clock", rclcpp::ClockQoS(),
-          [&](const rosgraph_msgs::msg::Clock::SharedPtr msg) {
-            msg_counter++;
-          });
+          [&](const rosgraph_msgs::msg::Clock::SharedPtr) { msg_counter++; });
 
   simulator->AdvanceTo(simulator_context.get_time() + 1.0);
   rclcpp::spin_some(direct_ros_node);
-  EXPECT_GE(msg_counter, 1);
+  EXPECT_GE(msg_counter, 1u);
 
   drake_ros::core::shutdown();
 }
