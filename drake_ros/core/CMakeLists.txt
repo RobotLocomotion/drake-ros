@@ -103,6 +103,16 @@ if(BUILD_TESTING)
     drake_ros_core
   )
 
+  ament_add_gtest(test_clock_system test/test_clock_system.cc)
+  target_compile_definitions(test_clock_system
+    PRIVATE
+    # We do not expose `rmw_isoliation` via CMake.
+    _TEST_DISABLE_RMW_ISOLATION
+  )
+  target_link_libraries(test_clock_system
+    drake_ros_core
+  )
+
   ament_add_gtest(test_camera_info_system test/test_camera_info_system.cc)
   target_compile_definitions(test_camera_info_system
     PRIVATE
