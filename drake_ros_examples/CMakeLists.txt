@@ -11,6 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake_ros REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(drake REQUIRED)
 find_package(drake_ros REQUIRED)
 find_package(gflags REQUIRED COMPONENTS shared)
