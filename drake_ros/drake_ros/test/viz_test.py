@@ -1,3 +1,4 @@
+import os
 import random
 import string
 import sys
@@ -19,6 +20,16 @@ from pydrake.systems.primitives import ConstantVectorSource
 import drake_ros.core
 from drake_ros.core import RosInterfaceSystem
 from drake_ros.viz import RvizVisualizer
+
+
+def isolate_if_using_bazel():
+    # Do not require `make_unique_ros_isolation_env` module for CMake.
+    # TODO(eric.cousineau): Expose this to CMake in better location..
+    try:
+        from bazel_ros_env import make_unique_ros_isolation_env
+        os.environ.update(make_unique_ros_isolation_env())
+    except ImportError:
+        assert "TEST_TMPDIR" not in os.environ
 
 
 class ManagedSubscription:
@@ -169,4 +180,5 @@ def test_receive_visual_marker_array():
 
 
 if __name__ == '__main__':
+    isolate_if_using_bazel()
     sys.exit(pytest.main(sys.argv))

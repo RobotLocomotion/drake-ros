@@ -11,7 +11,7 @@ namespace drake_ros {
 namespace core {
 struct DrakeRos::Impl {
   rclcpp::Context::SharedPtr context;
-  rclcpp::Node::UniquePtr node;
+  rclcpp::Node::SharedPtr node;
   rclcpp::executors::SingleThreadedExecutor::UniquePtr executor;
 };
 

@@ -42,6 +42,12 @@ elseif("@PACKAGE@" STREQUAL "console_bridge_vendor")
   # packages?
   find_package(console_bridge REQUIRED)
   target_link_libraries(${PROJECT_NAME} console_bridge::console_bridge)
+elseif("@PACKAGE@" STREQUAL "rosbag2_storage_mcap")
+  # Workaround https://github.com/RobotLocomotion/drake-ros/issues/315
+  find_package(mcap_vendor REQUIRED)
+  set_target_properties(rosbag2_storage_mcap::rosbag2_storage_mcap PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES ""
+  )
 else()
   ament_target_dependencies(${PROJECT_NAME} @PACKAGE@)
   # TODO(hidmic): figure out why this is sometimes necessary

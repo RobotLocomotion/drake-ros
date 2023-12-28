@@ -25,6 +25,13 @@ http_archive(
     ],
 )
 
+http_archive(
+    name = "rules_python",
+    sha256 = "0a8003b044294d7840ac7d9d73eef05d6ceb682d7516781a4ec62eeb34702578",  # noqa
+    strip_prefix = "rules_python-0.24.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.24.0/rules_python-0.24.0.tar.gz",  # noqa
+)
+
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
@@ -65,6 +72,7 @@ ROS2_PACKAGES = [
     "rclpy",
     "ros2cli",
     "ros2cli_common_extensions",
+    "rosbag2",
     "rosidl_default_generators",
     "tf2_py",
 ] + [
@@ -74,20 +82,12 @@ ROS2_PACKAGES = [
     # "rmw_fastrtps_cpp",
 ]
 
-ros2_archive(
-    name = "ros2" if not ROS2_DISTRO_PREFIX else "ros2_ignored",
-    include_packages = ROS2_PACKAGES,
-    sha256_url = "https://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci-CHECKSUM",  # noqa
-    strip_prefix = "ros2-linux",
-    # Note: If you want an exact / unchanging version, you will need to mirror
-    # the archive according to versions you want.
-    # TODO(hidmic,cottsay): Make release-pinned snapshots of this repository
-    # once `drake-ros` itself has versions.
-    url = "http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-humble-linux-jammy-amd64-ci.tar.bz2",  # noqa
+RESOLVED_PREFIX = (
+    ROS2_DISTRO_PREFIX if ROS2_DISTRO_PREFIX else "/opt/ros/humble"
 )
 
 ros2_local_repository(
-    name = "ros2" if ROS2_DISTRO_PREFIX else "ros2_ignored",
+    name = "ros2",
     include_packages = ROS2_PACKAGES,
-    workspaces = [ROS2_DISTRO_PREFIX],
+    workspaces = [RESOLVED_PREFIX],
 )

@@ -19,6 +19,7 @@ pybind_py_library(
     cc_deps = [
         ":python_bindings_internal_hdrs",
         "//:drake_ros_shared_library",
+        "@drake//bindings/pydrake:pydrake_pybind",
     ],
     cc_so_name = "_cc",
     cc_srcs = [
@@ -48,16 +49,37 @@ py_library(
     ],
 )
 
+pybind_py_library(
+    name = "test_pub_and_sub_cc_py",
+    testonly = 1,
+    cc_deps = [
+        ":python_bindings_internal_hdrs",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:std_msgs_cc",
+    ],
+    # See comment in neighboring CMakeLists.txt as to why we name organize this
+    # Python module in this fashion.
+    cc_so_name = "test/drake_ros_test_pub_and_sub_cc",
+    cc_srcs = ["test/test_pub_and_sub_cc_py.cc"],
+    py_deps = [
+        ":drake_ros_py",
+    ],
+    py_imports = ["test"],
+)
+
 ros_py_test(
     name = "core_test",
     srcs = ["test/core_test.py"],
     main = "test/core_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
+        ":test_pub_and_sub_cc_py",
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py",
         "@ros2//:test_msgs_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 
@@ -65,12 +87,13 @@ ros_py_test(
     name = "tf2_test",
     srcs = ["test/tf2_test.py"],
     main = "test/tf2_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
         "@ros2//:tf2_ros_py_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 
@@ -78,12 +101,13 @@ ros_py_test(
     name = "viz_test",
     srcs = ["test/viz_test.py"],
     main = "test/viz_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
         "@drake//bindings/pydrake",
         "@ros2//:rclpy_py",
         "@ros2//:visualization_msgs_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 
@@ -91,6 +115,7 @@ ros_py_test(
     name = "geometry_conversions_test",
     srcs = ["test/geometry_conversions_test.py"],
     main = "test/geometry_conversions_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":drake_ros_py",
         "@drake//bindings/pydrake",
@@ -105,5 +130,42 @@ ros_py_test(
     name = "odr_py_test",
     srcs = ["test/odr_py_test.py"],
     main = "test/odr_py_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [":drake_ros_py"],
+)
+
+pybind_py_library(
+    name = "ros_message_type_caster_test_via_specific_types_py",
+    testonly = 1,
+    cc_deps = [
+        ":python_bindings_internal_hdrs",
+        "//:drake_ros_shared_library",
+    ],
+    cc_so_name = "ros_message_type_caster_test_via_specific_types",
+    cc_srcs = ["test/ros_message_type_caster_test_via_specific_types_py.cc"],
+    py_deps = ["@ros2//:rclpy_py"],
+)
+
+pybind_py_library(
+    name = "ros_message_type_caster_test_via_all_py",
+    testonly = 1,
+    cc_deps = [
+        ":python_bindings_internal_hdrs",
+        "//:drake_ros_shared_library",
+    ],
+    cc_so_name = "ros_message_type_caster_test_via_all",
+    cc_srcs = ["test/ros_message_type_caster_test_via_all_py.cc"],
+    py_deps = ["@ros2//:rclpy_py"],
+)
+
+ros_py_test(
+    name = "ros_message_type_caster_test",
+    srcs = ["test/ros_message_type_caster_test.py"],
+    main = "test/ros_message_type_caster_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":ros_message_type_caster_test_via_all_py",
+        ":ros_message_type_caster_test_via_specific_types_py",
+        "@ros2//:geometry_msgs_py",
+    ],
 )

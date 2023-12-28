@@ -4,6 +4,7 @@ set(HEADERS
   "drake_ros.h"
   "geometry_conversions.h"
   "geometry_conversions_pybind.h"
+  "ros_idl_pybind.h"
   "publisher.h"
   "rgbd_system.h"
   "ros_interface_system.h"

@@ -67,11 +67,7 @@ RosPublisherSystem::RosPublisherSystem(
 
   if (publish_triggers.find(drake::systems::TriggerType::kPerStep) !=
       publish_triggers.end()) {
-    DeclarePerStepEvent(drake::systems::PublishEvent<double>(
-        [this](const drake::systems::Context<double>& context,
-               const drake::systems::PublishEvent<double>&) {
-          PublishInput(context);
-        }));
+    this->DeclarePerStepPublishEvent(&RosPublisherSystem::PublishInput);
   }
   // ^^^ Mostly copied from LcmPublisherSystem ^^^
 }

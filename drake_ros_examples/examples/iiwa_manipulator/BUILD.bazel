@@ -8,6 +8,7 @@ load("@ros2//:ros_py.bzl", "ros_py_test")
 ros_cc_binary(
     name = "iiwa_manipulator",
     srcs = ["iiwa_manipulator.cpp"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     visibility = ["//visibility:public"],
     deps = [
         "@drake//examples/manipulation_station",
@@ -26,6 +27,7 @@ ros_py_binary(
     name = "iiwa_manipulator_py",
     srcs = ["iiwa_manipulator.py"],
     main = "iiwa_manipulator.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
@@ -42,7 +44,8 @@ ros_py_test(
         ":iiwa_manipulator_py",
     ],
     main = "test/iiwa_manipulator_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
-        "//:bazel_ros_testing_py",
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )

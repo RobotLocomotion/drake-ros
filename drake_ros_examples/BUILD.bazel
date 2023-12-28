@@ -1,19 +1,11 @@
-py_test(
+load("@ros2//:ros_py.bzl", "ros_py_test")
+
+ros_py_test(
     name = "drake_ros_py_import_test",
     srcs = ["test/drake_ros_py_import_test.py"],
     main = "test/drake_ros_py_import_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "@drake_ros_repo//:drake_ros_py",
-    ],
-)
-
-py_library(
-    name = "bazel_ros_testing_py",
-    testonly = 1,
-    srcs = ["test/bazel_ros_testing.py"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
-        "@rules_python//python/runfiles",
     ],
 )

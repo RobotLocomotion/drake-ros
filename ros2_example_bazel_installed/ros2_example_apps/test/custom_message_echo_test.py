@@ -11,7 +11,7 @@ def main():
         os.environ["ROS_HOME"] = os.path.join(os.environ["TEST_TMPDIR"])
 
     manifest = runfiles.Create()
-    ros2_bin = manifest.Rlocation("ros2/ros2")
+    ros2_bin = manifest.Rlocation("ros2_example_bazel_installed/tools/ros2")
     talker_bin = manifest.Rlocation(
         "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
 

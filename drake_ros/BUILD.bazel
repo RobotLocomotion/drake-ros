@@ -45,5 +45,6 @@ ros_py_test(
     name = "import_test",
     srcs = ["test/import_test.py"],
     main = "test/import_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [":drake_ros_py"],
 )

@@ -15,13 +15,25 @@ jobs:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v3
+      - uses: actions/checkout@v4
+      - name: Free up space
+        run: .github/runner_free_space.sh
+
+      # Caching.
+      # See comments in drake-blender for more details:
+      # https://github.com/RobotLocomotion/drake-blender/blob/c4a33f80/.github/workflows/main.yml
+      - uses: actions/cache/restore@v3
         with:
-          path: "/home/runner/.cache/ci"
-          key: bazel
+          path: "~/.cache/bazel_ci"
+          # We want this key to change to ensure we store the updated cache.
+          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            bazel_ci-${{ github.ref }}-
+            bazel_ci-refs/heads/main-
       - name: Check cache
-        run: du -hs $(readlink -f /home/runner/.cache/ci)
+        run: du -hs $(readlink -f ~/.cache/bazel_ci) || true
+
+      # Setup.
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
       - name: Configure drake_ros Bazel for CI
@@ -33,7 +45,9 @@ jobs:
         run: rosdep update
       - name: Install bazel_ros2_rules dependencies
         # TODO(sloretz) make bazel_ros2_rules/setup/install_prereqs.sh
-        run: sudo apt install python3 python3-toposort
+        run: |
+          sudo apt install python3 python3-toposort
+          sudo rm -rf /var/lib/apt/lists/*
       - name: Download Drake
         run: bazel build @drake//:module_py
         working-directory: drake_ros
@@ -44,17 +58,27 @@ jobs:
         # TODO(sloretz) can't use rosdep here because we need the archive downloaded,
         # but can't download the archive with bazel until we have the dependencies installed
         # so bazel_ros2_rules can inspect it.
-        run: sudo apt-get install -y libconsole-bridge-dev
+        run: |
+          sudo apt-get install -y libconsole-bridge-dev
+          sudo rm -rf /var/lib/apt/lists/*
       # CI for drake_ros.
+      - name: Install drake_ros's dependencies
+        run: yes | sudo ./setup/install_prereqs.sh
+        working-directory: drake_ros
       - name: Build drake_ros
-        run: bazel build //...
+        run: export ROS_DISTRO=humble; bazel build //...
         working-directory: drake_ros
       - name: Test drake_ros
-        run: bazel test //...
+        run: export ROS_DISTRO=humble; bazel test //...
+        working-directory: drake_ros
+      - name: Clean up drake_ros
+        run: bazel clean
         working-directory: drake_ros
       # CI for drake_ros_examples.
       - name: Install additional ROS dependencies for drake_ros_examples
-        run: yes | sudo ./setup/install_prereqs.sh
+        run: |
+          yes | sudo ./setup/install_prereqs.sh
+          sudo rm -rf /var/lib/apt/lists/*
         working-directory: drake_ros_examples
       - name: Configure drake_ros_examples Bazel for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
@@ -65,3 +89,15 @@ jobs:
       - name: Test drake_ros_examples
         run: bazel test //...
         working-directory: drake_ros_examples
+      - name: Clean up drake_ros_examples
+        run: bazel clean
+        working-directory: drake_ros_examples
+      # Save the updated cache snapshots, so we never do the same work twice.
+      # By default, actions/cache only saves after a successful workflow, but
+      # our caches are bags of files where we only ever add new files (not change
+      # an existing files), so it's always safe to snapshot.
+      - uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: "~/.cache/bazel_ci"
+          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
