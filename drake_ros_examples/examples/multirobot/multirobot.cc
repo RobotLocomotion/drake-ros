@@ -85,8 +85,7 @@ int main(int argc, char** argv) {
       std::stringstream model_instance_name;
       model_instance_name << model_name << xx << '_' << yy;
       parser.SetAutoRenaming(true);
-      auto model_instance =
-          parser.AddModels(model_file_path)[0];
+      auto model_instance = parser.AddModels(model_file_path)[0];
 
       plant.RenameModelInstance(model_instance, model_instance_name.str());
 
