@@ -12,6 +12,7 @@ rosidl_interfaces_group(
     interfaces = [
         "msg/Status.msg",
     ],
+    visibility = ["//:__pkg__"],
     deps = [
         "//ros2_example_common:ros2_example_common_msgs",
         "@ros2//:builtin_interfaces",
@@ -194,9 +195,24 @@ cmd_test(
 ros_py_binary(
     name = "simple_talker",
     srcs = ["simple_talker.py"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":ros2_example_apps_msgs_py",
         "@ros2//:rclpy_py",
+    ],
+)
+
+ros_py_test(
+    name = "custom_message_rosbag_test",
+    srcs = ["test/custom_message_rosbag_test.py"],
+    data = [
+        ":simple_talker",
+        "//tools:ros2",
+    ],
+    main = "test/custom_message_rosbag_test.py",
+    deps = [
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )
 
@@ -207,14 +223,10 @@ ros_py_test(
     srcs = ["test/custom_message_echo_test.py"],
     data = [
         ":simple_talker",
-        "@ros2",
+        "//tools:ros2",
     ],
     main = "test/custom_message_echo_test.py",
     deps = [
-        # This is the main key - you must provide the generated messages as a
-        # Python dependency. Otherwise, attempting to use `ros2 topic ...` will
-        # indicate the message type is invalid.
-        ":ros2_example_apps_msgs_py",
         "@bazel_tools//tools/python/runfiles",
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
@@ -226,13 +238,7 @@ ros_py_test(
     name = "custom_message_list_test",
     srcs = ["test/custom_message_list_test.py"],
     data = [
-        # This is the main key. You must provide the generated definitions as
-        # a dependency. It can come through data as is done here, or via any
-        # dependency, such as the C++ (*_cc) or Python (*_py) targets.
-        # Otherwise, `ros2 interface ...` will indicate the message type is
-        # invalid.
-        ":ros2_example_apps_msgs_defs",
-        "@ros2",
+        "//tools:ros2",
     ],
     main = "test/custom_message_list_test.py",
     deps = [

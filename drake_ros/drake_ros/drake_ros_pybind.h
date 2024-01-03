@@ -17,6 +17,20 @@ namespace drake_ros_py DRAKE_ROS_NO_EXPORT {
 
 namespace py = pybind11;
 
+/**
+Imported from pydrake_pybind.h
+*/
+template <typename Class>
+auto ParamInit() {
+  return py::init([](py::kwargs kwargs) {
+    Class obj{};
+    py::object py_obj = py::cast(&obj, py::return_value_policy::reference);
+    py::module m = py::module::import("drake_ros.core");
+    m.attr("_setattr_kwargs")(py_obj, kwargs);
+    return obj;
+  });
+}
+
 // clang-format off
 }  // namespace drake_ros_py
 // clang-format on

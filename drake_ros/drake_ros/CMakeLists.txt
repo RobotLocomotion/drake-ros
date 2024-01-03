@@ -28,6 +28,23 @@ if(BUILD_TESTING)
   find_package(Python3 COMPONENTS Interpreter)
   find_package(ament_cmake_test REQUIRED)
 
+  # TODO(eric.cousineau): I am not sure how to place a test-only Python library
+  # within a non-test ament package. To that end, we make this an independent
+  # Python package.
+  pybind11_add_module(py_test_pub_and_sub_cc SHARED
+    "test/test_pub_and_sub_cc_py.cc"
+  )
+  target_link_libraries(py_test_pub_and_sub_cc PRIVATE
+      drake_ros_core)
+  set_target_properties(py_test_pub_and_sub_cc
+    PROPERTIES
+      OUTPUT_NAME "drake_ros_test_pub_and_sub_cc"
+      LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/py/")
+  target_include_directories(py_test_pub_and_sub_cc
+    PRIVATE
+      "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+  )
+
   macro(add_python_test test_name test_file)
     # Invoke Pytest in a way that prevents source space from
     # Getting added to `sys.path`, so that CPython extensions
@@ -41,7 +58,9 @@ if(BUILD_TESTING)
         "--junit-prefix=drake_ros"
       # Let Python import mock-install structure in build folder
       WORKING_DIRECTORY
-        "${PROJECT_BINARY_DIR}/py/")
+        "${PROJECT_BINARY_DIR}/py/"
+      APPEND_ENV
+        "PYTHONPATH=${PROJECT_BINARY_DIR}/py/")
   endmacro()
 
   add_python_test(core_test_py test/core_test.py)

@@ -32,8 +32,13 @@ bazel run @ros2//:rviz2 -- -d `pwd`/examples/hydroelastic/hydroelastic.rviz
 # Using Colcon/CMake
 rviz2 -d `ros2 pkg prefix --share drake_ros_examples`/hydroelastic/hydroelastic.rviz
 ```
+Or use ROS 2 Launch:
+```sh
+# Using ROS 2 Launch (C++)
+ros2 launch drake_ros_examples hydroelastic_cc_launch.py
+```
 
-You can optionall enable visualizng the simulation with Meshcat.
+You can optionally enable visualizng the simulation with Meshcat.
 
 ```bash
 # Using bazel

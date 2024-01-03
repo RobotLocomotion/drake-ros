@@ -14,6 +14,7 @@ foreach(hdr ${HEADERS})
 endforeach()
 
 add_library(drake_ros_viz
+  heatmap_png.inc
   name_conventions.cc
   rviz_visualizer.cc
   scene_markers_system.cc
@@ -29,8 +30,6 @@ target_link_libraries(drake_ros_viz PUBLIC
     ${geometry_msgs_TARGETS}
     ${visualization_msgs_TARGETS}
 )
-target_link_libraries(drake_ros_viz PRIVATE
-  VTK::IOImage)
 
 target_include_directories(drake_ros_viz
   PUBLIC

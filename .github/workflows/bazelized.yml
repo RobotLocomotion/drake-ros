@@ -13,20 +13,30 @@ on:
 jobs:
   bazel_build_and_test:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
-      image: ros:rolling-ros-base-jammy
+      image: ros:humble-ros-base-jammy
       # This is required for running lldb.
       # See https://stackoverflow.com/a/73613377/7829525
       options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      # Caching.
+      # See comments in drake-blender for more details:
+      # https://github.com/RobotLocomotion/drake-blender/blob/c4a33f80/.github/workflows/main.yml
       - uses: actions/cache@v3
         with:
-          path: "/home/runner/.cache/ci"
-          key: bazel
+          path: "/home/runner/.cache/bazel_ci"
+          # We want this key to change to ensure we store the updated cache.
+          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            bazel_ci-${{ github.ref }}-
+            bazel_ci-refs/heads/main-
       - name: Check cache
-        run: du -hs $(readlink -f /home/runner/.cache/ci)
+        run: du -hs $(readlink -f /home/runner/.cache/bazel_ci) || true
+
+      # Setup.
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
       - name: Configure Bazel for CI (bazel_ros2_rules)

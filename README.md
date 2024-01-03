@@ -30,8 +30,12 @@ capability:
 
   - Ubuntu 22.04 + ROS 2 Humble (Recommended)
   - Ubuntu 20.04 + ROS 2 Rolling
-  - Architecture: x86_64 (amd64)
+  - Mac (only via [Docker](./docker-README.md))
+  - Architecture: x86_64 (amd64), arm64 (only via [Docker](./docker-README.md))
   - Bazel >= 5.0
+
+## Docker Support
+For users preferring Docker, we offer support for Ubuntu and Macs via Docker. You can build and interact with visualization (`rviz2`) directly on the Docker platform, which is particularly useful for Mac users, including those with Apple Silicon architecture. Please refer to our detailed Docker instructions in the [Docker README](./docker-README.md).
 
 ## Usable! But No Stability Commitment
 
