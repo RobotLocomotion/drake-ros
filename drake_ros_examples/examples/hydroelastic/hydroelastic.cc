@@ -67,7 +67,7 @@ void AddScene(MultibodyPlantd* plant) {
 
   std::filesystem::path fs_path{
       parser.package_map().GetPath("drake_ros_examples")};
-  parser.AddAllModelsFromFile(
+  parser.AddModels(
       (fs_path / "hydroelastic/hydroelastic.sdf").string());
 }
 
