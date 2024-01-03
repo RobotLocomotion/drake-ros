@@ -38,7 +38,6 @@ jobs:
       - name: Configure display
         run: .github/config_display.sh
       - name: Build and test all packages
-        run: .github/config_display.sh
         uses: ros-tooling/action-ros-ci@v0.3
         with:
           target-ros2-distro: ${{matrix.ros_distro}}

@@ -1,6 +1,5 @@
 
 #include "drake/geometry/render_vtk/factory.h"
-#include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <gtest/gtest.h>
