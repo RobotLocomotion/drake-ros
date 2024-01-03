@@ -79,7 +79,7 @@ ros_cc_test(
     deps = [
         ":core",
         "@com_google_googletest//:gtest_main",
-        "@drake////geometry/render_vtk:factory",
+        "@drake//geometry/render_vtk:factory",
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/sensors:camera_info",
