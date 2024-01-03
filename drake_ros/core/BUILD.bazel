@@ -63,10 +63,12 @@ ros_cc_test(
     deps = [
         ":core",
         "@com_google_googletest//:gtest_main",
+        "@drake//geometry/render_vtk:factory",
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/sensors:camera_info",
         "@ros2//:rclcpp_cc",
+        "@ros2//:sensors_msgs_cc",
         "@ros2//resources/rmw_isolation:rmw_isolation_cc",
     ],
 )
