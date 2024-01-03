@@ -10,6 +10,7 @@ cc_library(
         "@ros2//:rclcpp_cc",
         "@ros2//:rosidl_runtime_c_cc",
         "@ros2//:rosidl_typesupport_cpp_cc",
+        "@ros2//:sensors_msgs_cc",
     ],
 )
 
@@ -36,7 +37,6 @@ cc_library(
         "@drake//systems/framework:leaf_system",
         "@drake//systems/sensors:camera_info",
         "@drake//systems/sensors:rgbd_sensor",
-        "@ros2//:sensors_msgs_cc",
     ],
 )
 
