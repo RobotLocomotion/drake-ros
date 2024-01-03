@@ -14,6 +14,8 @@ jobs:
   bazel_build_and_test:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
     runs-on: ubuntu-22.04
+    env:
+      DISPLAY: ':1.0'
     steps:
       - uses: actions/checkout@v4
       - name: Free up space
@@ -41,6 +43,8 @@ jobs:
         working-directory: drake_ros
       - name: Install ROS tools (like rosdep)
         uses: ros-tooling/setup-ros@v0.4
+      - name: Configure display
+        run: .github/config_display.sh
       - name: Update rosdep data
         run: rosdep update
       - name: Install bazel_ros2_rules dependencies
