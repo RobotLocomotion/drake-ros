@@ -21,7 +21,7 @@ using drake::geometry::render::DepthRenderCamera;
 
 using drake::math::RigidTransformd;
 
-TEST(Integration, clock_system) {
+TEST(Integration, rgbd_system) {
   drake_ros::core::init(0, nullptr);
 
   drake::systems::DiagramBuilder<double> builder;

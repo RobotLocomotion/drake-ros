@@ -16,7 +16,7 @@ using drake_ros::core::RosInterfaceSystem;
 
 using drake::geometry::render::ColorRenderCamera;
 
-TEST(Integration, clock_system) {
+TEST(Integration, camera_info_system) {
   drake_ros::core::init(0, nullptr);
 
   drake::systems::DiagramBuilder<double> builder;
