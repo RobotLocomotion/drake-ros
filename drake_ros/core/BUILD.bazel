@@ -83,7 +83,7 @@ ros_cc_test(
         ":core",
         "@com_google_googletest//:gtest_main",
         "@drake//geometry/render_vtk:factory",
-        "@drake//multibody/plant:multibody_plant",
+        "@drake//multibody/plant:multibody_plant_config_functions",
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/sensors:camera_info",

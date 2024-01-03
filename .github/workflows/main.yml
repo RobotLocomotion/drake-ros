@@ -24,7 +24,7 @@ jobs:
       image: robotlocomotion/drake:${{matrix.os_code_name}}
     env:
       PYTHONPATH:
-      DISPLAY: '1.0'
+      DISPLAY: ':1.0'
     steps:
       - uses: actions/checkout@v4
       - name: Simplify apt upgrades
@@ -56,7 +56,7 @@ jobs:
       image: robotlocomotion/drake:${{matrix.os_code_name}}
     env:
       PYTHONPATH:
-      DISPLAY: '1.0'
+      DISPLAY: ':1.0'
     steps:
       - uses: actions/checkout@v4
       - name: Simplify apt upgrades
