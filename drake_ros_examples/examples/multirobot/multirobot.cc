@@ -84,8 +84,10 @@ int main(int argc, char** argv) {
       // coordinates in the array
       std::stringstream model_instance_name;
       model_instance_name << model_name << xx << '_' << yy;
-      auto model_instance =
-          parser.AddModelFromFile(model_file_path, model_instance_name.str());
+      parser.SetAutoRenaming(true);
+      auto model_instance = parser.AddModels(model_file_path)[0];
+
+      plant.RenameModelInstance(model_instance, model_instance_name.str());
 
       // Weld the robot to the world so it doesn't fall through the floor
       auto& base_frame = plant.GetFrameByName("base", model_instance);
