@@ -15,5 +15,12 @@ install(
 
 install(FILES
   rgbd.sdf
+  rgbd.rviz
   DESTINATION share/${PROJECT_NAME}/rgbd/
+)
+
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*_launch.py"
 )

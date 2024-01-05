@@ -38,7 +38,7 @@
     </link>
 
     <link name="camera_optical">
-      <pose>0.0 1.0 -0.12 1.57 3.14 0.0</pose>
+      <pose>0.0 1.0 -0.18 1.57 3.14 0.0</pose>
     </link>
 
     <link name="Pole">
