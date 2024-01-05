@@ -171,8 +171,8 @@ int do_main() {
                   scene_tf_broadcaster->get_graph_query_input_port());
 
   auto [pub_color_system, pub_depth_system] = RGBDSystem::AddToBuilder(
-      &builder, ros_interface_system->get_ros_interface(),
-      "/color/image_raw", "/depth/image_raw");
+      &builder, ros_interface_system->get_ros_interface(), "/color/image_raw",
+      "/depth/image_raw");
 
   builder.Connect(rgbd_publisher->GetOutputPort("rgbd_color"),
                   pub_color_system->get_input_port());
