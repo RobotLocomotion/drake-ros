@@ -24,6 +24,22 @@ void CameraInfoSystem::CalcCameraInfo(
   output_value->width = this->camera_info.width();
   output_value->distortion_model = "plumb_bob";
 
+  output_value->d.push_back(0);
+  output_value->d.push_back(0);
+  output_value->d.push_back(0);
+  output_value->d.push_back(0);
+  output_value->d.push_back(0);
+
+  output_value->r[0] = 1;
+  output_value->r[1] = 0;
+  output_value->r[2] = 0;
+  output_value->r[3] = 0;
+  output_value->r[4] = 1;
+  output_value->r[5] = 0;
+  output_value->r[6] = 0;
+  output_value->r[7] = 0;
+  output_value->r[8] = 1;
+
   //      │ f_x  0    c_x │
   //  K = │ 0    f_y  c_y │
   //      │ 0    0    1   │
@@ -34,14 +50,14 @@ void CameraInfoSystem::CalcCameraInfo(
   output_value->k[0] = this->camera_info.focal_x();
   output_value->k[2] = this->camera_info.center_x();
   output_value->k[4] = this->camera_info.focal_y();
-  output_value->k[5] = this->camera_info.center_x();
+  output_value->k[5] = this->camera_info.center_y();
   output_value->k[8] = 1.0;
 
   output_value->p[0] = this->camera_info.focal_x();
   output_value->p[2] = this->camera_info.center_x();
   output_value->p[3] = 0;
   output_value->p[5] = this->camera_info.focal_y();
-  output_value->p[6] = this->camera_info.center_x();
+  output_value->p[6] = this->camera_info.center_y();
   output_value->p[10] = 1.0;
 }
 

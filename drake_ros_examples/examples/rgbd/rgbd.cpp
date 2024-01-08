@@ -133,7 +133,7 @@ int do_main() {
       {"renderer", {640, 480, M_PI_4}, {0.01, 10.0}, {}}, false};
   const DepthRenderCamera depth_camera{color_camera.core(), {0.01, 10.0}};
   const RigidTransformd X_WB =
-      ParseCameraPose("0.0, 1.0, -0.12, 1.57, 3.14, 0.0");
+      ParseCameraPose("0.8, 0.0, 0.7, -2.2, 0.0, 1.57");
 
   std::get<0>(camera_info_system)
       ->SetCameraInfo(color_camera.core().intrinsics());
