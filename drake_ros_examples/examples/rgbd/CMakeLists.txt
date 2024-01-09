@@ -1,4 +1,4 @@
-add_executable(rgbd rgbd.cpp)
+add_executable(rgbd rgbd.cc)
 target_link_libraries(rgbd
   ament_index_cpp::ament_index_cpp
   drake::drake
