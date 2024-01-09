@@ -44,7 +44,6 @@ ros_py_binary(
     data = [
         ":rgbd_share",
     ],
-    local_defines = ["BAZEL"],
     main = "rgbd.py",
     rmw_implementation = "rmw_cyclonedds_cpp",
     visibility = ["//visibility:public"],
