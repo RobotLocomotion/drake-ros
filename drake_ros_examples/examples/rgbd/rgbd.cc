@@ -212,7 +212,16 @@ int do_main() {
   simulator.set_publish_every_time_step(false);
   simulator.set_target_realtime_rate(FLAGS_target_realtime_rate);
   simulator.Initialize();
-  simulator.AdvanceTo(FLAGS_simulation_time);
+
+  auto& simulator_context = simulator.get_mutable_context();
+
+  // Step the simulator in 0.1s intervals
+  constexpr double kStep{0.1};
+  while (simulator_context.get_time() < FLAGS_simulation_time) {
+    const double next_time =
+        std::min(FLAGS_simulation_time, simulator_context.get_time() + kStep);
+    simulator.AdvanceTo(next_time);
+  }
 
   return 0;
 }
