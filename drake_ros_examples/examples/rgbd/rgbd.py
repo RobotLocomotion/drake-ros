@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import numpy as np
 import os
 
@@ -30,6 +31,14 @@ def xyz_rpy_deg(xyz, rpy_deg):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--simulation_time',
+        type=float,
+        default=float('inf'),
+        help='How many seconds to run the simulation')
+    args = parser.parse_args()
+
     # Create a Drake diagram
     builder = DiagramBuilder()
 
@@ -153,9 +162,9 @@ def main():
 
     # Step the simulator in 0.1s intervals
     step = 0.1
-    while simulator_context.get_time() < float('inf'):
+    while simulator_context.get_time() < args.simulation_time:
         next_time = min(
-            simulator_context.get_time() + step, float('inf'),
+            simulator_context.get_time() + step, args.simulation_time,
         )
         simulator.AdvanceTo(next_time)
 

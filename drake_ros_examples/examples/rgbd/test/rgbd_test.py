@@ -19,8 +19,8 @@ def main():
     env = make_env()
     cc_bin = Rlocation("drake_ros_examples/examples/rgbd/rgbd")
     py_bin = Rlocation("drake_ros_examples/examples/rgbd/rgbd_py")
-    run([cc_bin, "--simulation_sec=0.01"], env=env, check=True)
-    run([py_bin, "--simulation_sec=0.01"], env=env, check=True)
+    run([cc_bin, "--simulation_time=0.01"], env=env, check=True)
+    run([py_bin, "--simulation_time=0.01"], env=env, check=True)
     print("[ Done ]")
 
 

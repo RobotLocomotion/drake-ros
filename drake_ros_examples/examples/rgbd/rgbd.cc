@@ -110,14 +110,6 @@ int do_main() {
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("cart_pole"));
 
-  auto& rviz_visualizer = *builder.AddSystem<RvizVisualizer>(
-      ros_interface_system->get_ros_interface());
-
-  rviz_visualizer.RegisterMultibodyPlant(&cart_pole);
-
-  builder.Connect(scene_graph.get_query_output_port(),
-                  rviz_visualizer.get_graph_query_input_port());
-
   ClockSystem::AddToBuilder(&builder,
                             ros_interface_system->get_ros_interface());
 
@@ -161,6 +153,15 @@ int do_main() {
   builder.Connect(camera->depth_image_32F_output_port(), depth_port);
 
   const double viz_dt = 1 / 32.0;
+  auto rviz_visualizer = builder.AddSystem<RvizVisualizer>(
+      ros_interface_system->get_ros_interface(),
+      drake_ros::viz::RvizVisualizerParams{
+          {TriggerType::kPeriodic}, viz_dt, true});
+  builder.Connect(scene_graph.get_query_output_port(),
+                  rviz_visualizer->get_graph_query_input_port());
+
+  rviz_visualizer->RegisterMultibodyPlant(&cart_pole);
+
   // Add a TF2 broadcaster to provide task frame information
   auto scene_tf_broadcaster =
       builder.AddSystem<drake_ros::tf2::SceneTfBroadcasterSystem>(

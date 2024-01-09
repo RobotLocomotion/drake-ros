@@ -35,10 +35,12 @@ ros_cc_binary(
         "@drake//systems/sensors:rgbd_sensor",
         "@drake//visualization:visualization_config",
         "@drake//visualization:visualization_config_functions",
+        "@drake_ros_repo//:drake_ros",
+        "@drake_ros_repo//core",
+        "@drake_ros_repo//viz",
+        "@gflags",
         "@ros2//:rclcpp_cc",
         "@ros2//:sensor_msgs_cc",
-        "@drake_ros_repo//:drake_ros",
-        "@gflags",
     ],
 )
 
