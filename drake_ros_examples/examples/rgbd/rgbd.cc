@@ -116,9 +116,9 @@ int do_main() {
   const double image_publish_period = 1. / 20;
 
   auto camera_info_system = CameraInfoSystem::AddToBuilder(
-      &builder, ros_interface_system->get_ros_interface(),
-      "/color/camera_info", rclcpp::SystemDefaultsQoS(),
-      {TriggerType::kPeriodic}, image_publish_period);
+      &builder, ros_interface_system->get_ros_interface(), "/color/camera_info",
+      rclcpp::SystemDefaultsQoS(), {TriggerType::kPeriodic},
+      image_publish_period);
 
   auto depth_camera_info_system = CameraInfoSystem::AddToBuilder(
       &builder, ros_interface_system->get_ros_interface(),
