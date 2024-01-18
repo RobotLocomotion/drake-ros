@@ -20,6 +20,11 @@ install(FILES
 )
 
 install(
+  PROGRAMS rgbd.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
   DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
   FILES_MATCHING PATTERN "*_launch.py"

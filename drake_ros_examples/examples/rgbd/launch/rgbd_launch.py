@@ -42,7 +42,11 @@ def generate_launch_description():
                     remappings=[('rgb/camera_info', '/color/camera_info'),
                                 ('rgb/image_rect_color', '/color/image_raw'),
                                 ('depth_registered/image_rect',
-                                 '/depth/image_raw')]
+                                 '/depth/image_raw')],
+                    parameters=[{'qos_overrides./color/image_raw.subscription.reliability':
+                                 'best_effort',
+                                 'qos_overrides./depth/image_raw.subscription.reliability':
+                                 'best_effort'}]
                 ),
             ],
             output='screen',

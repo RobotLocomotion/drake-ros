@@ -24,6 +24,7 @@ void CameraInfoSystem::CalcCameraInfo(
   output_value->width = this->camera_info.width();
   output_value->distortion_model = "plumb_bob";
 
+  // distortion isn't supported. Setting this values to zero
   output_value->d.push_back(0);
   output_value->d.push_back(0);
   output_value->d.push_back(0);

@@ -21,7 +21,7 @@ using drake::systems::sensors::RgbdSensor;
 
 namespace drake_ros::core {
 
-/** A system that convert's drake's RGBD camera to a sensor_msgs/msg/Image
+/** A system that converts drake's RGBD camera to a sensor_msgs/msg/Image
  * messages.
  */
 class RGBDSystem : public drake::systems::LeafSystem<double> {

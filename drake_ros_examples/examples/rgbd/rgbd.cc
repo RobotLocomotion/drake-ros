@@ -103,7 +103,7 @@ int do_main() {
   std::filesystem::path fs_path{
       parser.package_map().GetPath("drake_ros_examples")};
 
-  const std::string sdf_url = (fs_path / "rgbd/rgbd.sdf").string();
+  const std::string sdf_url = (fs_path / "rgbd" / "rgbd.sdf").string();
   Parser(&cart_pole, &scene_graph).AddModels(sdf_url);
 
   drake_ros::core::init();

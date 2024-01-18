@@ -68,7 +68,8 @@ def main():
 
     camera_info_system = CameraInfoSystem.AddToBuilder(
         builder,
-        sys_ros_interface.get_ros_interface())
+        sys_ros_interface.get_ros_interface(),
+        topic_name='/color/camera_info')
 
     depth_camera_info_system = CameraInfoSystem.AddToBuilder(
         builder,
@@ -95,7 +96,7 @@ def main():
     depth_camera_info_system[0].set_camera_info(intrinsics)
 
     world_id = plant.GetBodyFrameIdOrThrow(plant.world_body().index())
-    X_WB = xyz_rpy_deg([0, 1, -0.12], [90, 180, 0])
+    X_WB = xyz_rpy_deg([0.8, 0.0, 0.7], [-1.26, 0, 90])
     sensor = RgbdSensor(
         world_id,
         X_PB=X_WB,
