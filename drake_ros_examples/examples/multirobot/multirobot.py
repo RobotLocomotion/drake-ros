@@ -95,9 +95,11 @@ def main():
         for y in range(NUM_COLS):
             # Load the model from the file and give it a name based on its X
             # and Y coordinates in the array
-            models[x].append(parser.AddModelFromFile(
-                model_file_path,
-                model_name + str(x) + '_' + str(y)))
+            (iiwa,) = parser.AddModels(model_file_path)
+            models[x].append(iiwa)
+            plant.RenameModelInstance(model_instance=iiwa,
+                                      name=model_name + str(x) + '_' + str(y))
+
 
             # Weld the robot to world so it doesn't fall through floor
             base_frame = plant.GetFrameByName("base", models[x][y])
