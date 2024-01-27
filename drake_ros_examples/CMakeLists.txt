@@ -19,6 +19,7 @@ add_subdirectory(examples/hydroelastic)
 add_subdirectory(examples/iiwa_manipulator)
 add_subdirectory(examples/multirobot)
 add_subdirectory(examples/rs_flip_flop)
+add_subdirectory(examples/ufo)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)

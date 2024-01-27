@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <model name="flying_saucer">
+    <!-- A great place to put a tractor beam -->
+    <frame name="bottom_center"/>
+
+    <!-- Ellipsoid body of the craft -->
+    <link name="spacecraft">
+      <pose relative_to="bottom_center">0 0 0.5 0 0 0</pose>
+      <visual name="visual">
+        <geometry>
+          <ellipsoid>
+            <radii>2.5 2.5 0.5</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <diffuse>0.5 0.5 0.5 1.0</diffuse>
+        </material>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <ellipsoid>
+            <radii>2.5 2.5 0.5</radii>
+          </ellipsoid>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>1300</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1300</iyy>
+          <iyz>0</iyz>
+          <izz>2500</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- Spherical translucent shell for pilot to peer out of -->
+    <link name="lookout">
+      <pose relative_to="spacecraft">0 0 0.49 0 0 0</pose>
+      <visual name="visual">
+        <geometry>
+          <sphere>
+            <radius>0.98</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <diffuse>1.0 0.55 0.0 0.35</diffuse>
+        </material>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <sphere>
+            <radius>0.98</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>100</mass>
+        <inertia>
+          <ixx>65.34</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>65.34</iyy>
+          <iyz>0</iyz>
+          <izz>65.34</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- Combine links -->
+    <joint name="weld" type="fixed">
+      <parent>spacecraft</parent>
+      <child>lookout</child>
+    </joint>
+  </model>
+</sdf>
