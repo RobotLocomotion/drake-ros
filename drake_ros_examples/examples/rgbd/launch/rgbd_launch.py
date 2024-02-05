@@ -27,28 +27,4 @@ def generate_launch_description():
     return LaunchDescription([
         rviz_node,
         rgbd_node,
-        # launch plugin through rclcpp_components container
-        launch_ros.actions.ComposableNodeContainer(
-            name='container',
-            namespace='',
-            package='rclcpp_components',
-            executable='component_container',
-            composable_node_descriptions=[
-                # Driver itself
-                launch_ros.descriptions.ComposableNode(
-                    package='depth_image_proc',
-                    plugin='depth_image_proc::PointCloudXyzrgbNode',
-                    name='point_cloud_xyzrgb_node',
-                    remappings=[('rgb/camera_info', '/color/camera_info'),
-                                ('rgb/image_rect_color', '/color/image_raw'),
-                                ('depth_registered/image_rect',
-                                 '/depth/image_raw')],
-                    parameters=[{'qos_overrides./color/image_raw.subscription.reliability':
-                                 'best_effort',
-                                 'qos_overrides./depth/image_raw.subscription.reliability':
-                                 'best_effort'}]
-                ),
-            ],
-            output='screen',
-        ),
     ])

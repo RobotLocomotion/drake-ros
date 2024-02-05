@@ -110,10 +110,7 @@ int do_main() {
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("cart_pole"));
 
-  ClockSystem::AddToBuilder(&builder,
-                            ros_interface_system->get_ros_interface());
-
-  const double image_publish_period = 1. / 20;
+  const double image_publish_period = 1. / 30.0;
 
   auto camera_info_system = CameraInfoSystem::AddToBuilder(
       &builder, ros_interface_system->get_ros_interface(), "/color/camera_info",
@@ -121,14 +118,15 @@ int do_main() {
       image_publish_period);
 
   auto depth_camera_info_system = CameraInfoSystem::AddToBuilder(
-      &builder, ros_interface_system->get_ros_interface(),
-      "/depth/camera_info");
+      &builder, ros_interface_system->get_ros_interface(), "/depth/camera_info",
+      rclcpp::SystemDefaultsQoS(), {TriggerType::kPeriodic},
+      image_publish_period);
 
   const ColorRenderCamera color_camera{
-      {"renderer", {320, 240, M_PI_4}, {0.01, 10.0}, {}}, false};
+      {"renderer", {640, 480, M_PI_4}, {0.01, 10.0}, {}}, false};
   const DepthRenderCamera depth_camera{color_camera.core(), {0.01, 10.0}};
   const RigidTransformd X_WB =
-      ParseCameraPose("0.8, 0.0, 0.7, -2.2, 0.0, 1.57");
+      ParseCameraPose("0.0, 1.0, 0.0, 1.57, 3.14, 0.0");
 
   std::get<0>(camera_info_system)
       ->SetCameraInfo(color_camera.core().intrinsics());
@@ -154,7 +152,7 @@ int do_main() {
           "depth", image_publish_period, 0.);
   builder.Connect(camera->depth_image_32F_output_port(), depth_port);
 
-  const double viz_dt = 1 / 64.0;
+  const double viz_dt = 1 / 60.0;
   auto rviz_visualizer = builder.AddSystem<RvizVisualizer>(
       ros_interface_system->get_ros_interface(),
       drake_ros::viz::RvizVisualizerParams{
@@ -175,7 +173,8 @@ int do_main() {
 
   auto [pub_color_system, pub_depth_system] = RGBDSystem::AddToBuilder(
       &builder, ros_interface_system->get_ros_interface(), "/color/image_raw",
-      "/depth/image_raw");
+      "/depth/image_raw", rclcpp::SensorDataQoS(), {TriggerType::kPeriodic},
+      image_publish_period);
 
   builder.Connect(rgbd_publisher->GetOutputPort("rgbd_color"),
                   pub_color_system->get_input_port());
@@ -185,6 +184,10 @@ int do_main() {
 
   // Now the model is complete.
   cart_pole.Finalize();
+
+  ClockSystem::AddToBuilder(&builder, ros_interface_system->get_ros_interface(),
+                            "/clock", rclcpp::ClockQoS(),
+                            {TriggerType::kPeriodic}, image_publish_period);
 
   auto diagram = builder.Build();
 
