@@ -56,6 +56,7 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
 
   rclcpp::SerializedMessage Serialize(
       const drake::AbstractValue& abstract_value) const override {
+    py::gil_scoped_acquire guard;
     auto overload = [&]() -> py::bytes {
       PYBIND11_OVERLOAD_PURE(py::bytes, SerializerInterface, Serialize,
                              &abstract_value);
@@ -72,6 +73,7 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
 
   void Deserialize(const rclcpp::SerializedMessage& serialized_message,
                    drake::AbstractValue* abstract_value) const override {
+    py::gil_scoped_acquire guard;
     const rcl_serialized_message_t& rcl_serialized_message =
         serialized_message.get_rcl_serialized_message();
     py::bytes serialized_message_bytes(
