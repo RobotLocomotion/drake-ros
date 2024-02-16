@@ -88,14 +88,14 @@ TEST(Integration, rgbd_system) {
   auto direct_ros_node = rclcpp::Node::make_shared("subscriber_node");
   auto subscription_color =
       direct_ros_node->create_subscription<sensor_msgs::msg::Image>(
-          "/image", rclcpp::SystemDefaultsQoS(),
+          "/image", rclcpp::SensorDataQoS(),
           [&](const sensor_msgs::msg::Image::SharedPtr) {
             color_msg_counter++;
           });
 
   auto subscription_depth =
       direct_ros_node->create_subscription<sensor_msgs::msg::Image>(
-          "/depth", rclcpp::SystemDefaultsQoS(),
+          "/depth", rclcpp::SensorDataQoS(),
           [&](const sensor_msgs::msg::Image::SharedPtr) {
             depth_msg_counter++;
           });

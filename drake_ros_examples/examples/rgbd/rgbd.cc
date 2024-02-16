@@ -110,7 +110,7 @@ int do_main() {
   auto ros_interface_system = builder.AddSystem<RosInterfaceSystem>(
       std::make_unique<DrakeRos>("cart_pole"));
 
-  const double image_publish_period = 1. / 30.0;
+  const double image_publish_period = 1. / 25.0;
 
   auto camera_info_system = CameraInfoSystem::AddToBuilder(
       &builder, ros_interface_system->get_ros_interface(), "/color/camera_info",
@@ -185,9 +185,9 @@ int do_main() {
   // Now the model is complete.
   cart_pole.Finalize();
 
-  ClockSystem::AddToBuilder(&builder, ros_interface_system->get_ros_interface(),
-                            "/clock", rclcpp::ClockQoS(),
-                            {TriggerType::kPeriodic}, image_publish_period);
+  //   ClockSystem::AddToBuilder(&builder,
+  //                             ros_interface_system->get_ros_interface(),
+  //                             "/clock");
 
   auto diagram = builder.Build();
 
@@ -221,7 +221,7 @@ int do_main() {
   auto& simulator_context = simulator.get_mutable_context();
 
   // Step the simulator in 0.1s intervals
-  constexpr double kStep{0.1};
+  constexpr double kStep{0.01};
   while (simulator_context.get_time() < FLAGS_simulation_time) {
     const double next_time =
         std::min(FLAGS_simulation_time, simulator_context.get_time() + kStep);

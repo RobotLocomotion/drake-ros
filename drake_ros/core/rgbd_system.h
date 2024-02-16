@@ -80,14 +80,16 @@ class RGBDSystem : public drake::systems::LeafSystem<double> {
       drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
       const std::string& topic_name = "/image",
       const std::string& depth_topic_name = "/depth",
-      const rclcpp::QoS& qos = rclcpp::SystemDefaultsQoS(),
+      const rclcpp::QoS& qos = rclcpp::SensorDataQoS(),
       const std::unordered_set<drake::systems::TriggerType>& publish_triggers =
           RosPublisherSystem::kDefaultTriggerTypes,
-      double publish_period = 0.0);
+      double publish_period = 0.0, bool use_same_stamp = true);
 
  private:
   mutable sensor_msgs::msg::Image image_msgs;
   mutable sensor_msgs::msg::Image depth_msgs;
+  mutable rclcpp::Time drake_time;
+  inline static bool use_same_stamp_ = true;
 
  protected:
   void CalcColorImage(const drake::systems::Context<double>& context,
