@@ -1,9 +1,18 @@
 import os
 import xml.etree.ElementTree as ET
 
+def remove_ros_1_tags(root):
+  for element in root:
+    if element.attrib.get('condition') == '$ROS_VERSION == 1':
+      root.remove(element)
+    else:
+      remove_ros_1_tags(element)
 
 def parse_package_xml(path_to_package_xml):
     tree = ET.parse(path_to_package_xml)
+
+    if tree.find('./name').text != "plotjuggler":
+        remove_ros_1_tags(tree.getroot())
 
     depends = set([
         tag.text for tag in tree.findall('./depend')
@@ -20,6 +29,7 @@ def parse_package_xml(path_to_package_xml):
     member_of_groups = set([
         tag.text for tag in tree.findall('./member_of_group')
     ])
+   
     build_type = tree.find('./export/build_type').text
 
     return dict(
