@@ -29,7 +29,6 @@ def parse_package_xml(path_to_package_xml):
     member_of_groups = set([
         tag.text for tag in tree.findall('./member_of_group')
     ])
-   
     build_type = tree.find('./export/build_type').text
 
     return dict(
