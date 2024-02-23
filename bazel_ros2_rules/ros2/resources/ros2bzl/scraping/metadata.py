@@ -1,18 +1,24 @@
 import os
 import xml.etree.ElementTree as ET
 
-def remove_ros_1_tags(root):
-  for element in root:
-    if element.attrib.get('condition') == '$ROS_VERSION == 1':
-      root.remove(element)
-    else:
-      remove_ros_1_tags(element)
+# Remove elemets based on the value contained in the
+# 'condition' attribute
+def remove_elements(root, condition_value):
+    elements_to_remove = []
+
+    for parent in root.iter():
+        for child in list(parent):
+            if child.get('condition') == condition_value :
+                elements_to_remove.append((parent, child))
+
+    for parent, child in elements_to_remove:
+        parent.remove(child)
 
 def parse_package_xml(path_to_package_xml):
     tree = ET.parse(path_to_package_xml)
 
     if tree.find('./name').text != "plotjuggler":
-        remove_ros_1_tags(tree.getroot())
+        remove_elements(tree.getroot(), "$ROS_VERSION == 1")
 
     depends = set([
         tag.text for tag in tree.findall('./depend')
