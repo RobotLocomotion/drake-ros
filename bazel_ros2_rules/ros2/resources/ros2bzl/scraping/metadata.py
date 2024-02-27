@@ -17,8 +17,8 @@ def remove_elements(root, condition_value):
 def parse_package_xml(path_to_package_xml):
     tree = ET.parse(path_to_package_xml)
 
-    #if tree.find('./name').text != "plotjuggler":
-    remove_elements(tree.getroot(), "$ROS_VERSION == 1")
+    if tree.find('./name').text != "plotjuggler":
+        remove_elements(tree.getroot(), "$ROS_VERSION == 1")
 
     depends = set([
         tag.text for tag in tree.findall('./depend')
