@@ -15,7 +15,7 @@ jobs:
       matrix:
         include:
           - os_code_name: jammy
-            ros_distro: rolling
+            ros_distro: iron
           - os_code_name: jammy
             ros_distro: humble
     name: test_against_${{matrix.ros_distro}}_debs
@@ -44,7 +44,7 @@ jobs:
       matrix:
         include:
           - os_code_name: jammy
-            ros_distro: rolling
+            ros_distro: iron
           - os_code_name: jammy
             ros_distro: humble
     name: test_against_${{matrix.ros_distro}}_archive
