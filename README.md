@@ -4,7 +4,6 @@
 
 ## Getting Started
 
-
 See [`drake_ros_examples`](./drake_ros_examples) for an example of
 getting started with both Drake and ROS 2 using `colcon`.
 
