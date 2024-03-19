@@ -14,8 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os_code_name: jammy
-            ros_distro: rolling
+          # TODO : Include rolling later if available on jammy or noble.
           - os_code_name: jammy
             ros_distro: humble
     name: test_against_${{matrix.ros_distro}}_debs
@@ -43,8 +42,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os_code_name: jammy
-            ros_distro: rolling
+          # TODO : Include rolling later if available on jammy or noble.
           - os_code_name: jammy
             ros_distro: humble
     name: test_against_${{matrix.ros_distro}}_archive
