@@ -75,7 +75,7 @@ jobs:
       - name: Cope with Python 2 pollution
         run: apt-get update && apt-get install -y python-is-python3
       - name: Install plotjuggler
-        run: apt-get install ros2-${{matrix.ros_distro}}-plotjuggler-ros
+        run: apt-get install ros-${{matrix.ros_distro}}-plotjuggler-ros
       - name: Build all packages
         run: |
           . /opt/ros/${{matrix.ros_distro}}/setup.sh
