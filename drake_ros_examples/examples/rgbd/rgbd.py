@@ -12,17 +12,19 @@ from drake_ros.core import RGBDSystem
 from drake_ros.core import RosInterfaceSystem
 
 from pydrake.geometry import (ClippingRange, ColorRenderCamera, DepthRange, DepthRenderCamera,
-                              MakeRenderEngineVtk, RenderCameraCore, RenderEngineVtkParams)
+                              MakeRenderEngineGl, RenderCameraCore, RenderEngineGlParams)
 from pydrake.math import RigidTransform, RollPitchYaw
 from pydrake.multibody.parsing import Parser
 from pydrake.multibody.plant import AddMultibodyPlant, MultibodyPlantConfig
 from pydrake.systems.analysis import Simulator
-from pydrake.systems.framework import DiagramBuilder
+from pydrake.systems.framework import DiagramBuilder, TriggerType
 from pydrake.systems.sensors import CameraInfo, PixelType, RgbdSensor
 from pydrake.visualization import (
     ColorizeDepthImage,
     ColorizeLabelImage,
 )
+
+from rclpy import qos
 
 def xyz_rpy_deg(xyz, rpy_deg):
     """Shorthand for defining a pose."""
@@ -50,7 +52,7 @@ def main():
 
     renderer_name = "renderer"
     scene_graph.AddRenderer(
-    renderer_name, MakeRenderEngineVtk(RenderEngineVtkParams()))
+    renderer_name, MakeRenderEngineGl(RenderEngineGlParams()))
     parser = Parser(plant)
 
     package_path = get_package_share_directory("drake_ros_examples")
@@ -69,16 +71,20 @@ def main():
     camera_info_system = CameraInfoSystem.AddToBuilder(
         builder,
         sys_ros_interface.get_ros_interface(),
-        topic_name='/color/camera_info')
+        topic_name='/color/camera_info',
+        publish_period = 1. / 10.,
+        publish_triggers={TriggerType.kPeriodic})
 
     depth_camera_info_system = CameraInfoSystem.AddToBuilder(
         builder,
         sys_ros_interface.get_ros_interface(),
-        topic_name='/depth/camera_info')
+        topic_name='/depth/camera_info',
+        publish_period = 1. / 10.,
+        publish_triggers={TriggerType.kPeriodic})
 
     intrinsics = CameraInfo(
-        width=640,
-        height=480,
+        width=320,
+        height=240,
         fov_y=np.pi/4,
     )
 
@@ -96,7 +102,7 @@ def main():
     depth_camera_info_system[0].set_camera_info(intrinsics)
 
     world_id = plant.GetBodyFrameIdOrThrow(plant.world_body().index())
-    X_WB = xyz_rpy_deg([0.8, 0.0, 0.7], [-1.26, 0, 90])
+    X_WB = xyz_rpy_deg([0.0, 1.0, 0.0], [90, 180, 0.0])
     sensor = RgbdSensor(
         world_id,
         X_PB=X_WB,
@@ -130,7 +136,12 @@ def main():
     builder.Connect(sensor.depth_image_32F_output_port(), depth_port)
 
     [pub_color_system, pub_depth_system] = RGBDSystem.AddToBuilder(
-      builder, sys_ros_interface.get_ros_interface())
+      builder, sys_ros_interface.get_ros_interface(),
+      topic_name="/color/image_raw",
+      depth_topic_name='/depth/image_raw',
+      publish_period = 1. / 25.,
+      publish_triggers={TriggerType.kPeriodic},
+      qos=qos.qos_profile_sensor_data)
 
     builder.Connect(rgbd_publisher.GetOutputPort("rgbd_color"),
                     pub_color_system.get_input_port())

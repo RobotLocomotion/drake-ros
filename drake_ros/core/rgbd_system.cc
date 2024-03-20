@@ -44,17 +44,10 @@ void RGBDSystem::CalcColorImage(const drake::systems::Context<double>& context,
   memcpy(&color_value->data[0], &image_msgs.data[0], image_msgs.data.size());
 }
 
-void RGBDSystem::CalcDepthImage(const drake::systems::Context<double>& context,
+void RGBDSystem::CalcDepthImage(const drake::systems::Context<double>& /*context*/,
                                 sensor_msgs::msg::Image* depth_value) const {
   depth_value->header.frame_id = "CartPole/camera_optical";
-
-  if (!this->use_same_stamp_) {
-    rclcpp::Time now{0, 0, RCL_ROS_TIME};
-    now += rclcpp::Duration::from_seconds(context.get_time());
-    depth_value->header.stamp = now;
-  } else {
-    depth_value->header.stamp = drake_time;
-  }
+  depth_value->header.stamp = drake_time;
 
   depth_value->height = depth_msgs.height;
   depth_value->width = depth_msgs.width;
@@ -289,8 +282,7 @@ std::pair<RosPublisherSystem*, RosPublisherSystem*> RGBDSystem::AddToBuilder(
     const std::string& color_topic_name, const std::string& depth_topic_name,
     const rclcpp::QoS& qos,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
-    double publish_period, bool use_same_stamp) {
-  use_same_stamp_ = use_same_stamp;
+    double publish_period) {
   auto* pub_color_system =
       builder->AddSystem(RosPublisherSystem::Make<sensor_msgs::msg::Image>(
           color_topic_name, qos, ros, publish_triggers, publish_period));
