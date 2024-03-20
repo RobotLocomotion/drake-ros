@@ -12,7 +12,7 @@ def main():
     binary_path = r.Rlocation("ros2/plotjuggler_plotjuggler")
 
     if not binary_path:
-        raise FileNotFoundError("Could not find my_binary")
+        raise FileNotFoundError("Could not find plotjuggler binary")
 
     # Run the binary
     subprocess.run(binary_path, check=True)
