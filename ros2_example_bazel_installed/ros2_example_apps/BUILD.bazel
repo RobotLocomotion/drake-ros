@@ -272,3 +272,19 @@ ros_cc_test(
         "@ros2//resources/rmw_isolation:rmw_isolation_cc",
     ],
 )
+
+ros_py_binary(
+    name = "plotjuggler",
+    srcs = ["plotjuggler.py"],
+    data = [
+        "@ros2//:plotjuggler_ros_cc",
+        "@ros2//:plotjuggler_ros_share",
+        "@ros2//:plotjuggler_ros_transitive_py",
+    ],
+    deps = [
+        "//:ros_msgs_all_py",
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//:plotjuggler_plotjuggler",
+    ],
+)
+
