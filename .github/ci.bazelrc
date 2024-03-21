@@ -15,4 +15,3 @@ fetch --repository_cache /home/runner/.cache/bazel_ci/bazel_externals
 build --repository_cache /home/runner/.cache/bazel_ci/bazel_externals
 fetch --disk_cache /home/runner/.cache/bazel_ci/bazel_local_disk
 build --disk_cache /home/runner/.cache/bazel_ci/bazel_local_disk
-build --cxxopt="-std=c++20"
