@@ -3,6 +3,7 @@ set(HEADERS
   "drake_ros.h"
   "geometry_conversions.h"
   "geometry_conversions_pybind.h"
+  "ros_idl_pybind.h"
   "publisher.h"
   "ros_interface_system.h"
   "ros_publisher_system.h"
@@ -86,4 +87,14 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
   target_link_libraries(test_geometry_conversions drake_ros_core)
+
+  ament_add_gtest(test_clock_system test/test_clock_system.cc)
+  target_compile_definitions(test_clock_system
+    PRIVATE
+    # We do not expose `rmw_isoliation` via CMake.
+    _TEST_DISABLE_RMW_ISOLATION
+  )
+  target_link_libraries(test_clock_system
+    drake_ros_core
+  )
 endif()

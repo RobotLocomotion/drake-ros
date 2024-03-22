@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(drake_ros)
 
-# Default to C++17
+# Default to C++20
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 20)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -25,7 +25,6 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(visualization_msgs REQUIRED)
-find_package(VTK REQUIRED)
 
 add_subdirectory(core)
 add_subdirectory(tf2)
@@ -91,6 +90,5 @@ ament_export_dependencies(rosidl_typesupport_cpp)
 ament_export_dependencies(tf2_eigen)
 ament_export_dependencies(tf2_ros)
 ament_export_dependencies(visualization_msgs)
-ament_export_dependencies(VTK)
 
 ament_package()

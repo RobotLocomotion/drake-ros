@@ -58,7 +58,8 @@ class Memory : public drake::systems::LeafSystem<double> {
                               {all_state_ticket()});
 
     DeclarePerStepEvent(drake::systems::UnrestrictedUpdateEvent<double>(
-        [this](const drake::systems::Context<double>& context,
+        [this](const drake::systems::System<double>&,
+               const drake::systems::Context<double>& context,
                const drake::systems::UnrestrictedUpdateEvent<double>&,
                drake::systems::State<double>* state) {
           // Copy input value to state
@@ -66,6 +67,7 @@ class Memory : public drake::systems::LeafSystem<double> {
               state->get_mutable_abstract_state();
           abstract_state.get_mutable_value(0).SetFrom(
               get_input_port().Eval<drake::AbstractValue>(context));
+          return drake::systems::EventStatus::Succeeded();
         }));
   }
 

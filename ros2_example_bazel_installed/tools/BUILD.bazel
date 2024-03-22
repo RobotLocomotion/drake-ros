@@ -1,3 +1,25 @@
 # -*- python -*-
 
 exports_files(["cmd_exec.sh"])
+
+load(
+    "@ros2//:ros_py.bzl",
+    "ros_py_binary",
+)
+
+ros_py_binary(
+    name = "ros2",
+    srcs = ["ros2.py"],
+    data = [
+        "@ros2",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        # This is the main key for tools like `ros2 topic echo` and
+        # `ros2 bag record` to work with custom messages. You must provide the
+        # generated definitions as a dependency. Ideally, it should come
+        # through a "roll-up" target.
+        "//:ros_msgs_all_py",
+        "@bazel_tools//tools/python/runfiles",
+    ],
+)
