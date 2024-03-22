@@ -1,14 +1,15 @@
 #include "network_isolation.h"
 
-#include <errno.h>
-#include <sched.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <sys/types.h>
 #include <ifaddrs.h>
+#include <sched.h>
+#include <stdlib.h>
 #include <string.h>
-
-#include <iostream>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <net/route.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
 
 namespace network_isolation {
 
@@ -77,6 +78,25 @@ bool create_linux_namespaces()
     err = ioctl(fd, SIOCSIFFLAGS, &ioctl_request);
     if (0 != err) {
         error("failed to set interface flags");
+        freeifaddrs(ifaddr);
+        return false;
+    }
+
+    // For programs that use both LCM and ROS, we need an LCM route ala
+    //  sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev lo
+    struct rtentry route = {};
+    auto* dest = reinterpret_cast<struct sockaddr_in*>(&route.rt_dst);
+    dest->sin_family = AF_INET;
+    dest->sin_addr.s_addr = inet_addr("224.0.0.0");
+    auto* mask = reinterpret_cast<struct sockaddr_in*>(&route.rt_genmask);
+    mask->sin_family = AF_INET;
+    mask->sin_addr.s_addr = inet_addr("240.0.0.0");
+    std::string device{"lo"};
+    route.rt_dev = device.data();
+    route.rt_flags = RTF_UP;
+    err = ioctl(fd, SIOCADDRT, &route);
+    if (0 != err) {
+        error("failed to set route");
         freeifaddrs(ifaddr);
         return false;
     }
