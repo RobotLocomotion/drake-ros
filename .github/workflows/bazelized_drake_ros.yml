@@ -52,13 +52,9 @@ jobs:
         run: rosdep update
       - name: Install bazel_ros2_rules dependencies
         # TODO(sloretz) make bazel_ros2_rules/setup/install_prereqs.sh
-<<<<<<< HEAD
-        run: sudo apt --no-install-recommends install python3 python3-toposort
-=======
         run: |
           sudo apt install python3 python3-toposort
           sudo rm -rf /var/lib/apt/lists/*
->>>>>>> upstream/main
       - name: Download Drake
         run: bazel build @drake//:module_py
         working-directory: drake_ros
