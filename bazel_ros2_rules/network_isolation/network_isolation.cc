@@ -1,5 +1,7 @@
 #include "network_isolation.h"
 
+#include <iostream>
+
 #include <ifaddrs.h>
 #include <sched.h>
 #include <stdlib.h>
