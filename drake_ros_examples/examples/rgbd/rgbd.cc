@@ -185,8 +185,7 @@ int do_main() {
   // Now the model is complete.
   cart_pole.Finalize();
 
-  ClockSystem::AddToBuilder(&builder,
-                            ros_interface_system->get_ros_interface(),
+  ClockSystem::AddToBuilder(&builder, ros_interface_system->get_ros_interface(),
                             "/clock");
 
   auto diagram = builder.Build();

@@ -44,8 +44,9 @@ void RGBDSystem::CalcColorImage(const drake::systems::Context<double>& context,
   memcpy(&color_value->data[0], &image_msgs.data[0], image_msgs.data.size());
 }
 
-void RGBDSystem::CalcDepthImage(const drake::systems::Context<double>& /*context*/,
-                                sensor_msgs::msg::Image* depth_value) const {
+void RGBDSystem::CalcDepthImage(
+    const drake::systems::Context<double>& /*context*/,
+    sensor_msgs::msg::Image* depth_value) const {
   depth_value->header.frame_id = "CartPole/camera_optical";
   depth_value->header.stamp = drake_time;
 
