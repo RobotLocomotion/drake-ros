@@ -273,6 +273,9 @@ ros_cc_test(
     ],
 )
 
+# This is a roll-up target to use plotjuggler with the required
+# ROS plugins. Usage :
+# bazel run //ros2_example_apps:plotjuggler
 ros_py_binary(
     name = "plotjuggler",
     srcs = ["plotjuggler.py"],
