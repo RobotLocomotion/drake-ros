@@ -108,6 +108,14 @@ def configure_package_cc_library(
             sandbox(find_library_path(library))
             for library in metadata['plugin_libraries']
         )
+    # Add an exception for plotjuggler-ros, as it does not
+    # use pluginlib.
+    if 'plotjuggler_ros' in target_name:
+        prefix = "_opt_ros_humble/lib/plotjuggler_ros/"
+        data.extend([
+            prefix + "libDataLoadROS2.so",
+            prefix + "libDataStreamROS2.so",
+            prefix + "libTopicPublisherROS2.so"])
     # Prepare runfiles to support dynamic loading
     data.extend(library for library in libraries if library not in data)
 
