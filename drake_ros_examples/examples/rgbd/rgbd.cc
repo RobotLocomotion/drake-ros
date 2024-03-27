@@ -122,8 +122,10 @@ int do_main() {
       rclcpp::SystemDefaultsQoS(), {TriggerType::kPeriodic},
       image_publish_period);
 
+  // The size of the image is small because the performance of drake with images/depth images
+  // is not good. Vtk and Gl perform similar. 640x480 is generating ~4-5 fps
   const ColorRenderCamera color_camera{
-      {"renderer", {640, 480, M_PI_4}, {0.01, 10.0}, {}}, false};
+      {"renderer", {320, 240, M_PI_4}, {0.01, 10.0}, {}}, false};
   const DepthRenderCamera depth_camera{color_camera.core(), {0.01, 10.0}};
   const RigidTransformd X_WB =
       ParseCameraPose("0.0, 1.0, 0.0, 1.57, 3.14, 0.0");
