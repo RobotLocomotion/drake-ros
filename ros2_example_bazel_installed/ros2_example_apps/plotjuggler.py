@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Roll up script for plotjuggler with ROS.
 """
