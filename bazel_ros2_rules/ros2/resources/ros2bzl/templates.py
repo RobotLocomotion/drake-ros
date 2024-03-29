@@ -109,7 +109,9 @@ def configure_package_cc_library(
             for library in metadata['plugin_libraries']
         )
     # Add an exception for plotjuggler-ros, as it does not
-    # use pluginlib.
+    # use pluginlib, and the manifest does not mention its plugins.
+    # The paths for the plugins are hardcoded in plotjuggler :
+    # https://github.com/facontidavide/PlotJuggler/blob/15dce41f598daed841bf2093aa10ebdf2aa1052f/plotjuggler_app/mainwindow.cpp#L560-L566
     if 'plotjuggler_ros' in target_name:
         prefix = "_opt_ros_humble/lib/plotjuggler_ros/"
         data.extend([

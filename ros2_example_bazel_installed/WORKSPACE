@@ -64,6 +64,8 @@ git_repository(
 
 # Please keep this list sorted
 ROS2_PACKAGES = [
+    "plotjuggler",
+    "plotjuggler_ros",
     "action_msgs",
     "builtin_interfaces",
     "console_bridge_vendor",
@@ -80,10 +82,6 @@ ROS2_PACKAGES = [
     # change implementations
     "rmw_cyclonedds_cpp",
     # "rmw_fastrtps_cpp",
-] + [
-    # Extra packages
-    "plotjuggler",
-    "plotjuggler_ros",
 ]
 
 RESOLVED_PREFIX = (
