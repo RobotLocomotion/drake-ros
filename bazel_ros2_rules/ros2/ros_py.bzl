@@ -1,6 +1,10 @@
 # -*- python -*-
 
 load(
+    "//tools:common.bzl",
+    "incorporate_rmw_implementation",
+)
+load(
     "//tools:dload_py.bzl",
     "dload_py_shim",
 )
@@ -8,10 +12,6 @@ load(
     "//tools:kwargs.bzl",
     "filter_to_only_common_kwargs",
     "remove_test_specific_kwargs",
-)
-load(
-    "//tools:common.bzl",
-    "incorporate_rmw_implementation",
 )
 load(
     ":distro.bzl",

@@ -32,9 +32,9 @@ local_repository(
     path = "../drake_ros",
 )
 
-load("@drake_ros_repo//:required_packages.bzl", "DRAKE_ROS_REQUIRED_PACKAGES")
 load(
     "@drake_ros_repo//:required_packages.bzl",
+    "DRAKE_ROS_REQUIRED_PACKAGES",
     "drake_ros_fail_if_missing_required_packages",
 )
 

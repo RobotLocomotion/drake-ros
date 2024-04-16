@@ -1,5 +1,10 @@
 # -*- python -*-
 
+load("//tools:ament_index.bzl", "AmentIndex")
+load(
+    "//tools:common.bzl",
+    "incorporate_rmw_implementation",
+)
 load(
     "//tools:dload_cc.bzl",
     "dload_cc_ldwrap",
@@ -10,11 +15,6 @@ load(
     "filter_to_only_common_kwargs",
     "remove_test_specific_kwargs",
 )
-load(
-    "//tools:common.bzl",
-    "incorporate_rmw_implementation",
-)
-load("//tools:ament_index.bzl", "AmentIndex")
 load(
     ":distro.bzl",
     "RUNTIME_ENVIRONMENT",

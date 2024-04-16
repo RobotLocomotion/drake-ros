@@ -3,8 +3,7 @@
 
 load("@ros2//:ament_index.bzl", "ament_index_share_files")
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
-load("@ros2//:ros_py.bzl", "ros_py_binary")
-load("@ros2//:ros_py.bzl", "ros_py_test")
+load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
 
 # We use `ament_index_share_files` so we can write code that can find
 # resources both when built by CMake and by Bazel.

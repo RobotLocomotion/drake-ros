@@ -4,13 +4,13 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@python_dev//:version.bzl", "PYTHON_EXTENSION_SUFFIX")
 load("//tools:ament_index.bzl", "AmentIndex")
 load(
+    ":_calculate_rosidl_capitalization.bzl",
+    "calculate_rosidl_capitalization",
+)
+load(
     ":distro.bzl",
     "AVAILABLE_TYPESUPPORT_LIST",
     "REPOSITORY_ROOT",
-)
-load(
-    ":_calculate_rosidl_capitalization.bzl",
-    "calculate_rosidl_capitalization",
 )
 
 RosInterfaces = provider(

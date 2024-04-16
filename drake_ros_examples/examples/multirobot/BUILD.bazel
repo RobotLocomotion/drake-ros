@@ -2,14 +2,13 @@
 # vi: set ft=python :
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
-load("@ros2//:ros_py.bzl", "ros_py_binary")
-load("@ros2//:ros_py.bzl", "ros_py_test")
+load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
 
 ros_cc_binary(
     name = "multirobot",
     srcs = ["multirobot.cc"],
     data = [
-        "@drake//manipulation/models/iiwa_description:models",
+        "@drake_models//:iiwa_description",
     ],
     rmw_implementation = "rmw_cyclonedds_cpp",
     visibility = ["//visibility:public"],
@@ -32,7 +31,7 @@ ros_py_binary(
     name = "multirobot_py",
     srcs = ["multirobot.py"],
     data = [
-        "@drake//manipulation/models/iiwa_description:models",
+        "@drake_models//:iiwa_description",
     ],
     main = "multirobot.py",
     rmw_implementation = "rmw_cyclonedds_cpp",
