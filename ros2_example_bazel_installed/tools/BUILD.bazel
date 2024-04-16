@@ -1,11 +1,11 @@
 # -*- python -*-
 
-exports_files(["cmd_exec.sh"])
-
 load(
     "@ros2//:ros_py.bzl",
     "ros_py_binary",
 )
+
+exports_files(["cmd_exec.sh"])
 
 ros_py_binary(
     name = "ros2",

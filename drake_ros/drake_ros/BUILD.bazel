@@ -1,8 +1,8 @@
-load("@ros2//:ros_py.bzl", "ros_py_test")
 load(
     "@drake//tools/skylark:pybind.bzl",
     "pybind_py_library",
 )
+load("@ros2//:ros_py.bzl", "ros_py_test")
 
 # TODO(Aditya): Add focused unittest for qos_pybind.h
 cc_library(
