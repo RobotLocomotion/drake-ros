@@ -1,19 +1,12 @@
 workspace(name = "ros2_example_bazel_installed")
 
 load("//tools:environ.bzl", "environment_repository")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 environment_repository(
     name = "ros2_example_bazel_installed_environ",
     envvars = ["ROS2_DISTRO_PREFIX"],
 )
 
-load(
-    "@ros2_example_bazel_installed_environ//:environ.bzl",
-    "ROS2_DISTRO_PREFIX",
-)
-
-# Skylib workspace boilerplate
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
@@ -45,8 +38,11 @@ load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
 
 add_bazel_ros2_rules_dependencies()
 
-load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
-load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
+load(
+    "@bazel_ros2_rules//ros2:defs.bzl",
+    "ros2_archive",
+    "ros2_local_repository",
+)
 
 # TODO(Aditya): Replace with a proper rule later.
 new_local_repository(
@@ -56,10 +52,17 @@ new_local_repository(
                             visibility = ["//visibility:public"])""",
 )
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
 git_repository(
     name = "com_github_gflags_gflags",
     tag = "v2.2.2",
     remote = "https://github.com/gflags/gflags.git",
+)
+
+load(
+    "@ros2_example_bazel_installed_environ//:environ.bzl",
+    "ROS2_DISTRO_PREFIX",
 )
 
 # Please keep this list sorted
