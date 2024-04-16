@@ -82,8 +82,9 @@ def main():
 
     # Prepare to load the robot model
     parser = Parser(plant)
-    model_file_path = FindResourceOrThrow(
-        'drake/manipulation/models/iiwa_description/urdf/iiwa14_polytope_collision.urdf')
+    model_file_url = (
+        'package://drake_models/iiwa_description/urdf/'
+        'iiwa14_polytope_collision.urdf')
     model_name = "kuka_iiwa"
 
     # Create a 5x5 array of manipulators
@@ -95,7 +96,7 @@ def main():
         for y in range(NUM_COLS):
             # Load the model from the file and give it a name based on its X
             # and Y coordinates in the array
-            (iiwa,) = parser.AddModels(model_file_path)
+            (iiwa,) = parser.AddModels(url=model_file_url)
             models[x].append(iiwa)
             plant.RenameModelInstance(model_instance=iiwa,
                                       name=model_name + str(x) + '_' + str(y))
