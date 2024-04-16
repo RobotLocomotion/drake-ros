@@ -67,7 +67,6 @@ int main(int argc, char** argv) {
                   scene_visualizer->get_graph_query_input_port());
 
   // Prepare to load the robot model
-  auto parser = drake::multibody::Parser(&plant);
   auto model_file_url =
       "package://drake_models/iiwa_description/urdf/"
       "iiwa14_polytope_collision.urdf";
@@ -84,9 +83,9 @@ int main(int argc, char** argv) {
       // coordinates in the array
       std::stringstream model_instance_name;
       model_instance_name << model_name << xx << '_' << yy;
+      auto parser = drake::multibody::Parser(&plant);
       parser.SetAutoRenaming(true);
       auto model_instance = parser.AddModelsFromUrl(model_file_url)[0];
-
       plant.RenameModelInstance(model_instance, model_instance_name.str());
 
       // Weld the robot to the world so it doesn't fall through the floor

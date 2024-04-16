@@ -81,7 +81,6 @@ def main():
         scene_visualizer.get_graph_query_input_port())
 
     # Prepare to load the robot model
-    parser = Parser(plant)
     model_file_url = (
         'package://drake_models/iiwa_description/urdf/'
         'iiwa14_polytope_collision.urdf')
@@ -96,6 +95,7 @@ def main():
         for y in range(NUM_COLS):
             # Load the model from the file and give it a name based on its X
             # and Y coordinates in the array
+            parser = Parser(plant)
             (iiwa,) = parser.AddModels(url=model_file_url)
             models[x].append(iiwa)
             plant.RenameModelInstance(model_instance=iiwa,
