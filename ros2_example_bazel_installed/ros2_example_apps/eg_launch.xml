@@ -1,0 +1,8 @@
+<launch>
+  <!--
+  See bazel_ros2_rules/ros2/README.md, Launch Files, for notes on
+  features and limitations.
+  -->
+  <executable cmd="ros2_example_apps/eg_talker" output="screen"/>
+  <executable cmd="ros2_example_apps/eg_listener" output="screen"/>
+</launch>

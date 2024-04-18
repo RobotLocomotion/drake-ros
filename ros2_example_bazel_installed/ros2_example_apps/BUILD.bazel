@@ -2,7 +2,7 @@
 # vi: set ft=python :
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary", "ros_cc_test")
-load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
+load("@ros2//:ros_py.bzl", "ros_launch", "ros_py_binary", "ros_py_test")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 load("//tools:cmd_test.bzl", "cmd_test")
 
@@ -198,6 +198,67 @@ ros_py_binary(
     deps = [
         ":ros2_example_apps_msgs_py",
         "@ros2//:rclpy_py",
+    ],
+)
+
+# ROS launch example.
+ros_py_binary(
+    name = "eg_talker",
+    srcs = ["roslaunch_eg_nodes/eg_talker.py"],
+    data = ["@ros2//:rmw_cyclonedds_cpp_cc"],
+    deps = [
+        "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py",
+    ],
+)
+
+ros_cc_binary(
+    name = "eg_listener",
+    srcs = ["roslaunch_eg_nodes/eg_listener.cpp"],
+    data = ["@ros2//:rmw_cyclonedds_cpp_cc"],
+    deps = [
+        "@ros2//:rclcpp_cc",
+        "@ros2//:std_msgs_cc",
+    ],
+)
+
+# See bazel_ros2_rules/ros2/README.md, Launch Files, for notes on
+# features and limitations.
+
+# Uses a python launch file to spawn the talker and listener.
+workspace_name = "ros2_example_bazel_installed"
+
+ros_launch(
+    name = "roslaunch_eg_py",
+    data = [
+        ":eg_listener",
+        ":eg_talker",
+    ],
+    launch_file = "eg_launch.py",
+    workspace_name = workspace_name,
+)
+
+# Uses an xml launch file to spawn the talker and listener.
+ros_launch(
+    name = "roslaunch_eg_xml",
+    data = [
+        ":eg_listener",
+        ":eg_talker",
+    ],
+    launch_file = "eg_launch.xml",
+    workspace_name = workspace_name,
+)
+
+ros_py_test(
+    name = "roslaunch_eg_test",
+    srcs = ["test/roslaunch_eg_test.py"],
+    data = [
+        ":roslaunch_eg_py",
+        ":roslaunch_eg_xml",
+    ],
+    main = "test/roslaunch_eg_test.py",
+    deps = [
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 
