@@ -207,9 +207,12 @@ From the above two examples (at present), the following features are in
     directly, but instead leverage the C-level interfaces, we get into an
     awkward ground of mutually exclusive memory / resource management
     paradigms.
-- Affordances for `ros2 launch`
 
 The other repos, however, have the following that `bazel_ros2_rules` is
 missing:
 
 - Launching from containers (Docker, Apptainer)
+
+Some common features might be:
+
+- Bazel affordances for `ros2 launch`

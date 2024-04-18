@@ -37,10 +37,6 @@ def main():
     while rclpy.ok() and not node.is_done():
         executor.spin_once(timeout_sec=1e-3)
 
-    # Avoid odd error:
-    #   cannot use Destroyable because destruction was requested
-    executor._sigint_gc = None
-
 
 if __name__ == "__main__":
     main()
