@@ -91,6 +91,10 @@ equivalent to the native `py_binary` and `py_test` rules, ensure these binaries
 run in an environment that is tightly coupled with the underlying ROS 2
 workspace install space.
 
+To generate a Python or XML launch target, `ros_launch` is available in the
+`ros_py.bzl` file. Note that there are some nuances; pelase see the Launch
+Files section below.
+
 To generate and build ROS 2 interfaces, a `rosidl_interfaces_group` rule is
 available in the `rosidl.bzl` file. This rule generates C++ and Python code
 for the given ROS 2 interface definition files and builds them using what is
@@ -102,6 +106,21 @@ what is generated and built can be achieved through other rules available in
 the same file. By default, these naming conventions allow downstream
 `rosidl_interfaces_group` rules to depend on upstream `rosidl_interface_group`
 rules.
+
+#### Launch Files
+
+An example of the `ros_launch` macro can be found under `ros2_example_apps`.
+Please note the following limitations:
+
+- Exposing a Bazel package as a ROS package has not yet been done. Once that is
+  done, `launch_ros.actions.Node` / `<node/>` can be used.
+- For Python launch files, it is best to use `Rlocation` (as shown in the example)
+  so that the launch file can be run via `bazel run`, `bazel test`, and
+  `./bazel-bin` (directly).
+- For XML launch files, we need to (somehow) expose either ROS packages or
+  `Rlocation`. This needs to be done in a way that can be discovered by
+  [`Parser.load_launch_extensions`](https://github.com/ros2/launch/blob/698e979382877242621a0d633750fe96ff0c2bca/launch/launch/frontend/parser.py#L72-L87),
+  which may require care to do so correctly in Bazel.
 
 ### Tools
 
@@ -188,9 +207,9 @@ From the above two examples (at present), the following features are in
     directly, but instead leverage the C-level interfaces, we get into an
     awkward ground of mutually exclusive memory / resource management
     paradigms.
+- Affordances for `ros2 launch`
 
 The other repos, however, have the following that `bazel_ros2_rules` is
 missing:
 
-- Affordances for `ros2 launch`
 - Launching from containers (Docker, Apptainer)

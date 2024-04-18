@@ -130,24 +130,102 @@ def ros_py_binary(
     )
     py_binary_rule(name = name, **kwargs)
 
+def _add_deps(existing, new):
+    deps = list(existing)
+    for dep in new:
+        if dep not in deps:
+            deps.append(dep)
+    return deps
+
+def _generate_file_impl(ctx):
+    out = ctx.actions.declare_file(ctx.label.name)
+    ctx.actions.write(out, ctx.attr.content, ctx.attr.is_executable)
+    return [DefaultInfo(
+        files = depset([out]),
+        data_runfiles = ctx.runfiles(files = [out]),
+    )]
+
+_generate_file = rule(
+    attrs = {
+        "content": attr.string(mandatory = True),
+        "is_executable": attr.bool(default = False),
+    },
+    output_to_genfiles = True,
+    implementation = _generate_file_impl,
+)
+
+_LAUNCH_PY_TEMPLATE = """
+import os
+import sys
+
+from bazel_ros_env import Rlocation
+
+assert __name__ == "__main__"
+launch_file = Rlocation({launch_respath})
+ros2_bin = Rlocation("ros2/ros2")
+args = [ros2_bin, "launch", launch_file] + sys.argv[1:]
+os.execv(ros2_bin, args)
+"""
+
+
+def _make_respath(relpath, workspace_name):
+    repo = native.repository_name()
+    if repo == "@":
+        if workspace_name == None:
+            fail(
+                "Please provide `ros_launch(*, workspace_name)` so that " +
+                "paths can be resolved properly"
+            )
+        repo = workspace_name
+    pkg = native.package_name()
+    if pkg != "":
+        pieces = [repo, pkg, relpath]
+    else:
+        pieces = [repo, relpath]
+    return "/".join(pieces)
+
+
 def ros_launch(
         name,
-        launch_file = None,
-        node_targets = []):
-    deps = ["@ros2//:ros2", "@bazel_ros2_rules//ros2:roslaunch_util.py"]
-    srcs = ["@bazel_ros2_rules//ros2:roslaunch_util.py"]
+        launch_file,
+        args = [],
+        data = [],
+        deps = [],
+        visibility = None,
+        # TODO(eric.cousineau): Remove this once Bazel provides a way to tell
+        # runfiles.py to use "this repository" in a way that doesn't require
+        # bespoke information.
+        workspace_name = None,
+        **kwargs):
+    main = "{}_roslaunch_main.py".format(name)
+    launch_respath = _make_respath(launch_file, workspace_name)
 
-    data = [launch_file]
-    data += node_targets
-    args = [launch_file]
+    content = _LAUNCH_PY_TEMPLATE.format(
+        launch_respath = repr(launch_respath),
+    )
+    _generate_file(
+        name = main,
+        content = content,
+        visibility = ["//visibility:private"],
+    )
+
+    deps = _add_deps(
+        deps,
+        [
+            "@ros2//:ros2",
+            "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
+        ],
+    )
+    data = data + [launch_file]
 
     ros_py_binary(
         name = name,
-        main = "@bazel_ros2_rules//ros2:roslaunch_util.py",
+        main = main,
         deps = deps,
-        srcs = srcs,
+        srcs = [main],
         data = data,
-        args = args,
+        visibility = visibility,
+        **kwargs
     )
 
 def ros_py_test(
