@@ -1,4 +1,5 @@
 import rclpy
+from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 
 from std_msgs.msg import String
@@ -6,34 +7,40 @@ from std_msgs.msg import String
 
 class MinimalPublisher(Node):
 
-    def __init__(self):
-        super().__init__('minimal_publisher')
-        self.publisher_ = self.create_publisher(String, 'topic', 10)
-        timer_period = 0.5  # seconds
+    def __init__(self, *, max_count = 10):
+        super().__init__("node")
+        self.publisher = self.create_publisher(String, "topic", 10)
+        timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
+        self.count = 0
+        self.max_count = max_count
 
     def timer_callback(self):
         msg = String()
-        msg.data = 'Hello World: %d' % self.i
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.i += 1
+        msg.data = f"Hello World: {self.count}"
+        self.publisher.publish(msg)
+        self.get_logger().info(f"Publishing: '{msg.data}'")
+        self.count += 1
+
+    def is_done(self):
+        return self.count >= self.max_count
 
 
-def main(args=None):
-    rclpy.init(args=args)
+def main():
+    rclpy.init()
 
-    minimal_publisher = MinimalPublisher()
+    node = MinimalPublisher()
 
-    rclpy.spin(minimal_publisher)
+    # Use explicit `spin_once` so we can manually check for completion.
+    executor = SingleThreadedExecutor()
+    executor.add_node(node)
+    while rclpy.ok() and not node.is_done():
+        executor.spin_once(timeout_sec=1e-3)
 
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    minimal_publisher.destroy_node()
-    rclpy.shutdown()
+    # Avoid odd error:
+    #   cannot use Destroyable because destruction was requested
+    executor._sigint_gc = None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -64,7 +64,10 @@ def _runfiles():
 
 
 def Rlocation(path):
-    return _runfiles().Rlocation(path)
+    result = _runfiles().Rlocation(path)
+    if result is None:
+        raise RuntimeError(f"Unable to find Rlocation({repr(path)})")
+    return result
 
 
 def make_bazel_runfiles_env():
