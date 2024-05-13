@@ -1,0 +1,2 @@
+# Import base-level build configuration.
+import %workspace%/../default.bazelrc

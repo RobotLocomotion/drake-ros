@@ -1,3 +1,6 @@
+# Don't use bzlmod (yet); eventually we'll want to enable this.
+common --enable_bzlmod=false
+
 # Use C++20.
 build --cxxopt=-std=c++20
 build --host_cxxopt=-std=c++20
