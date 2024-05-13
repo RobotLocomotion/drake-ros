@@ -104,6 +104,7 @@ def configure_package_cc_library(
         data.append(share_label(name, metadata))
     # Add in plugins, if any
     if 'plugin_libraries' in metadata:
+        print(name)
         data.extend(
             sandbox(find_library_path(library))
             for library in metadata['plugin_libraries']

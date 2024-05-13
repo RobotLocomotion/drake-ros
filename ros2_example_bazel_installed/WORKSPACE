@@ -65,24 +65,9 @@ load(
     "ROS2_DISTRO_PREFIX",
 )
 
-# Please keep this list sorted
+# HACK
 ROS2_PACKAGES = [
-    "action_msgs",
-    "builtin_interfaces",
-    "console_bridge_vendor",
-    "rclcpp",
-    "rclcpp_action",
-    "rclpy",
-    "ros2cli",
-    "ros2cli_common_extensions",
-    "rosbag2",
-    "rosidl_default_generators",
-    "tf2_py",
-] + [
-    # These are possible RMW implementations. Uncomment one and only one to
-    # change implementations
-    "rmw_cyclonedds_cpp",
-    # "rmw_fastrtps_cpp",
+    "rviz_default_plugins",
 ]
 
 RESOLVED_PREFIX = (
