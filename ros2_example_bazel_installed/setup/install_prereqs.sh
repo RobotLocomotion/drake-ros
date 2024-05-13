@@ -58,11 +58,12 @@ function dpkg_install_from_curl() {
 
 apt install g++ unzip zlib1g-dev
 
-# TODO(sloretz) Make sure the version of bazel is exactly the same as the one used by Drake
+# TODO(eric.cousineau) Once there's a bazelisk 1.20 that incorporates pr563, we
+# should switch to using that here.
 dpkg_install_from_curl \
-  bazel 6.4.0 \
-  https://github.com/bazelbuild/bazel/releases/download/6.4.0/bazel_6.4.0-linux-x86_64.deb \
-  9276a1e11f03e9f7492f009803c95bddc307993c9ab3c463721c9f6cdaa2ccc1
+  bazelisk 1.19.0 \
+  https://drake-mirror.csail.mit.edu/github/bazelbuild/bazelisk/pr563/bazelisk_1.19.0-9-g58a850f_amd64.deb \
+  c2bfd15d6c3422ae540cda9facc0ac395005e2701c09dbb15d40447b53e831d4
 
 # If the user did not explicitly specify their installation prefix, install
 # ROS 2 Humble.
