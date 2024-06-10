@@ -172,13 +172,8 @@ def main():
     simulator.set_publish_every_time_step(False)
     simulator.set_target_realtime_rate(1.0)
 
-    # Step the simulator in 0.1s intervals
-    step = 0.1
-    while simulator_context.get_time() < args.simulation_time:
-        next_time = min(
-            simulator_context.get_time() + step, args.simulation_time,
-        )
-        simulator.AdvanceTo(next_time)
+    # Step the simulator.
+    simulator.AdvanceTo(args.simulation_time)
 
 
 if __name__ == '__main__':
