@@ -6,7 +6,7 @@ set(HEADERS
   "geometry_conversions_pybind.h"
   "ros_idl_pybind.h"
   "publisher.h"
-  "rgbd_system.h"
+  "image_system.h"
   "ros_interface_system.h"
   "ros_publisher_system.h"
   "ros_subscriber_system.h"
@@ -27,7 +27,7 @@ add_library(drake_ros_core
   drake_ros.cc
   geometry_conversions.cc
   publisher.cc
-  rgbd_system.cc
+  image_system.cc
   ros_interface_system.cc
   ros_publisher_system.cc
   ros_subscriber_system.cc

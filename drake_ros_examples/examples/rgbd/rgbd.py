@@ -8,7 +8,7 @@ from ament_index_python.packages import get_package_share_directory
 import drake_ros.core
 from drake_ros.core import ClockSystem
 from drake_ros.core import CameraInfoSystem
-from drake_ros.core import RGBDSystem
+from drake_ros.core import ImageSystem
 from drake_ros.core import RosInterfaceSystem
 
 from pydrake.geometry import (ClippingRange, ColorRenderCamera, DepthRange, DepthRenderCamera,
@@ -124,7 +124,7 @@ def main():
     builder.Connect(sensor.GetOutputPort("label_image"),
                     colorize_label.GetInputPort("label_image"))
 
-    rgbd_publisher = builder.AddSystem(RGBDSystem())
+    rgbd_publisher = builder.AddSystem(ImageSystem())
 
     image_publish_period = 1. / 30.
     rgbd_port = rgbd_publisher.DeclareImageInputPort(
@@ -135,7 +135,7 @@ def main():
             PixelType.kDepth32F, "depth", image_publish_period, 0.)
     builder.Connect(sensor.depth_image_32F_output_port(), depth_port)
 
-    [pub_color_system, pub_depth_system] = RGBDSystem.AddToBuilder(
+    [pub_color_system, pub_depth_system] = ImageSystem.AddToBuilder(
       builder, sys_ros_interface.get_ros_interface(),
       topic_name="/color/image_raw",
       depth_topic_name='/depth/image_raw',

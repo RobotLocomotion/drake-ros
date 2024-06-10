@@ -12,7 +12,7 @@
 #include "drake_ros/core/geometry_conversions.h"
 #include "drake_ros/core/geometry_conversions_pybind.h"
 #include "drake_ros/core/qos_pybind.h"
-#include "drake_ros/core/rgbd_system.h"
+#include "drake_ros/core/image_system.h"
 #include "drake_ros/core/ros_interface_system.h"
 #include "drake_ros/core/ros_publisher_system.h"
 #include "drake_ros/core/ros_subscriber_system.h"
@@ -26,7 +26,7 @@ using drake_ros::core::CameraInfoSystem;
 using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
 using drake_ros::core::init;
-using drake_ros::core::RGBDSystem;
+using drake_ros::core::ImageSystem;
 using drake_ros::core::RosInterfaceSystem;
 using drake_ros::core::RosPublisherSystem;
 using drake_ros::core::RosSubscriberSystem;
@@ -249,11 +249,11 @@ void DefCore(py::module m) {
                   RosPublisherSystem::kDefaultTriggerTypes},
           py::arg("publish_period") = 0.0);
 
-  py::class_<RGBDSystem, LeafSystem<double>>(m, "RGBDSystem")
+  py::class_<ImageSystem, LeafSystem<double>>(m, "ImageSystem")
       .def(py::init<>())
       .def(
           "DeclareImageInputPort",
-          [](RGBDSystem& self, drake::systems::sensors::PixelType pixel_type,
+          [](ImageSystem& self, drake::systems::sensors::PixelType pixel_type,
              std::string port_name, double publish_period,
              double start_time) -> const drake::systems::InputPort<double>& {
             return self.DeclareImageInputPort(pixel_type, std::move(port_name),
@@ -264,7 +264,7 @@ void DefCore(py::module m) {
           py_rvp::reference_internal)
       .def(
           "DeclareDepthInputPort",
-          [](RGBDSystem& self, drake::systems::sensors::PixelType pixel_type,
+          [](ImageSystem& self, drake::systems::sensors::PixelType pixel_type,
              std::string port_name, double publish_period,
              double start_time) -> const drake::systems::InputPort<double>& {
             return self.DeclareDepthInputPort(pixel_type, std::move(port_name),
@@ -281,7 +281,7 @@ void DefCore(py::module m) {
              const std::unordered_set<drake::systems::TriggerType>&
                  pub_triggers,
              double publish_period) {
-            auto [rgba_system, pub_system] = RGBDSystem::AddToBuilder(
+            auto [rgba_system, pub_system] = ImageSystem::AddToBuilder(
                 builder, ros, topic_name, depth_topic_name, qos, pub_triggers,
                 publish_period);
 

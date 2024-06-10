@@ -19,7 +19,7 @@
 #include <drake_ros/core/camera_info_system.h>
 #include <drake_ros/core/clock_system.h>
 #include <drake_ros/core/drake_ros.h>
-#include <drake_ros/core/rgbd_system.h>
+#include <drake_ros/core/image_system.h>
 #include <drake_ros/core/ros_interface_system.h>
 #include <drake_ros/tf2/scene_tf_broadcaster_system.h>
 #include <drake_ros/viz/rviz_visualizer.h>
@@ -37,7 +37,7 @@ using drake::multibody::RevoluteJoint;
 using drake_ros::core::CameraInfoSystem;
 using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
-using drake_ros::core::RGBDSystem;
+using drake_ros::core::ImageSystem;
 using drake_ros::core::RosInterfaceSystem;
 using drake_ros::viz::RvizVisualizer;
 
@@ -142,8 +142,8 @@ int do_main() {
   builder.Connect(scene_graph.get_query_output_port(),
                   camera->query_object_input_port());
 
-  RGBDSystem* rgbd_publisher{nullptr};
-  rgbd_publisher = builder.template AddSystem<RGBDSystem>();
+  ImageSystem* rgbd_publisher{nullptr};
+  rgbd_publisher = builder.template AddSystem<ImageSystem>();
 
   const auto& rgbd_port =
       rgbd_publisher->DeclareImageInputPort<PixelType::kRgba8U>(
@@ -174,7 +174,7 @@ int do_main() {
   builder.Connect(scene_graph.get_query_output_port(),
                   scene_tf_broadcaster->get_graph_query_input_port());
 
-  auto [pub_color_system, pub_depth_system] = RGBDSystem::AddToBuilder(
+  auto [pub_color_system, pub_depth_system] = ImageSystem::AddToBuilder(
       &builder, ros_interface_system->get_ros_interface(), "/color/image_raw",
       "/depth/image_raw", rclcpp::SensorDataQoS(), {TriggerType::kPeriodic},
       image_publish_period);

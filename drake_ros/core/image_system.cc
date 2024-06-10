@@ -1,4 +1,4 @@
-#include "drake_ros/core/rgbd_system.h"
+#include "drake_ros/core/image_system.h"
 
 #include <cstddef>
 #include <cstring>
@@ -10,7 +10,7 @@
 
 using drake::systems::sensors::Image;
 using drake::systems::sensors::ImageRgba8U;
-using drake_ros::core::RGBDSystem;
+using drake_ros::core::ImageSystem;
 using drake_ros::core::RosPublisherSystem;
 
 using drake::Value;
@@ -21,14 +21,14 @@ using drake::systems::EventStatus;
 using drake::systems::PublishEvent;
 using drake::systems::TriggerType;
 
-RGBDSystem::RGBDSystem() {
-  DeclareAbstractOutputPort("rgbd_color", &RGBDSystem::CalcColorImage);
-  DeclareAbstractOutputPort("rgbd_depth", &RGBDSystem::CalcDepthImage);
+ImageSystem::ImageSystem() {
+  DeclareAbstractOutputPort("rgbd_color", &ImageSystem::CalcColorImage);
+  DeclareAbstractOutputPort("rgbd_depth", &ImageSystem::CalcDepthImage);
 }
 
-RGBDSystem::~RGBDSystem() {}
+ImageSystem::~ImageSystem() {}
 
-void RGBDSystem::CalcColorImage(const drake::systems::Context<double>& context,
+void ImageSystem::CalcColorImage(const drake::systems::Context<double>& context,
                                 sensor_msgs::msg::Image* color_value) const {
   color_value->header.frame_id = "CartPole/camera_optical";
 
@@ -44,7 +44,7 @@ void RGBDSystem::CalcColorImage(const drake::systems::Context<double>& context,
   memcpy(&color_value->data[0], &image_msgs.data[0], image_msgs.data.size());
 }
 
-void RGBDSystem::CalcDepthImage(
+void ImageSystem::CalcDepthImage(
     const drake::systems::Context<double>& /*context*/,
     sensor_msgs::msg::Image* depth_value) const {
   depth_value->header.frame_id = "CartPole/camera_optical";
@@ -68,7 +68,7 @@ void RGBDSystem::CalcDepthImage(
   }
 }
 
-const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
+const InputPort<double>& ImageSystem::DeclareDepthInputPort(
     PixelType pixel_type, std::string port_name, double publish_period,
     double start_time) {
   switch (pixel_type) {
@@ -99,12 +99,12 @@ const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
       break;
   }
   throw std::logic_error(fmt::format(
-      "RGBDSystem::DeclareDepthInputPort does not support pixel_type={}",
+      "ImageSystem::DeclareDepthInputPort does not support pixel_type={}",
       static_cast<int>(pixel_type)));
 }
 
 template <PixelType kPixelType>
-const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
+const InputPort<double>& ImageSystem::DeclareDepthInputPort(
     std::string port_name, double publish_period, double start_time) {
   // Test to confirm valid pixel type.
   static_assert(
@@ -113,7 +113,7 @@ const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
       "and kDepth16U");
 
   if (publish_period <= 0) {
-    throw std::logic_error("RGBDSystem: publish period must be positive");
+    throw std::logic_error("ImageSystem: publish period must be positive");
   }
 
   // Now configure the system for the valid port declaration.
@@ -126,7 +126,7 @@ const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
       [port_index = port.get_index()](const System<double>& system,
                                       const Context<double>& context,
                                       const PublishEvent<double>&) {
-        const auto& self = dynamic_cast<const RGBDSystem&>(system);
+        const auto& self = dynamic_cast<const ImageSystem&>(system);
         self.PubDepth<kPixelType>(context, port_index);
         return EventStatus::Succeeded();
       });
@@ -135,7 +135,7 @@ const InputPort<double>& RGBDSystem::DeclareDepthInputPort(
   return port;
 }
 
-const InputPort<double>& RGBDSystem::DeclareImageInputPort(
+const InputPort<double>& ImageSystem::DeclareImageInputPort(
     PixelType pixel_type, std::string port_name, double publish_period,
     double start_time) {
   switch (pixel_type) {
@@ -166,21 +166,21 @@ const InputPort<double>& RGBDSystem::DeclareImageInputPort(
       break;
   }
   throw std::logic_error(fmt::format(
-      "RGBDSystem::DeclareImageInputPort does not support pixel_type={}",
+      "ImageSystem::DeclareImageInputPort does not support pixel_type={}",
       static_cast<int>(pixel_type)));
 }
 
 template <PixelType kPixelType>
-const InputPort<double>& RGBDSystem::DeclareImageInputPort(
+const InputPort<double>& ImageSystem::DeclareImageInputPort(
     std::string port_name, double publish_period, double start_time) {
   // Test to confirm valid pixel type.
   static_assert(
       kPixelType == PixelType::kRgba8U || kPixelType == PixelType::kGrey8U,
-      "RGBDSystem color image: the only supported pixel types are: kRgba8U "
+      "ImageSystem color image: the only supported pixel types are: kRgba8U "
       "and kGrey8U");
 
   if (publish_period <= 0) {
-    throw std::logic_error("RGBDSystem: publish period must be positive");
+    throw std::logic_error("ImageSystem: publish period must be positive");
   }
 
   // Now configure the system for the valid port declaration.
@@ -193,7 +193,7 @@ const InputPort<double>& RGBDSystem::DeclareImageInputPort(
       [port_index = port.get_index()](const System<double>& system,
                                       const Context<double>& context,
                                       const PublishEvent<double>&) {
-        const auto& self = dynamic_cast<const RGBDSystem&>(system);
+        const auto& self = dynamic_cast<const ImageSystem&>(system);
         self.PubImage<kPixelType>(context, port_index);
         return EventStatus::Succeeded();
       });
@@ -203,7 +203,7 @@ const InputPort<double>& RGBDSystem::DeclareImageInputPort(
 }
 
 template <PixelType kPixelType>
-void RGBDSystem::PubImage(const Context<double>& context, int index) const {
+void ImageSystem::PubImage(const Context<double>& context, int index) const {
   const auto& port = get_input_port(index);
   const Image<kPixelType>& image = port.Eval<Image<kPixelType>>(context);
 
@@ -227,7 +227,7 @@ void RGBDSystem::PubImage(const Context<double>& context, int index) const {
 }
 
 template <PixelType kPixelType>
-void RGBDSystem::PubDepth(const Context<double>& context, int index) const {
+void ImageSystem::PubDepth(const Context<double>& context, int index) const {
   const auto& port = get_input_port(index);
   const Image<kPixelType>& image = port.Eval<Image<kPixelType>>(context);
 
@@ -251,34 +251,34 @@ void RGBDSystem::PubDepth(const Context<double>& context, int index) const {
 }
 
 template const InputPort<double>&
-RGBDSystem::DeclareImageInputPort<PixelType::kRgba8U>(std::string port_name,
+ImageSystem::DeclareImageInputPort<PixelType::kRgba8U>(std::string port_name,
                                                       double publish_period,
                                                       double start_time);
 template const InputPort<double>&
-RGBDSystem::DeclareImageInputPort<PixelType::kGrey8U>(std::string port_name,
+ImageSystem::DeclareImageInputPort<PixelType::kGrey8U>(std::string port_name,
                                                       double publish_period,
                                                       double start_time);
 
-template void RGBDSystem::PubImage<PixelType::kRgba8U>(
+template void ImageSystem::PubImage<PixelType::kRgba8U>(
     const Context<double>& context, int index) const;
-template void RGBDSystem::PubImage<PixelType::kGrey8U>(
+template void ImageSystem::PubImage<PixelType::kGrey8U>(
     const Context<double>& context, int index) const;
 
 template const InputPort<double>&
-RGBDSystem::DeclareDepthInputPort<PixelType::kDepth32F>(std::string port_name,
+ImageSystem::DeclareDepthInputPort<PixelType::kDepth32F>(std::string port_name,
                                                         double publish_period,
                                                         double start_time);
 template const InputPort<double>&
-RGBDSystem::DeclareDepthInputPort<PixelType::kDepth16U>(std::string port_name,
+ImageSystem::DeclareDepthInputPort<PixelType::kDepth16U>(std::string port_name,
                                                         double publish_period,
                                                         double start_time);
 
-template void RGBDSystem::PubDepth<PixelType::kDepth32F>(
+template void ImageSystem::PubDepth<PixelType::kDepth32F>(
     const Context<double>& context, int index) const;
-template void RGBDSystem::PubDepth<PixelType::kDepth16U>(
+template void ImageSystem::PubDepth<PixelType::kDepth16U>(
     const Context<double>& context, int index) const;
 
-std::pair<RosPublisherSystem*, RosPublisherSystem*> RGBDSystem::AddToBuilder(
+std::pair<RosPublisherSystem*, RosPublisherSystem*> ImageSystem::AddToBuilder(
     drake::systems::DiagramBuilder<double>* builder, DrakeRos* ros,
     const std::string& color_topic_name, const std::string& depth_topic_name,
     const rclcpp::QoS& qos,

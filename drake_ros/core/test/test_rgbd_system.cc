@@ -7,12 +7,12 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include "drake_ros/core/drake_ros.h"
-#include "drake_ros/core/rgbd_system.h"
+#include "drake_ros/core/image_system.h"
 #include "drake_ros/core/ros_interface_system.h"
 
 using drake::multibody::AddMultibodyPlantSceneGraph;
 using drake_ros::core::DrakeRos;
-using drake_ros::core::RGBDSystem;
+using drake_ros::core::ImageSystem;
 using drake_ros::core::RosInterfaceSystem;
 
 using drake::geometry::RenderEngineVtkParams;
@@ -21,7 +21,7 @@ using drake::geometry::render::DepthRenderCamera;
 
 using drake::math::RigidTransformd;
 
-TEST(Integration, rgbd_system) {
+TEST(Integration, image_system) {
   drake_ros::core::init(0, nullptr);
 
   drake::systems::DiagramBuilder<double> builder;
@@ -48,8 +48,8 @@ TEST(Integration, rgbd_system) {
                   camera->query_object_input_port());
 
   const double image_publish_period = 1. / 30;
-  RGBDSystem* rgbd_publisher{nullptr};
-  rgbd_publisher = builder.template AddSystem<RGBDSystem>();
+  ImageSystem* rgbd_publisher{nullptr};
+  rgbd_publisher = builder.template AddSystem<ImageSystem>();
 
   const auto& rgbd_port =
       rgbd_publisher->DeclareImageInputPort<PixelType::kRgba8U>(
@@ -61,7 +61,7 @@ TEST(Integration, rgbd_system) {
           "depth", image_publish_period, 0.);
   builder.Connect(camera->depth_image_32F_output_port(), depth_port);
 
-  auto [pub_color_system, pub_depth_system] = RGBDSystem::AddToBuilder(
+  auto [pub_color_system, pub_depth_system] = ImageSystem::AddToBuilder(
       &builder, ros_interface_system->get_ros_interface());
 
   builder.Connect(rgbd_publisher->GetOutputPort("rgbd_color"),

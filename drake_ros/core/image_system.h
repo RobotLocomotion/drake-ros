@@ -24,13 +24,13 @@ namespace drake_ros::core {
 /** A system that converts drake's RGBD camera to a sensor_msgs/msg/Image
  * messages.
  */
-class RGBDSystem : public drake::systems::LeafSystem<double> {
+class ImageSystem : public drake::systems::LeafSystem<double> {
  public:
   /** A constructor for the rbgd system.
    */
-  RGBDSystem();
+  ImageSystem();
 
-  ~RGBDSystem() override;
+  ~ImageSystem() override;
 
   const InputPort<double>& DeclareImageInputPort(PixelType pixel_type,
                                                  std::string port_name,
@@ -69,9 +69,9 @@ class RGBDSystem : public drake::systems::LeafSystem<double> {
   // invariant that port_info_.size() == num_input_ports().
   std::vector<RgbdSensorPortInfo> port_info_;
 
-  /** Add a RGBDSystem and RosPublisherSystem to a diagram builder.
+  /** Add a ImageSystem and RosPublisherSystem to a diagram builder.
    *
-   * This adds both a RGBDSystem and a RosPublisherSystem that publishes
+   * This adds both a ImageSystem and a RosPublisherSystem that publishes
    * time to a `/image` and `depth` topics. All nodes should have their
    * `use_sim_time` parameter set to `True` so they use the published topic as
    * their source of time.
