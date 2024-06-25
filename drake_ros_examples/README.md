@@ -1,6 +1,7 @@
 # Drake ROS Examples
 
-This is a collection of examples built around `drake_ros` libraries' C++ and Python APIs.
+This is a collection of examples built around `drake_ros` libraries' C++ and
+Python APIs.
 
 ## Building with Colcon
 
@@ -124,3 +125,5 @@ tooling per the list below.
 - [IIWA manipulator](./examples/iiwa_manipulator): an RViz visualization of a static IIWA arm.
 - [Multi-Robot Simulation](./examples/multirobot): Simulates multiple robots
   using Drake and visualizes them with RViz using a single marker display topic.
+- [UFO](./examples/multirobot): an RViz visualization of a flying object
+controlled with the Drake systems framework and commanded using RViz.
