@@ -36,7 +36,7 @@ namespace {
 /// Converts Drake shape descriptions to ROS Marker messages.
 class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SceneGeometryToMarkers);
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SceneGeometryToMarkers)
 
   explicit SceneGeometryToMarkers(const SceneMarkersParams& params)
       : params_(params) {}
