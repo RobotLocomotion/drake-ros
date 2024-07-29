@@ -13,6 +13,10 @@ if("@PACKAGE@" STREQUAL "rviz_ogre_vendor")
   set(CMAKE_FIND_LIBRARY_PREFIXES ";lib")
 endif()
 
+if("@PACKAGE@" STREQUAL "plotjuggler")
+  find_package(Qt5 COMPONENTS Widgets Concurrent Svg REQUIRED)
+endif()
+
 find_package(@PACKAGE@ REQUIRED)
 
 file(WRITE empty.cc "")
