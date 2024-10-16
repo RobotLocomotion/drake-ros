@@ -13,6 +13,7 @@ endif()
 find_package(ament_cmake_ros REQUIRED)
 
 find_package(drake REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
 

@@ -25,7 +25,6 @@ install(
 )
 
 if(BUILD_TESTING)
-  find_package(Python3 COMPONENTS Interpreter)
   find_package(ament_cmake_test REQUIRED)
 
   # TODO(eric.cousineau): I am not sure how to place a test-only Python library
