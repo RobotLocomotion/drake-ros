@@ -213,7 +213,8 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.y = convex.scale();
     marker.scale.z = convex.scale();
     // Assume it is an absolute path and turn it into a file URL.
-    marker.mesh_resource = "file://" + convex.filename();
+    DRAKE_THROW_UNLESS(convex.source().is_path());
+    marker.mesh_resource = "file://" + convex.source().path().string();
     marker.pose = RigidTransformToRosPose(X_FG_);
   }
 
@@ -226,7 +227,8 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.y = mesh.scale();
     marker.scale.z = mesh.scale();
     // Assume it is an absolute path and turn it into a file URL.
-    marker.mesh_resource = "file://" + mesh.filename();
+    DRAKE_THROW_UNLESS(mesh.source().is_path());
+    marker.mesh_resource = "file://" + mesh.source().path().string();
     marker.pose = RigidTransformToRosPose(X_FG_);
   }
 

@@ -17,6 +17,8 @@ libfreetype6-dev
 libopencv-dev
 liborocos-kdl-dev
 libpcl-all-dev
+libpcl-common
+libpcl-io
 libqt5-core
 libqt5-gui
 libqt5-opengl
