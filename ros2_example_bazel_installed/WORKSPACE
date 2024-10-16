@@ -67,6 +67,8 @@ load(
 
 # Please keep this list sorted
 ROS2_PACKAGES = [
+    "plotjuggler",
+    "plotjuggler_ros",
     "action_msgs",
     "builtin_interfaces",
     "console_bridge_vendor",
