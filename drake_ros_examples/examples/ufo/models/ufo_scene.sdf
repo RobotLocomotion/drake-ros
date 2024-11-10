@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="ufo_scene">
+    <model name="spacecraft">
+      <include merge="true">
+        <uri>package://drake_ros_examples/models/ufo.sdf</uri>
+      </include>
+    </model>
+    <model name="ground">
+      <include merge="true">
+        <uri>package://drake_ros_examples/models/ground.sdf</uri>
+      </include>
+      <static>true</static>
+    </model>
+  </world>
+</sdf>

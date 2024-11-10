@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <model name="ground">
+    <static>true</static>
+    <link name="ground">
+      <visual name="visual">
+        <geometry>
+          <plane>
+            <size>50 50</size>
+          </plane>
+        </geometry>
+        <material>
+          <diffuse>0.0 0.5 0.0 1.0</diffuse>
+        </material>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <plane>
+            <size>50 50</size>
+          </plane>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
