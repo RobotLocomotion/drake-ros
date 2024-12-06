@@ -95,7 +95,7 @@ def _rosidl_generate_genrule_impl(ctx):
     if cpp_visibility_header_file != None:
         # This template is adapted directly from the mentioned template file.
         cpp_visibility_header_template = (
-"""
+            """
 // generated from rosidl_generator_cpp/resource/rosidl_generator_cpp__visibility_control.hpp.in
 // generated code does not contain a copyright notice
 
