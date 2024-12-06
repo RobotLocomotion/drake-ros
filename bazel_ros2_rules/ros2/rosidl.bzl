@@ -138,8 +138,8 @@ extern "C"
 #endif
 
 #endif  // {package_name_upper}__MSG__ROSIDL_GENERATOR_CPP__VISIBILITY_CONTROL_HPP_
-"""
-)
+"""  # noqa
+        )
 
         package_name = str(ctx.attr.group)
         package_name_upper = package_name.upper()
