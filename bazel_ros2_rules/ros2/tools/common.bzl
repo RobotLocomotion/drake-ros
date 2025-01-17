@@ -17,6 +17,7 @@ def share_filegroup(name, share_directories):
                 "*/*.bash",
                 "*/*.dsv",
             ],
+            allow_empty = True,
         ) if " " not in path],
         # NOTE(hidmic): workaround lack of support for spaces.
         # See https://github.com/bazelbuild/bazel/issues/4327.
@@ -30,7 +31,7 @@ def interfaces_filegroup(name, share_directory):
             "{}/**/*.msg".format(share_directory),
             "{}/**/*.srv".format(share_directory),
             "{}/**/*.action".format(share_directory),
-        ]),
+        ], allow_empty = True),
     )
 
 def incorporate_rmw_implementation(kwargs, env_changes, rmw_implementation):
