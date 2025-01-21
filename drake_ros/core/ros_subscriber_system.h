@@ -29,7 +29,7 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
   static std::unique_ptr<RosSubscriberSystem> Make(ArgsT&&... args) {
     // Assume C++ typesupport since this is a C++ template function
     return std::make_unique<RosSubscriberSystem>(
-        std::make_unique<Serializer<MessageT>>(), std::forward<ArgsT>(args)...);
+        std::make_shared<Serializer<MessageT>>(), std::forward<ArgsT>(args)...);
   }
 
   /** A constructor for the ROS subscriber system.
@@ -41,7 +41,7 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
    @param[in] qos QoS profile for the underlying ROS subscription.
    @param[in] ros interface to a live ROS node to publish from.
    */
-  RosSubscriberSystem(std::unique_ptr<SerializerInterface> serializer,
+  RosSubscriberSystem(std::shared_ptr<const SerializerInterface> serializer,
                       const std::string& topic_name, const rclcpp::QoS& qos,
                       DrakeRos* ros);
 

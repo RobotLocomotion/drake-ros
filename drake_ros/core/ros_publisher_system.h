@@ -57,7 +57,7 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
    @param[in] publish_period optional publishing period, in seconds.
      Only applicable when periodic publishing is enabled.
    */
-  RosPublisherSystem(std::unique_ptr<SerializerInterface> serializer,
+  RosPublisherSystem(std::shared_ptr<const SerializerInterface> serializer,
                      const std::string& topic_name, const rclcpp::QoS& qos,
                      DrakeRos* ros,
                      const std::unordered_set<drake::systems::TriggerType>&

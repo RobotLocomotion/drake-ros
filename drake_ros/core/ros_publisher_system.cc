@@ -13,13 +13,13 @@ namespace drake_ros {
 namespace core {
 struct RosPublisherSystem::Impl {
   // Interface for message (de)serialization.
-  std::unique_ptr<SerializerInterface> serializer;
+  std::shared_ptr<const SerializerInterface> serializer;
   // Publisher for serialized messages.
   std::unique_ptr<internal::Publisher> pub;
 };
 
 RosPublisherSystem::RosPublisherSystem(
-    std::unique_ptr<SerializerInterface> serializer,
+    std::shared_ptr<const SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
     double publish_period)

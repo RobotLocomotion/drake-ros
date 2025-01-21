@@ -36,9 +36,9 @@ using py_rvp = pybind11::return_value_policy;
 
 // A (de)serialization interface implementation for Python ROS messages
 // that can be overriden from Python itself.
-class PySerializerInterface : public py::wrapper<SerializerInterface> {
+class PySerializerInterface : public SerializerInterface {
  public:
-  using Base = py::wrapper<SerializerInterface>;
+  using Base = SerializerInterface;
 
   PySerializerInterface() : Base() {}
 
@@ -50,8 +50,17 @@ class PySerializerInterface : public py::wrapper<SerializerInterface> {
   }
 
   std::unique_ptr<drake::AbstractValue> CreateDefaultValue() const override {
-    PYBIND11_OVERLOAD_PURE(std::unique_ptr<drake::AbstractValue>,
-                           SerializerInterface, CreateDefaultValue);
+    // Our required unique_ptr return type cannot be directly fulfilled by a
+    // Python override, so we only ask the Python override for a py::object and
+    // then just Clone it to obtain the necessary C++ signature. Because the
+    // PYBIND11_OVERLOAD_PURE macro embeds a `return ...;` statement, we must
+    // wrap it in lambda so that we can post-process the return value.
+    py::object default_value = [this]() -> py::object {
+      PYBIND11_OVERLOAD_PURE(
+          py::object, SerializerInterface, CreateDefaultValue);
+    }();
+    DRAKE_THROW_UNLESS(!default_value.is_none());
+    return default_value.template cast<const drake::AbstractValue*>()->Clone();
   }
 
   rclcpp::SerializedMessage Serialize(
@@ -247,7 +256,7 @@ void DefCore(py::module m) {
            });
 
   py::class_<RosPublisherSystem, LeafSystem<double>>(m, "RosPublisherSystem")
-      .def(py::init([](std::unique_ptr<SerializerInterface> serializer,
+      .def(py::init([](std::shared_ptr<const SerializerInterface> serializer,
                        const char* topic_name, QoS qos, DrakeRos* ros_interface,
                        std::unordered_set<TriggerType> publish_triggers,
                        double publish_period) {
@@ -257,7 +266,7 @@ void DefCore(py::module m) {
       }));
 
   py::class_<RosSubscriberSystem, LeafSystem<double>>(m, "RosSubscriberSystem")
-      .def(py::init([](std::unique_ptr<SerializerInterface> serializer,
+      .def(py::init([](std::shared_ptr<const SerializerInterface> serializer,
                        const char* topic_name, QoS qos,
                        DrakeRos* ros_interface) {
         return std::make_unique<RosSubscriberSystem>(
