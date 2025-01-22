@@ -35,7 +35,7 @@ class MessageQueue {
 
 struct RosSubscriberSystem::Impl {
   // Interface for message (de)serialization.
-  std::unique_ptr<SerializerInterface> serializer;
+  std::shared_ptr<const SerializerInterface> serializer;
   // Subscription to serialized messages.
   std::shared_ptr<internal::Subscription> sub;
   // Queue of serialized messages.
@@ -45,7 +45,7 @@ struct RosSubscriberSystem::Impl {
 };
 
 RosSubscriberSystem::RosSubscriberSystem(
-    std::unique_ptr<SerializerInterface> serializer,
+    std::shared_ptr<const SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros)
     : impl_(new Impl()) {
   impl_->serializer = std::move(serializer);
