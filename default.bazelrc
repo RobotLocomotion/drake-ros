@@ -1,5 +1,6 @@
-# Don't use bzlmod (yet); eventually we'll want to enable this.
-common --enable_bzlmod=false
+# Don't use bzlmod (yet); eventually we'll want to enable this and turn off
+# the enable_workspace flag.
+common --enable_bzlmod=false --enable_workspace
 
 # Use C++20.
 build --cxxopt=-std=c++20

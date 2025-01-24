@@ -25,7 +25,7 @@ bazel build //...
 To run examples binaries directly:
 
 ```sh
-bazel run //ros2_example_apps:oracle_cc
+bazel run //ros2_example_apps:oracle_py
 ```
 
 ```sh
