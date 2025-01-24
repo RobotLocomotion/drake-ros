@@ -47,7 +47,7 @@ def main():
 
     # Add a multibody plant and a scene graph to hold the robots
     plant, scene_graph = AddMultibodyPlant(
-        MultibodyPlantConfig(time_step=0.001, discrete_contact_solver="sap"),
+        MultibodyPlantConfig(time_step=0.001),
         builder,
     )
 

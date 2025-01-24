@@ -44,7 +44,6 @@ int main(int argc, char** argv) {
   // Add a multibody plant and a scene graph to hold the robots
   drake::multibody::MultibodyPlantConfig plant_config;
   plant_config.time_step = 0.001;
-  plant_config.discrete_contact_solver = "sap";
   auto [plant, scene_graph] =
       drake::multibody::AddMultibodyPlant(plant_config, &builder);
 
