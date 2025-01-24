@@ -56,8 +56,8 @@ class PySerializerInterface : public SerializerInterface {
     // PYBIND11_OVERLOAD_PURE macro embeds a `return ...;` statement, we must
     // wrap it in lambda so that we can post-process the return value.
     py::object default_value = [this]() -> py::object {
-      PYBIND11_OVERLOAD_PURE(
-          py::object, SerializerInterface, CreateDefaultValue);
+      PYBIND11_OVERLOAD_PURE(py::object, SerializerInterface,
+                             CreateDefaultValue);
     }();
     DRAKE_THROW_UNLESS(!default_value.is_none());
     return default_value.template cast<const drake::AbstractValue*>()->Clone();
