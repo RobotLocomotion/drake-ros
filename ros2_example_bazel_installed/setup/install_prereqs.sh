@@ -84,6 +84,7 @@ if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
   apt install ros-humble-desktop
   apt install ros-humble-rmw-cyclonedds-cpp
   apt install ros-dev-tools
+  apt install ros-humble-plotjuggler-ros
 fi
 
 # Install Python dependencies

@@ -1,5 +1,6 @@
 import os
 import pathlib
+import glob
 
 from ros2bzl.resources import load_resource
 from ros2bzl.scraping.system import find_library_path
@@ -108,6 +109,13 @@ def configure_package_cc_library(
             sandbox(find_library_path(library))
             for library in metadata['plugin_libraries']
         )
+    # Add an exception for plotjuggler-ros, as it does not
+    # use pluginlib, and the manifest does not mention its plugins.
+    # The paths for the plugins are hardcoded in plotjuggler :
+    # https://github.com/facontidavide/PlotJuggler/blob/15dce41f598daed841bf2093aa10ebdf2aa1052f/plotjuggler_app/mainwindow.cpp#L560-L566
+    if 'plotjuggler_ros' in target_name:
+        prefix = "_opt_ros_humble/lib/plotjuggler_ros/"
+        data.extend(glob.glob(prefix + "lib*.so"))
     # Prepare runfiles to support dynamic loading
     data.extend(library for library in libraries if library not in data)
 
