@@ -151,7 +151,10 @@ def configure_package_py_library(
     target_name = py_name(name, metadata)
     eggs = [sandbox(egg_path) for egg_path, _ in properties.python_packages]
     tops = [
-        sandbox(top_level_i) for _, top_level in properties.python_packages for top_level_i in top_level.split("\n")]
+        sandbox(top_level_i)
+        for _, top_level in properties.python_packages
+        for top_level_i in top_level.split("\n")
+    ]
     imports = [os.path.dirname(egg) for egg in eggs]
 
     template = 'templates/package_py_library.bazel.tpl'

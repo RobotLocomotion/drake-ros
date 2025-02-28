@@ -14,7 +14,12 @@ def find_python_package(name):
     dist = distribution(name)
     top_level = dist.read_text('top_level.txt')
     top_level = top_level.rstrip('\n')
-    return str(dist._path), '\n'.join([str(dist.locate_file(top_level_i)) for top_level_i in top_level.split('\n')])
+    return str(dist._path), "\n".join(
+            [
+                str(dist.locate_file(top_level_i))
+                for top_level_i in top_level.split("\n")
+            ]
+        )
 
 
 def collect_ament_python_package_properties(name, metadata):

@@ -9,9 +9,9 @@ def remove_ros1_elements(root):
     for parent in root.iter():
         for child in list(parent):
             if "condition" in child.attrib:
-                if child.get('condition') == ros1_condition_value :
+                if child.get('condition') == ros1_condition_value:
                     elements_to_remove.append((parent, child))
-                else :
+                else:
                     child.attrib.pop("condition")
 
     for parent, child in elements_to_remove:

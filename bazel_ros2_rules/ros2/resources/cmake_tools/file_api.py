@@ -69,11 +69,14 @@ class Target:
                 if fragment['role'] == 'flags':
                     self.link_flags.append(fragment['fragment'])
                 elif fragment['role'] == 'libraries':
-                    # In the generated JSON a library can be in quotes (to escape some characters?)
-                    # This escaping creates problem down the line ("/usr/lib/libfoo.so" is *not* a path)
+                    # In the generated JSON a library can be in quotes, in
+                    # order to escape some characters.
+                    # This escaping creates problem down the line,
+                    # "/usr/lib/libfoo.so" is *not* a path.
                     # We remove the escaping here so they can be treated normally
                     link_library = fragment['fragment']
-                    if link_library.startswith('"') and link_library.endswith('"'):
+                    if link_library.startswith('"') and \
+                            link_library.endswith('"'):
                         link_library = link_library.strip('"')
                     self.link_libraries.append(link_library)
                 elif fragment['role'] == 'libraryPath':
