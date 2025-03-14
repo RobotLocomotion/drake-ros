@@ -22,9 +22,9 @@ rosdep update
 
 SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIRECTORY
-rosdep install --from-paths ../ --rosdistro=humble
+rosdep install --from-paths ../ --rosdistro=jazzy
 
-apt install ros-humble-test-msgs ros-humble-tf2-ros-py ros-humble-rmw-cyclonedds-cpp ros-humble-tf2-py
+apt install ros-jazzy-test-msgs ros-jazzy-tf2-ros-py ros-jazzy-rmw-cyclonedds-cpp ros-jazzy-tf2-py
 
 # Required for bazel_ros2_rules
 apt install python3 python3-toposort

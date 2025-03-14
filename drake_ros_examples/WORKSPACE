@@ -55,7 +55,7 @@ drake_ros_fail_if_missing_required_packages(ROS_PACKAGES)
 ros2_local_repository(
     name = "ros2",
     include_packages = ROS_PACKAGES,
-    workspaces = ["/opt/ros/humble"],
+    workspaces = ["/opt/ros/jazzy"],
 )
 
 load("@drake_ros_repo//:drake.bzl", "DRAKE_SUGGESTED_VERSION")

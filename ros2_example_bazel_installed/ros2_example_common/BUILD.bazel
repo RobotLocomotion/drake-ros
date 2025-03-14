@@ -14,5 +14,7 @@ rosidl_interfaces_group(
     deps = [
         "@ros2//:action_msgs",
         "@ros2//:builtin_interfaces",
+        "@ros2//:service_msgs",
+        "@ros2//:unique_identifier_msgs",
     ],
 )

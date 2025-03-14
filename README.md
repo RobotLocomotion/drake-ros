@@ -28,7 +28,7 @@ capability:
 
 ## Supported Configurations:
 
-  - Ubuntu 22.04 + ROS 2 Humble (Recommended)
+  - Ubuntu 22.04 + ROS 2 Jazzy (Recommended)
   - Ubuntu 20.04 + ROS 2 Rolling
   - Mac (only via [Docker](./docker-README.md))
   - Architecture: x86_64 (amd64), arm64 (only via [Docker](./docker-README.md))

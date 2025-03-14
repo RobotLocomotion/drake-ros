@@ -17,7 +17,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
   name = "headers",
   hdrs = glob(
-    include = ["include/**/*.*"],
+    include = ["include/cpython/**/*.*"],
     exclude_directories = 1,
   ),
   includes = {},
@@ -28,6 +28,25 @@ cc_library(
   linkopts = {},
   deps = [":headers"],
 )
+
+cc_library(
+    name = "numpy_headers",
+    hdrs = glob(
+        include = ["include/numpy/**/*.*"],
+        exclude_directories = 1,
+    ),
+    deps = [":headers"],
+    includes = {},
+)
+
+cc_library(
+    name = "numpy_libs",
+    deps = [
+        ":numpy_headers",
+        ":libs",
+    ],
+)
+
 """
 
 def _impl(repo_ctx):
@@ -72,7 +91,7 @@ def _impl(repo_ctx):
         if not cflag.startswith("-I"):
             continue
         include = cflag[2:]
-        sandboxed_include = "include/{}".format(
+        sandboxed_include = "include/cpython/{}".format(
             include.replace("/", "_"),
         )
         if sandboxed_include in includes:
@@ -94,11 +113,23 @@ def _impl(repo_ctx):
     if not links_libpython:
         linkopts.append("-l{}".format(libpython))
 
+    numpy_include_dir = execute_or_fail(
+        repo_ctx,
+        [
+            python_interpreter,
+            "-c",
+            "import numpy; print(numpy.get_include())",
+        ],
+    ).stdout.strip()
+    repo_ctx.symlink(numpy_include_dir, "include/numpy")
+    numpy_includes = ["include/numpy"]
+
     repo_ctx.file(
         "BUILD.bazel",
         content = BUILD_FILE_TEMPLATE.format(
             includes,
             linkopts,
+            numpy_includes,
         ),
         executable = False,
     )

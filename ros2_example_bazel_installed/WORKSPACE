@@ -86,7 +86,7 @@ ROS2_PACKAGES = [
 ]
 
 RESOLVED_PREFIX = (
-    ROS2_DISTRO_PREFIX if ROS2_DISTRO_PREFIX else "/opt/ros/humble"
+    ROS2_DISTRO_PREFIX if ROS2_DISTRO_PREFIX else "/opt/ros/jazzy"
 )
 
 ros2_local_repository(

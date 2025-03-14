@@ -1,9 +1,9 @@
 """
 To run:
-    export ROS2_DISTRO_PREFIX=/opt/ros/humble
+    export ROS2_DISTRO_PREFIX=/opt/ros/jazzy
     bazel test --nocache_test_results --test_output=streamed //ros2_example_apps:custom_message_rosbag_test
 OR
-    export ROS2_DISTRO_PREFIX=/opt/ros/humble
+    export ROS2_DISTRO_PREFIX=/opt/ros/jazzy
     bazel build //ros2_example_apps:custom_message_rosbag_test
     bazel-bin/ros2_example_apps/custom_message_rosbag_test
 WARNING: `bazel run` does not work as expected

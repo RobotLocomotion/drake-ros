@@ -16,17 +16,17 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 
 apt update
 
-apt install ros-dev-tools ros-humble-rmw-cyclonedds-cpp ros-humble-rviz2 ros-humble-ros2cli-common-extensions
+apt install ros-dev-tools ros-jazzy-rmw-cyclonedds-cpp ros-jazzy-rviz2 ros-jazzy-ros2cli-common-extensions
 
 rosdep init || true
 rosdep update
 
 SCRIPT_DIRECTORY=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIRECTORY/../..
-rosdep install --from-paths drake_ros --rosdistro=humble
+rosdep install --from-paths drake_ros --rosdistro=jazzy
 # TODO(eric.cousineau): This currently fails with
 # `Cannot locate rosdep definition for [drake_ros]`. Should fix.
-# rosdep install --from-paths drake_ros_examples --rosdistro=humble
+# rosdep install --from-paths drake_ros_examples --rosdistro=jazzy
 
 # Required for bazel_ros2_rules
 apt install python3 python3-toposort

@@ -15,8 +15,8 @@ jobs:
       matrix:
         include:
           # TODO : Include rolling later if available on jammy or noble.
-          - os_code_name: jammy
-            ros_distro: humble
+          - os_code_name: noble
+            ros_distro: jazzy
     name: test_against_${{matrix.ros_distro}}_debs
     runs-on: ubuntu-latest
     container:
@@ -43,8 +43,8 @@ jobs:
       matrix:
         include:
           # TODO : Include rolling later if available on jammy or noble.
-          - os_code_name: jammy
-            ros_distro: humble
+          - os_code_name: noble
+            ros_distro: jazzy
     name: test_against_${{matrix.ros_distro}}_archive
     runs-on: ubuntu-latest
     container:
