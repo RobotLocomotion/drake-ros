@@ -13,13 +13,11 @@ EXTENSION_SUFFIX = sysconfig.get_config_var('EXT_SUFFIX')
 def find_python_package(name):
     dist = distribution(name)
     top_level = dist.read_text('top_level.txt')
-    top_level = top_level.rstrip('\n')
-    return str(dist._path), "\n".join(
-            [
-                str(dist.locate_file(top_level_i))
-                for top_level_i in top_level.split("\n")
-            ]
-        )
+    # Some top_level.txt files have multiple entries
+    # We locate them all and return the transformed content
+    top_level_entries = top_level.rstrip('\n').split('\n')
+    top_level_resolved = [str(dist.locate_file(tl)) for tl in top_level_entries]
+    return str(dist._path), '\n'.join(top_level_resolved)
 
 
 def collect_ament_python_package_properties(name, metadata):
