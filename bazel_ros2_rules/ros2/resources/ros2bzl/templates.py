@@ -170,7 +170,9 @@ def configure_package_py_library(
             deps.append(meta_py_label(dependency_name, dependency_metadata))
     config['deps'] = deps
 
-    data = [share_label(name, metadata)]
+    data = []
+    if 'share_directory' in metadata:
+        data.append(share_label(name, metadata))
     if 'cc' in metadata.get('langs', []):
         data.append(cc_label(name, metadata))
 

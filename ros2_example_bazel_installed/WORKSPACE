@@ -76,6 +76,8 @@ ROS2_PACKAGES = [
     "ros2cli",
     "ros2cli_common_extensions",
     "rosbag2",
+    "ros2bag_mcap_cli",
+    "ros2bag_sqlite3_cli",
     "rosidl_default_generators",
     "tf2_py",
 ] + [

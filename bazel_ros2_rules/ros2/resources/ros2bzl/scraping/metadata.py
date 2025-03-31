@@ -59,6 +59,7 @@ def find_executables(base_path):
 
 DEFAULT_LANGS_PER_BUILD_TYPE = {
     'cmake': {'cc'},
+    'python': {'py'},
     'ament_cmake': {'cc'},
     'ament_python': {'py'},
 }
@@ -73,6 +74,12 @@ def collect_package_langs(metadata):
 
 def collect_cmake_package_metadata(name, prefix):
     metadata = dict(prefix=prefix, build_type='cmake')
+    metadata['langs'] = collect_package_langs(metadata)
+    return metadata
+
+
+def collect_python_package_metadata(name, prefix):
+    metadata = dict(prefix=prefix, build_type='python')
     metadata['langs'] = collect_package_langs(metadata)
     return metadata
 

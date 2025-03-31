@@ -26,7 +26,8 @@ from ros2bzl.scraping.ament_cmake \
 from ros2bzl.scraping.ament_cmake import precache_ament_cmake_properties
 from ros2bzl.scraping.ament_python \
     import collect_ament_python_package_direct_properties
-from ros2bzl.scraping.ament_python import PackageNotFoundError
+from ros2bzl.scraping.python import collect_python_package_properties
+from ros2bzl.scraping.python import PackageNotFoundError
 
 from ros2bzl.templates import configure_executable_imports
 from ros2bzl.templates import configure_package_c_library_alias
@@ -136,37 +137,44 @@ def write_build_file(fd, repo_name, distro, sandbox, cache):
                     configure_package_c_library_alias(name, metadata)
                 fd.write(interpolate(template, config) + '\n')
 
-        # No way to tell if there's Python code for this package
-        # but to look for it.
-        try:
-            properties = collect_ament_python_package_direct_properties(
-                name, metadata, direct_dependencies, cache
-            )
-            # Add 'py' as language if not there.
-            if 'langs' not in metadata:
-                metadata['langs'] = []
-            if 'py' not in metadata['langs']:
-                metadata['langs'].append('py')
-        except PackageNotFoundError:
-            for dependency_metadata in direct_dependencies.values():
-                if 'langs' not in dependency_metadata:
-                    continue
-                if 'py' not in dependency_metadata['langs']:
-                    continue
-                # Dependencies still need to be propagated.
-                if 'py (transitive)' not in metadata['langs']:
-                    metadata['langs'].append('py (transitive)')
-                _, template, config = configure_package_meta_py_library(
-                    name, metadata, direct_dependencies)
-                fd.write(interpolate(template, config) + '\n')
-                break
-            properties = {}
-
-        if properties:
+        if 'python' == metadata.get('build_type'):
+            # Python eggs in ROS 2 distributions lack dependency information
+            properties = collect_python_package_properties(name, metadata)
             _, template, config = configure_package_py_library(
                 name, metadata, properties, direct_dependencies, sandbox
             )
             fd.write(interpolate(template, config) + '\n')
+
+        if 'ament' in metadata.get('build_type'):
+            # No way to tell if there's Python code for this package
+            # but to look for it.
+            try:
+                properties = collect_ament_python_package_direct_properties(
+                    name, metadata, direct_dependencies, cache
+                )
+                # Add 'py' as language if not there.
+                if 'langs' not in metadata:
+                    metadata['langs'] = []
+                if 'py' not in metadata['langs']:
+                    metadata['langs'].append('py')
+
+                _, template, config = configure_package_py_library(
+                    name, metadata, properties, direct_dependencies, sandbox
+                )
+                fd.write(interpolate(template, config) + '\n')
+            except PackageNotFoundError:
+                for dependency_metadata in direct_dependencies.values():
+                    if 'langs' not in dependency_metadata:
+                        continue
+                    if 'py' not in dependency_metadata['langs']:
+                        continue
+                    # Dependencies still need to be propagated.
+                    if 'py (transitive)' not in metadata['langs']:
+                        metadata['langs'].append('py (transitive)')
+                    _, template, config = configure_package_meta_py_library(
+                        name, metadata, direct_dependencies)
+                    fd.write(interpolate(template, config) + '\n')
+                    break
 
         if 'executables' in metadata:
             direct_dependencies.update(rmw_implementation_packages)
