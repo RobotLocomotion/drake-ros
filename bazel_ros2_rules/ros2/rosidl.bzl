@@ -1253,6 +1253,8 @@ def rosidl_cc_support(
 
     To depend on C++ interfaces, use the `<name>_cc` target.
 
+    For C++ ROS 2 interfaces to build, C ROS 2 interfaces must be available.
+
     Args:
         name: interface group name, used as prefix for target names
         interfaces: interface definition files
@@ -1423,6 +1425,8 @@ def rosidl_py_support(
 
     To depend on Python interfaces, use the `<name>_py` target.
 
+    For Python ROS 2 interfaces to build, C ROS 2 interfaces must be available.
+
     Args:
         name: interface group name, used as prefix for target names
         interfaces: interface definition files
@@ -1481,6 +1485,24 @@ def rosidl_c_support(
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
         **kwargs):
+    """
+    Generates and builds C ROS 2 interfaces.
+
+    To depend on C interfaces, use the `<name>_c` target.
+
+    Args:
+        name: interface group name, used as prefix for target names
+        interfaces: interface definition files
+        data: optional data dependencies
+        deps: optional interface group dependencies
+        group: optional interface group name override, useful when
+            target name cannot be forced to match the intended package
+            name for these interfaces
+        cc_binary_rule: optional cc_binary() rule override
+        cc_library_rule: optional cc_library() rule override
+
+    Additional keyword arguments are those common to all rules.
+    """
     rosidl_c_library(
         name = _make_private_name(name, "__rosidl_c"),
         group = group or name,
