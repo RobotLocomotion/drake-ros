@@ -4,24 +4,33 @@ import os.path
 import sys
 import sysconfig
 
+from collections.abc import Sequence
+from typing import Any, Dict, Final, Optional, Tuple
+
 from importlib.metadata import PackageNotFoundError
 
 from ros2bzl.scraping.properties import PyProperties
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_library
 
-EXTENSION_SUFFIX = sysconfig.get_config_var('EXT_SUFFIX')
+EXTENSION_SUFFIX: Final[str] = sysconfig.get_config_var('EXT_SUFFIX')
 
 
-def find_package(name):
+def find_package(name: str) -> Tuple[str, str]:
+    """Find a Python package path and top level module path given its `name`."""
     dist = importlib.metadata.distribution(name)
     top_level = dist.read_text('top_level.txt')
     packages = top_level.splitlines()
-    assert len(packages) > 0
+    assert len(packages) == 1
     return str(dist._path), str(dist.locate_file(packages[0]))
 
 
-def get_packages_with_prefixes(prefixes=None):
+def get_packages_with_prefixes(prefixes: Optional[Sequence[str]] = None) -> Dict[str, pathlib.Path]:
+    """
+    Get all importable Python packages and the prefixes under which these can be found.
+
+    If no `prefixes` are given, the entire `sys.path` is used.
+    """
     packages = {}
     for dist in importlib.metadata.distributions():
         top_level = dist.read_text('top_level.txt')
@@ -39,11 +48,12 @@ def get_packages_with_prefixes(prefixes=None):
     return packages
 
 
-def collect_python_package_properties(name, metadata):
+def collect_python_package_properties(name: str, metadata: Dict[str, Any]) -> PyProperties:
+    """Collect Python library properties given package `name` and `metadata`."""
     properties = PyProperties()
     egg_path, top_level = find_package(name)
     properties.python_packages = tuple([(egg_path, top_level)])
-    cc_libraries = glob.glob('{}/**/*.so'.format(top_level),  recursive=True)
+    cc_libraries = glob.glob('{}/**/*.so'.format(top_level), recursive=True)
     if cc_libraries:
         cc_libraries.extend(set(
             dep for library in cc_libraries
