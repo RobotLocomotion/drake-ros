@@ -119,7 +119,9 @@ def write_build_file(fd, repo_name, distro, sandbox, cache):
                 configure_package_interfaces_filegroup(name, metadata, sandbox)
             fd.write(interpolate(template, config) + '\n')
 
-        if 'cmake' in metadata.get('build_type'):
+        build_type = metadata.get('build_type')
+
+        if build_type in ('ament_cmake', 'cmake'):
             properties = collect_ament_cmake_package_direct_properties(
                 name, metadata, direct_dependencies, cache
             )
@@ -137,7 +139,7 @@ def write_build_file(fd, repo_name, distro, sandbox, cache):
                     configure_package_c_library_alias(name, metadata)
                 fd.write(interpolate(template, config) + '\n')
 
-        if 'python' == metadata.get('build_type'):
+        if build_type == 'python':
             # Python eggs in ROS 2 distributions lack dependency information
             properties = collect_python_package_properties(name, metadata)
             _, template, config = configure_package_py_library(
@@ -145,7 +147,16 @@ def write_build_file(fd, repo_name, distro, sandbox, cache):
             )
             fd.write(interpolate(template, config) + '\n')
 
-        if 'ament' in metadata.get('build_type'):
+        if build_type == 'ament_python':
+            properties = collect_ament_python_package_direct_properties(
+                name, metadata, direct_dependencies, cache
+            )
+            _, template, config = configure_package_py_library(
+                name, metadata, properties, direct_dependencies, sandbox
+            )
+            fd.write(interpolate(template, config) + '\n')
+
+        if build_type  == 'ament_cmake':
             # No way to tell if there's Python code for this package
             # but to look for it.
             try:
