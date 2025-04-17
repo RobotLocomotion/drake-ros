@@ -6,6 +6,8 @@ import pathlib
 from collections.abc import Sequence
 from typing import Any, Dict, Final, Optional, Tuple
 
+from importlib.metadata import PackageNotFoundError
+
 from ros2bzl.scraping.properties import PyProperties
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_library
