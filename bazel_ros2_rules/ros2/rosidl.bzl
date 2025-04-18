@@ -1672,6 +1672,16 @@ def rosidl_interfaces_group(
     defs_name = _make_public_name(name, "_defs")
     data = data + [defs_name]
 
+    # Add extra deps needed by all targets
+    for dep in [
+        REPOSITORY_ROOT + ":action_msgs",
+        REPOSITORY_ROOT + ":builtin_interfaces",
+        REPOSITORY_ROOT + ":service_msgs",
+        REPOSITORY_ROOT + ":unique_identifier_msgs",
+    ]:
+        if dep not in deps:
+            deps = deps + [dep]
+
     rosidl_definitions_filegroup(
         name = defs_name,
         group = group or name,
