@@ -18,16 +18,20 @@ namespace {
   const auto exceeds = diff.abs() > tolerance;
   if (exceeds.any()) {
     // Maybe transpose for printing.
-    // auto maybe_transpose = [](Eigen::MatrixXd v) -> Eigen::MatrixXd {
-    //   if (v.rows() > 1 && v.cols() == 1) {
-    //     return v.transpose();
-    //   } else {
-    //     return v;
-    //   }
-    // };
-    // TODO(frneer): Fix the formatting issue where we can't format Matrix.
-    // https://github.com/RobotLocomotion/drake-ros/actions/runs/14540537194/job/40797484831#step:8:127
-    return ::testing::AssertionFailure() << "Matrices don't match to tolerance of {}.\n";
+    auto maybe_transpose = [](Eigen::MatrixXd v) -> Eigen::MatrixXd {
+      if (v.rows() > 1 && v.cols() == 1) {
+        return v.transpose();
+      } else {
+        return v;
+      }
+    };
+    return ::testing::AssertionFailure() << fmt::format(
+               "Matrices don't match to tolerance of {}.\n"
+               "lhs: {}\n\n"
+               "rhs: {}\n\n"
+               "lhs - rhs: {}\n\n",
+               tolerance, maybe_transpose(lhs), maybe_transpose(rhs),
+               maybe_transpose(lhs - rhs));
   }
   return ::testing::AssertionSuccess();
 }
