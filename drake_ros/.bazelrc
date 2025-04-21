@@ -1,5 +1,8 @@
 # Import base-level build configuration.
 import %workspace%/../default.bazelrc
 
+# Set GCC compiler major version in Noble
+build --@drake//tools/cc_toolchain:compiler_major=13
+
 # Try to import user-specific configuration local to workspace.
 try-import %workspace%/user.bazelrc
