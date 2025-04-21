@@ -324,11 +324,14 @@ ros_py_test(
     ],
 )
 
+# TODO(frneer): Test fails in CI, but I was unable to reproduce it locally.
+# Re-enable once https://github.com/RobotLocomotion/drake-ros/issues/384 is solved.
 ros_cc_test(
     name = "rmw_isolation_example_cc_test",
     size = "small",
     srcs = ["test/rmw_isolation_example.cc"],
     rmw_implementation = "rmw_cyclonedds_cpp",
+    tags = ["manual"],
     deps = [
         "@ros2//:rclcpp_cc",
         "@ros2//:std_msgs_cc",
