@@ -223,9 +223,9 @@ void DefCore(py::module m) {
       .def("get_ros_interface", &RosInterfaceSystem::get_ros_interface,
            py::return_value_policy::reference_internal);
 
-  py::class_<SerializerInterface, PySerializerInterface>(m,
-                                                         "SerializerInterface")
-      .def(py::init([]() { return std::make_unique<PySerializerInterface>(); }))
+  py::class_<SerializerInterface, py::wrapper<PySerializerInterface>,
+	     std::shared_ptr<SerializerInterface>>(m, "SerializerInterface")
+      .def(py::init_alias<>())
       .def("CreateDefaultValue", &SerializerInterface::CreateDefaultValue)
       .def("GetTypeSupport",
            [](const SerializerInterface& self) {

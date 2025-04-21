@@ -59,7 +59,7 @@ class PySerializer(SerializerInterface):
     """
 
     def __init__(self, message_type):
-        SerializerInterface.__init__(self)
+        super().__init__()
         check_for_type_support(message_type)
         self._message_type = message_type
 
