@@ -56,6 +56,14 @@ jobs:
           yes | sudo ./setup/install_prereqs.sh
           rosdep update  # As user.
         working-directory: drake_ros
+      # TODO(frneer): Remove these steps and scripts when these changes are released upstream and backported to jazzy
+      # https://github.com/ros2/rosidl/pull/857
+      - name: Override rosidl packages
+        run: |
+          $GITHUB_WORKSPACE/.github/install_github_cli.sh
+          $GITHUB_WORKSPACE/.github/install_rosidl_debs.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build drake_ros
         run: export ROS_DISTRO=jazzy; bazel build //...
         working-directory: drake_ros
