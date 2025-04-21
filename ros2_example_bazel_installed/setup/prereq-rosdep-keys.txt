@@ -12,6 +12,7 @@ libboost-python
 libconsole-bridge-dev
 libfreetype-dev
 libfreetype6
+libglew-dev
 liblttng-ust-dev
 liblz4
 liblz4-dev
