@@ -78,7 +78,7 @@ pid_t LaunchNode(int argc, char* argv[], const std::string& node_type="talker"){
     rclcpp::spin(std::make_shared<Listener>());
   }
   rclcpp::shutdown();
-  return 0;
+  exit(0);
 }
 
 int main(int argc, char* argv[]){
