@@ -4,12 +4,12 @@ This is a collection of examples built around `drake_ros` libraries' C++ and Pyt
 
 ## Building with Colcon
 
-This package is built and tested on Ubuntu Jammy 22.04 with ROS 2 Jazzy and Rolling,
+This package is built and tested on Ubuntu Noble 24.04 with ROS 2 Jazzy and Rolling,
 using a recent Drake stable release.
 
 It may work on other versions of ROS and Drake, but that is not explicitly tested.
 
-To build it for Jammy with ROS 2 Jazzy using `colcon` and `ament` (ROS 2's build
+To build it for Noble with ROS 2 Jazzy using `colcon` and `ament` (ROS 2's build
 tooling and CMake infrastructure)
 
 1. [Install ROS Jazzy](https://docs.ros.org/en/jazzy/Installation.html) \
