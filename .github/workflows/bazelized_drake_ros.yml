@@ -56,6 +56,11 @@ jobs:
           yes | sudo ./setup/install_prereqs.sh
           rosdep update  # As user.
         working-directory: drake_ros
+      # Note(frneer): drake's mkdoc script loads gcc14 C++ std libraries if installed,
+      # which causes the build to fail because it expects gcc13 to be used.
+      # https://github.com/RobotLocomotion/drake-ros/issues/385
+      - name: Purge gcc 14
+        run: apt purge gcc-14 libgcc-14-dev
       # TODO(frneer): Remove these steps and scripts when these changes are released upstream and backported to jazzy
       # https://github.com/ros2/rosidl/pull/857
       - name: Override rosidl packages
