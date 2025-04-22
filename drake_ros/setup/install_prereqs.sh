@@ -26,5 +26,7 @@ rosdep install --from-paths ../ --rosdistro=jazzy
 
 apt install ros-jazzy-test-msgs ros-jazzy-tf2-ros-py ros-jazzy-rmw-cyclonedds-cpp ros-jazzy-tf2-py
 
+apt install --no-install-recommends libgcc-13-dev libstdc++-13-dev libgfortran-13-dev
+
 # Required for bazel_ros2_rules
 apt install python3 python3-toposort
