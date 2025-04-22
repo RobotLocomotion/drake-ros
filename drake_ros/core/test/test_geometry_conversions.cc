@@ -30,7 +30,8 @@ namespace {
                "lhs: {}\n\n"
                "rhs: {}\n\n"
                "lhs - rhs: {}\n\n",
-               tolerance, drake::fmt_eigen(maybe_transpose(lhs)), drake::fmt_eigen(maybe_transpose(rhs)),
+               tolerance, drake::fmt_eigen(maybe_transpose(lhs)),
+               drake::fmt_eigen(maybe_transpose(rhs)),
                drake::fmt_eigen(maybe_transpose(lhs - rhs)));
   }
   return ::testing::AssertionSuccess();
