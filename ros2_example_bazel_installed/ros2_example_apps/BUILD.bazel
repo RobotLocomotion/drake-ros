@@ -262,7 +262,8 @@ ros_py_test(
     ],
 )
 
-# TODO(frneer): Remove manual tag when #382 is addressed.
+# TODO(frneer): Remove manual tag when this issue is addresed:
+# https://github.com/RobotLocomotion/drake-ros/issues/382.
 ros_py_test(
     name = "custom_message_rosbag_test",
     srcs = ["test/custom_message_rosbag_test.py"],
@@ -271,7 +272,7 @@ ros_py_test(
         "//tools:ros2",
     ],
     main = "test/custom_message_rosbag_test.py",
-    # Tag it as manual so it's not run by bazel test //...
+    # Tag it as manual so it's not run by `bazel test //...`.
     tags = ["manual"],
     deps = [
         "@bazel_tools//tools/python/runfiles",
@@ -325,7 +326,7 @@ ros_py_test(
 )
 
 # TODO(frneer): Test fails in CI, but I was unable to reproduce it locally.
-# https://github.com/RobotLocomotion/drake-ros/issues/384.
+# See https://github.com/RobotLocomotion/drake-ros/issues/384.
 ros_cc_test(
     name = "rmw_isolation_example_cc_test",
     size = "small",

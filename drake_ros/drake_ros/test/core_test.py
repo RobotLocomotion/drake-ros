@@ -44,8 +44,8 @@ def drake_ros_fixture():
     try:
         yield
     finally:
-        # Ensure rclpy entities are fully deleted
-        # before attempting a middleware shutdown
+        # Ensure rclpy entities are fully deleted before attempting a
+        # middleware shutdown.
         import gc
         gc.collect()
         rclpy.shutdown()

@@ -1690,8 +1690,12 @@ def rosidl_interfaces_group(
         **kwargs
     )
 
-    # NOTE(frneer): First generate rosidl_c targets
-    # Since both cc and py targets depend on it
+    # It's required to generate rosidl_c_support targets before
+    # rosidl_cc_support and rosidl_py_support.
+    # Both cc and py targets depend on it even though they are not explicitly
+    # listed as deps.
+    # TODO(frneer): Consider having them as deps. To do so, we need to remove
+    # the heavyweight logic around the deps variable inside of each target.
     rosidl_c_support(
         name,
         interfaces = interfaces,
