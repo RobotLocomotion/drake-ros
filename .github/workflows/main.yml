@@ -46,11 +46,11 @@ jobs:
           # TODO : Include rolling later if available on jammy or noble.
           - os_code_name: noble
             ros_distro: jazzy
-            docker_version: 1.37.0
+            drake_version: 1.37.0
     name: test_against_${{matrix.ros_distro}}_archive
     runs-on: ubuntu-latest
     container:
-      image: robotlocomotion/drake:${{matrix.os_code_name}}-${{ matrix.docker_version }}
+      image: robotlocomotion/drake:${{matrix.os_code_name}}-${{ matrix.drake_version }}
     env:
       PYTHONPATH:
     steps:
