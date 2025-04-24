@@ -258,8 +258,8 @@ ros_py_test(
         ":roslaunch_eg_py",
         ":roslaunch_eg_xml",
     ],
-    tags = ["manual"],
     main = "test/roslaunch_eg_test.py",
+    tags = ["manual"],
     deps = [
         "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
