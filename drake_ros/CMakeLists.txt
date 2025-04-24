@@ -53,10 +53,7 @@ if(BUILD_TESTING)
 
     ament_clang_format(CONFIG_FILE .clang-format)
     ament_cpplint()
-    # TODO(Aditya) : Remove the --exclude once https://github.com/ament/ament_lint/pull/435
-    # is released into ROS Humble.
-    ament_pycodestyle(--config pycodestyle.ini --exclude
-      "${CMAKE_CURRENT_SOURCE_DIR}/drake_ros/test")
+    ament_pycodestyle(--config pycodestyle.ini)
 endif()
 
 ### Drake library path environment hook

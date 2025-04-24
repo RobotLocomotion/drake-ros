@@ -13,7 +13,7 @@ on:
 jobs:
   bazel_build_and_test:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Free up space
@@ -56,11 +56,25 @@ jobs:
           yes | sudo ./setup/install_prereqs.sh
           rosdep update  # As user.
         working-directory: drake_ros
+      # Note(#385): drake's mkdoc script loads gcc14 C++ std libraries if
+      # installed, which causes the build to fail because it expects gcc13 to
+      # be used.
+      - name: Purge gcc 14
+        run: sudo apt purge -y gcc-14 libgcc-14-dev
+      # TODO(frneer): Remove these steps and scripts when these changes are
+      # released upstream and backported to jazzy.
+      # See: https://github.com/ros2/rosidl/pull/857.
+      - name: Override rosidl packages
+        run: |
+          $GITHUB_WORKSPACE/.github/install_github_cli.sh
+          $GITHUB_WORKSPACE/.github/install_rosidl_debs.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build drake_ros
-        run: export ROS_DISTRO=humble; bazel build //...
+        run: export ROS_DISTRO=jazzy; bazel build //...
         working-directory: drake_ros
       - name: Test drake_ros
-        run: export ROS_DISTRO=humble; bazel test //...
+        run: export ROS_DISTRO=jazzy; bazel test //...
         working-directory: drake_ros
       - name: Clean up drake_ros
         run: bazel clean

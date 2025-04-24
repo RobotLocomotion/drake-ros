@@ -1,12 +1,12 @@
 # Dockerfile for drake-ros
 
 ARG ARCH
-FROM ${ARCH}/ros:humble
+FROM ${ARCH}/ros:jazzy
 
 # Set shell for running commands
 SHELL ["/bin/bash", "-c"]
 
-# Update package list, install necessary dependencies and cleanup package list 
+# Update package list, install necessary dependencies and cleanup package list
 RUN apt-get update && \
     apt-get install -y wget unzip curl software-properties-common lsb-release python3-pip && \
     apt-get install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools -y && \
@@ -21,7 +21,7 @@ RUN case "${ARCH}" in arm64*) \
 esac
 
 # Argument to support building Drake from source (only strictly necessary for ARM64 users)
-ARG BUILD_DRAKE_FROM_SOURCE=false 
+ARG BUILD_DRAKE_FROM_SOURCE=false
 
 # Install Drake from source or download pre-built binary accordingly
 RUN if [ "$BUILD_DRAKE_FROM_SOURCE" = "true" ]; then \
@@ -44,7 +44,7 @@ RUN if [ "$BUILD_DRAKE_FROM_SOURCE" = "true" ]; then \
         echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
         | tee /etc/apt/sources.list.d/drake.list >/dev/null && \
         apt-get update && apt-get install -y --no-install-recommends drake-dev && \
-        # Add Drake to the path 
+        # Add Drake to the path
         echo 'export PATH="/opt/drake/bin${PATH:+:${PATH}}"' >> /etc/bash.bashrc && \
         echo 'export PYTHONPATH="/opt/drake/lib/python'$(python3 -c 'import sys; print("{0}.{1}".format(*sys.version_info))')'/site-packages${PYTHONPATH:+:${PYTHONPATH}}"' >> /etc/bash.bashrc \
     ; fi
@@ -57,10 +57,10 @@ RUN cd drake-ros
 RUN mkdir -p drake_ros_ws/src/drake_ros
 COPY . /drake_ros_ws/src/drake_ros
 
-RUN source /opt/ros/humble/setup.bash && \
+RUN source /opt/ros/jazzy/setup.bash && \
     cd drake_ros_ws/ && \
     apt-get update --fix-missing && \
-    rosdep install -i --from-path src --rosdistro humble -y && \
+    rosdep install -i --from-path src --rosdistro jazzy -y && \
     colcon build --symlink-install && \
     colcon test --packages-up-to drake_ros_examples --event-handlers console_cohesion+ && \
     colcon test-result --verbose

@@ -1,3 +1,4 @@
+settings set target.disable-aslr false
 process launch --stop-at-entry
 breakpoint set --method 'Oracle::publish_status'
 continue

@@ -64,7 +64,7 @@ dpkg_install_from_curl \
   f16dc348190990eb2e8950e773bc91dcdc7632517e5b63bdc4dd58f90062920c
 
 # If the user did not explicitly specify their installation prefix, install
-# ROS 2 Humble.
+# ROS 2 Jazzy.
 if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
   apt update && apt install locales
   locale-gen en_US en_US.UTF-8
@@ -81,8 +81,8 @@ if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
 
   apt update
 
-  apt install ros-humble-desktop
-  apt install ros-humble-rmw-cyclonedds-cpp
+  apt install ros-jazzy-desktop
+  apt install ros-jazzy-rmw-cyclonedds-cpp
   apt install ros-dev-tools
 fi
 

@@ -4,15 +4,15 @@ This is a collection of examples built around `drake_ros` libraries' C++ and Pyt
 
 ## Building with Colcon
 
-This package is built and tested on Ubuntu Jammy 22.04 with ROS 2 Humble and Rolling,
+This package is built and tested on Ubuntu Noble 24.04 with ROS 2 Jazzy and Rolling,
 using a recent Drake stable release.
 
 It may work on other versions of ROS and Drake, but that is not explicitly tested.
 
-To build it for Jammy with ROS 2 Humble using `colcon` and `ament` (ROS 2's build
+To build it for Noble with ROS 2 Jazzy using `colcon` and `ament` (ROS 2's build
 tooling and CMake infrastructure)
 
-1. [Install ROS Humble](https://docs.ros.org/en/humble/Installation.html) \
+1. [Install ROS Jazzy](https://docs.ros.org/en/jazzy/Installation.html) \
    Taken from the website (be sure to review these commands before executing!)
 
    ```sh
@@ -23,7 +23,7 @@ tooling and CMake infrastructure)
    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
    sudo apt update
    # Install the desktop user entry point.
-   sudo apt install ros-humble-desktop
+   sudo apt install ros-jazzy-desktop
    # Install dev tools.
    sudo apt install ros-dev-tools
 
@@ -31,14 +31,14 @@ tooling and CMake infrastructure)
    rosdep update
    ```
 
-   For other entry points aside from `ros-humble-desktop`, please see the
-   Humble section of REP 2001: \
-   <https://www.ros.org/reps/rep-2001.html#humble-hawksbill-may-2022-ongoing>
+   For other entry points aside from `ros-jazzy-desktop`, please see the
+   Jazzy section of REP 2001: \
+   <https://www.ros.org/reps/rep-2001.html#jazzy-jalisco-may-2024-may-2029>
 
 1. Source your ROS installation
 
     ```sh
-    source /opt/ros/humble/setup.bash
+    source /opt/ros/jazzy/setup.bash
     ```
 
 1. [Install the Drake](https://drake.mit.edu/installation.html), preferably a stable release, either locally
@@ -76,7 +76,7 @@ tooling and CMake infrastructure)
 
     ```sh
     # Make a workspace
-    # See also: https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-A-Workspace/Creating-A-Workspace.html
+    # See also: https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Creating-A-Workspace/Creating-A-Workspace.html
     mkdir -p ./ws/src
     cd ./ws/src
 
@@ -105,7 +105,7 @@ tooling and CMake infrastructure)
 [`vcstool`](https://github.com/dirk-thomas/vcstool) and/or use an existing `*.repos`
 to initialize it. \
 For an example set of repositories, see the (very comprehensive)
-[`ros2.repos` per the ROS 2 Docs](https://docs.ros.org/en/humble/Installation/Maintaining-a-Source-Checkout.html)
+[`ros2.repos` per the ROS 2 Docs](https://docs.ros.org/en/jazzy/Installation/Maintaining-a-Source-Checkout.html)
 
 ## Running
 

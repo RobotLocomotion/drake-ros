@@ -27,6 +27,7 @@ def interfaces_filegroup(name, share_directory):
     native.filegroup(
         name = name + "_defs",
         srcs = native.glob(include = [
+            "{}/**/*.json".format(share_directory),
             "{}/**/*.idl".format(share_directory),
             "{}/**/*.msg".format(share_directory),
             "{}/**/*.srv".format(share_directory),

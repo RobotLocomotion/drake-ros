@@ -20,7 +20,7 @@ More detail about these features are listed in [`./ros2`](./ros2).
 
 ## Platform support
 
-These rules require ROS 2 Humble distributions on Ubuntu Jammy 22.04 and
+These rules require ROS 2 Jazzy distributions on Ubuntu Noble 24.04 and
 onwards.
 
 ## Usage

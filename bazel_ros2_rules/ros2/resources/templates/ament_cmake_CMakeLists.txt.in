@@ -3,7 +3,7 @@
 # declares a direct dependency on @PACKAGE@. All relevant paths and
 # flags can then be retrived from CMake's code model (e.g. using
 # CMake's server mode on this project).
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(@NAME@ C CXX)
 
 find_package(ament_cmake REQUIRED)

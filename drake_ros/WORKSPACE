@@ -35,7 +35,7 @@ DRAKE_ROS_ALL_DEPENDENCIES = \
 ros2_local_repository(
     name = "ros2",
     include_packages = DRAKE_ROS_ALL_DEPENDENCIES,
-    workspaces = ["/opt/ros/humble"],
+    workspaces = ["/opt/ros/jazzy"],
 )
 
 # Depend on Drake
