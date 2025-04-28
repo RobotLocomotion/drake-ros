@@ -224,7 +224,7 @@ void DefCore(py::module m) {
            py::return_value_policy::reference_internal);
 
   py::class_<SerializerInterface, std::shared_ptr<SerializerInterface>,
-	     PySerializerInterface>(m, "SerializerInterface")
+             PySerializerInterface>(m, "SerializerInterface")
       .def(py::init<>())
       .def("CreateDefaultValue", &SerializerInterface::CreateDefaultValue)
       .def("GetTypeSupport",
