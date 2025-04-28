@@ -77,6 +77,22 @@ the artifacts it generates, the following targets may be found at the root
   sourcing the workspace install space). These executables are exposed as
   Python binaries for simplicty.
 
+### Limitations
+
+`bazel_ros2_rules` heavily relies on a number of conventions and best
+practices that _most_ ROS 2 packages follow to compensate for the limited
+amount of metadata that ROS 2 install spaces carry.
+
+[REP-0122](https://ros.org/reps/rep-0122.html) is but one example of this.
+
+This means that for ROS 2 packages that break these conventions and best
+practices, `bazel_ros2_rules` output will degrade (if not break down).
+An example of this are ROS 2 packages that install CMake and/or Python
+packages with names other than their own. These will be found but lacking
+dependency information any generated rules (`cc_library`, `py_library`, etc.)
+will be completely disconnected from the rest. Users that need them will be
+forced to depend on them explicitly.
+
 ### Rules
 
 To build C++ binaries and tests that depend on ROS 2, `ros_cc_binary` and

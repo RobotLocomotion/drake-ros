@@ -30,6 +30,7 @@ COMMON_FILES_MANIFEST = [
     "resources/ros2bzl/scraping/ament_python.py",
     "resources/ros2bzl/scraping/metadata.py",
     "resources/ros2bzl/scraping/properties.py",
+    "resources/ros2bzl/scraping/python.py",
     "resources/ros2bzl/scraping/system.py",
     "resources/ros2bzl/templates.py",
     "resources/ros2bzl/utilities.py",

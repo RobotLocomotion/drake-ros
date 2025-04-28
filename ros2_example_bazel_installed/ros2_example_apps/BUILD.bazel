@@ -249,6 +249,8 @@ ros_launch(
     workspace_name = workspace_name,
 )
 
+# TODO(frneer): Test fails in CI, but I was unable to reproduce it locally.
+# https://github.com/RobotLocomotion/drake-ros/issues/384.
 ros_py_test(
     name = "roslaunch_eg_test",
     srcs = ["test/roslaunch_eg_test.py"],
@@ -257,13 +259,14 @@ ros_py_test(
         ":roslaunch_eg_xml",
     ],
     main = "test/roslaunch_eg_test.py",
+    tags = ["manual"],
     deps = [
         "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
     ],
 )
 
-# TODO(frneer): Remove manual tag when this issue is addresed:
-# https://github.com/RobotLocomotion/drake-ros/issues/382.
+# TODO(frneer): Test fails in CI, but I was unable to reproduce it locally.
+# https://github.com/RobotLocomotion/drake-ros/issues/384.
 ros_py_test(
     name = "custom_message_rosbag_test",
     srcs = ["test/custom_message_rosbag_test.py"],
@@ -272,7 +275,6 @@ ros_py_test(
         "//tools:ros2",
     ],
     main = "test/custom_message_rosbag_test.py",
-    # Tag it as manual so it's not run by `bazel test //...`.
     tags = ["manual"],
     deps = [
         "@bazel_tools//tools/python/runfiles",

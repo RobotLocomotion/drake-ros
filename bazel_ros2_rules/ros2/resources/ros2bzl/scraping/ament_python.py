@@ -1,42 +1,8 @@
-import glob
-from importlib.metadata import distribution
-from importlib.metadata import PackageNotFoundError
-import sysconfig
+from ros2bzl.scraping.ament_cmake import collect_ament_cmake_package_properties
+from ros2bzl.scraping.python import collect_python_package_properties
 
-from ros2bzl.scraping.properties import PyProperties
-from ros2bzl.scraping.system import find_library_dependencies
-from ros2bzl.scraping.system import is_system_library
-
-EXTENSION_SUFFIX = sysconfig.get_config_var('EXT_SUFFIX')
-
-
-def find_python_package(name):
-    dist = distribution(name)
-    top_level = dist.read_text('top_level.txt')
-    top_level = top_level.rstrip('\n')
-    return str(dist._path), str(dist.locate_file(top_level))
-
-
-def collect_ament_python_package_properties(name, metadata):
-    egg_path, top_level = find_python_package(name)
-    properties = PyProperties()
-    properties.python_packages = tuple([(egg_path, top_level)])
-    cc_libraries = glob.glob('{}/**/*.so'.format(top_level),  recursive=True)
-    if cc_libraries:
-        cc_libraries.extend(set(
-            dep for library in cc_libraries
-            for dep in find_library_dependencies(library)
-            if not is_system_library(dep)
-        ))
-        properties.cc_extensions = [
-            lib for lib in cc_libraries
-            if lib.endswith(EXTENSION_SUFFIX)
-        ]
-        properties.cc_libraries = [
-            lib for lib in cc_libraries
-            if not lib.endswith(EXTENSION_SUFFIX)
-        ]
-    return properties
+# Alias
+collect_ament_python_package_properties = collect_python_package_properties
 
 
 def collect_ament_python_package_direct_properties(

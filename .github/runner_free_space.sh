@@ -6,7 +6,7 @@ set -eux
 # https://github.com/easimon/maximize-build-space
 
 df -h
-sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
+docker image prune -af
 df -h /
 sudo rm -rf \
   /usr/share/dotnet /usr/local/lib/android /opt/ghc \
