@@ -1,6 +1,10 @@
 # Import base-level build configuration.
 import %workspace%/../default.bazelrc
 
+# Default to using pkg-config to locate C++ library dependencies.
+common --@drake//tools/flags:public_repo_default=pkgconfig
+common --@drake//tools/flags:private_runtime_repo_default=external
+
 # Set GCC compiler major version in Noble
 build --@drake//tools/cc_toolchain:compiler_major=13
 
