@@ -82,18 +82,6 @@ pid_t LaunchNode(int argc, char* argv[], const std::string& node_type="talker"){
 }
 
 int main(int argc, char* argv[]){
-  // Generate a temporary directory which will hold the config file for RMW isoaltion.
-  auto directory_path = std::filesystem::current_path() / std::string("test_node_pair");
-  if (!std::filesystem::exists(directory_path)){
-    std::filesystem::create_directory(directory_path);
-  }
-
-  // The talker and listener processes are supplied a common directory_path
-  // for rmw isoaltion, and hence will be able to talk to each other but will be isolated
-  // from rest of the system. For e.g, if one were to run a new subscriber on the /chatter topic,
-  // the data published by the talker would not be visible.
-  // Note that you can also execute a separate program using functions like `system()` if you so choose.
-  ros2::isolate_rmw_by_path(argv[0], directory_path);
   auto talker_process = LaunchNode(argc, argv, "talker");
   auto listener_process = LaunchNode(argc, argv, "listener");
 

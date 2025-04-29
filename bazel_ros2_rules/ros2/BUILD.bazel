@@ -1,3 +1,4 @@
+load("@python_dev//:version.bzl", "PYTHON_EXTENSION_SUFFIX")
 load(
     ":_calculate_rosidl_capitalization.bzl",
     "run_calculate_rosidl_capitalization_tests",
@@ -20,6 +21,31 @@ py_library(
     srcs = ["tools/dload_shim.py"],
     visibility = ["//visibility:public"],
     deps = ["@bazel_tools//tools/python/runfiles"],
+)
+
+cc_library(
+    name = "network_isolation_cc",
+    srcs = ["resources/network_isolation/network_isolation.cc"],
+    hdrs = ["resources/network_isolation/network_isolation.h"],
+    includes = ["resources/network_isolation"],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "network_isolation_py.so",
+    srcs = ["resources/network_isolation/network_isolation_py.cc"],
+    linkshared = True,
+    linkstatic = True,
+    deps = [
+        ":network_isolation_cc",
+        "@python_dev//:headers",
+    ],
+)
+
+py_library(
+    name = "network_isolation_py",
+    data = [":network_isolation_py.so"],
+    visibility = ["//visibility:public"],
 )
 
 run_calculate_rosidl_capitalization_tests()
