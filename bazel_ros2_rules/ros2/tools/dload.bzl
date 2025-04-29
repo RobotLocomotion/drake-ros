@@ -59,6 +59,10 @@ def get_dload_shim_attributes():
             cfg = "target",
         ),
         "env_changes": attr.string_list_dict(),
+        "isolate": attr.bool(
+            default = False,
+            doc = "Whether to isolate the executable with network namespaces.",
+        ),
     }
 
 def _workaround_issue311(ament_prefixes, env_changes):
@@ -143,6 +147,8 @@ def do_dload_shim(ctx, template, to_list):
             ])
             for action in actions
         ]),
+        # TODO(frneer): Maybe use bool directly
+        isolate = "true" if ctx.attr.isolate else "false",
     )
     shim = ctx.actions.declare_file(ctx.label.name)
     ctx.actions.write(shim, shim_content, True)
