@@ -68,7 +68,7 @@ def attempt_record():
             [ros2_bin, "bag", "record", "--all", "--log-level", "debug", "-o", bag_dir]
         )
 
-        time.sleep(1.0)
+        time.sleep(10.0)
 
         assert talker.returncode is None, read_available(talker.stdout)
         assert rosbag.returncode is None, read_available(rosbag.stdout)
