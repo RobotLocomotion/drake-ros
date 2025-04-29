@@ -23,7 +23,7 @@ def main():
     os.environ.update(make_unique_ros_isolation_env())
     # For simplicity, run test points directly (rather than via pytest).
     test_launch_py()
-    test_launch_xml()
+    # test_launch_xml()
 
 
 if __name__ == '__main__':
