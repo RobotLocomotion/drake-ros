@@ -32,7 +32,7 @@ script_dir=$(cd $(dirname ${BASH_SOURCE}) && pwd)
 cd ${script_dir}
 
 # Build tooling.
-( cd .lint/ && bazel build @drake//tools/lint/... )
+( cd .lint/ && bazel build @drake//tools/lint:buildifier @drake//tools/lint:bzlcodestyle)
 buildifer=.lint/bazel-bin/external/drake/tools/lint/buildifier
 # N.B. --ignore options taken as of drake v1.10.0.
 bzlcodestyle=".lint/bazel-bin/external/drake/tools/lint/bzlcodestyle --ignore=E265,E302,E305,W504"
