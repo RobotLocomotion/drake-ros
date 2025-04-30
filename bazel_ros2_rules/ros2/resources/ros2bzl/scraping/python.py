@@ -20,7 +20,10 @@ def find_package(name: str) -> Tuple[str, str]:
     dist = importlib.metadata.distribution(name)
     top_level = dist.read_text('top_level.txt')
     packages = top_level.splitlines()
-    assert len(packages) == 1
+    assert len(packages) >= 1
+    if len(packages) > 1:
+        print(f"Multiple top level entries where found in {name}. "
+               "Only the first one will be considered")
     return str(dist._path), str(dist.locate_file(packages[0]))
 
 
