@@ -1,9 +1,26 @@
 import os
 import xml.etree.ElementTree as ET
 
+# Remove elements that have a condition attribute on ROS1
+def remove_ros1_elements(root):
+    ros1_condition_value = "$ROS_VERSION == 1"
+    elements_to_remove = []
+
+    for parent in root.iter():
+        for child in list(parent):
+            if "condition" in child.attrib:
+                if child.get('condition') == ros1_condition_value :
+                    elements_to_remove.append((parent, child))
+                else :
+                    child.attrib.pop("condition")
+
+    for parent, child in elements_to_remove:
+        parent.remove(child)
 
 def parse_package_xml(path_to_package_xml):
     tree = ET.parse(path_to_package_xml)
+
+    remove_ros1_elements(tree.getroot())
 
     depends = set([
         tag.text for tag in tree.findall('./depend')
