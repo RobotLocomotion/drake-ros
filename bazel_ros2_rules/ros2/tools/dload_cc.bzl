@@ -15,12 +15,15 @@ load(
 _REEXEC_TEMPLATE = """\
 #include "ros2/tools/dload_shim.h"
 #include "network_isolation.h"
+#include <iostream>
 
 int main(int argc, const char * argv[]) {{
   const char * executable_path = "{executable_path}";
   std::vector<const char *> names = {names};
   std::vector<std::vector<const char *>> actions = {actions};
+  std::cout << "I'm a dload shim (reexec), setting up the environment" << std::endl;
   if ({isolate}) {{
+    std::cout << "I'm a dload shim (reexec), isolating the network" << std::endl;
     ros2::CreateLinuxNetworkNamespaces();
   }}
   return bazel_ros2_rules::ReexecMain(
@@ -57,12 +60,14 @@ dload_cc_reexec = rule(
 _LDWRAP_TEMPLATE = """\
 #include "ros2/tools/dload_shim.h"
 #include "network_isolation.h"
+#include <iostream>
 
 extern "C" int __real_main(int argc, char** argv);
 
 extern "C" int __wrap_main(int argc, char** argv) {{
   std::vector<const char*> names = {names};
   std::vector<std::vector<const char*>> actions = {actions};
+  std::cout << "I'm a dload shim (ldwrap), setting up the environment" << std::endl;
   bazel_ros2_rules::ApplyEnvironmentActions(argv[0], names, actions);
   if ({isolate}) {{
     ros2::CreateLinuxNetworkNamespaces();

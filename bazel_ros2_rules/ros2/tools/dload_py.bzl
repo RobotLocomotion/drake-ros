@@ -17,13 +17,15 @@ _DLOAD_PY_SHIM_TEMPLATE = """\
 assert __name__ == "__main__"
 
 from bazel_ros2_rules.ros2.tools.dload_shim import do_dload_shim
-from bazel_ros2_rules.ros2 import network_isolation_py
+from bazel_ros2_rules.ros2.network_isolation_py import create_linux_network_namespaces
 
 executable_path = "{executable_path}"
 names = {names}
 actions = {actions}
+print("Hey I'm a dload shim, setting up the environment")
 if "{isolate}" == "true":
-    network_isolation_py.create_linux_network_namespaces()
+    print("Hey I'm a dload shim, isolating the network")
+    create_linux_network_namespaces()
 do_dload_shim(executable_path, names, actions)
 """
 
