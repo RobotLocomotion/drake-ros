@@ -74,17 +74,15 @@ if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
   apt install software-properties-common
   add-apt-repository universe
 
-  apt update && apt install curl -y
   curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | apt-key --keyring /usr/share/keyrings/ros-archive-keyring.gpg add -
-
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" |  tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
   apt update
-
-  apt install ros-jazzy-desktop
-  apt install ros-jazzy-rmw-cyclonedds-cpp
-  apt install ros-dev-tools
 fi
+
+# Ensure a full ROS 2 desktop install
+set +u
+source ${ROS2_DISTRO_PREFIX}/setup.bash
+apt install ros-${RO2_DISTRO}-desktop ros-${RO2_DISTRO}-rmw-cyclonedds-cpp ros-dev-tools
 
 # Install Python dependencies
 apt install python3 python3-toposort python3-dev python-is-python3

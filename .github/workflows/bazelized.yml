@@ -47,6 +47,8 @@ jobs:
         working-directory: ros2_example_bazel_installed
       - name: Install prerequisites
         run: yes | ./setup/install_prereqs.sh
+        env:
+          ROS2_DISTRO_PREFIX: /opt/ros/jazzy
         working-directory: ros2_example_bazel_installed
       # TODO(frneer): Remove these steps and scripts when these changes are
       # released upstream and backported to jazzy.
