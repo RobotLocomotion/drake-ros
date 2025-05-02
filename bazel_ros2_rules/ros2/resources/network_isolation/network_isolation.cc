@@ -24,7 +24,6 @@
 
 namespace ros2 {
 
-
 [[noreturn]] inline void Throw(const char* condition, const char* func,
     const char* file, int line) {
   std::ostringstream oss;
@@ -57,7 +56,6 @@ class ScopeExit {
    bool active_;
  };
 
-
 #define THROW_UNLESS(condition)                                          \
   do {                                                                         \
     static_assert(std::is_convertible<decltype(condition), bool>::value,       \
@@ -79,7 +77,6 @@ class ScopeExit {
       throw std::runtime_error(oss.str());                                     \
     }                                                                          \
   } while (0)
-
 
 void CreateLinuxNetworkNamespaces() {
   // If we've already been called once (e.g., by a parent process) there's no

@@ -21,9 +21,7 @@ int main(int argc, const char * argv[]) {{
   const char * executable_path = "{executable_path}";
   std::vector<const char *> names = {names};
   std::vector<std::vector<const char *>> actions = {actions};
-  std::cout << "I'm a dload shim (reexec), setting up the environment" << std::endl;
-  if ({isolate}) {{
-    std::cout << "I'm a dload shim (reexec), isolating the network" << std::endl;
+  if constexpr ({isolate}) {{
     ros2::CreateLinuxNetworkNamespaces();
   }}
   return bazel_ros2_rules::ReexecMain(
@@ -67,9 +65,8 @@ extern "C" int __real_main(int argc, char** argv);
 extern "C" int __wrap_main(int argc, char** argv) {{
   std::vector<const char*> names = {names};
   std::vector<std::vector<const char*>> actions = {actions};
-  std::cout << "I'm a dload shim (ldwrap), setting up the environment" << std::endl;
   bazel_ros2_rules::ApplyEnvironmentActions(argv[0], names, actions);
-  if ({isolate}) {{
+  if constexpr ({isolate}) {{
     ros2::CreateLinuxNetworkNamespaces();
   }}
   return __real_main(argc, argv);
