@@ -15,7 +15,6 @@ load(
 _REEXEC_TEMPLATE = """\
 #include "ros2/tools/dload_shim.h"
 #include "network_isolation.h"
-#include <iostream>
 
 int main(int argc, const char * argv[]) {{
   const char * executable_path = "{executable_path}";
@@ -58,7 +57,6 @@ dload_cc_reexec = rule(
 _LDWRAP_TEMPLATE = """\
 #include "ros2/tools/dload_shim.h"
 #include "network_isolation.h"
-#include <iostream>
 
 extern "C" int __real_main(int argc, char** argv);
 
