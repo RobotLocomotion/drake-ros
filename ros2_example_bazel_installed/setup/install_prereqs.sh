@@ -89,3 +89,8 @@ apt install python3 python3-toposort python3-dev python-is-python3
 
 # Install debuggers
 apt install gdb lldb
+
+# Clear apparmor unprivileged user namespace restrictions.
+# Required to create network namespaces for ROS isolation.
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0

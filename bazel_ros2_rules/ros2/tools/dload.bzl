@@ -147,7 +147,6 @@ def do_dload_shim(ctx, template, to_list):
             ])
             for action in actions
         ]),
-        # TODO(frneer): Maybe use bool directly
         isolate = "true" if ctx.attr.isolate else "false",
     )
     shim = ctx.actions.declare_file(ctx.label.name)

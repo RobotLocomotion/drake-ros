@@ -77,5 +77,5 @@ jobs:
         run: bazel build //...
         working-directory: ros2_example_bazel_installed
       - name: Test Bazel workspace (ros2_example_installed)
-        run: bazel test //... @ros2//... --test_output=all
+        run: bazel test //... @ros2//...
         working-directory: ros2_example_bazel_installed

@@ -65,7 +65,7 @@ def attempt_record():
     try:
         talker = open_process([talker_bin])
         rosbag = open_process(
-            [ros2_bin, "bag", "record", "--all", "--log-level", "debug", "-o", bag_dir]
+            [ros2_bin, "bag", "record", "--all", "-o", bag_dir]
         )
 
         time.sleep(10.0)
