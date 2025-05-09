@@ -82,7 +82,7 @@ fi
 # Ensure a full ROS 2 desktop install
 set +u
 source ${ROS2_DISTRO_PREFIX}/setup.bash
-apt install ros-${RO2_DISTRO}-desktop ros-${RO2_DISTRO}-rmw-cyclonedds-cpp ros-dev-tools
+apt install ros-${ROS_DISTRO}-desktop ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-dev-tools
 
 # Install Python dependencies
 apt install python3 python3-toposort python3-dev python-is-python3
