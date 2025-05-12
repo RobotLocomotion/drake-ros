@@ -15,16 +15,14 @@ from ros2bzl.scraping.system import is_system_library
 EXTENSION_SUFFIX: Final[str] = sysconfig.get_config_var('EXT_SUFFIX')
 
 
-def find_package(name: str) -> Tuple[str, str]:
+def find_package(name: str) -> Tuple[str, list[str]]:
     """Find a Python package path and top level module path given its `name`."""
     dist = importlib.metadata.distribution(name)
     top_level = dist.read_text('top_level.txt')
     packages = top_level.splitlines()
     assert len(packages) >= 1
-    if len(packages) > 1:
-        print(f"Multiple top level entries where found in {name}. "
-               "Only the first one will be considered")
-    return str(dist._path), str(dist.locate_file(packages[0]))
+    top_levels = [str(dist.locate_file(package) for package in packages)]
+    return str(dist._path), top_levels
 
 
 def get_packages_with_prefixes(prefixes: Optional[Sequence[str]] = None) -> Dict[str, pathlib.Path]:
@@ -53,9 +51,17 @@ def get_packages_with_prefixes(prefixes: Optional[Sequence[str]] = None) -> Dict
 def collect_python_package_properties(name: str, metadata: Dict[str, Any]) -> PyProperties:
     """Collect Python library properties given package `name` and `metadata`."""
     properties = PyProperties()
-    egg_path, top_level = find_package(name)
-    properties.python_packages = tuple([(egg_path, top_level)])
-    cc_libraries = glob.glob('{}/**/*.so'.format(top_level), recursive=True)
+    egg_path, top_levels = find_package(name)
+    properties.python_packages = tuple(
+        [(egg_path, top_level) for top_level in top_levels]
+    )
+    cc_libraries = sum(
+        [
+            glob.glob("{}/**/*.so".format(top_level), recursive=True)
+            for top_level in top_levels
+        ],
+        [],
+    )
     if cc_libraries:
         cc_libraries.extend(set(
             dep for library in cc_libraries
