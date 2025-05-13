@@ -16,8 +16,6 @@ import subprocess
 import time
 
 from bazel_tools.tools.python.runfiles import runfiles
-from rmw_isolation import isolate_rmw_by_path
-
 
 def read_available(f, timeout=0.0, chunk_size=1024):
     """
@@ -51,7 +49,6 @@ def open_process(args):
 def attempt_record():
     if "TEST_TMPDIR" in os.environ:
         tmp_dir = os.environ["TEST_TMPDIR"]
-        isolate_rmw_by_path(tmp_dir)
         os.environ["ROS_HOME"] = os.path.join(tmp_dir)
     else:
         tmp_dir = "/tmp"
@@ -71,7 +68,7 @@ def attempt_record():
             [ros2_bin, "bag", "record", "--all", "-o", bag_dir]
         )
 
-        time.sleep(1.0)
+        time.sleep(10.0)
 
         assert talker.returncode is None, read_available(talker.stdout)
         assert rosbag.returncode is None, read_available(rosbag.stdout)

@@ -1358,16 +1358,6 @@ def rosidl_cc_support(
         )
         data += [name + "_symlink_fastrtps_cpp"]
 
-    if "rosidl_typesupport_introspection_c" in AVAILABLE_TYPESUPPORT_LIST:
-        data += [name + "_symlink_introspection_c"]
-        typesupports["rosidl_typesupport_introspection_c"] = \
-            _make_public_label(name, "__rosidl_typesupport_introspection_c")
-
-    if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORT_LIST:
-        data += [name + "_symlink_fastrtps_c"]
-        typesupports["rosidl_typesupport_fastrtps_c"] = \
-            _make_public_label(name, "__rosidl_typesupport_fastrtps_c")
-
     rosidl_typesupport_cc_library(
         name = _make_public_name(name, "__rosidl_typesupport_cpp"),
         typesupports = typesupports,
@@ -1381,9 +1371,6 @@ def rosidl_cc_support(
         cc_binary_rule = cc_binary_rule,
         **kwargs
     )
-    data += [name + "_symlink_typesupport_c"]
-    typesupports["rosidl_typesupport_c"] = \
-        _make_public_label(name, "__rosidl_typesupport_c")
 
     _symlink_typesupport_workaround_issue311(
         name = name + "_symlink_typesupport_cpp",
@@ -1399,11 +1386,28 @@ def rosidl_cc_support(
     )
     data += [name + "_symlink_typesupport_cpp"]
 
+    additional_typesupports = [
+        _make_public_label(name, "__rosidl_typesupport_c"),
+    ]
+    data += [name + "_symlink_typesupport_c"]
+
+    if "rosidl_typesupport_introspection_c" in AVAILABLE_TYPESUPPORT_LIST:
+        additional_typesupports += [
+            _make_public_label(name, "__rosidl_typesupport_introspection_c"),
+        ]
+        data += [name + "_symlink_introspection_c"]
+
+    if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORT_LIST:
+        additional_typesupports += [
+            _make_public_label(name, "__rosidl_typesupport_fastrtps_c"),
+        ]
+        data += [name + "_symlink_fastrtps_c"]
+
     cc_library_rule(
         name = _make_public_name(name, "_cc"),
         srcs = [
             _make_public_label(name, "__rosidl_typesupport_cpp"),
-        ] + typesupports.values(),
+        ] + typesupports.values() + additional_typesupports,
         data = data,
         deps = [_make_private_label(name, "__rosidl_cpp")],
         linkstatic = True,

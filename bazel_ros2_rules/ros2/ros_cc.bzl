@@ -114,7 +114,10 @@ def ros_cc_binary(
         shim_kwargs.update(
             srcs = [main_name_cc],
             data = [":" + noshim_name],
-            deps = ["@bazel_ros2_rules//ros2:dload_shim_cc"],
+            deps = [
+                "@bazel_ros2_rules//ros2:dload_shim_cc",
+                "@bazel_ros2_rules//ros2:network_isolation_cc",
+            ],
             tags = shim_tags,
         )
         cc_binary_rule(name = name, **shim_kwargs)
@@ -145,7 +148,10 @@ def ros_cc_binary(
             name = main_name,
             srcs = [main_cc],
             linkstatic = True,
-            deps = ["@bazel_ros2_rules//ros2:dload_shim_cc"],
+            deps = [
+                "@bazel_ros2_rules//ros2:dload_shim_cc",
+                "@bazel_ros2_rules//ros2:network_isolation_cc",
+            ],
             tags = main_tags,
             **main_kwargs
         )
@@ -166,6 +172,7 @@ def ros_cc_test(
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
         cc_test_rule = native.cc_test,
+        isolate = True,
         **kwargs):
     """
     Builds a C/C++ test and wraps it with a shim that will inject the minimal
@@ -211,13 +218,17 @@ def ros_cc_test(
         name = shim_name,
         target = ":" + noshim_name,
         env_changes = shim_env_changes,
+        isolate = isolate,
         **shim_kwargs
     )
 
     kwargs.update(
         srcs = [shim_name],
         data = [":" + noshim_name],
-        deps = ["@bazel_ros2_rules//ros2:dload_shim_cc"],
+        deps = [
+            "@bazel_ros2_rules//ros2:dload_shim_cc",
+            "@bazel_ros2_rules//ros2:network_isolation_cc",
+        ],
         tags = ["nolint"] + kwargs.get("tags", []),
     )
     cc_test_rule(name = name, **kwargs)

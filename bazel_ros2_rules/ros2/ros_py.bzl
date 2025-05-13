@@ -66,6 +66,7 @@ def ros_import_binary(
         data = [executable] + kwargs.get("data", []),
         deps = kwargs.get("deps", []) + [
             "@bazel_ros2_rules//ros2:dload_shim_py",
+            "@bazel_ros2_rules//ros2:network_isolation_py",
         ],
     )
     py_binary_rule(name = name, **kwargs)
@@ -124,6 +125,7 @@ def ros_py_binary(
         data = [":" + noshim_name],
         deps = [
             "@bazel_ros2_rules//ros2:dload_shim_py",
+            "@bazel_ros2_rules//ros2:network_isolation_py",
             ":" + noshim_name,  # Support py_binary being used a dependency
         ],
         tags = ["nolint"] + kwargs.get("tags", []),
@@ -231,6 +233,7 @@ def ros_py_test(
         rmw_implementation = None,
         py_binary_rule = native.py_binary,
         py_test_rule = native.py_test,
+        isolate = True,
         **kwargs):
     """
     Builds a Python test and wraps it with a shim that will inject the minimal
@@ -272,6 +275,7 @@ def ros_py_test(
         name = shim_name,
         target = ":" + noshim_name,
         env_changes = shim_env_changes,
+        isolate = isolate,
         **shim_kwargs
     )
 
@@ -279,7 +283,10 @@ def ros_py_test(
         srcs = [shim_name],
         main = shim_name,
         data = [":" + noshim_name],
-        deps = ["@bazel_ros2_rules//ros2:dload_shim_py"],
+        deps = [
+            "@bazel_ros2_rules//ros2:dload_shim_py",
+            "@bazel_ros2_rules//ros2:network_isolation_py",
+        ],
         tags = ["nolint"] + kwargs.get("tags", []),
     )
     py_test_rule(name = name, **kwargs)

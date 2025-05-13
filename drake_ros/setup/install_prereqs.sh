@@ -30,3 +30,8 @@ apt install --no-install-recommends libgcc-13-dev libstdc++-13-dev libgfortran-1
 
 # Required for bazel_ros2_rules
 apt install python3 python3-toposort
+
+# Clear apparmor unprivileged user namespace restrictions.
+# Required to create network namespaces for ROS isolation.
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0

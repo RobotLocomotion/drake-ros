@@ -30,3 +30,8 @@ rosdep install --from-paths drake_ros --rosdistro=jazzy
 
 # Required for bazel_ros2_rules
 apt install python3 python3-toposort
+
+# Clear apparmor unprivileged user namespace restrictions.
+# Required to create network namespaces for ROS isolation.
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
