@@ -21,7 +21,7 @@ def find_package(name: str) -> Tuple[str, list[str]]:
     top_level = dist.read_text('top_level.txt')
     packages = top_level.splitlines()
     assert len(packages) >= 1
-    top_levels = [str(dist.locate_file(package) for package in packages)]
+    top_levels = [str(dist.locate_file(package)) for package in packages]
     return str(dist._path), top_levels
 
 
