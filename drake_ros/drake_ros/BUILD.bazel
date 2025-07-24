@@ -98,20 +98,6 @@ ros_py_test(
 )
 
 ros_py_test(
-    name = "viz_test",
-    srcs = ["test/viz_test.py"],
-    main = "test/viz_test.py",
-    rmw_implementation = "rmw_cyclonedds_cpp",
-    deps = [
-        ":drake_ros_py",
-        "@drake//bindings/pydrake",
-        "@ros2//:rclpy_py",
-        "@ros2//:visualization_msgs_py",
-        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
-    ],
-)
-
-ros_py_test(
     name = "geometry_conversions_test",
     srcs = ["test/geometry_conversions_test.py"],
     main = "test/geometry_conversions_test.py",

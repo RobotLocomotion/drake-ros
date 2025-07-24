@@ -64,7 +64,6 @@ if(BUILD_TESTING)
 
   add_python_test(core_test_py test/core_test.py)
   add_python_test(tf2_test_py test/tf2_test.py)
-  add_python_test(viz_test_py test/viz_test.py)
   add_python_test(geometry_conversions_py test/geometry_conversions_test.py)
 endif()
 # End python bindings

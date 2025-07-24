@@ -121,6 +121,5 @@ tooling per the list below.
 ## Examples
 
 - [ROS 2 and Drake Systems Example - Flip-Flop](./examples/rs_flip_flop)
-- [IIWA manipulator](./examples/iiwa_manipulator): an RViz visualization of a static IIWA arm.
 - [Multi-Robot Simulation](./examples/multirobot): Simulates multiple robots
   using Drake and visualizes them with RViz using a single marker display topic.
