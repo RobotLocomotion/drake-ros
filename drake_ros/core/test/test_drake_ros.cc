@@ -16,6 +16,16 @@ TEST(DrakeRos, default_construct) {
   EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
+TEST(DrakeRos, external_node) {
+  drake_ros::core::init();
+  std::string node_name = "external_node";
+  auto node = std::make_shared<rclcpp::Node>(node_name);
+  auto drake_ros = std::make_unique<DrakeRos>(node);
+  EXPECT_EQ(drake_ros->get_node().get_name(), node_name);
+  EXPECT_EQ(drake_ros->get_mutable_node(), node.get());
+  EXPECT_TRUE(drake_ros::core::shutdown());
+}
+
 TEST(DrakeRos, local_context) {
   auto context = std::make_shared<rclcpp::Context>();
   rclcpp::NodeOptions node_options;
@@ -35,6 +45,7 @@ TEST(DrakeRos, environment) {
   const char* const ament_prefix_path = std::getenv("AMENT_PREFIX_PATH");
   ASSERT_NE(ament_prefix_path, nullptr);
 }
+
 
 // Only available in Bazel.
 #ifndef _TEST_DISABLE_RMW_ISOLATION
