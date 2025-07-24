@@ -13,27 +13,27 @@ To build it for Noble with ROS 2 Jazzy using `colcon` and `ament` (ROS 2's build
 tooling and CMake infrastructure)
 
 1. [Install ROS Jazzy](https://docs.ros.org/en/jazzy/Installation.html) \
-   Taken from the website (be sure to review these commands before executing!)
+    Taken from the website (be sure to review these commands before executing!)
 
-   ```sh
-   sudo apt install software-properties-common
-   sudo add-apt-repository universe
-   sudo apt update && sudo apt install curl
-   sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-   sudo apt update
-   # Install the desktop user entry point.
-   sudo apt install ros-jazzy-desktop
-   # Install dev tools.
-   sudo apt install ros-dev-tools
+    ```sh
+    sudo apt install software-properties-common
+    sudo add-apt-repository universe
+    sudo apt update && sudo apt install curl -y
+    export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}')
+    curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" # If using Ubuntu derivates use $UBUNTU_CODENAME
+    sudo dpkg -i /tmp/ros2-apt-source.deb
+    # Install the desktop user entry point.
+    sudo apt install ros-jazzy-desktop
+    # Install dev tools.
+    sudo apt install ros-dev-tools
 
-   # Update dependencies index.
-   rosdep update
-   ```
+    # Update dependencies index.
+    rosdep update
+    ```
 
-   For other entry points aside from `ros-jazzy-desktop`, please see the
-   Jazzy section of REP 2001: \
-   <https://www.ros.org/reps/rep-2001.html#jazzy-jalisco-may-2024-may-2029>
+    For other entry points aside from `ros-jazzy-desktop`, please see the
+    Jazzy section of REP 2001: \
+    <https://www.ros.org/reps/rep-2001.html#jazzy-jalisco-may-2024-may-2029>
 
 1. Source your ROS installation
 
