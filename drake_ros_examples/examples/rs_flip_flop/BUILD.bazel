@@ -33,6 +33,9 @@ ros_py_binary(
     ],
 )
 
+# Skip test since it SIGSEVs in certain configurations (including CI)
+# But it wasn't able to be reproduced locally.
+# See https://github.com/RobotLocomotion/drake-ros/issues/392
 ros_py_test(
     name = "rs_flip_flop_test",
     srcs = ["test/rs_flip_flop_test.py"],
@@ -41,6 +44,7 @@ ros_py_test(
         ":rs_flip_flop_py",
     ],
     main = "test/rs_flip_flop_test.py",
+    tags = ["manual"],
     rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
