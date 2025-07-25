@@ -22,12 +22,21 @@ RosPublisherSystem::RosPublisherSystem(
     std::shared_ptr<const SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
+    double publish_period) :
+      RosPublisherSystem(serializer, topic_name, qos, ros->get_mutable_node(),
+                    publish_triggers, publish_period) {}
+
+
+RosPublisherSystem::RosPublisherSystem(
+    std::shared_ptr<const SerializerInterface> serializer,
+    const std::string& topic_name, const rclcpp::QoS& qos, rclcpp::Node* ros_node,
+    const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
     double publish_period)
     : impl_(new Impl()) {
   impl_->serializer = std::move(serializer);
 
   impl_->pub = std::make_unique<internal::Publisher>(
-      ros->get_mutable_node()->get_node_base_interface().get(),
+      ros_node->get_node_base_interface().get(),
       *impl_->serializer->GetTypeSupport(), topic_name, qos);
 
   DeclareAbstractInputPort("message",

@@ -45,6 +45,10 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
                       const std::string& topic_name, const rclcpp::QoS& qos,
                       DrakeRos* ros);
 
+  RosSubscriberSystem(std::shared_ptr<const SerializerInterface> serializer,
+                      const std::string& topic_name, const rclcpp::QoS& qos,
+                      rclcpp::Node* ros_node);
+
   ~RosSubscriberSystem() override;
 
  protected:

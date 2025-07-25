@@ -46,24 +46,28 @@ struct RosSubscriberSystem::Impl {
 
 RosSubscriberSystem::RosSubscriberSystem(
     std::shared_ptr<const SerializerInterface> serializer,
-    const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros)
-    : impl_(new Impl()) {
+    const std::string& topic_name, const rclcpp::QoS& qos, rclcpp::Node* ros_node)
+  : impl_(new Impl()) {
   impl_->serializer = std::move(serializer);
 
-  rclcpp::Node* node = ros->get_mutable_node();
   impl_->sub = std::make_shared<internal::Subscription>(
-      node->get_node_base_interface().get(),
+      ros_node->get_node_base_interface().get(),
       *impl_->serializer->GetTypeSupport(), topic_name, qos,
       std::bind(&MessageQueue<rclcpp::SerializedMessage>::PutMessage,
                 &impl_->queue, std::placeholders::_1));
-  node->get_node_topics_interface()->add_subscription(impl_->sub, nullptr);
+  ros_node->get_node_topics_interface()->add_subscription(impl_->sub, nullptr);
 
   impl_->message_state_index =
       DeclareAbstractState(*(impl_->serializer->CreateDefaultValue()));
 
   DeclareStateOutputPort(drake::systems::kUseDefaultName,
-                         impl_->message_state_index);
+                          impl_->message_state_index);
 }
+
+RosSubscriberSystem::RosSubscriberSystem(
+    std::shared_ptr<const SerializerInterface> serializer,
+    const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros) :
+  RosSubscriberSystem(serializer, topic_name, qos, ros->get_mutable_node()) {}
 
 RosSubscriberSystem::~RosSubscriberSystem() {}
 
