@@ -22,8 +22,10 @@ TEST(DrakeRos, external_node) {
   std::string node_name = "external_node";
   auto node = std::make_shared<rclcpp::Node>(node_name);
   auto ros_interface_system = RosInterfaceSystem(node);
-  EXPECT_EQ(ros_interface_system.get_ros_interface()->get_node().get_name(), node_name);
-  EXPECT_EQ(ros_interface_system.get_ros_interface()->get_mutable_node(), node.get());
+  EXPECT_EQ(ros_interface_system.get_ros_interface()->get_node().get_name(),
+            node_name);
+  EXPECT_EQ(ros_interface_system.get_ros_interface()->get_mutable_node(),
+            node.get());
   EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
@@ -43,4 +45,3 @@ int main(int argc, char* argv[]) {
   return RUN_ALL_TESTS();
 }
 #endif
-

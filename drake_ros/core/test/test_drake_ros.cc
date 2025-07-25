@@ -46,7 +46,6 @@ TEST(DrakeRos, environment) {
   ASSERT_NE(ament_prefix_path, nullptr);
 }
 
-
 // Only available in Bazel.
 #ifndef _TEST_DISABLE_RMW_ISOLATION
 #include "rmw_isolation/rmw_isolation.h"
@@ -62,4 +61,5 @@ int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
 #endif

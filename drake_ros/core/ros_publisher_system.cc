@@ -22,14 +22,14 @@ RosPublisherSystem::RosPublisherSystem(
     std::shared_ptr<const SerializerInterface> serializer,
     const std::string& topic_name, const rclcpp::QoS& qos, DrakeRos* ros,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
-    double publish_period) :
-      RosPublisherSystem(serializer, topic_name, qos, ros->get_mutable_node(),
-                    publish_triggers, publish_period) {}
-
+    double publish_period)
+    : RosPublisherSystem(serializer, topic_name, qos, ros->get_mutable_node(),
+                         publish_triggers, publish_period) {}
 
 RosPublisherSystem::RosPublisherSystem(
     std::shared_ptr<const SerializerInterface> serializer,
-    const std::string& topic_name, const rclcpp::QoS& qos, rclcpp::Node* ros_node,
+    const std::string& topic_name, const rclcpp::QoS& qos,
+    rclcpp::Node* ros_node,
     const std::unordered_set<drake::systems::TriggerType>& publish_triggers,
     double publish_period)
     : impl_(new Impl()) {

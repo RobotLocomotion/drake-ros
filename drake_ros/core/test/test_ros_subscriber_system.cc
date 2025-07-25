@@ -22,26 +22,24 @@ TEST(RosSubscriberSystem, drake_ros_factory_construct) {
   auto ros_interface_system = RosInterfaceSystem(std::move(drake_ros));
 
   auto sub = RosSubscriberSystem::Make<test_msgs::msg::BasicTypes>(
-          "in", qos, ros_interface_system.get_ros_interface());
+      "in", qos, ros_interface_system.get_ros_interface());
 
   EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
-
 TEST(RosSubscriberSystem, external_node_factory_construct) {
-  // This test is to ensure that the factory method works with a raw node pointer.
-  // It does not require a DrakeRos instance.
+  // This test is to ensure that the factory method works with a raw node
+  // pointer. It does not require a DrakeRos instance.
   drake_ros::core::init();
   const auto qos = rclcpp::QoS{rclcpp::KeepLast(10)}.reliable();
 
   auto ros_node = std::make_shared<rclcpp::Node>("external_node");
 
   auto sub = RosSubscriberSystem::Make<test_msgs::msg::BasicTypes>(
-          "in", qos, ros_node.get());
+      "in", qos, ros_node.get());
 
   EXPECT_TRUE(drake_ros::core::shutdown());
 }
-
 
 // Only available in Bazel.
 #ifndef _TEST_DISABLE_RMW_ISOLATION
@@ -58,5 +56,5 @@ int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-#endif
 
+#endif

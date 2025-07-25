@@ -3,6 +3,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <rclcpp/executors.hpp>
 #include <rclcpp/node.hpp>
@@ -35,8 +36,7 @@ DrakeRos::DrakeRos(const std::string& node_name,
   impl_->executor->add_node(impl_->node->get_node_base_interface());
 }
 
-DrakeRos::DrakeRos(rclcpp::Node::SharedPtr ros_node)
-    : impl_(new Impl()) {
+DrakeRos::DrakeRos(rclcpp::Node::SharedPtr ros_node) : impl_(new Impl()) {
   if (ros_node == nullptr) {
     throw std::invalid_argument("ros_node must not be null");
   }
