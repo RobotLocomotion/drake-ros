@@ -14,7 +14,6 @@ rosidl_interfaces_group(
     visibility = ["//:__pkg__"],
     deps = [
         "//ros2_example_common:ros2_example_common_msgs",
-        "@ros2//:builtin_interfaces",
     ],
 )
 
@@ -111,7 +110,6 @@ ros_cc_test(
         ":talker_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:std_msgs_cc",
-        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
     ],
 )
 
@@ -257,9 +255,6 @@ ros_py_test(
         ":roslaunch_eg_xml",
     ],
     main = "test/roslaunch_eg_test.py",
-    deps = [
-        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
-    ],
 )
 
 ros_py_test(
@@ -272,7 +267,6 @@ ros_py_test(
     main = "test/custom_message_rosbag_test.py",
     deps = [
         "@bazel_tools//tools/python/runfiles",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )
 
@@ -288,7 +282,6 @@ ros_py_test(
     main = "test/custom_message_echo_test.py",
     deps = [
         "@bazel_tools//tools/python/runfiles",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
 )
 
@@ -303,32 +296,5 @@ ros_py_test(
     main = "test/custom_message_list_test.py",
     deps = [
         "@bazel_tools//tools/python/runfiles",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
-    ],
-)
-
-ros_py_test(
-    name = "rmw_isolation_example_py_test",
-    srcs = ["test/rmw_isolation_example.py"],
-    data = [
-        "@ros2",
-    ],
-    main = "test/rmw_isolation_example.py",
-    deps = [
-        "@bazel_tools//tools/python/runfiles",
-        "@ros2//:std_msgs_py",
-        "@ros2//resources/rmw_isolation:rmw_isolation_py",
-    ],
-)
-
-ros_cc_test(
-    name = "rmw_isolation_example_cc_test",
-    size = "small",
-    srcs = ["test/rmw_isolation_example.cc"],
-    rmw_implementation = "rmw_cyclonedds_cpp",
-    deps = [
-        "@ros2//:rclcpp_cc",
-        "@ros2//:std_msgs_cc",
-        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
     ],
 )

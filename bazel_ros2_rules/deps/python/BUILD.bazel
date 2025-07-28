@@ -1,0 +1,12 @@
+# -*- python -*-
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "libs",
+    actual = "@python//:libs"
+)
+
+alias(
+    name = "headers",
+    actual = "@python//:headers"
+)

@@ -49,7 +49,7 @@ def open_process(args):
 def attempt_record():
     if "TEST_TMPDIR" in os.environ:
         tmp_dir = os.environ["TEST_TMPDIR"]
-        os.environ["ROS_HOME"] = os.path.join(tmp_dir)
+        os.environ["ROS_HOME"] = tmp_dir
     else:
         tmp_dir = "/tmp"
 

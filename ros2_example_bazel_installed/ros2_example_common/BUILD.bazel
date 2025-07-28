@@ -11,10 +11,4 @@ rosidl_interfaces_group(
         "action/Do.action",
     ],
     visibility = ["//visibility:public"],
-    deps = [
-        "@ros2//:action_msgs",
-        "@ros2//:builtin_interfaces",
-        "@ros2//:service_msgs",
-        "@ros2//:unique_identifier_msgs",
-    ],
 )

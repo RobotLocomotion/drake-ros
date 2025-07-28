@@ -1,0 +1,3 @@
+load(":rosidl.bzl", "run_calculate_rosidl_capitalization_tests")
+
+run_calculate_rosidl_capitalization_tests()

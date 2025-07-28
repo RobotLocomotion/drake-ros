@@ -4,8 +4,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 
-#include "rmw_isolation/rmw_isolation.h"
-
 #include "listener.h"
 #include "talker.h"
 
@@ -15,7 +13,6 @@ int main(int argc, char* argv[]) {
   if (TEST_TMPDIR != nullptr) {
     std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
     setenv("ROS_HOME", ros_home.c_str(), 1);
-    ros2::isolate_rmw_by_path(argv[0], TEST_TMPDIR);
   }
   rclcpp::init(argc, argv);
 

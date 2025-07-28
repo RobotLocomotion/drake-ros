@@ -1,0 +1,13 @@
+module (
+    name = "bazel_ros2_rules",
+    version = "1.0.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "rules_python", version = "1.5.1")
+
+local_python_repository = use_repo_rule(
+    "//tools/workspace:python.bzl", 
+    "local_python_repository",
+)
+local_python_repository(name = "python")
