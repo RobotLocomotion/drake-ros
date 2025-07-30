@@ -17,7 +17,7 @@ jobs:
           # TODO : Include rolling later if available on jammy or noble.
           - os_code_name: noble
             ros_distro: jazzy
-            drake_version: 1.40.0
+            drake_version: 1.43.0
     name: test_against_${{matrix.ros_distro}}_debs
     runs-on: ubuntu-latest
     container:
@@ -46,7 +46,7 @@ jobs:
           # TODO : Include rolling later if available on jammy or noble.
           - os_code_name: noble
             ros_distro: jazzy
-            drake_version: 1.40.0
+            drake_version: 1.43.0
     name: test_against_${{matrix.ros_distro}}_archive
     runs-on: ubuntu-latest
     container:
