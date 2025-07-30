@@ -24,6 +24,8 @@ class DrakeRos final {
   DrakeRos(const std::string& node_name,
            rclcpp::NodeOptions node_options = rclcpp::NodeOptions{});
 
+  explicit DrakeRos(rclcpp::Node::SharedPtr ros_node);
+
   ~DrakeRos();
 
   /** Returns a constant reference to the underlying ROS node. */

@@ -82,6 +82,47 @@ ros_cc_test(
 )
 
 ros_cc_test(
+    name = "test_ros_interface_system",
+    size = "small",
+    srcs = ["test/test_ros_interface_system.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@ros2//:rclcpp_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
+    name = "test_ros_publisher_system",
+    size = "small",
+    srcs = ["test/test_ros_publisher_system.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:test_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
+    name = "test_ros_subscriber_system",
+    size = "small",
+    srcs = ["test/test_ros_subscriber_system.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:test_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
     name = "test_geometry_conversions",
     size = "small",
     srcs = ["test/test_geometry_conversions.cc"],

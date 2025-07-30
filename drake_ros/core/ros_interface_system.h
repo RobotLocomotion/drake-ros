@@ -13,6 +13,8 @@ class RosInterfaceSystem : public drake::systems::LeafSystem<double> {
  public:
   /** A constructor that takes ownership of the `ros` interface. */
   explicit RosInterfaceSystem(std::unique_ptr<DrakeRos> ros);
+  /** A constructor that takes a shared pointer to a ROS node. */
+  explicit RosInterfaceSystem(rclcpp::Node::SharedPtr ros_node);
 
   ~RosInterfaceSystem() override;
 
