@@ -2,12 +2,10 @@ import os
 import subprocess
 
 from bazel_tools.tools.python.runfiles import runfiles
-from rmw_isolation import isolate_rmw_by_path
 
 
 def main():
     if "TEST_TMPDIR" in os.environ:
-        isolate_rmw_by_path(os.environ["TEST_TMPDIR"])
         os.environ["ROS_HOME"] = os.path.join(os.environ["TEST_TMPDIR"])
 
     manifest = runfiles.Create()
