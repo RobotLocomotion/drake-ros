@@ -20,9 +20,9 @@ ros_cc_binary(
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/primitives:constant_vector_source",
-        "@drake_ros_repo//core",
-        "@drake_ros_repo//tf2",
-        "@drake_ros_repo//viz",
+        "@drake_ros//core",
+        "@drake_ros//tf2",
+        "@drake_ros//viz",
         "@gflags",
     ],
 )
@@ -38,7 +38,7 @@ ros_py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@drake//bindings/pydrake",
-        "@drake_ros_repo//:drake_ros_py",
+        "@drake_ros//:drake_ros_py",
         "@ros2//:rclpy_py",
     ],
 )
@@ -53,6 +53,6 @@ ros_py_test(
     main = "test/multirobot_test.py",
     rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
-        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
+        "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
     ],
 )

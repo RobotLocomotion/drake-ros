@@ -110,6 +110,7 @@ ros_cc_test(
         ":talker_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:std_msgs_cc",
+        "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
     ],
 )
 

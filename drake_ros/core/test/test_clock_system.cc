@@ -11,7 +11,7 @@ using drake_ros::core::ClockSystem;
 using drake_ros::core::DrakeRos;
 using drake_ros::core::RosInterfaceSystem;
 
-TEST(Integration, clock_system) {
+GTEST_TEST(Integration, clock_system) {
   drake_ros::core::init(0, nullptr);
 
   drake::systems::DiagramBuilder<double> builder;
@@ -50,16 +50,10 @@ TEST(Integration, clock_system) {
 
 // Only available in Bazel.
 #ifndef _TEST_DISABLE_RMW_ISOLATION
-#include "rmw_isolation/rmw_isolation.h"
+#include "lib/ros_environment/unique.h"
 
 int main(int argc, char* argv[]) {
-  const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
-  if (TEST_TMPDIR != nullptr) {
-    std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
-    setenv("ROS_HOME", ros_home.c_str(), 1);
-    ros2::isolate_rmw_by_path(argv[0], TEST_TMPDIR);
-  }
-
+  bazel_ros2_rules::EnforceUniqueROSEnvironment();
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

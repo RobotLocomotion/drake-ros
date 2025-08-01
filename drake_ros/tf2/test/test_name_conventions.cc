@@ -10,7 +10,7 @@ using drake::multibody::ModelInstanceIndex;
 using drake::multibody::MultibodyPlant;
 using drake::systems::DiagramBuilder;
 
-TEST(NameConventions, CalcTfFrameNameWithBody) {
+GTEST_TEST(NameConventions, CalcTfFrameNameWithBody) {
   // All names are present
   EXPECT_EQ("model_name/body_name/456",
             drake_ros::tf2::internal::CalcTfFrameName<int>(
@@ -32,7 +32,7 @@ TEST(NameConventions, CalcTfFrameNameWithBody) {
                                                       "", 123, 456));
 }
 
-TEST(NameConventions, CalcTfFrameNameWithoutBody) {
+GTEST_TEST(NameConventions, CalcTfFrameNameWithoutBody) {
   // Frame name is not empty
   EXPECT_EQ("frame_name",
             drake_ros::tf2::internal::CalcTfFrameName("frame_name", 123));
@@ -65,7 +65,7 @@ TEST(NameConventions, CalcTfFrameNameWithoutBody) {
             drake_ros::tf2::internal::CalcTfFrameName("/", 123));
 }
 
-TEST(NameConventions, GetTfFrameNameWorld) {
+GTEST_TEST(NameConventions, GetTfFrameNameWorld) {
   DiagramBuilder<double> builder;
 
   auto [plant, scene_graph] = AddMultibodyPlantSceneGraph(

@@ -2,6 +2,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "patch", "update_attrs")
 load("//lib/private:repos.bzl", "base_ros2_repository", "base_ros2_repository_attributes")
+load("//lib/private:utilities.bzl", "find_local_ros2_distribution")
 
 _ros2_local_repository_attrs = {
     "workspaces": attr.string_list(
@@ -9,8 +10,8 @@ _ros2_local_repository_attrs = {
               "Each workspace specified overlays the previous one." + 
               "If none are provided, ROS_DISTRO_PREFIX will be used to " + 
               "locate a workspace. If none is set, ROS_DISTRO will be used " +
-              "to locate a workspace under /opt/ros. Else, the latest LTS distro " +
-              "will be looked up.",
+              "to locate a workspace under /opt/ros. Else, one will be chosen " + 
+              "if it can be done unambiguously (that is, if there is only one).",
     ),
 }
 _ros2_local_repository_attrs.update(base_ros2_repository_attributes())
@@ -19,13 +20,7 @@ def _ros2_local_repository_impl(repo_ctx):
     workspaces = []
     if not repo_ctx.attr.workspaces:
         repo_ctx.report_progress("Searching for ROS 2 underlays")
-        prefix = repo_ctx.getenv("ROS_DISTRO_PREFIX")
-        if not prefix:
-            distro = repo_ctx.getenv("ROS_DISTRO")
-            if not distro:
-                distro = "jazzy"
-            prefix = "/opt/ros/" + distro
-        workspaces.append(prefix)
+        workspaces.append(find_local_ros2_distribution(repo_ctx))
     else:
         workspaces.extend(repo_ctx.attr.workspaces)
 

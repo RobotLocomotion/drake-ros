@@ -53,7 +53,7 @@ geometry_msgs::msg::Point MakeDummyRosPoint() {
   return message;
 }
 
-TEST(GeometryConversions, Point) {
+GTEST_TEST(GeometryConversions, Point) {
   const geometry_msgs::msg::Point message = MakeDummyRosPoint();
   const Eigen::Vector3d value_expected = MakeDummyVector3();
   const Eigen::Vector3d value = RosPointToVector3(message);
@@ -70,7 +70,7 @@ geometry_msgs::msg::Vector3 MakeDummyRosVector3() {
   return message;
 }
 
-TEST(GeometryConversions, Vector3) {
+GTEST_TEST(GeometryConversions, Vector3) {
   const geometry_msgs::msg::Vector3 message = MakeDummyRosVector3();
   const Eigen::Vector3d value_expected = MakeDummyVector3();
   const Eigen::Vector3d value = RosVector3ToVector3(message);
@@ -102,7 +102,7 @@ geometry_msgs::msg::Quaternion MakeDummyRosQuaternion() {
   return CompareMatrices(lhs.coeffs(), rhs.coeffs());
 }
 
-TEST(GeometryConversions, Quaternion) {
+GTEST_TEST(GeometryConversions, Quaternion) {
   const geometry_msgs::msg::Quaternion message = MakeDummyRosQuaternion();
   const Eigen::Quaterniond value_expected = MakeDummyQuaternion();
   const Eigen::Quaterniond value = RosQuaternionToQuaternion(message);
@@ -123,7 +123,7 @@ drake::math::RotationMatrixd MakeDummyRotationMatrix() {
   return CompareMatrices(lhs.matrix(), rhs.matrix());
 }
 
-TEST(GeometryConversions, RotationMatrix) {
+GTEST_TEST(GeometryConversions, RotationMatrix) {
   const geometry_msgs::msg::Quaternion message = MakeDummyRosQuaternion();
   const drake::math::RotationMatrixd value_expected = MakeDummyRotationMatrix();
   const drake::math::RotationMatrixd value =
@@ -159,7 +159,7 @@ geometry_msgs::msg::Pose MakeDummyRosPose() {
                  drake::math::RigidTransformd(rhs));
 }
 
-TEST(GeometryConversions, Pose) {
+GTEST_TEST(GeometryConversions, Pose) {
   const geometry_msgs::msg::Pose message = MakeDummyRosPose();
   const drake::math::RigidTransformd value_expected = MakeDummyRigidTransform();
   const drake::math::RigidTransformd value = RosPoseToRigidTransform(message);
@@ -179,7 +179,7 @@ geometry_msgs::msg::Transform MakeDummyRosTransform() {
   return message;
 }
 
-TEST(GeometryConversions, Transform) {
+GTEST_TEST(GeometryConversions, Transform) {
   const geometry_msgs::msg::Transform message = MakeDummyRosTransform();
   const drake::math::RigidTransformd value_expected = MakeDummyRigidTransform();
   const drake::math::RigidTransformd value =
@@ -241,7 +241,7 @@ geometry_msgs::msg::Twist MakeDummyRosTwist() {
   return value;
 }
 
-TEST(GeometryConversions, Twist) {
+GTEST_TEST(GeometryConversions, Twist) {
   const geometry_msgs::msg::Twist message = MakeDummyRosTwist();
   const drake::multibody::SpatialVelocity<double> value_expected =
       MakeDummySpatialVelocity();
@@ -270,7 +270,7 @@ geometry_msgs::msg::Accel MakeDummyRosAccel() {
   return value;
 }
 
-TEST(GeometryConversions, Acceleration) {
+GTEST_TEST(GeometryConversions, Acceleration) {
   const geometry_msgs::msg::Accel message = MakeDummyRosAccel();
   const drake::multibody::SpatialAcceleration<double> value_expected =
       MakeDummySpatialAcceleration();
@@ -299,7 +299,7 @@ geometry_msgs::msg::Wrench MakeDummyWrench() {
   return value;
 }
 
-TEST(GeometryConversions, Force) {
+GTEST_TEST(GeometryConversions, Force) {
   const geometry_msgs::msg::Wrench message = MakeDummyWrench();
   const drake::multibody::SpatialForce<double> value_expected =
       MakeDummySpatialForce();

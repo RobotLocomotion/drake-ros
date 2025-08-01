@@ -27,16 +27,6 @@ from drake_ros.core import RosSubscriberSystem
 from drake_ros_test_pub_and_sub_cc import CppPubAndSub
 
 
-def isolate_if_using_bazel():
-    # Do not require `make_unique_ros_isolation_env` module for CMake.
-    # TODO(eric.cousineau): Expose this to CMake in better location..
-    try:
-        from bazel_ros_env import make_unique_ros_isolation_env
-        os.environ.update(make_unique_ros_isolation_env())
-    except ImportError:
-        assert "TEST_TMPDIR" not in os.environ
-
-
 @pytest.fixture
 def drake_ros_fixture():
     drake_ros.core.init()
@@ -182,7 +172,13 @@ def test_drake_ros(drake_ros_fixture):
 
 
 def main():
-    isolate_if_using_bazel()
+    try:
+        from lib.ros_environment.unique import (
+            enforce_unique_ros_environment
+        )
+        enforce_unique_ros_environment()
+    except ImportError:
+        pass
     sys.exit(pytest.main(sys.argv))
 
 

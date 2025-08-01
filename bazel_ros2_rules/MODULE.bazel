@@ -11,3 +11,26 @@ local_python_repository = use_repo_rule(
     "local_python_repository",
 )
 local_python_repository(name = "python")
+
+local_runtime_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_repo",
+)
+
+local_runtime_toolchains_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_toolchains_repo",
+)
+
+local_runtime_repo(
+    name = "local_python3",
+    interpreter_path = "python3",
+    on_failure = "fail",
+)
+
+local_runtime_toolchains_repo(
+    name = "local_toolchains",
+    runtimes = ["local_python3"],
+)
+
+register_toolchains("@local_toolchains//:all", dev_dependency = True)

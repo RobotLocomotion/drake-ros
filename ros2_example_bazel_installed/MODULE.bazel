@@ -13,7 +13,7 @@ local_path_override(
 )
 
 # Please keep this list sorted
-ROS2_PACKAGES = [
+ROS_REQUIRED_PACKAGES = [
     "action_msgs",
     "builtin_interfaces",
     "console_bridge_vendor",
@@ -34,11 +34,32 @@ ROS2_PACKAGES = [
     # "rmw_fastrtps_cpp",
 ]
 
-ros2_local_repository = use_repo_rule(
-    "@bazel_ros2_rules//lib:repos.bzl", 
-    "ros2_local_repository"
+local_ros2 = use_extension("@bazel_ros2_rules//lib:extensions.bzl", "local_ros2")
+local_ros2.distribution(
+    include_packages = ROS_REQUIRED_PACKAGES,
+    overlays = ["/home/mhidalgo/Workspaces/jazzy_ws/install"],
 )
-ros2_local_repository(
-    name = "ros2",
-    include_packages = ROS2_PACKAGES,
+use_repo(local_ros2, **{"ros2": "local_ros2"})
+
+local_runtime_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_repo",
 )
+
+local_runtime_toolchains_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_toolchains_repo",
+)
+
+local_runtime_repo(
+    name = "local_python3",
+    interpreter_path = "python3",
+    on_failure = "fail",
+)
+
+local_runtime_toolchains_repo(
+    name = "local_toolchains",
+    runtimes = ["local_python3"],
+)
+
+register_toolchains("@local_toolchains//:all")

@@ -10,13 +10,13 @@
 
 using drake_ros::core::DrakeRos;
 
-TEST(DrakeRos, default_construct) {
+GTEST_TEST(DrakeRos, default_construct) {
   drake_ros::core::init();
   EXPECT_NO_THROW(std::make_unique<DrakeRos>("default_node"));
   EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
-TEST(DrakeRos, local_context) {
+GTEST_TEST(DrakeRos, local_context) {
   auto context = std::make_shared<rclcpp::Context>();
   rclcpp::NodeOptions node_options;
   node_options.context(context);
@@ -28,7 +28,7 @@ TEST(DrakeRos, local_context) {
   context->shutdown("done");
 }
 
-TEST(DrakeRos, environment) {
+GTEST_TEST(DrakeRos, environment) {
   // The unit testing environment should always be shimmed to have proper
   // environment variables. Check that at least this one test case is shimmed.
   // If yes, it's likely that shimming is correct everywhere else, too.
@@ -38,16 +38,10 @@ TEST(DrakeRos, environment) {
 
 // Only available in Bazel.
 #ifndef _TEST_DISABLE_RMW_ISOLATION
-#include "rmw_isolation/rmw_isolation.h"
+#include "lib/ros_environment/unique.h"
 
 int main(int argc, char* argv[]) {
-  const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
-  if (TEST_TMPDIR != nullptr) {
-    std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
-    setenv("ROS_HOME", ros_home.c_str(), 1);
-    ros2::isolate_rmw_by_path(argv[0], TEST_TMPDIR);
-  }
-
+  bazel_ros2_rules::EnforceUniqueROSEnvironment();
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

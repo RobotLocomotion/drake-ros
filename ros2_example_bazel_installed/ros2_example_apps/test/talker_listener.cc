@@ -7,13 +7,11 @@
 #include "listener.h"
 #include "talker.h"
 
+#include "lib/ros_environment/unique.h"
 
 int main(int argc, char* argv[]) {
-  const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
-  if (TEST_TMPDIR != nullptr) {
-    std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
-    setenv("ROS_HOME", ros_home.c_str(), 1);
-  }
+  bazel_ros2_rules::EnforceUniqueROSEnvironment();
+
   rclcpp::init(argc, argv);
 
   auto talker = std::make_shared<Talker>();
