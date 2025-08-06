@@ -54,5 +54,6 @@ ros_py_test(
     rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
+        "@bazel_tools//python/runfiles",
     ],
 )

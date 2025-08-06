@@ -1,6 +1,6 @@
 import subprocess
 
-from python.runfiles import runfiles
+from bazel_tools.python.runfiles import runfiles
 
 def main():
     try:

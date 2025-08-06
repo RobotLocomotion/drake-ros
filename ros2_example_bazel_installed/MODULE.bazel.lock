@@ -150,7 +150,7 @@
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {
-          "ROS_DISTRO": "jazzy",
+          "ROS_DISTRO": null,
           "ROS_DISTRO_PREFIX": null
         },
         "generatedRepoSpecs": {

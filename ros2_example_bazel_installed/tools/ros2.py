@@ -12,8 +12,8 @@ from bazel_tools.tools.python.runfiles import runfiles
 
 
 def main():
-    manifest = runfiles.Create()
-    bin_file = manifest.Rlocation("ros2/ros2")
+    r = runfiles.Create()
+    bin_file = r.Rlocation("ros2/ros2")
     argv = [bin_file] + sys.argv[1:]
     os.execv(bin_file, argv)
 

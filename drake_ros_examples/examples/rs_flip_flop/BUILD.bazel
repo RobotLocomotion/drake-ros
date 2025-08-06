@@ -48,5 +48,6 @@ ros_py_test(
     tags = ["manual"],
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
+        "@bazel_tools//python/runfiles",
     ],
 )

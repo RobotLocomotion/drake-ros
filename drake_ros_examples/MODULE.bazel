@@ -3,8 +3,6 @@ module (
     version = "1.0.0",
 )
 
-bazel_dep(name = "rules_python", version = "1.5.1")
-
 DRAKE_COMMIT = "v1.43.0"
 DRAKE_CHECKSUM = "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
 

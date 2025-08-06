@@ -16,7 +16,7 @@ import subprocess
 import time
 
 from bazel_tools.tools.python.runfiles import runfiles
-from bazel_ros2_rules.lib.ros_environment.unique import enforce_unique_ros_environment
+from lib.ros_environment.unique import enforce_unique_ros_environment
 
 def read_available(f, timeout=0.0, chunk_size=1024):
     """
@@ -50,10 +50,10 @@ def open_process(args):
 def attempt_record():
     enforce_unique_ros_environment()
 
-    manifest = runfiles.Create()
-    ros2_bin = manifest.Rlocation("ros2_example_bazel_installed/tools/ros2")
+    r = runfiles.Create()
+    ros2_bin = r.Rlocation("ros2_example_bazel_installed/tools/ros2")
     assert ros2_bin is not None
-    talker_bin = manifest.Rlocation(
+    talker_bin = r.Rlocation(
         "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
     tmp_dir = os.environ.get("TEST_TMPDIR", "/tmp")
     bag_dir = os.path.join(tmp_dir, "test_bag")

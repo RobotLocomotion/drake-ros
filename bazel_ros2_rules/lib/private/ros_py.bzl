@@ -161,11 +161,12 @@ _LAUNCH_PY_TEMPLATE = """
 import os
 import sys
 
-from bazel_ros_env import Rlocation
+from python.runfiles import runfiles
 
 assert __name__ == "__main__"
-launch_file = Rlocation({launch_respath})
-ros2_bin = Rlocation("ros2/ros2")
+r = runfiles.Create()
+launch_file = r.Rlocation({launch_respath})
+ros2_bin = r.Rlocation("ros2/ros2")
 args = [ros2_bin, "launch", launch_file] + sys.argv[1:]
 os.execv(ros2_bin, args)
 """
@@ -213,6 +214,7 @@ def ros_launch(
     deps = _add_deps(
         deps,
         [
+            "@bazel_ros2_rules//deps/python/runfiles",
             REPOSITORY_ROOT + ":ros2",
         ],
     )

@@ -7,9 +7,9 @@ from lib.ros_environment.unique import enforce_unique_ros_environment
 def main():
     enforce_unique_ros_environment()
 
-    manifest = runfiles.Create()
-    ros2_bin = manifest.Rlocation("ros2_example_bazel_installed/tools/ros2")
-    talker_bin = manifest.Rlocation(
+    r = runfiles.Create()
+    ros2_bin = r.Rlocation("ros2_example_bazel_installed/tools/ros2")
+    talker_bin = r.Rlocation(
         "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
 
     timeout = 5.0
