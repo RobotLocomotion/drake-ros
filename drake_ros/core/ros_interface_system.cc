@@ -16,6 +16,11 @@ RosInterfaceSystem::RosInterfaceSystem(std::unique_ptr<DrakeRos> ros)
   impl_->ros = std::move(ros);
 }
 
+RosInterfaceSystem::RosInterfaceSystem(rclcpp::Node::SharedPtr ros_node)
+    : impl_(new Impl()) {
+  impl_->ros = std::make_unique<DrakeRos>(ros_node);
+}
+
 RosInterfaceSystem::~RosInterfaceSystem() {}
 
 DrakeRos* RosInterfaceSystem::get_ros_interface() const {

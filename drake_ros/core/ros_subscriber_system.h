@@ -32,18 +32,36 @@ class RosSubscriberSystem : public drake::systems::LeafSystem<double> {
         std::make_shared<Serializer<MessageT>>(), std::forward<ArgsT>(args)...);
   }
 
-  /** A constructor for the ROS subscriber system.
-   It takes a `serializer` to deal with incoming messages.
+  /** Constructs a ROS subscriber system.
+   It takes a `serializer` to deal with incoming messages and
+   a reference to an owning `ros` interface to access the middleware.
 
    @param[in] serializer a (de)serialization interface for the
      expected ROS message type.
    @param[in] topic_name Name of the ROS topic to subscribe to.
    @param[in] qos QoS profile for the underlying ROS subscription.
-   @param[in] ros interface to a live ROS node to publish from.
+   @param[in] ros interface to a live ROS node to subscribe with.
    */
   RosSubscriberSystem(std::shared_ptr<const SerializerInterface> serializer,
                       const std::string& topic_name, const rclcpp::QoS& qos,
                       DrakeRos* ros);
+
+  /** Constructs a ROS subscriber system.
+   It takes a `serializer` to deal with incoming messages and
+   a reference to an external `ros_node` to access the middleware.
+
+   This is useful when you are using a ROS node that is not managed
+   by Drake.
+
+   @param[in] serializer a (de)serialization interface for the
+     expected ROS message type.
+   @param[in] topic_name Name of the ROS topic to subscribe to.
+   @param[in] qos QoS profile for the underlying ROS subscription.
+   @param[in] ros_node ROS node to subscribe with.
+   */
+  RosSubscriberSystem(std::shared_ptr<const SerializerInterface> serializer,
+                      const std::string& topic_name, const rclcpp::QoS& qos,
+                      rclcpp::Node* ros_node);
 
   ~RosSubscriberSystem() override;
 
