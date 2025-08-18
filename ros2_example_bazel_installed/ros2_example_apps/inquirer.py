@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import action_msgs.msg
 import rclpy
 import rclpy.action

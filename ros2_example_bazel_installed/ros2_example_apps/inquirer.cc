@@ -1,15 +1,12 @@
 #include <functional>
 #include <memory>
 
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_action/client.hpp>
-#include <rclcpp_action/create_client.hpp>
-
 #include "ros2_example_apps_msgs/msg/status.hpp"
 #include "ros2_example_common_msgs/action/do.hpp"
 #include "ros2_example_common_msgs/srv/query.hpp"
-
-using namespace std::chrono_literals;
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/client.hpp>
+#include <rclcpp_action/create_client.hpp>
 
 namespace ros2_example_apps {
 
@@ -20,7 +17,7 @@ class Inquirer : public rclcpp::Node {
 
  public:
   Inquirer() : Node("inquirer") {
-    using namespace std::placeholders;
+    using std::placeholders::_1;
     status_sub_ = this->create_subscription<Status>(
         "status", rclcpp::QoS(rclcpp::KeepLast(1)),
         std::bind(&Inquirer::on_status, this, _1));
@@ -29,6 +26,7 @@ class Inquirer : public rclcpp::Node {
 
     action_client_ = rclcpp_action::create_client<Do>(this, "do");
 
+    using std::chrono_literals::operator""s;
     inquire_timer_ =
         this->create_wall_timer(5s, std::bind(&Inquirer::inquire, this));
   }
@@ -74,7 +72,8 @@ class Inquirer : public rclcpp::Node {
   }
 
   void inquire() const {
-    using namespace std::placeholders;
+    using std::placeholders::_1;
+    using std::placeholders::_2;
 
     if (query_client_->service_is_ready()) {
       auto request = std::make_shared<Query::Request>();

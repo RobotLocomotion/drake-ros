@@ -5,32 +5,28 @@
 #include "std_msgs/msg/string.hpp"
 using std::placeholders::_1;
 
-class MinimalSubscriber : public rclcpp::Node
-{
-  public:
-    MinimalSubscriber(int max_count = 10)
-    : Node("minimal_subscriber"), max_count_(max_count)
-    {
-      subscription_ = this->create_subscription<std_msgs::msg::String>(
-      "topic", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
-    }
+class MinimalSubscriber : public rclcpp::Node {
+ public:
+  explicit MinimalSubscriber(int max_count = 10)
+      : Node("minimal_subscriber"), max_count_(max_count) {
+    subscription_ = this->create_subscription<std_msgs::msg::String>(
+        "topic", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
+  }
 
-    bool is_done() const { return count_ >= max_count_; }
+  bool is_done() const { return count_ >= max_count_; }
 
-  private:
-    void topic_callback(const std_msgs::msg::String::SharedPtr msg)
-    {
-      RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
-      ++count_;
-    }
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
+ private:
+  void topic_callback(const std_msgs::msg::String::SharedPtr msg) {
+    RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
+    ++count_;
+  }
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
 
-    int max_count_{};
-    int count_{};
+  int max_count_{};
+  int count_{};
 };
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
   rclcpp::init(argc, argv);
 
   // Use explicit `spin_some` so we can manually check for completion.

@@ -3,16 +3,13 @@
 #include <memory>
 #include <random>
 
+#include "ros2_example_apps_msgs/msg/status.hpp"
+#include "ros2_example_common_msgs/action/do.hpp"
+#include "ros2_example_common_msgs/srv/query.hpp"
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
 #include <rclcpp_action/create_server.hpp>
 #include <rclcpp_action/server.hpp>
-
-#include "ros2_example_apps_msgs/msg/status.hpp"
-#include "ros2_example_common_msgs/action/do.hpp"
-#include "ros2_example_common_msgs/srv/query.hpp"
-
-using namespace std::chrono_literals;
 
 namespace ros2_example_apps {
 
@@ -23,7 +20,8 @@ class Oracle : public rclcpp::Node {
 
  public:
   Oracle() : Node("oracle") {
-    using namespace std::placeholders;
+    using std::placeholders::_1;
+    using std::placeholders::_2;
 
     status_pub_ = this->create_publisher<Status>(
         "status", rclcpp::QoS(rclcpp::KeepLast(1)));
@@ -32,10 +30,11 @@ class Oracle : public rclcpp::Node {
         "query", std::bind(&Oracle::handle_query, this, _1, _2));
 
     action_server_ = rclcpp_action::create_server<Do>(
-            this, "do", std::bind(&Oracle::handle_action_goal, this, _1, _2),
-            std::bind(&Oracle::handle_cancelled_action, this, _1),
-            std::bind(&Oracle::handle_accepted_action, this, _1));
+        this, "do", std::bind(&Oracle::handle_action_goal, this, _1, _2),
+        std::bind(&Oracle::handle_cancelled_action, this, _1),
+        std::bind(&Oracle::handle_accepted_action, this, _1));
 
+    using std::chrono_literals::operator""s;
     status_timer_ =
         this->create_wall_timer(1s, std::bind(&Oracle::publish_status, this));
   }
@@ -95,10 +94,8 @@ class Oracle : public rclcpp::Node {
     handle->publish_feedback(feedback);
   }
 
-  void handle_query(
-      const std::shared_ptr<Query::Request> request,
-      std::shared_ptr<Query::Response> response)
-      const {
+  void handle_query(const std::shared_ptr<Query::Request> request,
+                    std::shared_ptr<Query::Response> response) const {
     if (request->query == "how's it going?") {
       response->reply = "all good!";
     } else {
@@ -128,7 +125,7 @@ class Oracle : public rclcpp::Node {
   std::shared_ptr<rclcpp_action::Server<Do>> action_server_;
 };
 
-}  // namespace ros_apps
+}  // namespace ros2_example_apps
 
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);

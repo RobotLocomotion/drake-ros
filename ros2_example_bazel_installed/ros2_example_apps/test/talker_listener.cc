@@ -1,13 +1,11 @@
 #include <chrono>
 #include <memory>
 
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
-
+#include "lib/ros_environment/unique.h"
 #include "listener.h"
 #include "talker.h"
-
-#include "lib/ros_environment/unique.h"
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/string.hpp>
 
 int main(int argc, char* argv[]) {
   bazel_ros2_rules::EnforceUniqueROSEnvironment();
@@ -24,7 +22,7 @@ int main(int argc, char* argv[]) {
   auto got_message = listener->NextMessage();
 
   auto result =
-    exec.spin_until_future_complete(got_message, std::chrono::seconds(5));
+      exec.spin_until_future_complete(got_message, std::chrono::seconds(5));
 
   rclcpp::shutdown();
 

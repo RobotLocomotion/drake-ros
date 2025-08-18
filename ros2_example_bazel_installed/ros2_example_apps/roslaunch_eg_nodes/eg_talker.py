@@ -7,7 +7,7 @@ from std_msgs.msg import String
 
 class MinimalPublisher(Node):
 
-    def __init__(self, *, max_count = 10):
+    def __init__(self, *, max_count=10):
         super().__init__("node")
         self.publisher = self.create_publisher(String, "topic", 10)
         timer_period = 0.1  # seconds

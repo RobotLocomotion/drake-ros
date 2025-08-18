@@ -1,11 +1,11 @@
 // See `runfiles_direct_test.sh` for motivation.
+#include "tools/cpp/runfiles/runfiles.h"
+
 #include <cassert>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
-
-#include "tools/cpp/runfiles/runfiles.h"
 
 using bazel::tools::cpp::runfiles::Runfiles;
 
@@ -20,8 +20,8 @@ std::unique_ptr<Runfiles> CreateRunfiles() {
              (std::getenv("RUNFILES_DIR") != nullptr)) {
     runfiles.reset(Runfiles::Create({}, &bazel_error));
   } else {
-    const std::string& argv0 = std::filesystem::read_symlink({
-        "/proc/self/exe"}).string();
+    const std::string& argv0 =
+        std::filesystem::read_symlink({"/proc/self/exe"}).string();
     runfiles.reset(Runfiles::Create(argv0, &bazel_error));
   }
   if (runfiles == nullptr) {

@@ -7,7 +7,7 @@ OR
     bazel build //ros2_example_apps:custom_message_rosbag_test
     bazel-bin/ros2_example_apps/custom_message_rosbag_test
 WARNING: `bazel run` does not work as expected
-"""
+"""  # noqa
 
 import os
 import shutil
@@ -17,6 +17,7 @@ import time
 
 from bazel_tools.tools.python.runfiles import runfiles
 from lib.ros_environment.unique import enforce_unique_ros_environment
+
 
 def read_available(f, timeout=0.0, chunk_size=1024):
     """
@@ -54,7 +55,8 @@ def attempt_record():
     ros2_bin = r.Rlocation("ros2_example_bazel_installed/tools/ros2")
     assert ros2_bin is not None
     talker_bin = r.Rlocation(
-        "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
+        "ros2_example_bazel_installed/ros2_example_apps/simple_talker"
+    )
     tmp_dir = os.environ.get("TEST_TMPDIR", "/tmp")
     bag_dir = os.path.join(tmp_dir, "test_bag")
     if os.path.exists(bag_dir):
