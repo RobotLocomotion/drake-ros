@@ -1,6 +1,6 @@
-.vscode
 bazel-*
 **/__pycache__/
+**/MODULE.bazel.lock
 
 # User-specified configuration
 /bazel_ros2_rules/user.bazelrc
