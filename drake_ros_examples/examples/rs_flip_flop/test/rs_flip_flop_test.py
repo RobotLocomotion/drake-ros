@@ -1,26 +1,22 @@
 import os
 from subprocess import run
 
-from bazel_ros_env import (
-    Rlocation,
-    make_bazel_runfiles_env,
-    make_unique_ros_isolation_env,
-)
-
-
-def make_env():
-    env = dict(os.environ)
-    env.update(make_bazel_runfiles_env())
-    env.update(make_unique_ros_isolation_env())
-    return env
+from python.runfiles import runfiles
 
 
 def main():
-    env = make_env()
-    cc_bin = Rlocation(
+    try:
+        from lib.ros_environment.unique import (
+            enforce_unique_ros_environment
+        )
+        enforce_unique_ros_environment()
+    except ImportError:
+        pass
+    r = runfiles.Create()
+    cc_bin = r.Rlocation(
         "drake_ros_examples/examples/rs_flip_flop/rs_flip_flop"
     )
-    py_bin = Rlocation(
+    py_bin = r.Rlocation(
         "drake_ros_examples/examples/rs_flip_flop/rs_flip_flop_py"
     )
     run([cc_bin, "--simulation_sec=0.01"], env=env, check=True)

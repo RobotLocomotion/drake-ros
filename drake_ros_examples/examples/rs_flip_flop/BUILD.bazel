@@ -3,6 +3,7 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
+load("//tools/lint:lint.bzl", "add_lint_tests")
 
 ros_cc_binary(
     name = "rs_flip_flop",
@@ -48,6 +49,8 @@ ros_py_test(
     tags = ["manual"],
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
+
+add_lint_tests()

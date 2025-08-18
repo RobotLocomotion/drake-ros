@@ -1,6 +1,7 @@
 import subprocess
 
-from bazel_tools.python.runfiles import runfiles
+from python.runfiles import runfiles
+
 
 def main():
     try:
@@ -11,7 +12,9 @@ def main():
     except ImportError:
         pass
     r = runfiles.Create()
-    cc_bin = r.Rlocation("drake_ros_examples/examples/hydroelastic/hydroelastic")
+    cc_bin = r.Rlocation(
+        "drake_ros_examples/examples/hydroelastic/hydroelastic"
+    )
     subprocess.run([cc_bin, "--simulation_sec=0.01"], check=True)
     print("[ Done ]")
 
