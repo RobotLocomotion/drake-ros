@@ -7,10 +7,10 @@ def find_local_ros2_distribution(ctx):
         if not distro_name:
             result = ctx.execute(["ls", "/opt/ros"])
             if result.return_code != 0 or result.stdout == "":
-                fail("Found no ROS 2 distributions, use $ROS_DISTRO_PREFIX to locate one")
+                fail("Found no ROS 2 distributions, use $ROS_DISTRO_PREFIX to locate one")  # noqa
             distro_names = result.stdout.splitlines()
             if len(distro_names) > 1:
-                fail("Found many ROS 2 distributions, use $ROS_DISTRO to choose one", distro_names)
+                fail("Found many ROS 2 distributions, use $ROS_DISTRO to choose one", distro_names)  # noqa
             distro_name = distro_names[0]
         prefix = "/opt/ros/" + distro_name
     return prefix

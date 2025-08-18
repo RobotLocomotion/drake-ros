@@ -14,76 +14,74 @@
 #include <sys/types.h>
 // clang-format on
 
-#include <string>
-
-#include <memory>
-#include <type_traits>
 #include <functional>
-#include <utility>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace ros2 {
 
 [[noreturn]] inline void Throw(const char* condition, const char* func,
-    const char* file, int line) {
+                               const char* file, int line) {
   std::ostringstream oss;
   oss << "Condition failed: (" << condition << ") in function " << func
-  << " at " << file << ":" << line;
+      << " at " << file << ":" << line;
   throw std::runtime_error(oss.str());
 }
 
 class ScopeExit {
-  public:
-   ScopeExit(const ScopeExit&) = delete;
-   ScopeExit& operator=(const ScopeExit&) = delete;
-   ScopeExit(ScopeExit&&) = delete;
-   ScopeExit& operator=(ScopeExit&&) = delete;
+ public:
+  ScopeExit(const ScopeExit&) = delete;
+  ScopeExit& operator=(const ScopeExit&) = delete;
+  ScopeExit(ScopeExit&&) = delete;
+  ScopeExit& operator=(ScopeExit&&) = delete;
 
-   explicit ScopeExit(std::function<void()> func)
-       : func_(std::move(func)), active_(true) {}
+  explicit ScopeExit(std::function<void()> func)
+      : func_(std::move(func)), active_(true) {}
 
-   ~ScopeExit() {
-     if (active_ && func_) {
-       func_();
-     }
-   }
+  ~ScopeExit() {
+    if (active_ && func_) {
+      func_();
+    }
+  }
 
-   // Disarm: cancels the scope exit
-   void Disarm() { active_ = false; }
+  // Disarm: cancels the scope exit
+  void Disarm() { active_ = false; }
 
-  private:
-   std::function<void()> func_;
-   bool active_;
- };
+ private:
+  std::function<void()> func_;
+  bool active_;
+};
 
-#define THROW_UNLESS(condition)                                          \
-  do {                                                                         \
-    static_assert(std::is_convertible<decltype(condition), bool>::value,       \
-                  "Condition must be bool-convertible.");                      \
-    static_assert(!std::is_pointer<decltype(condition)>::value,                \
-                  "For raw pointers, write 'ptr != nullptr' explicitly.");     \
-    if (!(condition)) {                                                        \
-      Throw(#condition, __func__, __FILE__, __LINE__);       \
-    }                                                                          \
+#define THROW_UNLESS(condition)                                            \
+  do {                                                                     \
+    static_assert(std::is_convertible<decltype(condition), bool>::value,   \
+                  "Condition must be bool-convertible.");                  \
+    static_assert(!std::is_pointer<decltype(condition)>::value,            \
+                  "For raw pointers, write 'ptr != nullptr' explicitly."); \
+    if (!(condition)) {                                                    \
+      Throw(#condition, __func__, __FILE__, __LINE__);                     \
+    }                                                                      \
   } while (0)
 
-#define CHECK_SYSCALL(result)                                             \
-  do {                                                                         \
-    if (result != 0) {                                                         \
-      const int error = errno;                                                 \
-      std::ostringstream oss;                                                  \
-      oss << "network_isolation.cc:" << __LINE__                             \
-          << ": error: " << strerror(error);                                   \
-      throw std::runtime_error(oss.str());                                     \
-    }                                                                          \
+#define CHECK_SYSCALL(result)                    \
+  do {                                           \
+    if (result != 0) {                           \
+      const int error = errno;                   \
+      std::ostringstream oss;                    \
+      oss << "network_isolation.cc:" << __LINE__ \
+          << ": error: " << strerror(error);     \
+      throw std::runtime_error(oss.str());       \
+    }                                            \
   } while (0)
 
 void CreateLinuxNetworkNamespaces() {
   // If we've already been called once (e.g., by a parent process) there's no
   // need to do the work again (and trying to do so would fail). Our *.py file
   // repeats the same constant, so be sure to keep both copies in sync.
-  constexpr char kFinishedMarker[] =
-      "_ROS_CREATED_LINUX_NETWORK_NAMESPACES";
+  constexpr char kFinishedMarker[] = "_ROS_CREATED_LINUX_NETWORK_NAMESPACES";
   if (getenv(kFinishedMarker) != nullptr) {
     return;
   }
@@ -102,13 +100,17 @@ void CreateLinuxNetworkNamespaces() {
   result = getifaddrs(&ifaddr);
   CHECK_SYSCALL(result);
   THROW_UNLESS(ifaddr != nullptr);
-  ScopeExit ifaddr_cleanup([&]() { freeifaddrs(ifaddr); });
+  ScopeExit ifaddr_cleanup([&]() {
+    freeifaddrs(ifaddr);
+  });
   THROW_UNLESS(ifaddr->ifa_next == nullptr);
 
   // Create a socket to do ioctl stuff on.
   int fd = socket(AF_INET, SOCK_DGRAM, 0);
   THROW_UNLESS(fd >= 0);
-  ScopeExit fd_cleanup([&]() { close(fd); });
+  ScopeExit fd_cleanup([&]() {
+    close(fd);
+  });
 
   // Check what flags are set on the interface.
   struct ifreq ioctl_request = {};

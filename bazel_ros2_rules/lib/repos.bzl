@@ -1,17 +1,26 @@
 # -*- python -*-
 
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "patch", "update_attrs")
-load("//lib/private:repos.bzl", "base_ros2_repository", "base_ros2_repository_attributes")
+load(
+    "@bazel_tools//tools/build_defs/repo:utils.bzl",
+    "patch",
+    "update_attrs",
+)
+load(
+    "//lib/private:repos.bzl",
+    "base_ros2_repository",
+    "base_ros2_repository_attributes",
+)
 load("//lib/private:utilities.bzl", "find_local_ros2_distribution")
 
 _ros2_local_repository_attrs = {
     "workspaces": attr.string_list(
         doc = "Paths to ROS 2 workspace install trees. " +
-              "Each workspace specified overlays the previous one." + 
-              "If none are provided, ROS_DISTRO_PREFIX will be used to " + 
-              "locate a workspace. If none is set, ROS_DISTRO will be used " +
-              "to locate a workspace under /opt/ros. Else, one will be chosen " + 
-              "if it can be done unambiguously (that is, if there is only one).",
+              "Each workspace specified overlays the previous one." +
+              "If none are provided, ROS_DISTRO_PREFIX will be used to " +
+              "locate a workspace. If none is set, ROS_DISTRO will be " +
+              "used to locate a workspace under /opt/ros. Else, one will " +
+              "be chosen if it can be done unambiguously (that is, if " +
+              "there is only one).",
     ),
 }
 _ros2_local_repository_attrs.update(base_ros2_repository_attributes())
@@ -54,8 +63,8 @@ _ros2_archive_attrs = {
     ),
     "sha256_url": attr.string(
         doc = "The URL to fetch the SHA-256 checksum file for the tarball. " +
-              "If 'sha256' is also supplied, then it must exactly match the " +
-              "value fetched from this URL. " +
+              "If 'sha256' is also supplied, then it must exactly match " +
+              "the value fetched from this URL. " +
               "(In general, you may only want to supply one of these.)",
     ),
     "strip_prefix": attr.string(

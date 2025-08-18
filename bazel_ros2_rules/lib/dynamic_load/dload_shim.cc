@@ -33,8 +33,7 @@ std::unique_ptr<Runfiles> CreateRunfiles(const char* argv0) {
 }  // namespace
 
 void ApplyEnvironmentActions(
-    const char* argv0,
-    const std::vector<const char*>& names,
+    const char* argv0, const std::vector<const char*>& names,
     const std::vector<std::vector<const char*>>& actions) {
   std::unique_ptr<Runfiles> runfiles = CreateRunfiles(argv0);
   if (!runfiles) {
@@ -42,7 +41,7 @@ void ApplyEnvironmentActions(
   }
 
   // Sentinel indicates if the executable has already been shimmed
-  const char * kShimmedSentinel = "_BAZEL_ROS2_RULES_SHIMMED";
+  const char* kShimmedSentinel = "_BAZEL_ROS2_RULES_SHIMMED";
 
   // Actions indicate how to change environment variables
   const std::string kReplace = "replace";
@@ -83,7 +82,7 @@ void ApplyEnvironmentActions(
           value_stream << runfiles->Rlocation(actions[i][j]) << ":";
         }
 
-        const char * raw_value = getenv(names[i]);
+        const char* raw_value = getenv(names[i]);
         if (raw_value != nullptr) {
           value_stream << raw_value;
         }
@@ -105,13 +104,9 @@ void ApplyEnvironmentActions(
   }
 }
 
-int ReexecMain(
-    const int argc,
-    const char** argv,
-    const char* executable_path,
-    const std::vector<const char*> names,
-    const std::vector<std::vector<const char*>> actions)
-{
+int ReexecMain(const int argc, const char** argv, const char* executable_path,
+               const std::vector<const char*> names,
+               const std::vector<std::vector<const char*>> actions) {
   std::unique_ptr<Runfiles> runfiles = CreateRunfiles(argv[0]);
   if (!runfiles) {
     return -1;
@@ -143,7 +138,7 @@ int ReexecMain(
 
   const std::string real_executable_path = runfiles->Rlocation(executable_path);
 
-  char ** other_argv = new char*[argc + 1];
+  char** other_argv = new char*[argc + 1];
   other_argv[0] = strdup(real_executable_path.c_str());
   for (int i = 1; i < argc; ++i) {
     other_argv[i] = strdup(argv[i]);

@@ -3,5 +3,5 @@ package(default_visibility = ["//visibility:public"])
 
 alias(
     name = "runfiles",
-    actual = "@rules_python//python/runfiles"
+    actual = "@rules_python//python/runfiles",
 )

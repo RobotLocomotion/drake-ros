@@ -1,12 +1,14 @@
 import os
 
-import cmake_tools
+from cmake_tools import get_packages_with_prefixes
 
 from ros2bzl.scraping.metadata import collect_cmake_package_metadata
 from ros2bzl.scraping.metadata import collect_python_package_metadata
 from ros2bzl.scraping.metadata import collect_ros_package_metadata
 
-from ros2bzl.scraping.python import get_packages_with_prefixes as get_python_packages_with_prefixes
+from ros2bzl.scraping.python import (
+    get_packages_with_prefixes as get_python_packages_with_prefixes
+)
 
 
 def list_all_executables():
@@ -35,12 +37,14 @@ def index_all_packages():
         ament_index_python.get_packages_with_prefixes().items()
     }
     search_paths = ament_index_python.get_search_paths()
-    for name, prefix in cmake_tools.get_packages_with_prefixes(search_paths).items():
+    cmake_packages = get_packages_with_prefixes(search_paths)
+    for name, prefix in cmake_packages.items():
         if name in packages:
             # Assume unique package names across package types
             continue
         packages[name] = collect_cmake_package_metadata(name, prefix)
-    for name, prefix in get_python_packages_with_prefixes(search_paths).items():
+    python_packages = get_python_packages_with_prefixes(search_paths)
+    for name, prefix in python_packages.items():
         if name in packages:
             # Assume unique package names across package types
             continue
@@ -56,7 +60,7 @@ def build_dependency_graph(packages, include=None, exclude=None):
             unknown_packages = tuple(include.difference(package_set))
             msg = 'Cannot find package'
             if len(unknown_packages) == 1:
-                msg +=  ' ' + repr(unknown_packages[0])
+                msg += ' ' + repr(unknown_packages[0])
             else:
                 msg += 's ' + repr(unknown_packages)
             raise RuntimeError(msg)

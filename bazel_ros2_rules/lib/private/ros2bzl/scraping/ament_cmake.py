@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 from tempfile import TemporaryDirectory
 
-import cmake_tools
+from cmake_tools import configure_file, get_cmake_codemodel
 from ros2bzl.resources import path_to_resource
 from ros2bzl.scraping.properties import CcProperties
 from ros2bzl.scraping.system import find_library_path
@@ -123,11 +123,12 @@ def collect_ament_cmake_shared_library_codemodel(
         compile_flags.append(flag)
 
     return CcProperties(
-        include_directories = include_directories,
-        compile_flags = compile_flags,
-        defines = defines,
-        link_libraries = link_libraries,
-        link_flags = link_flags)
+        include_directories=include_directories,
+        compile_flags=compile_flags,
+        defines=defines,
+        link_libraries=link_libraries,
+        link_flags=link_flags
+    )
 
 
 def collect_ament_cmake_package_properties(name, metadata):
@@ -140,7 +141,7 @@ def collect_ament_cmake_package_properties(name, metadata):
         cmakelists_template_path = path_to_resource(
             'templates/ament_cmake_CMakeLists.txt.in')
         cmakelists_path = os.path.join(project_path, 'CMakeLists.txt')
-        cmake_tools.configure_file(cmakelists_template_path, cmakelists_path, {
+        configure_file(cmakelists_template_path, cmakelists_path, {
             '@NAME@': project_name, '@PACKAGE@': name
         })
 
@@ -153,9 +154,10 @@ def collect_ament_cmake_package_properties(name, metadata):
         build_path = project_path.joinpath('build')
         build_path.mkdir()
         try:
-            codemodel = cmake_tools.get_cmake_codemodel(project_path, build_path)
+            codemodel = get_cmake_codemodel(project_path, build_path)
         except RuntimeError as e:
-            raise RuntimeError(f"Error occured while generating build for {name}")
+            message = f"Error occured while generating build for {name}"
+            raise RuntimeError(message)
 
         # Should only be one SHARED_LIBRARY target
         target = None
@@ -224,9 +226,10 @@ def collect_ament_cmake_package_direct_properties(
                 if not os.path.exists(os.path.join(directory, name)):
                     continue
             deduplicated_include_directories.append(directory)
-        properties.include_directories = tuple(deduplicated_include_directories)
-        # Do not deduplicate link directories in case we're dealing with
-        # merge installs.
+        properties.include_directories = (
+            tuple(deduplicated_include_directories))
+        # Do not deduplicate link directories in case
+        # we're dealing with merge installs.
 
     return properties
 

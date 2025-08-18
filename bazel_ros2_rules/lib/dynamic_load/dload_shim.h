@@ -40,9 +40,8 @@ variables. This is meant to be called in main() of a generated shim executable.
 @param executable_path path to an executable to execute.
 @param names environment variables to be modified.
 @param actions actions to be performed on each named environment variable. */
-int ReexecMain(
-    int argc, const char** argv, const char* executable_path,
-    std::vector<const char*> names,
-    std::vector<std::vector<const char*>> actions);
+int ReexecMain(int argc, const char** argv, const char* executable_path,
+               std::vector<const char*> names,
+               std::vector<std::vector<const char*>> actions);
 
 }  // namespace bazel_ros2_rules

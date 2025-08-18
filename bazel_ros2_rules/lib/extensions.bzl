@@ -11,7 +11,10 @@ def _local_ros2_implementation(module_ctx):
 
     for module in module_ctx.modules:
         if len(module.tags.distribution) > 1:
-            fail("There can only be one local ROS 2 distribution per workspace")
+            fail(
+                "There can only be one local " +
+                "ROS 2 distribution per workspace",
+            )
         distro = module.tags.distribution[0]
         include_packages += distro.include_packages
         exclude_packages += distro.exclude_packages
@@ -47,10 +50,11 @@ local_ros2 = module_extension(
     doc = """
 Scrapes a local ROS 2 installation and binds it to a "local_ros2" repository.
 This extension will search for a ROS 2 installation under /opt/ros. If there
-is more than one, ROS_DISTRO must be set to disambiguate. If the ROS 2 installation
-is to be found elsewhere, the ROS_DISTRO_PREFIX may be used. Modules may control
-how the installation is scraped using the "distribution" tag. Only one tag per
-module may be specified. All modules in the workspace will share the same installation.
+is more than one, ROS_DISTRO must be set to disambiguate. If the ROS 2
+installation is to be found elsewhere, the ROS_DISTRO_PREFIX may be used.
+Modules may control how the installation is scraped using the "distribution"
+tag. Only one tag per module may be specified. All modules in the workspace
+will share the same installation.
 """,
     tag_classes = {
         "distribution": tag_class(attrs = {
@@ -60,18 +64,20 @@ module may be specified. All modules in the workspace will share the same instal
             ),
             "exclude_packages": attr.string_list(
                 doc = "Optional set of packages to exclude, " +
-                      "with precedence over included packages. Defaults to none.",
+                      "with precedence over included packages. " +
+                      "Defaults to none.",
             ),
             "overlays": attr.string_list(
                 doc = "Paths to ROS 2 workspace install trees. " +
-                      "Each workspace specified overlays the previous one." + 
+                      "Each workspace specified overlays the previous one." +
                       "Only the root module may specify overlays.",
             ),
             "jobs": attr.int(
                 doc = "Number of CMake jobs to use during package " +
-                      "configuration and scrapping. Defaults to using all cores.",
+                      "configuration and scrapping. " +
+                      "Defaults to using all cores.",
                 default = 0,
             ),
-        })
-    }
+        }),
+    },
 )

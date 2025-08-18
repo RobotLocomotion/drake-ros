@@ -1,14 +1,16 @@
+#include "unique.h"
+
 #include <stdlib.h>
 #include <unistd.h>
-#include <algorithm>
 
-#include "unique.h"
+#include <algorithm>
 
 namespace bazel_ros2_rules {
 
 namespace {
 
-std::string replace(std::string str, const std::string& from, const std::string& to) {
+std::string replace(std::string str, const std::string& from,
+                    const std::string& to) {
   size_t pos = 0;
   while ((pos = str.find(from, pos)) != std::string::npos) {
     str.replace(pos, from.length(), to);
@@ -19,8 +21,8 @@ std::string replace(std::string str, const std::string& from, const std::string&
 
 std::string ltrim(std::string str, char pad = ' ') {
   str.erase(str.begin(), std::find_if(str.begin(), str.end(), [&](char c) {
-    return c != pad;
-  }));
+              return c != pad;
+            }));
   return str;
 }
 
@@ -29,8 +31,7 @@ std::string ltrim(std::string str, char pad = ' ') {
 void EnforceUniqueROSEnvironment(
     std::optional<std::string> unique_identifier,
     std::optional<std::string> scratch_directory,
-    std::optional<std::filesystem::path> temp_dir)
-{
+    std::optional<std::filesystem::path> temp_dir) {
   if (!unique_identifier.has_value()) {
     const char* test_target = getenv("TEST_TARGET");
     if (test_target != nullptr) {
@@ -56,9 +57,10 @@ void EnforceUniqueROSEnvironment(
     }
   }
 
-  // ROS wants to write text logs, so point it to the temporary test directory via ROS_HOME.
-  const std::filesystem::path ros_home_directory = 
-    std::filesystem::path(scratch_directory.value()) / "ros";
+  // ROS wants to write text logs, so point it to
+  // the temporary test directory via ROS_HOME.
+  const std::filesystem::path ros_home_directory =
+      std::filesystem::path(scratch_directory.value()) / "ros";
   setenv("ROS_HOME", ros_home_directory.c_str(), 1);
 }
 

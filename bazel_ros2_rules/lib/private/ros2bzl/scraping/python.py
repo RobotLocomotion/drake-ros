@@ -16,7 +16,9 @@ EXTENSION_SUFFIX: Final[str] = sysconfig.get_config_var('EXT_SUFFIX')
 
 
 def find_package(name: str) -> Tuple[str, list[str]]:
-    """Find a Python package path and top level module path given its `name`."""
+    """
+    Find a Python package path and top level module path given its `name`.
+    """
     dist = importlib.metadata.distribution(name)
     top_level = dist.read_text('top_level.txt')
     packages = top_level.splitlines()
@@ -25,9 +27,12 @@ def find_package(name: str) -> Tuple[str, list[str]]:
     return str(dist._path), top_levels
 
 
-def get_packages_with_prefixes(prefixes: Optional[Sequence[str]] = None) -> Dict[str, pathlib.Path]:
+def get_packages_with_prefixes(
+    prefixes: Optional[Sequence[str]] = None
+) -> Dict[str, pathlib.Path]:
     """
-    Get all importable Python packages and the prefixes under which these can be found.
+    Get all importable Python packages and the prefixes under
+    which these can be found.
 
     If no `prefixes` are given, the entire `sys.path` is used.
     """
@@ -48,8 +53,12 @@ def get_packages_with_prefixes(prefixes: Optional[Sequence[str]] = None) -> Dict
     return packages
 
 
-def collect_python_package_properties(name: str, metadata: Dict[str, Any]) -> PyProperties:
-    """Collect Python library properties given package `name` and `metadata`."""
+def collect_python_package_properties(
+    name: str, metadata: Dict[str, Any]
+) -> PyProperties:
+    """
+    Collect Python library properties given package `name` and `metadata`.
+    """
     properties = PyProperties()
     egg_path, top_levels = find_package(name)
     properties.python_packages = tuple(

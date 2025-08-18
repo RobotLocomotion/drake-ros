@@ -1,9 +1,9 @@
 # -*- python -*-
 
-load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_ros2_rules//deps/python:version.bzl", "PYTHON_EXTENSION_SUFFIX")
 load("@bazel_ros2_rules//lib:ament_index.bzl", "AmentIndex")
 load("@bazel_ros2_rules//lib:rosidl.bzl", "calculate_rosidl_capitalization")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load(":distro.bzl", "AVAILABLE_TYPESUPPORT_LIST", "REPOSITORY_ROOT")
 
 RosInterfaces = provider(
@@ -1312,7 +1312,7 @@ def rosidl_cc_support(
             ),
             **kwargs
         )
-        data += [name + "_symlink_introspection_cpp"]
+        data.append(name + "_symlink_introspection_cpp")
 
     if "rosidl_typesupport_fastrtps_cpp" in AVAILABLE_TYPESUPPORT_LIST:
         rosidl_typesupport_fastrtps_cc_library(
@@ -1349,7 +1349,7 @@ def rosidl_cc_support(
             ),
             **kwargs
         )
-        data += [name + "_symlink_fastrtps_cpp"]
+        data.append(name + "_symlink_fastrtps_cpp")
 
     rosidl_typesupport_cc_library(
         name = _make_public_name(name, "__rosidl_typesupport_cpp"),
@@ -1377,24 +1377,24 @@ def rosidl_cc_support(
         ),
         **kwargs
     )
-    data += [name + "_symlink_typesupport_cpp"]
+    data.append(name + "_symlink_typesupport_cpp")
 
     additional_typesupports = [
         _make_public_label(name, "__rosidl_typesupport_c"),
     ]
-    data += [name + "_symlink_typesupport_c"]
+    data.append(name + "_symlink_typesupport_c")
 
     if "rosidl_typesupport_introspection_c" in AVAILABLE_TYPESUPPORT_LIST:
-        additional_typesupports += [
+        additional_typesupports.append(
             _make_public_label(name, "__rosidl_typesupport_introspection_c"),
-        ]
-        data += [name + "_symlink_introspection_c"]
+        )
+        data.append(name + "_symlink_introspection_c")
 
     if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORT_LIST:
-        additional_typesupports += [
+        additional_typesupports.append(
             _make_public_label(name, "__rosidl_typesupport_fastrtps_c"),
-        ]
-        data += [name + "_symlink_fastrtps_c"]
+        )
+        data.append(name + "_symlink_fastrtps_c")
 
     cc_library_rule(
         name = _make_public_name(name, "_cc"),
@@ -1442,16 +1442,16 @@ def rosidl_py_support(
     typesupports = {}
 
     if "rosidl_typesupport_introspection_c" in AVAILABLE_TYPESUPPORT_LIST:
-        data += [name + "_symlink_introspection_c"]
+        data.append(name + "_symlink_introspection_c")
         typesupports["rosidl_typesupport_introspection_c"] = \
             _make_public_label(name, "__rosidl_typesupport_introspection_c")
 
     if "rosidl_typesupport_fastrtps_c" in AVAILABLE_TYPESUPPORT_LIST:
-        data += [name + "_symlink_fastrtps_c"]
+        data.append(name + "_symlink_fastrtps_c")
         typesupports["rosidl_typesupport_fastrtps_c"] = \
             _make_public_label(name, "__rosidl_typesupport_fastrtps_c")
 
-    data += [name + "_symlink_typesupport_c"]
+    data.append(name + "_symlink_typesupport_c")
     typesupports["rosidl_typesupport_c"] = \
         _make_public_label(name, "__rosidl_typesupport_c")
 

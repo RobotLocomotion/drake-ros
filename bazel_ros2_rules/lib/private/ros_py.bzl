@@ -1,13 +1,13 @@
 # -*- python -*-
 
 load(
-    "@bazel_ros2_rules//lib/dynamic_load:dload_py.bzl",
-    "dload_py_shim",
-)
-load(
     "@bazel_ros2_rules//lib:kwargs.bzl",
     "filter_to_only_common_kwargs",
     "remove_test_specific_kwargs",
+)
+load(
+    "@bazel_ros2_rules//lib/dynamic_load:dload_py.bzl",
+    "dload_py_shim",
 )
 load(
     ":common.bzl",

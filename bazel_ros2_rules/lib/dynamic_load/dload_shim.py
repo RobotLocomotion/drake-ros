@@ -3,12 +3,14 @@ import sys
 
 from bazel_tools.tools.python.runfiles import runfiles
 
-SHIMMED_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED";
+SHIMMED_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED"
+
 
 def do_dload_shim(executable_path, names, actions):
     """
-    Call exec() on another executable with arguments and modified environment
-    variables.
+    Call exec() on another executable with arguments
+    and modified environment variables.
+
     This is meant to be called by a generated shim executable.
 
     :param argc: count of arguments in argv.

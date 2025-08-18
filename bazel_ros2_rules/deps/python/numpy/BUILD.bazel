@@ -3,10 +3,10 @@ package(default_visibility = ["//visibility:public"])
 
 alias(
     name = "headers",
-    actual = "@python//numpy:headers"
+    actual = "@python//numpy:headers",
 )
 
 alias(
     name = "libs",
-    actual = "@python//numpy:libs"
+    actual = "@python//numpy:libs",
 )

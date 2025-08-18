@@ -1,16 +1,16 @@
 # -*- python -*-
 
-load("@bazel_ros2_rules//lib:ament_index.bzl", "AmentIndex")
-load(
-    "@bazel_ros2_rules//lib/dynamic_load:dload_cc.bzl",
-    "dload_cc_ldwrap",
-    "dload_cc_reexec",
-)
 load(
     "@bazel_ros2_rules//lib:kwargs.bzl",
     "filter_to_only_common_kwargs",
     "remove_test_specific_kwargs",
 )
+load(
+    "@bazel_ros2_rules//lib/dynamic_load:dload_cc.bzl",
+    "dload_cc_ldwrap",
+    "dload_cc_reexec",
+)
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load(
     ":common.bzl",
     "incorporate_rmw_implementation",
@@ -61,7 +61,7 @@ def ros_cc_binary(
 
     # When creating a shared library ("libfoo.so"), don't do anything special.
     if kwargs.get("linkshared", False):
-        native.cc_binary(name = name, **kwargs)
+        cc_binary(name = name, **kwargs)
         return
 
     # Prepare the list of environment actions.
@@ -116,7 +116,7 @@ def ros_cc_binary(
             data = [":" + noshim_name],
             deps = [
                 "@bazel_ros2_rules//lib/dynamic_load:dload_shim_cc",
-                "@bazel_ros2_rules//lib/network_isolation:network_isolation_cc",
+                "@bazel_ros2_rules//lib/network_isolation:network_isolation_cc",  # noqa
             ],
             tags = shim_tags,
         )
@@ -150,7 +150,7 @@ def ros_cc_binary(
             linkstatic = True,
             deps = [
                 "@bazel_ros2_rules//lib/dynamic_load:dload_shim_cc",
-                "@bazel_ros2_rules//lib/network_isolation:network_isolation_cc",
+                "@bazel_ros2_rules//lib/network_isolation:network_isolation_cc",  # noqa
             ],
             tags = main_tags,
             **main_kwargs

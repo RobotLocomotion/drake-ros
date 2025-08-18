@@ -142,4 +142,4 @@ Provides:
 
 See https://github.com/ament/ament_cmake/blob/master/ament_cmake_core/doc/resource_index.md
 for further reference.
-"""
+"""  # noqa

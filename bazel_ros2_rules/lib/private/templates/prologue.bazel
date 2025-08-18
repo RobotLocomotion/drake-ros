@@ -1,6 +1,6 @@
 # -*- python -*-
 # vi: set ft=python :
-
+# buildifier: leave-alone
 load(":common.bzl", "interfaces_filegroup", "share_filegroup")
 load(":ros_py.bzl", "ros_import_binary")
 

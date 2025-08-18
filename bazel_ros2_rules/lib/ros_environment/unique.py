@@ -1,5 +1,6 @@
 import os
 
+
 def make_unique_ros_environment(
     *,
     unique_identifier=None,
@@ -42,7 +43,8 @@ def make_unique_ros_environment(
     assert scratch_directory is not None
     assert os.path.isdir(scratch_directory), scratch_directory
     env = {}
-    # ROS wants to write text logs, so point it to the temporary test directory via ROS_HOME.
+    # ROS wants to write text logs, so point it to the temporary
+    # test directory via ROS_HOME.
     env["ROS_HOME"] = os.path.join(scratch_directory, "ros")
     return env
 

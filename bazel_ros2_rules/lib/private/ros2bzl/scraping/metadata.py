@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 
+
 # Remove elements that have a condition attribute on ROS1
 def remove_ros1_elements(root):
     ros1_condition_value = '$ROS_VERSION == 1'
@@ -16,6 +17,7 @@ def remove_ros1_elements(root):
 
     for parent, child in elements_to_remove:
         parent.remove(child)
+
 
 def parse_package_xml(path_to_package_xml):
     tree = ET.parse(path_to_package_xml)

@@ -114,7 +114,10 @@ def base_ros2_repository(repo_ctx, workspaces):
     path_to_compute_system_rosdeps_tool = repo_ctx.path(
         repo_ctx.attr._compute_system_rosdeps_tool,
     )
-    cmd = ["./run.bash", str(path_to_compute_system_rosdeps_tool)] + list(workspaces.keys())
+    cmd = [
+        "./run.bash",
+        str(path_to_compute_system_rosdeps_tool),
+    ] + list(workspaces.keys())
     cmd.extend(["-o", "system-rosdep-keys.txt"])
     result = execute_or_fail(repo_ctx, cmd, quiet = True)
     if result.stderr:
@@ -131,8 +134,7 @@ def base_ros2_repository_attributes():
         All of the `_*` labels are listed as private attributes to force
         prefetching, or else repository rules will be restarted on first hit.
         See https://github.com/bazelbuild/bazel/commit/cdc99afc1a03ff8fbbbae088d358b7c029e0d232
-        and https://github.com/bazelbuild/bazel/issues/4533 for further
-        reference.
+        and https://github.com/bazelbuild/bazel/issues/4533 for further reference.
     """  # noqa
     return {
         "include_packages": attr.string_list(
