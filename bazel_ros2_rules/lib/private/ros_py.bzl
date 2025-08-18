@@ -165,7 +165,7 @@ from python.runfiles import runfiles
 
 assert __name__ == "__main__"
 r = runfiles.Create()
-launch_file = r.Rlocation({launch_respath})
+launch_file = r.Rlocation({launch_respath})  # noqa
 ros2_bin = r.Rlocation("ros2/ros2")
 args = [ros2_bin, "launch", launch_file] + sys.argv[1:]
 os.execv(ros2_bin, args)
@@ -219,6 +219,11 @@ def ros_launch(
         ],
     )
     data = data + [launch_file]
+
+    if "tags" not in kwargs:
+        kwargs["tags"] = []
+    if "nolint" not in kwargs["tags"]:
+        kwargs["tags"].append("nolint")
 
     ros_py_binary(
         name = name,
