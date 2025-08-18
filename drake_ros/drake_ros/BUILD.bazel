@@ -3,6 +3,7 @@ load(
     "pybind_py_library",
 )
 load("@ros2//:ros_py.bzl", "ros_py_test")
+load("//tools/lint:lint.bzl", "add_lint_tests")
 
 # TODO(Aditya): Add focused unittest for qos_pybind.h
 cc_library(
@@ -155,3 +156,5 @@ ros_py_test(
         "@ros2//:geometry_msgs_py",
     ],
 )
+
+add_lint_tests()

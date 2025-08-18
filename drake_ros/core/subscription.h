@@ -51,7 +51,8 @@ class Subscription final : public rclcpp::SubscriptionBase {
   }
 
   void return_dynamic_message(
-      rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr& message)
+      rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr&
+          message)  // NOLINT
       override {
     (void)message;
     throw rclcpp::exceptions::UnimplementedError(

@@ -1,28 +1,35 @@
-module (
-    name = "drake_ros",
-    version = "1.0.0",
-)
+module(name = "drake_ros")
 
 DRAKE_COMMIT = "v1.43.0"
-DRAKE_CHECKSUM = "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
+
+DRAKE_CHECKSUM = (
+    "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
+)
 
 bazel_dep(name = "drake")
 archive_override(
     module_name = "drake",
+    sha256 = DRAKE_CHECKSUM,
+    strip_prefix = "drake-{}".format(DRAKE_COMMIT.lstrip("v")),
     urls = [x.format(DRAKE_COMMIT) for x in [
         "https://github.com/RobotLocomotion/drake/archive/{}.tar.gz",
     ]],
-    sha256 = DRAKE_CHECKSUM,
-    strip_prefix = "drake-{}".format(DRAKE_COMMIT.lstrip("v")),
 )
 
 drake_dep_repositories = use_extension(
     "@drake//tools/workspace:default.bzl",
     "drake_dep_repositories",
 )
-use_repo(drake_dep_repositories, "eigen", "gtest", "python")
+use_repo(
+    drake_dep_repositories,
+    "eigen",
+    "gtest",
+    "pycodestyle",
+    "python",
+    "styleguide",
+)
 
-bazel_dep(name = "bazel_ros2_rules", version = "1.0.0")
+bazel_dep(name = "bazel_ros2_rules")
 local_path_override(
     module_name = "bazel_ros2_rules",
     path = "../bazel_ros2_rules",
@@ -45,11 +52,16 @@ DRAKE_ROS_TEST_DEPENDENCIES = [
     "tf2_ros_py",
 ]
 
-local_ros2 = use_extension("@bazel_ros2_rules//lib:extensions.bzl", "local_ros2")
-local_ros2.distribution(
-    include_packages = DRAKE_ROS_REQUIRED_PACKAGES + DRAKE_ROS_TEST_DEPENDENCIES,
-    #overlays = ["/home/mhidalgo/Workspaces/jazzy_ws/install"],
+local_ros2 = use_extension(
+    "@bazel_ros2_rules//lib:extensions.bzl",
+    "local_ros2",
 )
-use_repo(local_ros2, **{"ros2": "local_ros2"})
+local_ros2.distribution(
+    include_packages = (
+        DRAKE_ROS_REQUIRED_PACKAGES +
+        DRAKE_ROS_TEST_DEPENDENCIES
+    ),
+)
+use_repo(local_ros2, ros2 = "local_ros2")
 
 register_toolchains("@python//:all")

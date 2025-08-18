@@ -1,11 +1,11 @@
-#include "drake_ros/core/ros_publisher_system.h"
+#include "ros_publisher_system.h"
 
 #include <memory>
 #include <string>
 #include <unordered_set>
 #include <utility>
 
-#include "publisher.h"  // NOLINT(build/include)
+#include "publisher.h"
 
 #include "drake_ros/core/serializer_interface.h"
 

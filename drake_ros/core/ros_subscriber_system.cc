@@ -1,4 +1,4 @@
-#include "drake_ros/core/ros_subscriber_system.h"
+#include "ros_subscriber_system.h"
 
 #include <memory>
 #include <mutex>

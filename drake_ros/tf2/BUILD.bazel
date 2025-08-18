@@ -1,4 +1,5 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
+load("//tools/lint:lint.bzl", "add_lint_tests")
 
 # Dependencies for both static and shared libraries that will not violate ODR.
 cc_library(
@@ -15,12 +16,7 @@ cc_library(
 # TODO(sloretz) more granular targets for static linking
 cc_library(
     name = "tf2",
-    srcs = glob(
-        [
-            "*.cc",
-            "*.h",
-        ],
-    ),
+    srcs = glob(["*.cc"]),
     hdrs = glob(
         ["*.h"],
     ),
@@ -42,11 +38,13 @@ ros_cc_test(
     deps = [
         ":tf2",
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
-        "@gtest//:main",
         "@drake//common",
         "@drake//systems/primitives",
+        "@gtest//:main",
         "@ros2//:geometry_msgs_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:tf2_ros_cc",
     ],
 )
+
+add_lint_tests()
