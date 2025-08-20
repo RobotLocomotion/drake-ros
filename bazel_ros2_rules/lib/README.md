@@ -5,7 +5,7 @@ space or a subset thereof as a Bazel repository. Both system-installed binary
 distributions and source builds can pulled in this way, whether symlink- or
 merged-installed.
 
-A single repository rule, `ros2_local_repository()`, is the sole entrypoint.
+A single module extension, `local_ros2`, is the sole entrypoint.
 This rule heavily relies on two Python packages:
 
 - The `cmake_tools` Python package, which provides an idiomatic API to collect
@@ -14,8 +14,8 @@ This rule heavily relies on two Python packages:
   install space, collects CMake packages' exported configuration, collect Python
   packages' egg metadata, symlink relevant directories and files, and generates
   a root BUILD.bazel file that recreates the dependency graph in the workspace.
-  This package constitutes the backbone of the `generate_repository_files.py`
-  Python binary which `ros2_local_repository()` invokes.
+  This package constitutes the backbone of the `generate_build_file.py`
+  Python binary that is invoked for repository setup.
 
 **Note 1**
 : [`rules_foreign_cc`](https://github.com/bazelbuild/rules_foreign_cc) tooling
@@ -25,15 +25,22 @@ This rule heavily relies on two Python packages:
   build configuration of pre-installed CMake projects for Bazel packages to
   depend on.
 
+## Extension Setup
+
+The `local_ros2` module extension exposes a single `local_ros2` repository,
+configurable through the `local_ros2.distribution` tag. `$ROS_DISTRO` and
+`$ROS_DISTRO_PREFIX` environment variables may be used to specify an underlay.
+Multiple modules in a dependency graph may depend on ROS 2 through
+`bazel_ros2_rules` and so this repository is shared once all distribution
+configuration is aggregated.
+
 ## Repository Layout
 
-A ROS 2 local repository has the following layout:
+The `local_ros2` repository has the following layout:
 
 ```
   .
   ├── BUILD.bazel
-  ├── rmw_isolation
-  │   └── BUILD.bazel
   ├── distro.bzl
   ├── common.bzl
   ├── ros_cc.bzl
@@ -138,21 +145,20 @@ Please note the following limitations:
   [`Parser.load_launch_extensions`](https://github.com/ros2/launch/blob/698e979382877242621a0d633750fe96ff0c2bca/launch/launch/frontend/parser.py#L72-L87),
   which may require care to do so correctly in Bazel.
 
-### Tools
-
-The `rmw_isolation` subpackage provides C++ and Python `isolate_rmw_by_path`
-APIs to enforce RMW network isolation. To that end, a unique path must be
-provided (such as Bazel's `$TEST_TMPDIR`).
-
-**DISCLAIMER**
-: Isolation relies on `rmw`-specific configuration. Support is available for
-  Tier 1 `rmw` implementations only. Collision rates are below 1% but not null.
-  Use with care.
-
 ### Metadata
 
 The `distro.bzl` file bears relevant ROS 2 workspace metadata for rules, tools,
 and downstream packages to use.
+
+## Tooling
+
+`bazel_ros2_rules` offers some additional tooling:
+
+- `lib/network_isolation` for C++ and Python, based on Linux namespaces.
+  Useful for ROS 2 testing. `ros_*_test` rules use network isolation by
+  default, unless `isolate = False` is set.
+- `lib/ros_environment` for ROS environment isolation in C++ and Python.
+  Useful for ROS 2 testing.
 
 ## Alternatives
 

@@ -30,13 +30,6 @@ def _local_ros2_implementation(module_ctx):
 
     underlay = find_local_ros2_distribution(module_ctx)
 
-    underlay = module_ctx.getenv("ROS_DISTRO_PREFIX")
-    if not underlay:
-        distro_name = module_ctx.getenv("ROS_DISTRO")
-        if not distro_name:
-            distro_name = "jazzy"
-        underlay = "/opt/ros/" + distro_name
-
     ros2_local_repository(
         name = "local_ros2",
         include_packages = include_packages,
