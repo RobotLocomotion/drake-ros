@@ -7,5 +7,5 @@ def add_lint_tests(cpplint_data = None, enable_library_lint = False, **kwargs):
     _drake_add_lint_tests(
         cpplint_data=cpplint_data, 
         enable_library_lint=enable_library_lint, 
-        **kwargs
+        **kwargs,
     )
