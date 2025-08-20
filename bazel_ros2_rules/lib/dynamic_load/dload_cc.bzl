@@ -13,6 +13,9 @@ load(
 )
 
 _REEXEC_TEMPLATE = """\
+// TODO(bazelbuild/bazel#18128): the bare `lib` namespacing
+// here is because bzlmod does not prepended the module name
+// to C++ headers.
 #include "lib/dynamic_load/dload_shim.h"
 #include "lib/network_isolation/network_isolation.h"
 
@@ -55,6 +58,9 @@ dload_cc_reexec = rule(
 )
 
 _LDWRAP_TEMPLATE = """\
+// TODO(bazelbuild/bazel#18128): the bare `lib` namespacing
+// here is because bzlmod does not prepended the module name
+// to C++ headers.
 #include "lib/dynamic_load/dload_shim.h"
 #include "lib/network_isolation/network_isolation.h"
 

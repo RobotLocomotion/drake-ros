@@ -16,6 +16,9 @@ load(
 _DLOAD_PY_SHIM_TEMPLATE = """\
 assert __name__ == "__main__"
 
+# TODO(bazelbuild/bazel#18128): the bare `lib` namespacing
+# here is because bzlmod does not prepended the module name
+# to Python modules.
 from lib.dynamic_load.dload_shim import do_dload_shim
 from lib.network_isolation.network_isolation_py import \
     create_linux_network_namespaces

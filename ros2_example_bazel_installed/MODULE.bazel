@@ -59,7 +59,6 @@ local_ros2 = use_extension(
 )
 local_ros2.distribution(
     include_packages = ROS_REQUIRED_PACKAGES,
-    overlays = ["/home/mhidalgo/Workspaces/jazzy_ws/install"],
 )
 use_repo(local_ros2, ros2 = "local_ros2")
 
