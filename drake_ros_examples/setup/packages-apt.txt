@@ -1,0 +1,6 @@
+# APT-SOURCE: http://packages.ros.org/ros2/ubuntu
+ros-jazzy-rclpy
+ros-jazzy-std-msgs
+
+# APT-SOURCE: http://*.ubuntu.com/ubuntu
+libgflags-dev

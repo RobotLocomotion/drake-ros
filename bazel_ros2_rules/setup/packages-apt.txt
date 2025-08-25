@@ -1,0 +1,16 @@
+# APT-SOURCE: http://*.ubuntu.com/ubuntu
+cmake
+python3
+python3-dev
+python-is-python3
+python3-toposort
+
+# APT-SOURCE: http://packages.ros.org/ros2/ubuntu
+python3-rosdep
+ros-jazzy-builtin-interfaces
+ros-jazzy-action-msgs
+ros-jazzy-ros2cli-common-extensions
+ros-jazzy-ros2cli
+ros-jazzy-rosidl-default-generators
+ros-jazzy-service-msgs
+ros-jazzy-unique-identifier-msgs

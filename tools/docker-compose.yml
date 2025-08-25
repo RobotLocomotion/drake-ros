@@ -10,15 +10,17 @@
 version: '3.8'
 services:
   drake_ros:
-    container_name: ${DRAKE_ROS_CONTAINER_NAME}
+    container_name: drake_ros_container
     # Use the drake-ros image for the simulation environment
     # This image contains the necessary dependencies and configurations for running Drake ROS integration projects
-    image: drake-ros
-    build: ./
+    image: RobotLocomotion/drake-ros
+    build:
+      dockerfile: .devcontainer/Dockerfile
+      context: ..
     volumes: 
       # Mount the current working directory (drake-ros repository) inside the container
       # This allows for seamless synchronization between the host and container filesystems, ensuring that changes made in the host are reflected within the container
-      - .:/drake_ros_ws/src/drake_ros
+      - ..:/drake-ros
     environment:
       # Configure the display environment variable for noVNC compatibility
       # This ensures that graphical applications within the container can be accessed remotely via the noVNC server

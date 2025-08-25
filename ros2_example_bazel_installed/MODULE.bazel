@@ -33,18 +33,13 @@ local_path_override(
 
 # Please keep this list sorted
 ROS_REQUIRED_PACKAGES = [
-    "action_msgs",
-    "builtin_interfaces",
     "console_bridge_vendor",
     "rclcpp",
     "rclcpp_action",
     "rclpy",
-    "ros2cli",
-    "ros2cli_common_extensions",
     "rosbag2",
     "ros2bag_mcap_cli",
     "ros2bag_sqlite3_cli",
-    "rosidl_default_generators",
     "tf2_py",
 ] + [
     # These are possible RMW implementations. Uncomment one and only one to

@@ -44,14 +44,9 @@ local_path_override(
 )
 
 ROS_REQUIRED_PACKAGES = [
-    "geometry_msgs",
-    "rclcpp",
     "rclpy",
-    "ros2cli_common_extensions",
     "rviz2",
-    "tf2_ros",
-    "tf2_ros_py",
-    "visualization_msgs",
+    "std_msgs",
 ]
 
 local_ros2 = use_extension(

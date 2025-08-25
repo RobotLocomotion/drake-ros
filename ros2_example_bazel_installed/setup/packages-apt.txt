@@ -1,0 +1,14 @@
+# APT-SOURCE: http://packages.ros.org/ros2/ubuntu
+ros-jazzy-console-bridge-vendor
+ros-jazzy-rclcpp
+ros-jazzy-rclcpp-action
+ros-jazzy-rclpy
+ros-jazzy-rosbag2
+ros-jazzy-rosbag2-storage-mcap
+ros-jazzy-rosbag2-storage-sqlite3
+ros-jazzy-tf2-py
+ros-jazzy-rmw-cyclonedds-cpp
+
+# APT-SOURCE: http://*.ubuntu.com/ubuntu
+gdb
+lldb

@@ -1,0 +1,13 @@
+{
+    "": {
+      "log-base": "colcon-log"
+    },
+    "build": {
+      "build-base": "colcon-build",
+      "install-base": "colcon-install"
+    },
+    "test": {
+      "build-base": "colcon-build",
+      "install-base": "colcon-install"
+    }
+}

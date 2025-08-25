@@ -1,0 +1,26 @@
+name: drake-ros registry maintenance
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # once a week
+
+env:
+  ORGANIZATION_NAME: RobotLocomotion
+  IMAGE_NAME: RobotLocomotion/drake-ros
+  REGISTRY_URL: ghcr.io
+
+jobs:
+  clean_registry:
+    name: Prune old images from ${{ env.REGISTRY_URL }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old pull request images
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: ${{ env.IMAGE_NAME }}
+          skip-tags: main
+          cut-off: One week ago UTC
+          org-name: ${{ env.ORGANIZATION_NAME }}
+          account-type: org
+          token: ${{ secrets.GITHUB_TOKEN }}
+          token-type: github-token

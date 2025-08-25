@@ -1,86 +1,149 @@
 name: drake-ros continuous integration
+
 on:
   push:
     branches:
       - main
-      - develop
   pull_request:
     branches:
       - main
-      - develop
-jobs:
-  test_against_debs:
-    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
-    strategy:
-      matrix:
-        include:
-          # TODO : Include rolling later if available on jammy or noble.
-          - os_code_name: noble
-            ros_distro: jazzy
-            drake_version: 1.43.0
-    name: test_against_${{matrix.ros_distro}}_debs
-    runs-on: ubuntu-latest
-    container:
-      image: robotlocomotion/drake:${{matrix.os_code_name}}-${{ matrix.drake_version }}
-    env:
-      PYTHONPATH:
-    steps:
-      - uses: actions/checkout@v4
-      - name: Simplify apt upgrades
-        run: $GITHUB_WORKSPACE/.github/simplify_apt_and_upgrades.sh
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: ${{matrix.ros_distro}}
-          use-ros2-testing: "true"
-      - name: Cope with Python 2 pollution
-        run: apt-get update && apt-get install -y python-is-python3
-      - name: Build and test all packages
-        uses: ros-tooling/action-ros-ci@v0.3
-        with:
-          target-ros2-distro: ${{matrix.ros_distro}}
-  test_against_archive:
-    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
-    strategy:
-      matrix:
-        include:
-          # TODO : Include rolling later if available on jammy or noble.
-          - os_code_name: noble
-            ros_distro: jazzy
-            drake_version: 1.43.0
-    name: test_against_${{matrix.ros_distro}}_archive
-    runs-on: ubuntu-latest
-    container:
-      image: robotlocomotion/drake:${{matrix.os_code_name}}-${{ matrix.drake_version }}
-    env:
-      PYTHONPATH:
-    steps:
-      - uses: actions/checkout@v4
-      - name: Simplify apt upgrades
-        run: $GITHUB_WORKSPACE/.github/simplify_apt_and_upgrades.sh
-      - uses: ros-tooling/setup-ros@v0.7
-      - name: Install dependencies to build ROS packages
-        run: |
-          sudo mkdir -p /opt/ros/${{matrix.ros_distro}}
-          wget -q https://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci-CHECKSUM
-          wget -q http://repo.ros2.org/ci_archives/nightly-cyclonedds/ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci.tar.bz2
-          sha256sum -c ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci-CHECKSUM
-          sudo tar xf ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/${{matrix.ros_distro}}
-          sed -i 's|/tmp/ws/install_isolated|/opt/ros/${{matrix.ros_distro}}|g' /opt/ros/${{matrix.ros_distro}}/setup.sh
-          rm ros2-${{matrix.ros_distro}}-linux-${{matrix.os_code_name}}-amd64-ci.tar.bz2
-          # TODO(sloretz) Use bazel_ros2_rules/ros2/compute_system_rosdeps.py to de-duplicate rosdep invocation knowledge
-          SHARE_DIRS=`find /opt/ros/${{matrix.ros_distro}} -maxdepth 2 -name share -type d`
-          # TODO(sloretz) remove --skip-keys for rosbag2_performance_benchmarking_msgs when https://github.com/ros2/rosbag2/pull/1242 lands
-          rosdep update && rosdep install --from-paths $SHARE_DIRS . --ignore-src -y \
-            -t exec -t buildtool_export -t build_export \
-            --skip-keys "cyclonedds fastcdr fastrtps rmw_connextdds rmw_cyclonedds_cpp rmw_fastrtps_dynamic_cpp rti-connext-dds-5.3.1 urdfdom_headers iceoryx_binding_c rosidl_typesupport_fastrtps_c rosidl_typesupport_fastrtps_cpp rosbag2_performance_benchmarking_msgs"
 
+env:
+  REGISTRY_URL: ghcr.io
+  IMAGE_NAME: RobotLocomotion/drake-ros
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || ''}}
+  cancel-in-progress: true
+
+jobs:
+  setup_container:
+    name: Setup Jazzy container for CI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+      - name: Log into ${{ env.REGISTRY_URL }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_URL }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata for Docker
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}
+        id: meta
+      - name: Build and push Docker image (may be cached)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+  bazel_ros2_rules_test:
+    name: Build and test bazel_ros2_rules modules with bazel
+    runs-on: ubuntu-latest
+    needs: setup_container
+    container:
+      image: ${{ needs.setup_container.outputs.image }}
+      # This is required for running lldb.
+      # See https://stackoverflow.com/a/73613377/7829525
+      options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Configure bazel_ros2_rules workspace for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: bazel_ros2_rules
+      - name: Configure ros2_example_bazel_installed workspace for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: ros2_example_bazel_installed
+      - names: Persist Bazel caches
+        uses: actions/cache@v3
+        with:
+          path: "/home/runner/.cache/bazel_ci"
+          # We want this key to change to ensure we store the updated cache.
+          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            bazel_ci-${{ github.ref }}-
+            bazel_ci-refs/heads/main-
+      - name: Upgrade dependencies
+        run: sudo apt update && sudo apt upgrade -y
+      - name: Build bazel_ros2_rules workspace
+        run: bazel build //...
+        working-directory: bazel_ros2_rules
+      - name: Test bazel_ros2_rules workspace
+        run: bazel test //...
+        working-directory: bazel_ros2_rules
+      - name: Build ros2_example_bazel_installed workspace
+        run: bazel build //...
+        working-directory: ros2_example_bazel_installed
+      - name: Test ros2_example_installed workspace
+        run: bazel test //... @ros2//...
+        working-directory: ros2_example_bazel_installed
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+  bazel_drake_ros_test:
+    name: Build and test drake_ros modules with bazel
+    runs-on: ubuntu-latest
+    needs: setup_container
+    container:
+      image: ${{ needs.setup_container.outputs.image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Upgrade dependencies
+        run: sudo apt update && sudo apt upgrade -y
+      - name: Purge GCC 14
+        # Note(#385): drake's mkdoc script loads gcc14 C++ std libraries if
+        # installed, which causes the build to fail because it expects gcc13 to
+        # be used.
+        run: sudo apt purge -y gcc-14 libgcc-14-dev
+      - name: Configure drake_ros workspace for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: drake_ros
+      - name: Build drake_ros workspace
+        run: bazel build //...
+        working-directory: drake_ros
+      - name: Test drake_ros workspace
+        run: bazel test //...
+        working-directory: drake_ros
+      - name: Configure drake_ros_examples workspace for CI
+        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+        working-directory: drake_ros_examples
+      - name: Build drake_ros_examples workspace
+        run: bazel build //...
+        working-directory: drake_ros_examples
+      - name: Test drake_ros_examples workspace
+        run: bazel test //...
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+  colcon_drake_ros_test:
+    name: Build and test drake_ros packages with colcon
+    runs-on: ubuntu-latest
+    needs: setup_container
+    container:
+      image: ${{ needs.setup_container.outputs.image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
       - name: Cope with Python 2 pollution
-        run: apt-get update && apt-get install -y python-is-python3
-      - name: Build all packages
-        run: |
-          . /opt/ros/${{matrix.ros_distro}}/setup.sh
-          colcon build --event-handlers console_cohesion+
-      - name: Test all packages
-        run: |
-          . /opt/ros/${{matrix.ros_distro}}/setup.sh
-          colcon test --event-handlers console_cohesion+
+        run: sudo apt update && sudo apt install -y python-is-python3
+      - name: Build and test drake_ros packages
+        uses: ros-tooling/action-ros-ci@v0.4
+        with:
+          target-ros2-distro: jazzy
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"

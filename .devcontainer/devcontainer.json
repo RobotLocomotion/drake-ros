@@ -1,0 +1,9 @@
+{
+    "image": "RobotLocomotion/drake-ros",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/drake-ros,type=bind,consistency=cached",
+    "workspaceFolder": "/drake-ros",
+}

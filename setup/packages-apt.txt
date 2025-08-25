@@ -1,0 +1,13 @@
+# APT-SOURCE: http://*.ubuntu.com/ubuntu
+apt-transport-https
+curl
+gnupg
+lsb-release
+cmake
+build-essential
+gettext-base
+coreutils
+
+# APT-SOURCE: http://packages.ros.org/ros2/ubuntu
+ros-jazzy-desktop
+ros-jazzy-rmw-cyclonedds-cpp

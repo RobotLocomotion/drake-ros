@@ -28,6 +28,17 @@ def _local_ros2_implementation(module_ctx):
             else:
                 jobs = distro.jobs
 
+    if include_packages:
+        include_packages += [
+            "action_msgs",
+            "builtin_interfaces",
+            "ros2cli_common_extensions",
+            "ros2cli",
+            "rosidl_default_generators",
+            "service_msgs",
+            "unique_identifier_msgs",
+        ]
+
     underlay = find_local_ros2_distribution(module_ctx)
 
     ros2_local_repository(

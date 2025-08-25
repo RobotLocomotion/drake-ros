@@ -17,6 +17,7 @@
   <buildtool_depend>eigen3_cmake_module</buildtool_depend>
   <build_depend>eigen</build_depend>
 
+  <depend>drake</depend>
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
   <depend>rosgraph_msgs</depend>
