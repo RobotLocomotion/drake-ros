@@ -61,13 +61,6 @@ jobs:
       # be used.
       - name: Purge gcc 14
         run: sudo apt purge -y gcc-14 libgcc-14-dev
-      # TODO(frneer): Remove these steps and scripts when these changes are
-      # released upstream and backported to jazzy.
-      # See: https://github.com/ros2/rosidl/pull/857.
-      - name: Override rosidl packages
-        run: |
-          $GITHUB_WORKSPACE/.github/install_github_cli.sh
-          $GITHUB_WORKSPACE/.github/install_rosidl_debs.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build drake_ros
