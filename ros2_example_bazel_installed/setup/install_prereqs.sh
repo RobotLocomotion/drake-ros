@@ -63,17 +63,6 @@ dpkg_install_from_curl \
   https://github.com/bazelbuild/bazelisk/releases/download/v1.25.0/bazelisk-amd64.deb \
   f16dc348190990eb2e8950e773bc91dcdc7632517e5b63bdc4dd58f90062920c
 
-# If the user did not explicitly specify their installation prefix, install
-# ROS 2 Jazzy.
-if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
-  apt update && apt install locales
-  locale-gen en_US en_US.UTF-8
-  update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-  export LANG=en_US.UTF-8
-
-  apt install software-properties-common
-  add-apt-repository universe
-
 # Start - ROS Installation
 # Install ROS as described in https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html
 apt update && apt install locales
@@ -91,14 +80,17 @@ sudo dpkg -i /tmp/ros2-apt-source.deb
 
 sudo apt update && sudo apt install ros-dev-tools
 
+# Upgrade all packages to get the latest version
+# of ros packages
+sudo apt upgrade -y
+
+ROS2_DISTRO_PREFIX=/opt/ros/jazzy
+
 # End - ROS Installation
 
-fi
-
-# Ensure a full ROS 2 desktop install
 set +u
-source ${ROS2_DISTRO_PREFIX}/setup.bash
-apt install ros-${ROS_DISTRO}-desktop ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-dev-tools
+apt install ros-jazzy-desktop ros-jazzy-rmw-cyclonedds-cpp
+source /opt/ros/jazzy/setup.bash
 
 # Install Python dependencies
 apt install python3 python3-toposort python3-dev python-is-python3
