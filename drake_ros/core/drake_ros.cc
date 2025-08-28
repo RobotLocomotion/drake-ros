@@ -3,6 +3,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <rclcpp/executors.hpp>
 #include <rclcpp/node.hpp>
@@ -35,6 +36,21 @@ DrakeRos::DrakeRos(const std::string& node_name,
   impl_->executor->add_node(impl_->node->get_node_base_interface());
 }
 
+DrakeRos::DrakeRos(rclcpp::Node::SharedPtr ros_node) : impl_(new Impl()) {
+  if (ros_node == nullptr) {
+    throw std::invalid_argument("ros_node must not be null");
+  }
+
+  impl_->context = ros_node->get_node_options().context();
+  impl_->node = std::move(ros_node);
+
+  rclcpp::ExecutorOptions eo;
+  eo.context = impl_->context;
+  impl_->executor.reset(new rclcpp::executors::SingleThreadedExecutor(eo));
+
+  impl_->executor->add_node(impl_->node->get_node_base_interface());
+}
+
 DrakeRos::~DrakeRos() {}
 
 const rclcpp::Node& DrakeRos::get_node() const { return *impl_->node; }
@@ -47,9 +63,7 @@ void DrakeRos::Spin(int timeout_millis) {
     // throw if timeout is negative.
     throw std::runtime_error("timeout cannot be negative");
   }
-  // TODO(hidmic): switch to rclcpp::Executor::spin_all() when and if a zero
-  // timeout is supported. See https://github.com/ros2/rclcpp/issues/1825.
-  impl_->executor->spin_some(std::chrono::milliseconds(timeout_millis));
+  impl_->executor->spin_all(std::chrono::milliseconds(timeout_millis));
 }
 
 void init(int argc, const char** argv) {

@@ -7,6 +7,7 @@
 #include <utility>
 
 #include <drake/systems/framework/leaf_system.h>
+#include <rclcpp/node.hpp>
 #include <rclcpp/serialized_message.hpp>
 #include <rmw/rmw.h>
 
@@ -44,6 +45,24 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
         publish_triggers, publish_period);
   }
 
+  /** Instatiates a publisher system but using a reference to the ros_node
+   directly. This is useful when you don't want to depend on the DrakeRos
+   interface to spin the node, e.g., when you are using a ROS node
+   that is not managed by Drake.
+   */
+  template <typename MessageT>
+  static std::unique_ptr<RosPublisherSystem> Make(
+      const std::string& topic_name, const rclcpp::QoS& qos,
+      rclcpp::Node* ros_node,
+      const std::unordered_set<drake::systems::TriggerType>& publish_triggers =
+          kDefaultTriggerTypes,
+      double publish_period = 0.0) {
+    // Assume C++ typesupport since this is a C++ template function
+    return std::make_unique<RosPublisherSystem>(
+        std::make_unique<Serializer<MessageT>>(), topic_name, qos, ros_node,
+        publish_triggers, publish_period);
+  }
+
   /** A constructor for the ROS publisher system.
    It takes a `serializer` to deal with outgoing messages.
 
@@ -61,6 +80,19 @@ class RosPublisherSystem : public drake::systems::LeafSystem<double> {
   RosPublisherSystem(std::shared_ptr<const SerializerInterface> serializer,
                      const std::string& topic_name, const rclcpp::QoS& qos,
                      DrakeRos* ros,
+                     const std::unordered_set<drake::systems::TriggerType>&
+                         publish_triggers = kDefaultTriggerTypes,
+                     double publish_period = 0.0);
+
+  /** A constructor for the ROS publisher system.
+   Identical to the above, but uses a raw ROS node pointer.
+   This is useful when you don't want to depend on the DrakeRos
+    interface to spin the node., e.g., when you are using a ROS
+    node that is not managed by Drake
+  */
+  RosPublisherSystem(std::shared_ptr<const SerializerInterface> serializer,
+                     const std::string& topic_name, const rclcpp::QoS& qos,
+                     rclcpp::Node* ros_node,
                      const std::unordered_set<drake::systems::TriggerType>&
                          publish_triggers = kDefaultTriggerTypes,
                      double publish_period = 0.0);

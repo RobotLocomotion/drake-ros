@@ -16,6 +16,16 @@ GTEST_TEST(DrakeRos, default_construct) {
   EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
+GTEST_TEST(DrakeRos, external_node) {
+  drake_ros::core::init();
+  std::string node_name = "external_node";
+  auto node = std::make_shared<rclcpp::Node>(node_name);
+  auto drake_ros = std::make_unique<DrakeRos>(node);
+  EXPECT_EQ(drake_ros->get_node().get_name(), node_name);
+  EXPECT_EQ(drake_ros->get_mutable_node(), node.get());
+  EXPECT_TRUE(drake_ros::core::shutdown());
+}
+
 GTEST_TEST(DrakeRos, local_context) {
   auto context = std::make_shared<rclcpp::Context>();
   rclcpp::NodeOptions node_options;
@@ -45,4 +55,5 @@ int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
 #endif
