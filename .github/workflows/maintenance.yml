@@ -7,11 +7,10 @@ on:
 env:
   ORGANIZATION_NAME: RobotLocomotion
   IMAGE_NAME: RobotLocomotion/drake-ros
-  REGISTRY_URL: ghcr.io
 
 jobs:
   clean_registry:
-    name: Prune old images from ${{ env.REGISTRY_URL }}
+    name: Prune old images from registry
     runs-on: ubuntu-latest
     steps:
       - name: Delete old pull request images

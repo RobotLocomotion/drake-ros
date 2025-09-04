@@ -70,7 +70,7 @@ jobs:
       - name: Configure ros2_example_bazel_installed workspace for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: ros2_example_bazel_installed
-      - names: Persist Bazel caches
+      - name: Persist Bazel caches
         uses: actions/cache@v3
         with:
           path: "/home/runner/.cache/bazel_ci"
