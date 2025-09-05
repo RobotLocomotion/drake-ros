@@ -11,7 +11,9 @@ jobs:
     steps:
       - name: Compute Docker image name
         run: |
-          echo "IMAGE_NAME=`echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
+          OWNER_NAME=${{ github.repository_owner }}
+          REPO_NAME=${{ github.repository }}
+          echo "IMAGE_NAME=`echo ${OWNER_NAME}/${REPO_NAME} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
       - name: Delete old pull request images
         uses: snok/container-retention-policy@v2
         with:
