@@ -4,21 +4,21 @@ on:
   schedule:
     - cron: "0 0 * * 0"  # once a week
 
-env:
-  ORGANIZATION_NAME: RobotLocomotion
-
 jobs:
   clean_registry:
     name: Prune old images from registry
     runs-on: ubuntu-latest
     steps:
+      - name: Compute Docker image name
+        run: |
+          echo "IMAGE_NAME=`echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
       - name: Delete old pull request images
         uses: snok/container-retention-policy@v2
         with:
-          image-names: ${{ github.repository.toLowerCase() }}
+          image-names: ${{ env.IMAGE_NAME }}
           skip-tags: main
           cut-off: One week ago UTC
-          org-name: ${{ env.ORGANIZATION_NAME }}
+          org-name: ${{ github.repository_owner }}
           account-type: org
           token: ${{ secrets.GITHUB_TOKEN }}
           token-type: github-token

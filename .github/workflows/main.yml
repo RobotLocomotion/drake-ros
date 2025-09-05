@@ -35,10 +35,13 @@ jobs:
           registry: ${{ env.REGISTRY_URL }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute Docker image name
+        run: |
+          echo "IMAGE_NAME=`echo ${{ github.event.pull_request.head.repo.full_name || github.repository }} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
       - name: Extract metadata for Docker
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_URL }}/${{ (github.event.pull_request.head.repo.full_name || github.repository).toLowerCase() }}
+          images: ${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}
         id: meta
       - name: Build and push Docker image (may be cached)
         uses: docker/build-push-action@v5
