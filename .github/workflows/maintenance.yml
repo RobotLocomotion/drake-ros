@@ -6,7 +6,6 @@ on:
 
 env:
   ORGANIZATION_NAME: RobotLocomotion
-  IMAGE_NAME: RobotLocomotion/drake-ros
 
 jobs:
   clean_registry:
@@ -16,7 +15,7 @@ jobs:
       - name: Delete old pull request images
         uses: snok/container-retention-policy@v2
         with:
-          image-names: ${{ env.IMAGE_NAME }}
+          image-names: ${{ github.repository.toLowerCase() }}
           skip-tags: main
           cut-off: One week ago UTC
           org-name: ${{ env.ORGANIZATION_NAME }}
