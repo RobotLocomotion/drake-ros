@@ -35,23 +35,26 @@ def parse_arguments():
         help='Path to file to write BUILD.bazel content to'
     )
     parser.add_argument(
-        'workspace_paths', type=pathlib.Path, nargs='+',
-        help='Paths to (potentially overlayed) workspaces'
+        'distro_file',
+        type=argparse.FileType('r'),
+        help='Path to distro metadata file, in JSON format'
     )
     args = parser.parse_args()
+    args.distro = json.load(args.distro_file)
 
     return args
 
 
-def compute_system_rosdeps(workspace_paths):
+def compute_system_rosdeps(distro):
     cmd = [
         'rosdep', 'keys', '-i',
         '-t', 'buildtool_export',
         '-t', 'build_export',
         '-t', 'exec', '--from-paths'
-    ] + [  # leverage REP-122
-        path for workspace_path in workspace_paths
-        for path in workspace_path.glob('**/share')
+    ] + [
+        metadata['share_directory']
+        for metadata in distro['packages'].values()
+        if 'share_directory' in metadata
     ]
     output = subprocess.check_output(
         cmd, env={'ROS_PYTHON_VERSION': '3'},
@@ -63,7 +66,7 @@ def compute_system_rosdeps(workspace_paths):
 def main():
     args = parse_arguments()
 
-    system_rosdeps = compute_system_rosdeps(args.workspace_paths)
+    system_rosdeps = compute_system_rosdeps(args.distro)
     args.output.write('\n'.join(system_rosdeps) + '\n')
 
 

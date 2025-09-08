@@ -117,7 +117,8 @@ def base_ros2_repository(repo_ctx, workspaces):
     cmd = [
         "./run.bash",
         str(path_to_compute_system_rosdeps_tool),
-    ] + list(workspaces.keys())
+        "distro_metadata.json"
+    ]
     cmd.extend(["-o", "system-rosdep-keys.txt"])
     result = execute_or_fail(repo_ctx, cmd, quiet = True)
     if result.stderr:
