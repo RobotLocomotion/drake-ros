@@ -36,7 +36,7 @@ jobs:
       - name: Configure ros2_example_bazel_installed workspace for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: ros2_example_bazel_installed
-      - name: Persist Bazel caches
+      - name: Restore Bazel caches
         uses: actions/cache@v3
         with:
           path: /root/.cache/bazel_ci
@@ -44,7 +44,7 @@ jobs:
           restore-keys: |
             bazel_ci-${{ github.ref }}-
             bazel_ci-refs/heads/main-
-      - name: Persist apt caches
+      - name: Restore apt caches
         uses: actions/cache@v3
         with:
           path: /var/cache/apt
@@ -69,6 +69,18 @@ jobs:
       - name: Test ros2_example_installed workspace
         run: bazel test //... @ros2//...
         working-directory: ros2_example_bazel_installed
+      - name: Persist Bazel caches
+        uses: actions/cache/save@v3
+        with:
+          path: /root/.cache/bazel_ci
+          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+        if: always()
+      - name: Restore apt caches
+        uses: actions/cache@v3
+        with:
+          path: /var/cache/apt
+          key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+        if: always()
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
   bazel_drake_ros_test:
     name: Build and test drake_ros modules with bazel
@@ -88,7 +100,7 @@ jobs:
           echo HOME=$HOME >> "$GITHUB_ENV"
       - name: Checkout repository
         uses: actions/checkout@v5
-      - name: Persist Bazel caches
+      - name: Restore Bazel caches
         uses: actions/cache@v3
         with:
           path: /root/.cache/bazel_ci
@@ -96,7 +108,7 @@ jobs:
           restore-keys: |
             bazel_ci-${{ github.ref }}-
             bazel_ci-refs/heads/main-
-      - name: Persist apt caches
+      - name: Restore apt caches
         uses: actions/cache@v3
         with:
           path: /var/cache/apt
@@ -123,6 +135,9 @@ jobs:
       - name: Test drake_ros workspace
         run: bazel test //...
         working-directory: drake_ros
+      - name: Clean drake_ros workspace
+        run: bazel clean
+        working-directory: drake_ros
       - name: Configure drake_ros_examples workspace for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros_examples
@@ -131,6 +146,22 @@ jobs:
         working-directory: drake_ros_examples
       - name: Test drake_ros_examples workspace
         run: bazel test //...
+        working-directory: drake_ros_examples
+      - name: Clean drake_ros_examples workspace
+        run: bazel clean
+        working-directory: drake_ros_examples
+      - name: Persist Bazel caches
+        uses: actions/cache/save@v3
+        with:
+          path: /root/.cache/bazel_ci
+          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+        if: always()
+      - name: Persist apt caches
+        uses: actions/cache/save@v3
+        with:
+          path: /var/cache/apt
+          key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+        if: always()
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
   colcon_drake_ros_test:
     name: Build and test drake_ros packages with colcon
@@ -146,7 +177,7 @@ jobs:
           echo HOME=$HOME >> "$GITHUB_ENV"
       - name: Checkout repository
         uses: actions/checkout@v5
-      - name: Persist apt caches
+      - name: Restore apt caches
         uses: actions/cache@v3
         with:
           path: /var/cache/apt
@@ -167,4 +198,10 @@ jobs:
         run: |
           . colcon-install/setup.sh && colcon test --event-handlers=console_cohesion+
           colcon test-result --test-result-base colcon-build
+      - name: Persist apt caches
+        uses: actions/cache/save@v3
+        with:
+          path: /var/cache/apt
+          key: apt_colcon-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+        if: always()
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
