@@ -39,7 +39,7 @@ jobs:
       - name: Persist Bazel caches
         uses: actions/cache@v3
         with:
-          path: /home/runner/.cache/bazel_ci
+          path: /root/.cache/bazel_ci
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             bazel_ci-${{ github.ref }}-
@@ -47,7 +47,7 @@ jobs:
       - name: Persist apt caches
         uses: actions/cache@v3
         with:
-          path: /var/cache/apt/archives
+          path: /var/cache/apt
           key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             apt_bazel-${{ github.ref }}-
@@ -91,7 +91,7 @@ jobs:
       - name: Persist Bazel caches
         uses: actions/cache@v3
         with:
-          path: /home/runner/.cache/bazel_ci
+          path: /root/.cache/bazel_ci
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             bazel_ci-${{ github.ref }}-
@@ -99,7 +99,7 @@ jobs:
       - name: Persist apt caches
         uses: actions/cache@v3
         with:
-          path: /var/cache/apt/archives
+          path: /var/cache/apt
           key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             apt_bazel-${{ github.ref }}-
@@ -149,7 +149,7 @@ jobs:
       - name: Persist apt caches
         uses: actions/cache@v3
         with:
-          path: /var/cache/apt/archives
+          path: /var/cache/apt
           key: apt_colcon-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             apt_colcon-${{ github.ref }}-
@@ -164,5 +164,7 @@ jobs:
       - name: Build drake_ros packages
         run: . /opt/ros/jazzy/setup.sh && colcon build
       - name: Test drake_ros packages
-        run: . colcon-install/setup.sh && colcon test --event-handlers=console_cohesion+ && colcon test-result
+        run: |
+          . colcon-install/setup.sh && colcon test --event-handlers=console_cohesion+
+          colcon test-result --test-result-base colcon-build
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"

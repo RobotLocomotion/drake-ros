@@ -47,7 +47,7 @@ and `nvidia` runtime setup. It also matches user and group IDs between container
 2.  Build the Docker image as shown in the previous section.
 3.  Run the container using `rocker`:
     ```bash
-    rocker --x11 --nvidia --user --volume "$(pwd)":/drake-ros RobotLocomotion/drake-ros
+    rocker --x11 --nvidia --user --volume "$(pwd)":/drake-ros -- RobotLocomotion/drake-ros
     ```
 
 ### Docker Compose (for GUI support without Nvidia GPUs)
