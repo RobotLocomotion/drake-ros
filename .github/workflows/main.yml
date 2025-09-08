@@ -20,7 +20,7 @@ jobs:
       image: ubuntu:noble
       # This is required for lldb and network isolation.
       # See https://stackoverflow.com/a/73613377/7829525
-      options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
+      options: --privileged --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
         --sysctl kernel.apparmor_restrict_unprivileged_unconfined=0
         --sysctl kernel.apparmor_restrict_unprivileged_userns=0
     steps:
@@ -80,7 +80,7 @@ jobs:
       image: ubuntu:noble
       # This is required for lldb and network isolation.
       # See https://stackoverflow.com/a/73613377/7829525
-      options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
+      options: --privileged --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
         --sysctl kernel.apparmor_restrict_unprivileged_unconfined=0
         --sysctl kernel.apparmor_restrict_unprivileged_userns=0
     steps:
@@ -166,12 +166,7 @@ jobs:
       - name: Cope with Python 2 pollution
         run: apt update && apt install -y python-is-python3
       - name: Build drake_ros packages
-        run: |
-          . /opt/ros/jazzy/setup.sh
-          colcon build
+        run: . /opt/ros/jazzy/setup.sh && colcon build
       - name: Test drake_ros packages
-        run: |
-          . /opt/ros/jazzy/setup.sh
-          . colcon-install/setup.sh
-          colcon test
+        run: . colcon-install/setup.sh && colcon test
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
