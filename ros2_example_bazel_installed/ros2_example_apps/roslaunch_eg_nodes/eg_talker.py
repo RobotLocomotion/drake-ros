@@ -9,7 +9,13 @@ class MinimalPublisher(Node):
 
     def __init__(self, *, max_count=10):
         super().__init__("node")
-        self.publisher = self.create_publisher(String, "topic", 10)
+        qos = rclpy.qos.QoSProfile(
+            depth=max_count,
+            durability=rclpy.qos.QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            history=rclpy.qos.QoSHistoryPolicy.KEEP_LAST,
+            reliability=rclpy.qos.QoSReliabilityPolicy.RELIABLE,
+        )
+        self.publisher = self.create_publisher(String, "topic", qos)
         timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.count = 0

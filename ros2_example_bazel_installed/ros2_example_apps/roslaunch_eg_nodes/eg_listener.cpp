@@ -7,10 +7,12 @@ using std::placeholders::_1;
 
 class MinimalSubscriber : public rclcpp::Node {
  public:
-  explicit MinimalSubscriber(int max_count = 10)
-      : Node("minimal_subscriber"), max_count_(max_count) {
+  explicit MinimalSubscriber(size_t max_count = 10)
+      : Node("minimal_subscriber"), max_count_(max_count), count_(0) {
+    auto qos = rclcpp::QoS{max_count};
+    qos.transient_local().reliable();
     subscription_ = this->create_subscription<std_msgs::msg::String>(
-        "topic", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
+        "topic", qos, std::bind(&MinimalSubscriber::topic_callback, this, _1));
   }
 
   bool is_done() const { return count_ >= max_count_; }
@@ -22,8 +24,8 @@ class MinimalSubscriber : public rclcpp::Node {
   }
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
 
-  int max_count_{};
-  int count_{};
+  size_t max_count_;
+  size_t count_;
 };
 
 int main(int argc, char* argv[]) {
