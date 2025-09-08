@@ -15,19 +15,17 @@ concurrency:
 jobs:
   bazel_ros2_rules_test:
     name: Build and test bazel_ros2_rules modules with bazel
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:noble
-      # This is required for lldb and network isolation.
-      # See https://stackoverflow.com/a/73613377/7829525
-      options: --privileged --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
+    runs-on: ubuntu-24.04
     steps:
-      - name: Fix container environment
-        # See https://github.com/actions/runner/issues/863
-        run: |
-          USER=`id -un`
-          HOME=`getent passwd $USER | cut -d: -f6`
-          echo HOME=$HOME >> "$GITHUB_ENV"
+      - name: Free up runner space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          docker-images: true
+          large-packages: false
+          swap-storage: false
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Configure bazel_ros2_rules workspace for CI
@@ -54,8 +52,8 @@ jobs:
             apt_bazel-refs/heads/main-
       - name: Install repository prereqs
         run: |
-          echo 'APT::Get::Assume-Yes "true";' | tee /etc/apt/apt.conf.d/90yes
-          echo "debconf debconf/frontend select Noninteractive" | debconf-set-selections
+          echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
+          echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
           yes | ./setup/install_prereqs -C /tmp --with-bazel
       - name: Build bazel_ros2_rules workspace
         run: bazel build //...
@@ -84,20 +82,18 @@ jobs:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
   bazel_drake_ros_test:
     name: Build and test drake_ros modules with bazel
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: bazel_ros2_rules_test
-    container:
-      image: ubuntu:noble
-      # This is required for lldb and network isolation.
-      # See https://stackoverflow.com/a/73613377/7829525
-      options: --privileged --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
     steps:
-      - name: Fix container environment
-        # See https://github.com/actions/runner/issues/863
-        run: |
-          USER=`id -un`
-          HOME=`getent passwd $USER | cut -d: -f6`
-          echo HOME=$HOME >> "$GITHUB_ENV"
+      - name: Free up runner space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          docker-images: true
+          large-packages: false
+          swap-storage: false
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Restore Bazel caches
@@ -118,14 +114,14 @@ jobs:
             apt_bazel-refs/heads/main-
       - name: Install repository prereqs
         run: |
-          echo 'APT::Get::Assume-Yes "true";' | tee /etc/apt/apt.conf.d/90yes
-          echo "debconf debconf/frontend select Noninteractive" | debconf-set-selections
+          echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
+          echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
           yes | ./setup/install_prereqs -C /tmp --with-bazel
       - name: Purge GCC 14
         # Note(#385): drake's mkdoc script loads gcc14 C++ std libraries if
         # installed, which causes the build to fail because it expects gcc13 to
         # be used.
-        run: apt purge -y gcc-14 libgcc-14-dev
+        run: sudo apt purge -y gcc-14 libgcc-14-dev
       - name: Configure drake_ros workspace for CI
         run: ln -s ../.github/ci.bazelrc ./user.bazelrc
         working-directory: drake_ros
@@ -165,16 +161,8 @@ jobs:
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
   colcon_drake_ros_test:
     name: Build and test drake_ros packages with colcon
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:noble
+    runs-on: ubuntu-24.04
     steps:
-      - name: Fix container environment
-        # See https://github.com/actions/runner/issues/863
-        run: |
-          USER=`id -un`
-          HOME=`getent passwd $USER | cut -d: -f6`
-          echo HOME=$HOME >> "$GITHUB_ENV"
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Restore apt caches
@@ -187,11 +175,11 @@ jobs:
             apt_colcon-refs/heads/main-
       - name: Install repository prereqs
         run: |
-          echo 'APT::Get::Assume-Yes "true";' | tee /etc/apt/apt.conf.d/90yes
-          echo "debconf debconf/frontend select Noninteractive" | debconf-set-selections
+          echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
+          echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
           yes | ./setup/install_prereqs -C /tmp --with-colcon
       - name: Cope with Python 2 pollution
-        run: apt update && apt install -y python-is-python3
+        run: sudo apt update && sudo apt install -y python-is-python3
       - name: Build drake_ros packages
         run: . /opt/ros/jazzy/setup.sh && colcon build
       - name: Test drake_ros packages
