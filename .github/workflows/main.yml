@@ -164,5 +164,5 @@ jobs:
       - name: Build drake_ros packages
         run: . /opt/ros/jazzy/setup.sh && colcon build
       - name: Test drake_ros packages
-        run: . colcon-install/setup.sh && colcon test
+        run: . colcon-install/setup.sh && colcon test --event-handlers=console_cohesion+ && colcon test-result
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
