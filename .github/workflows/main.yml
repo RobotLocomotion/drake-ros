@@ -37,7 +37,7 @@ jobs:
       - name: Restore Bazel caches
         uses: actions/cache@v3
         with:
-          path: /root/.cache/bazel_ci
+          path: /home/runner/.cache/bazel_ci
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             bazel_ci-${{ github.ref }}-
@@ -70,7 +70,7 @@ jobs:
       - name: Persist Bazel caches
         uses: actions/cache/save@v3
         with:
-          path: /root/.cache/bazel_ci
+          path: /home/runner/.cache/bazel_ci
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
         if: always()
       - name: Restore apt caches
@@ -99,7 +99,7 @@ jobs:
       - name: Restore Bazel caches
         uses: actions/cache@v3
         with:
-          path: /root/.cache/bazel_ci
+          path: /home/runner/.cache/bazel_ci
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
             bazel_ci-${{ github.ref }}-
@@ -149,7 +149,7 @@ jobs:
       - name: Persist Bazel caches
         uses: actions/cache/save@v3
         with:
-          path: /root/.cache/bazel_ci
+          path: /home/runner/.cache/bazel_ci
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
         if: always()
       - name: Persist apt caches
