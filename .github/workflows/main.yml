@@ -18,10 +18,18 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:noble
-      # This is required for running lldb.
+      # This is required for lldb and network isolation.
       # See https://stackoverflow.com/a/73613377/7829525
-      options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
+      options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+        --sysctl kernel.apparmor_restrict_unprivileged_unconfined=0 \
+        --sysctl kernel.apparmor_restrict_unprivileged_userns=0
     steps:
+      - name: Fix container environment
+        # See https://github.com/actions/runner/issues/863
+        run: |
+          USER=`id -un`
+          HOME=`getent passwd $USER | cut -d: -f6`
+          echo HOME=$HOME >> "$GITHUB_ENV"
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Configure bazel_ros2_rules workspace for CI
@@ -70,7 +78,18 @@ jobs:
     needs: bazel_ros2_rules_test
     container:
       image: ubuntu:noble
+      # This is required for lldb and network isolation.
+      # See https://stackoverflow.com/a/73613377/7829525
+      options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+        --sysctl kernel.apparmor_restrict_unprivileged_unconfined=0 \
+        --sysctl kernel.apparmor_restrict_unprivileged_userns=0
     steps:
+      - name: Fix container environment
+        # See https://github.com/actions/runner/issues/863
+        run: |
+          USER=`id -un`
+          HOME=`getent passwd $USER | cut -d: -f6`
+          echo HOME=$HOME >> "$GITHUB_ENV"
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Persist Bazel caches
@@ -123,6 +142,12 @@ jobs:
     container:
       image: ubuntu:noble
     steps:
+      - name: Fix container environment
+        # See https://github.com/actions/runner/issues/863
+        run: |
+          USER=`id -un`
+          HOME=`getent passwd $USER | cut -d: -f6`
+          echo HOME=$HOME >> "$GITHUB_ENV"
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Persist apt caches
@@ -141,7 +166,12 @@ jobs:
       - name: Cope with Python 2 pollution
         run: apt update && apt install -y python-is-python3
       - name: Build drake_ros packages
-        run: colcon build
+        run: |
+          . /opt/ros/jazzy/setup.sh
+          colcon build
       - name: Test drake_ros packages
-        run: colcon test
+        run: |
+          . /opt/ros/jazzy/setup.sh
+          . colcon-install/setup.sh
+          colcon test
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
