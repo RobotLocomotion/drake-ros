@@ -49,6 +49,9 @@ def _local_ros2_implementation(module_ctx):
         jobs = jobs,
     )
 
+# NOTE: This precludes multi-distro setups. That is, there can only be one
+# ROS 2 distro in a given Bazel workspace, and all Bazel modules that rely
+# on ROS 2 must use that same distribution.
 local_ros2 = module_extension(
     implementation = _local_ros2_implementation,
     doc = """
