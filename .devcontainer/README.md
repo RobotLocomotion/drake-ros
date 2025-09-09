@@ -34,7 +34,7 @@ You can build and run the container manually using standard Docker commands.
 
 2.  **Run the container:**
     ```bash
-    docker run --rm -v "$(pwd)":/drake-ros -w /drake-ros -it RobotLocomotion/drake-ros
+    docker run --rm -v "$(pwd)":/drake-ros -w /drake-ros --privileged -it RobotLocomotion/drake-ros
     ```
     This will start the container, mount your local repository code into the container's workspace, and give you an interactive shell.
 
@@ -47,7 +47,7 @@ and `nvidia` runtime setup. It also matches user and group IDs between container
 2.  Build the Docker image as shown in the previous section.
 3.  Run the container using `rocker`:
     ```bash
-    rocker --x11 --nvidia --user --volume "$(pwd)":/drake-ros -- RobotLocomotion/drake-ros
+    rocker  --privileged --x11 --nvidia --user --volume "$(pwd)":/drake-ros -- RobotLocomotion/drake-ros
     ```
 
 ### Docker Compose (for GUI support without Nvidia GPUs)

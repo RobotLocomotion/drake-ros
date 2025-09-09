@@ -66,8 +66,8 @@ if(BUILD_TESTING)
 
   target_compile_definitions(test_pub_sub
     PRIVATE
-    # We do not expose `rmw_isoliation` via CMake.
-    _TEST_DISABLE_RMW_ISOLATION
+    # We do not expose isolation features via CMake.
+    TEST_DISABLE_ROS_ISOLATION
   )
   target_link_libraries(test_pub_sub
     drake::drake
@@ -78,8 +78,8 @@ if(BUILD_TESTING)
   ament_add_gtest(test_drake_ros test/test_drake_ros.cc)
   target_compile_definitions(test_drake_ros
     PRIVATE
-    # We do not expose `rmw_isoliation` via CMake.
-    _TEST_DISABLE_RMW_ISOLATION
+    # We do not expose isolation features via CMake.
+    TEST_DISABLE_ROS_ISOLATION
   )
   target_link_libraries(test_drake_ros
     drake_ros_core
@@ -91,8 +91,8 @@ if(BUILD_TESTING)
   ament_add_gtest(test_clock_system test/test_clock_system.cc)
   target_compile_definitions(test_clock_system
     PRIVATE
-    # We do not expose `rmw_isoliation` via CMake.
-    _TEST_DISABLE_RMW_ISOLATION
+    # We do not expose isolation features via CMake.
+    TEST_DISABLE_ROS_ISOLATION
   )
   target_link_libraries(test_clock_system
     drake_ros_core

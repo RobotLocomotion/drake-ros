@@ -48,7 +48,6 @@ if(BUILD_TESTING)
     # Invoke Pytest in a way that prevents source space from
     # Getting added to `sys.path`, so that CPython extensions
     # are importable.
-    # TODO(eric, shane): Add environment variable to disable rmw_isolation.
     ament_add_test("${test_name}"
       COMMAND
         "${Python3_EXECUTABLE}"

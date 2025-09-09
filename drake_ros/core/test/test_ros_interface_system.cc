@@ -10,14 +10,14 @@
 using drake_ros::core::DrakeRos;
 using drake_ros::core::RosInterfaceSystem;
 
-TEST(RosInterfaceSystem, default_construct) {
+GTEST_TEST(RosInterfaceSystem, default_construct) {
   drake_ros::core::init();
   auto drake_ros = std::make_unique<DrakeRos>("default_node");
   auto ros_interface_system = RosInterfaceSystem(std::move(drake_ros));
   EXPECT_TRUE(drake_ros::core::shutdown());
 }
 
-TEST(DrakeRos, external_node) {
+GTEST_TEST(DrakeRos, external_node) {
   drake_ros::core::init();
   std::string node_name = "external_node";
   auto node = std::make_shared<rclcpp::Node>(node_name);
@@ -30,17 +30,11 @@ TEST(DrakeRos, external_node) {
 }
 
 // Only available in Bazel.
-#ifndef _TEST_DISABLE_RMW_ISOLATION
-#include "rmw_isolation/rmw_isolation.h"
+#ifndef TEST_DISABLE_ROS_ISOLATION
+#include "lib/ros_environment/unique.h"
 
 int main(int argc, char* argv[]) {
-  const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
-  if (TEST_TMPDIR != nullptr) {
-    std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
-    setenv("ROS_HOME", ros_home.c_str(), 1);
-    ros2::isolate_rmw_by_path(argv[0], TEST_TMPDIR);
-  }
-
+  bazel_ros2_rules::EnforceUniqueROSEnvironment();
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

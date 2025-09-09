@@ -38,18 +38,18 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /home/runner/.cache/bazel_ci
-          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_ros2_rules_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            bazel_ci-${{ github.ref }}-
-            bazel_ci-refs/heads/main-
+            bazel_ros2_rules_bazel_cache-${{ github.ref }}-
+            bazel_ros2_rules_bazel_cache-refs/heads/main-
       - name: Restore apt caches
         uses: actions/cache@v3
         with:
           path: /var/cache/apt
-          key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_ros2_rules_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            apt_bazel-${{ github.ref }}-
-            apt_bazel-refs/heads/main-
+            bazel_ros2_rules_apt_cache-${{ github.ref }}-
+            bazel_ros2_rules_apt_cache-refs/heads/main-
       - name: Install repository prereqs
         run: |
           echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
@@ -71,19 +71,18 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: /home/runner/.cache/bazel_ci
-          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_ros2_rules_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
         if: always()
       - name: Restore apt caches
         uses: actions/cache@v3
         with:
           path: /var/cache/apt
-          key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_ros2_rules_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
         if: always()
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
   bazel_drake_ros_test:
     name: Build and test drake_ros modules with bazel
     runs-on: ubuntu-24.04
-    needs: bazel_ros2_rules_test
     steps:
       - name: Free up runner space
         uses: jlumbroso/free-disk-space@v1.3.1
@@ -100,18 +99,18 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /home/runner/.cache/bazel_ci
-          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_drake_ros_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            bazel_ci-${{ github.ref }}-
-            bazel_ci-refs/heads/main-
+            bazel_drake_ros_bazel_cache-${{ github.ref }}-
+            bazel_drake_ros_bazel_cache-refs/heads/main-
       - name: Restore apt caches
         uses: actions/cache@v3
         with:
           path: /var/cache/apt
-          key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            apt_bazel-${{ github.ref }}-
-            apt_bazel-refs/heads/main-
+            bazel_drake_ros_apt_cache-${{ github.ref }}-
+            bazel_drake_ros_apt_cache-refs/heads/main-
       - name: Install repository prereqs
         run: |
           echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
@@ -150,13 +149,13 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: /home/runner/.cache/bazel_ci
-          key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_drake_ros_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
         if: always()
       - name: Persist apt caches
         uses: actions/cache/save@v3
         with:
           path: /var/cache/apt
-          key: apt_bazel-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: bazel_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
         if: always()
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
   colcon_drake_ros_test:
@@ -169,10 +168,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /var/cache/apt
-          key: apt_colcon-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: colcon_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            apt_colcon-${{ github.ref }}-
-            apt_colcon-refs/heads/main-
+            colcon_drake_ros_apt_cache-${{ github.ref }}-
+            colcon_drake_ros_apt_cache-refs/heads/main-
       - name: Install repository prereqs
         run: |
           echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
@@ -190,6 +189,6 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: /var/cache/apt
-          key: apt_colcon-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: colcon_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
         if: always()
     if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"

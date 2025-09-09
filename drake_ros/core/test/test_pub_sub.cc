@@ -94,7 +94,7 @@ GTEST_TEST(Integration, sub_to_pub) {
 }
 
 // Only available in Bazel.
-#ifndef _TEST_DISABLE_RMW_ISOLATION
+#ifndef TEST_DISABLE_ROS_ISOLATION
 #include "lib/ros_environment/unique.h"
 
 int main(int argc, char* argv[]) {
