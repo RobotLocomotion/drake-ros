@@ -1670,14 +1670,27 @@ def rosidl_interfaces_group(
     data = data + [defs_name]
 
     # Add extra deps needed by all targets
-    for dep in [
+    default_deps = [
         REPOSITORY_ROOT + ":action_msgs",
         REPOSITORY_ROOT + ":builtin_interfaces",
         REPOSITORY_ROOT + ":service_msgs",
         REPOSITORY_ROOT + ":unique_identifier_msgs",
-    ]:
-        if dep not in deps:
-            deps = deps + [dep]
+    ]
+
+    # Add the default deps iff they are not already present
+    # It's required to compare the fully-qualified labels
+    # between packages because the user can pass in apparent repo names
+    default_dep_labels = [
+        native.package_relative_label(dep)
+        for dep in default_deps
+    ]
+    current_dep_labels = [
+        native.package_relative_label(dep)
+        for dep in deps
+    ]
+    for default_dep_label in default_dep_labels:
+        if default_dep_label not in current_dep_labels:
+            deps = deps + [str(default_dep_label)]
 
     rosidl_definitions_filegroup(
         name = defs_name,
