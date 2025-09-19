@@ -50,10 +50,9 @@ class Subscription final : public rclcpp::SubscriptionBase {
         "create_dynamic_message is not implemented for Subscription");
   }
 
-  void return_dynamic_message(
-      rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr&
-          message)  // NOLINT
-      override {
+  using DynamicMessage = rclcpp::dynamic_typesupport::DynamicMessage;
+  // NOLINTNEXTLINE(runtime/references)
+  void return_dynamic_message(DynamicMessage::SharedPtr& message) override {
     (void)message;
     throw rclcpp::exceptions::UnimplementedError(
         "return_dynamic_message is not implemented for Subscription");

@@ -3,13 +3,14 @@
 #include <memory>
 #include <random>
 
-#include "ros2_example_apps_msgs/msg/status.hpp"
-#include "ros2_example_common_msgs/action/do.hpp"
-#include "ros2_example_common_msgs/srv/query.hpp"
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
 #include <rclcpp_action/create_server.hpp>
 #include <rclcpp_action/server.hpp>
+
+#include "ros2_example_apps_msgs/msg/status.hpp"
+#include "ros2_example_common_msgs/action/do.hpp"
+#include "ros2_example_common_msgs/srv/query.hpp"
 
 namespace ros2_example_apps {
 

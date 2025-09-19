@@ -161,12 +161,12 @@ _LAUNCH_PY_TEMPLATE = """
 import os
 import sys
 
-from python.runfiles import runfiles
+from python.runfiles import runfiles as runfiles_api
 
 assert __name__ == "__main__"
-r = runfiles.Create()
-launch_file = r.Rlocation({launch_respath})  # noqa
-ros2_bin = r.Rlocation("ros2/ros2")
+runfiles = runfiles_api.Create()
+launch_file = runfiles.Rlocation({launch_respath})  # noqa
+ros2_bin = runfiles.Rlocation("ros2/ros2")
 args = [ros2_bin, "launch", launch_file] + sys.argv[1:]
 os.execv(ros2_bin, args)
 """

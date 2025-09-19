@@ -1,7 +1,7 @@
 import os
 import sys
 
-from bazel_tools.tools.python.runfiles import runfiles
+from bazel_tools.tools.python.runfiles import runfiles as runfiles_api
 
 SHIMMED_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED"
 
@@ -20,14 +20,14 @@ def do_dload_shim(executable_path, names, actions):
     :param actions: actions to be performed on each named environment variable.
     """
     argv = sys.argv
-    r = runfiles.Create()
+    runfiles = runfiles_api.Create()
     # NOTE(hidmic): unlike its C++ equivalent, Python runfiles'
     # builtin tools will only look for runfiles in the manifest
     # if there is a manifest
-    runfiles_dir = r.EnvVars()['RUNFILES_DIR']
+    runfiles_dir = runfiles.EnvVars()['RUNFILES_DIR']
 
     def rlocation(path):
-        return r.Rlocation(path) or os.path.join(runfiles_dir, path)
+        return runfiles.Rlocation(path) or os.path.join(runfiles_dir, path)
 
     if SHIMMED_SENTINEL not in os.environ:
         for name, action in zip(names, actions):  # noqa
@@ -55,6 +55,6 @@ def do_dload_shim(executable_path, names, actions):
             os.environ[name] = value
         os.environ[SHIMMED_SENTINEL] = ""
 
-    real_executable_path = r.Rlocation(executable_path)  # noqa
+    real_executable_path = runfiles.Rlocation(executable_path)  # noqa
     argv = [real_executable_path] + argv[1:]
     os.execv(real_executable_path, argv)

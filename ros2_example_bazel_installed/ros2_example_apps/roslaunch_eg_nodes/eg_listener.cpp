@@ -1,8 +1,9 @@
 #include <chrono>
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/string.hpp>
+
 using std::placeholders::_1;
 
 class MinimalSubscriber : public rclcpp::Node {
@@ -24,8 +25,8 @@ class MinimalSubscriber : public rclcpp::Node {
   }
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
 
-  size_t max_count_;
-  size_t count_;
+  const size_t max_count_;
+  const size_t count_;
 };
 
 int main(int argc, char* argv[]) {

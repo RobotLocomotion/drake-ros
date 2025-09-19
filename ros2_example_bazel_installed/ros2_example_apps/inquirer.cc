@@ -1,12 +1,13 @@
 #include <functional>
 #include <memory>
 
-#include "ros2_example_apps_msgs/msg/status.hpp"
-#include "ros2_example_common_msgs/action/do.hpp"
-#include "ros2_example_common_msgs/srv/query.hpp"
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/client.hpp>
 #include <rclcpp_action/create_client.hpp>
+
+#include "ros2_example_apps_msgs/msg/status.hpp"
+#include "ros2_example_common_msgs/action/do.hpp"
+#include "ros2_example_common_msgs/srv/query.hpp"
 
 namespace ros2_example_apps {
 
