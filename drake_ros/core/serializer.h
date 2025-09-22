@@ -3,10 +3,11 @@
 #include <memory>
 
 #include <drake/common/value.h>
-#include <drake_ros/core/serializer_interface.h>
 #include <rclcpp/serialization.hpp>
 #include <rclcpp/serialized_message.hpp>
 #include <rosidl_typesupport_cpp/message_type_support.hpp>
+
+#include "drake_ros/core/serializer_interface.h"
 
 namespace drake_ros {
 namespace core {
