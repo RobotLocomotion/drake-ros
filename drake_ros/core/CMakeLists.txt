@@ -10,6 +10,7 @@ set(HEADERS
   "ros_subscriber_system.h"
   "serializer.h"
   "serializer_interface.h"
+  "subscription.h"
 )
 
 # Mock install headers so include paths match installed paths
