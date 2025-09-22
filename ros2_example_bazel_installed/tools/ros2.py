@@ -8,12 +8,12 @@ Bazel-based entry point for `ros2` binary, e.g.
 import os
 import sys
 
-from bazel_tools.tools.python.runfiles import runfiles
+from bazel_tools.tools.python.runfiles import runfiles as runfiles_api
 
 
 def main():
-    manifest = runfiles.Create()
-    bin_file = manifest.Rlocation("ros2/ros2")
+    runfiles = runfiles_api.Create()
+    bin_file = runfiles.Rlocation("ros2/ros2")
     argv = [bin_file] + sys.argv[1:]
     os.execv(bin_file, argv)
 

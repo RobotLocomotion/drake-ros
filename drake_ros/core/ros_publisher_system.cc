@@ -5,8 +5,7 @@
 #include <unordered_set>
 #include <utility>
 
-#include "publisher.h"  // NOLINT(build/include)
-
+#include "drake_ros/core/publisher.h"
 #include "drake_ros/core/serializer_interface.h"
 
 namespace drake_ros {

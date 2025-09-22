@@ -58,12 +58,12 @@ class DrakeRos final {
   std::unique_ptr<Impl> impl_;
 };
 
-/**Initialize Drake ROS's global context.
+/** Initialize Drake ROS's global context.
  This function decorates a `rclcpp::init` invocation.
 */
 void init(int argc = 0, const char** argv = nullptr);
 
-/**Shutdown Drake ROS's global context.
+/** Shutdown Drake ROS's global context.
  This function decorates a `rclcpp::shutdown` invocation.
 */
 bool shutdown();

@@ -17,6 +17,7 @@
   <buildtool_depend>eigen3_cmake_module</buildtool_depend>
   <build_depend>eigen</build_depend>
 
+  <depend>drake</depend>
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
   <depend>rosgraph_msgs</depend>
@@ -24,7 +25,10 @@
   <depend>rosidl_typesupport_cpp</depend>
   <depend>geometry_msgs</depend>
   <depend>tf2_eigen</depend>
+  <depend>tf2_ros</depend>
   <depend>visualization_msgs</depend>
+
+  <exec_depend>tf2_ros_py</exec_depend>
 
   <test_depend>ament_cmake_clang_format</test_depend>
   <test_depend>ament_cmake_cpplint</test_depend>

@@ -7,7 +7,7 @@ OR
     bazel build //ros2_example_apps:custom_message_rosbag_test
     bazel-bin/ros2_example_apps/custom_message_rosbag_test
 WARNING: `bazel run` does not work as expected
-"""
+"""  # noqa
 
 import os
 import shutil
@@ -16,6 +16,8 @@ import subprocess
 import time
 
 from bazel_tools.tools.python.runfiles import runfiles
+from lib.ros_environment.unique import enforce_unique_ros_environment
+
 
 def read_available(f, timeout=0.0, chunk_size=1024):
     """
@@ -47,17 +49,15 @@ def open_process(args):
 
 
 def attempt_record():
-    if "TEST_TMPDIR" in os.environ:
-        tmp_dir = os.environ["TEST_TMPDIR"]
-        os.environ["ROS_HOME"] = os.path.join(tmp_dir)
-    else:
-        tmp_dir = "/tmp"
+    enforce_unique_ros_environment()
 
-    manifest = runfiles.Create()
-    ros2_bin = manifest.Rlocation("ros2_example_bazel_installed/tools/ros2")
+    r = runfiles.Create()
+    ros2_bin = r.Rlocation("ros2_example_bazel_installed/tools/ros2")
     assert ros2_bin is not None
-    talker_bin = manifest.Rlocation(
-        "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
+    talker_bin = r.Rlocation(
+        "ros2_example_bazel_installed/ros2_example_apps/simple_talker"
+    )
+    tmp_dir = os.environ.get("TEST_TMPDIR", "/tmp")
     bag_dir = os.path.join(tmp_dir, "test_bag")
     if os.path.exists(bag_dir):
         shutil.rmtree(bag_dir)

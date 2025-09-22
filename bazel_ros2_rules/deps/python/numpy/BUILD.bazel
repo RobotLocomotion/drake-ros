@@ -1,0 +1,14 @@
+# -*- python -*-
+package(default_visibility = ["//visibility:public"])
+
+# Forward numpy headers and libraries for macro consumption downstream,
+# as dependencies of module dependencies are not implicitly exposed.
+alias(
+    name = "headers",
+    actual = "@python//numpy:headers",
+)
+
+alias(
+    name = "libs",
+    actual = "@python//numpy:libs",
+)

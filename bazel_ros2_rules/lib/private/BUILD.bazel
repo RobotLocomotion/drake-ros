@@ -1,0 +1,25 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+load("//tools/lint:lint.bzl", "add_lint_tests")
+
+package(default_visibility = ["//visibility:private"])
+
+py_library(
+    name = "cmake_tools_py",
+    srcs = glob(["cmake_tools/**/*.py"]),
+    imports = ["."],
+)
+
+py_library(
+    name = "ros2bzl_py",
+    srcs = glob(["ros2bzl/**/*.py"]),
+    imports = ["."],
+    deps = [":cmake_tools_py"],
+)
+
+py_test(
+    name = "plugin_xml_parsing_test",
+    srcs = ["test/plugin_xml_parsing_test.py"],
+    deps = [":ros2bzl_py"],
+)
+
+add_lint_tests()

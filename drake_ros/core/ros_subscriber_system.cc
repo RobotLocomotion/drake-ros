@@ -5,8 +5,9 @@
 #include <string>
 #include <utility>
 
-#include "subscription.h"  // NOLINT(build/include)
 #include <drake/systems/framework/abstract_values.h>
+
+#include "drake_ros/core/subscription.h"
 
 namespace drake_ros {
 namespace core {

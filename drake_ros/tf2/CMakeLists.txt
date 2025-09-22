@@ -59,8 +59,8 @@ if(BUILD_TESTING)
   )
   target_compile_definitions(test_tf_broadcaster
     PRIVATE
-    # We do not expose `rmw_isoliation` via CMake.
-    _TEST_DISABLE_RMW_ISOLATION
+    # We do not expose isolation features via CMake.
+    TEST_DISABLE_ROS_ISOLATION
   )
 
   ament_add_gtest(test_tf2_name_conventions test/test_name_conventions.cc)

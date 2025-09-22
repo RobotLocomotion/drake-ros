@@ -2,17 +2,15 @@ import os
 import subprocess
 
 from bazel_tools.tools.python.runfiles import runfiles
-from rmw_isolation import isolate_rmw_by_path
+from lib.ros_environment.unique import enforce_unique_ros_environment
 
 
 def main():
-    if "TEST_TMPDIR" in os.environ:
-        isolate_rmw_by_path(os.environ["TEST_TMPDIR"])
-        os.environ["ROS_HOME"] = os.path.join(os.environ["TEST_TMPDIR"])
+    enforce_unique_ros_environment()
 
-    manifest = runfiles.Create()
-    ros2_bin = manifest.Rlocation("ros2_example_bazel_installed/tools/ros2")
-    talker_bin = manifest.Rlocation(
+    r = runfiles.Create()
+    ros2_bin = r.Rlocation("ros2_example_bazel_installed/tools/ros2")
+    talker_bin = r.Rlocation(
         "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
 
     timeout = 5.0

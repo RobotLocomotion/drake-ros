@@ -1,0 +1,22 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_python//python:defs.bzl", "py_library")
+load("//tools/lint:lint.bzl", "add_lint_tests")
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "ros_env_cc",
+    srcs = ["unique.cc"],
+    hdrs = ["unique.h"],
+    # Don't create a separate shared library for just this one tiny source file
+    # all by itself. Since this is only ever linked into binaries (not other
+    # libraries), it's fine to always link it statically for simplicity.
+    linkstatic = True,
+)
+
+py_library(
+    name = "ros_env_py",
+    srcs = ["unique.py"],
+)
+
+add_lint_tests()

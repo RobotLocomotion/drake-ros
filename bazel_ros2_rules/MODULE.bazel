@@ -1,0 +1,60 @@
+module(name = "bazel_ros2_rules")
+
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "rules_python", version = "1.5.1")
+bazel_dep(name = "rules_cc", version = "0.1.1")
+
+local_python_repository = use_repo_rule(
+    "//tools/workspace:python.bzl",
+    "local_python_repository",
+)
+
+local_python_repository(name = "python")
+
+local_runtime_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_repo",
+)
+
+local_runtime_toolchains_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_toolchains_repo",
+)
+
+local_runtime_repo(
+    name = "local_python3",
+    interpreter_path = "python3",
+    on_failure = "fail",
+)
+
+local_runtime_toolchains_repo(
+    name = "local_toolchains",
+    runtimes = ["local_python3"],
+)
+
+register_toolchains(
+    "@local_toolchains//:all",
+    dev_dependency = True,
+)
+
+DRAKE_COMMIT = "v1.43.0"
+
+DRAKE_CHECKSUM = (
+    "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
+)
+
+bazel_dep(name = "drake")
+archive_override(
+    module_name = "drake",
+    sha256 = DRAKE_CHECKSUM,
+    strip_prefix = "drake-{}".format(DRAKE_COMMIT.lstrip("v")),
+    urls = [x.format(DRAKE_COMMIT) for x in [
+        "https://github.com/RobotLocomotion/drake/archive/{}.tar.gz",
+    ]],
+)
+
+drake_dep_repositories = use_extension(
+    "@drake//tools/workspace:default.bzl",
+    "drake_dep_repositories",
+)
+use_repo(drake_dep_repositories, "pycodestyle", "styleguide")

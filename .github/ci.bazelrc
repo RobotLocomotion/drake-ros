@@ -10,6 +10,9 @@ common --experimental_ui_max_stdouterr_bytes=5242880
 common --keep_going=yes
 test --test_summary=short
 
+# Limit resource usage (for drake).
+build --local_ram_resources=HOST_RAM*.5 --local_cpu_resources=HOST_CPUS*.5
+
 # Paths for caching Bazel externals and disk cache.
 fetch --repository_cache /home/runner/.cache/bazel_ci/bazel_externals
 build --repository_cache /home/runner/.cache/bazel_ci/bazel_externals

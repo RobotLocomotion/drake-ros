@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ros_idl_pybind.h"
+#include "ros_idl_pybind.h"  // NOLINT(build/include)
 
 // Generic typecaster for specific ROS 2 messages.
 // This method can be used instead of the ROS_MSG_PYBIND_TYPECAST_ALL() macro.

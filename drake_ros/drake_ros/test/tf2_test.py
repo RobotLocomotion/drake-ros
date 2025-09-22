@@ -28,16 +28,6 @@ import rclpy.time
 import tf2_ros
 
 
-def isolate_if_using_bazel():
-    # Do not require `make_unique_ros_isolation_env` module for CMake.
-    # TODO(eric.cousineau): Expose this to CMake in better location..
-    try:
-        from bazel_ros_env import make_unique_ros_isolation_env
-        os.environ.update(make_unique_ros_isolation_env())
-    except ImportError:
-        assert "TEST_TMPDIR" not in os.environ
-
-
 def test_nominal_case():
     drake_ros.core.init()
 
@@ -133,5 +123,11 @@ def test_nominal_case():
 
 
 if __name__ == '__main__':
-    isolate_if_using_bazel()
+    try:
+        from lib.ros_environment.unique import (
+            enforce_unique_ros_environment
+        )
+        enforce_unique_ros_environment()
+    except ImportError:
+        pass
     sys.exit(pytest.main(sys.argv))

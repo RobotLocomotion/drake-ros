@@ -1,3 +1,0 @@
-# When bazelisk in use, this dotfile specifies which version of Bazel should be
-# used to build and test.
-USE_BAZEL_VERSION=7.4.1

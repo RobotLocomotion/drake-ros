@@ -1,0 +1,61 @@
+module(name = "drake_ros_examples")
+
+bazel_dep(name = "rules_python", version = "1.5.1")
+
+DRAKE_COMMIT = "v1.43.0"
+
+DRAKE_CHECKSUM = (
+    "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
+)
+
+bazel_dep(name = "drake")
+archive_override(
+    module_name = "drake",
+    sha256 = DRAKE_CHECKSUM,
+    strip_prefix = "drake-{}".format(DRAKE_COMMIT.lstrip("v")),
+    urls = [x.format(DRAKE_COMMIT) for x in [
+        "https://github.com/RobotLocomotion/drake/archive/{}.tar.gz",
+    ]],
+)
+
+drake_dep_repositories = use_extension(
+    "@drake//tools/workspace:default.bzl",
+    "drake_dep_repositories",
+)
+use_repo(
+    drake_dep_repositories,
+    "drake_models",
+    "gflags",
+    "pycodestyle",
+    "python",
+    "styleguide",
+)
+
+bazel_dep(name = "drake_ros")
+local_path_override(
+    module_name = "drake_ros",
+    path = "../drake_ros",
+)
+
+bazel_dep(name = "bazel_ros2_rules")
+local_path_override(
+    module_name = "bazel_ros2_rules",
+    path = "../bazel_ros2_rules",
+)
+
+ROS_REQUIRED_PACKAGES = [
+    "rclpy",
+    "rviz2",
+    "std_msgs",
+]
+
+local_ros2 = use_extension(
+    "@bazel_ros2_rules//lib:extensions.bzl",
+    "local_ros2",
+)
+local_ros2.distribution(
+    include_packages = ROS_REQUIRED_PACKAGES,
+)
+use_repo(local_ros2, ros2 = "local_ros2")
+
+register_toolchains("@python//:all")

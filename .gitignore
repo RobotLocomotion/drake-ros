@@ -1,5 +1,8 @@
 bazel-*
+colcon-*
 **/__pycache__/
+**/MODULE.bazel.lock
+**/*.tar.gz
 
 # User-specified configuration
 /bazel_ros2_rules/user.bazelrc

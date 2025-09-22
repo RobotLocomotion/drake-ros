@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import os
 import os.path
@@ -100,7 +98,6 @@ def main():
             models[x].append(iiwa)
             plant.RenameModelInstance(model_instance=iiwa,
                                       name=model_name + str(x) + '_' + str(y))
-
 
             # Weld the robot to world so it doesn't fall through floor
             base_frame = plant.GetFrameByName("base", models[x][y])

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 NOR gate RS flip flop example
 Input topics /S and /R are active high (true is logic 1 and false is logic 0)
@@ -9,7 +8,7 @@ S: false R: false | Q: no change  Q_not: no change
 S: true  R: false | Q: false      Q_not: true
 S: false R: true  | Q: true       Q_not: false
 S: true  R: true  | Q: invalid    Q_not: invalid
-"""
+"""  # noqa
 import argparse
 
 import drake_ros.core
@@ -32,8 +31,12 @@ class NorGate(LeafSystem):
 
     def __init__(self):
         super().__init__()
-        self._a = self.DeclareAbstractInputPort("A", AbstractValue.Make(Bool()))
-        self._b = self.DeclareAbstractInputPort("B", AbstractValue.Make(Bool()))
+        self._a = self.DeclareAbstractInputPort(
+            "A", AbstractValue.Make(Bool())
+        )
+        self._b = self.DeclareAbstractInputPort(
+            "B", AbstractValue.Make(Bool())
+        )
 
         self.DeclareAbstractOutputPort(
             'Q',
@@ -52,7 +55,9 @@ class Memory(LeafSystem):
     def __init__(self, initial_value):
         super().__init__()
 
-        self._input = self.DeclareAbstractInputPort("A", AbstractValue.Make(initial_value))
+        self._input = self.DeclareAbstractInputPort(
+            "A", AbstractValue.Make(initial_value)
+        )
 
         self.DeclareAbstractState(AbstractValue.Make(initial_value))
 
@@ -62,7 +67,9 @@ class Memory(LeafSystem):
             self._calc_output_value,
             {self.all_state_ticket()})
 
-        self.DeclarePerStepEvent(UnrestrictedUpdateEvent(self._move_input_to_state))
+        self.DeclarePerStepEvent(
+            UnrestrictedUpdateEvent(self._move_input_to_state)
+        )
 
     def _move_input_to_state(self, context, event, state):
         state.get_mutable_abstract_state().get_mutable_value(0).SetFrom(
@@ -83,19 +90,21 @@ def main():
 
     drake_ros.core.init()
     builder = DiagramBuilder()
-    sys_ros_interface = builder.AddSystem(RosInterfaceSystem("rs_flip_flop_node"))
+    sys_ros_interface = builder.AddSystem(
+        RosInterfaceSystem("rs_flip_flop_node")
+    )
 
     qos = QoSProfile(depth=10)
 
-    sys_pub_Q = builder.AddSystem(
-        RosPublisherSystem.Make(Bool, "Q", qos, sys_ros_interface.get_ros_interface()))
-    sys_pub_Q_not = builder.AddSystem(
-        RosPublisherSystem.Make(Bool, "Q_not", qos, sys_ros_interface.get_ros_interface()))
+    sys_pub_Q = builder.AddSystem(RosPublisherSystem.Make(
+        Bool, "Q", qos, sys_ros_interface.get_ros_interface()))
+    sys_pub_Q_not = builder.AddSystem(RosPublisherSystem.Make(
+        Bool, "Q_not", qos, sys_ros_interface.get_ros_interface()))
 
-    sys_sub_S = builder.AddSystem(
-        RosSubscriberSystem.Make(Bool, "S", qos, sys_ros_interface.get_ros_interface()))
-    sys_sub_R = builder.AddSystem(
-        RosSubscriberSystem.Make(Bool, "R", qos, sys_ros_interface.get_ros_interface()))
+    sys_sub_S = builder.AddSystem(RosSubscriberSystem.Make(
+        Bool, "S", qos, sys_ros_interface.get_ros_interface()))
+    sys_sub_R = builder.AddSystem(RosSubscriberSystem.Make(
+        Bool, "R", qos, sys_ros_interface.get_ros_interface()))
 
     sys_nor_gate_1 = builder.AddSystem(NorGate())
     sys_nor_gate_2 = builder.AddSystem(NorGate())

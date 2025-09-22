@@ -25,23 +25,34 @@ onwards.
 
 ## Usage
 
-1. Add `bazel_ros2_rules` to your WORKSPACE (e.g. via `http_archive()`).
-
-1. Add `bazel_ros2_rules` dependencies to you WORKSPACE:
+1. Add `bazel_ros2_rules` to your MODULE.bazel e.g. via `archive_override()`:
 
 ```starlark
-load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
-add_bazel_ros2_rules_dependencies()
-```
-
-1. Bind a local ROS 2 workspace underlay in your WORKSPACE:
-
-```starlark
-load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
-ros2_local_repository(
-    name = "ros2",
-    workspaces = ["/opt/ros/<distro>"],
+bazel_dep(name = "bazel_ros2_rules")
+BAZEL_ROS2_RULES_CHECKSUM = ""
+BAZEL_ROS2_RULES_COMMIT = ""
+archive_override(
+    module_name = "bazel_ros2_rules",
+    sha256 = BAZEL_ROS2_RULES_CHECKSUM,
+    strip_prefix = "bazel_ros2_rules",
+    urls = [x.format(BAZEL_ROS2_RULES_COMMIT) for x in [
+        "https://github.com/RobotLocomotion/drake-ros/archive/{}.tar.gz",
+    ]],
 )
 ```
 
-For further documentation on available rules, refer to `ros2` package [documentation](ros2/README.md).
+2. Bind a local ROS 2 distribution:
+
+```starlark
+local_ros2 = use_extension(
+    "@bazel_ros2_rules//lib:extensions.bzl",
+    "local_ros2",
+)
+REQUIRED_ROS2_PACKAGES = []  # all by default
+local_ros2.distribution(
+    include_packages = REQUIRED_ROS2_PACKAGES,
+)
+use_repo(local_ros2, ros2 = "local_ros2")
+```
+
+For further documentation on available rules, refer to the `lib` package [documentation](lib/README.md).

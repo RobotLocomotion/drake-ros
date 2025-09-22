@@ -1,0 +1,16 @@
+# APT-SOURCE: http://*.ubuntu.com/ubuntu
+libeigen3-dev
+
+# APT-SOURCE: http://packages.ros.org/ros2/ubuntu
+ros-jazzy-geometry-msgs
+ros-jazzy-rclcpp
+ros-jazzy-rclpy
+ros-jazzy-rmw-cyclonedds-cpp
+ros-jazzy-rosgraph-msgs
+ros-jazzy-rosidl-runtime-c
+ros-jazzy-rosidl-typesupport-cpp
+ros-jazzy-test-msgs
+ros-jazzy-tf2-eigen
+ros-jazzy-tf2-ros
+ros-jazzy-tf2-ros-py
+ros-jazzy-visualization-msgs

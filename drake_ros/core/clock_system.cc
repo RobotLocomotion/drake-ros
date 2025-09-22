@@ -1,4 +1,4 @@
-#include "drake_ros/core/clock_system.h"
+#include "clock_system.h"
 
 #include <rclcpp/time.hpp>
 

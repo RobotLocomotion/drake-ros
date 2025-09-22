@@ -3,7 +3,7 @@
 #include "internal_name_conventions.h"  // NOLINT
 #include <gtest/gtest.h>
 
-TEST(NameConventions, CalcMarkerNamespace) {
+GTEST_TEST(NameConventions, CalcMarkerNamespace) {
   EXPECT_EQ("prefix_geometry_owning_source_name",
             drake_ros::viz::internal::CalcMarkerNamespace(
                 "prefix_", "geometry_owning_source_name"));
@@ -17,7 +17,7 @@ TEST(NameConventions, CalcMarkerNamespace) {
                 "prefix/", "model::geometry_owning_source_name"));
 }
 
-TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithBody) {
+GTEST_TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithBody) {
   // All names are present
   EXPECT_EQ("prefix/model_name/body_name/geometry_name",
             drake_ros::viz::internal::CalcHierarchicalMarkerNamespace(
@@ -40,7 +40,7 @@ TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithBody) {
                 "", "model_scope::model_name", "", ""));
 }
 
-TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithoutBody) {
+GTEST_TEST(NameConventions, CalcHierarchicalMarkerNamespaceWithoutBody) {
   // Geometry source and name is not empty
   EXPECT_EQ("prefix/geometry_source/geometry_name",
             drake_ros::viz::internal::CalcHierarchicalMarkerNamespace(

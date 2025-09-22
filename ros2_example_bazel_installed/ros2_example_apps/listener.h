@@ -1,3 +1,5 @@
+#pragma once
+
 #include <chrono>
 #include <future>
 #include <memory>
@@ -15,16 +17,14 @@ class Listener : public rclcpp::Node {
         "chatter", 10, std::bind(&Listener::topic_callback, this, _1));
   }
 
-  std::future<std_msgs::msg::String::SharedPtr>
-  NextMessage()
-  {
+  std::future<std_msgs::msg::String::SharedPtr> NextMessage() {
     promises_.emplace_back();
     return promises_.back().get_future();
   }
 
  private:
   void topic_callback(const std_msgs::msg::String::SharedPtr msg) {
-    for (auto & promise : promises_) {
+    for (auto& promise : promises_) {
       promise.set_value(msg);
     }
     promises_.clear();

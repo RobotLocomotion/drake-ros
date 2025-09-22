@@ -1,0 +1,14 @@
+# -*- python -*-
+package(default_visibility = ["//visibility:public"])
+
+# Forward CPython headers and libraries for macro consumption downstream,
+# as dependencies of module dependencies are not implicitly exposed.
+alias(
+    name = "libs",
+    actual = "@python//:libs",
+)
+
+alias(
+    name = "headers",
+    actual = "@python//:headers",
+)

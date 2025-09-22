@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -48,11 +47,11 @@ struct FullBodyName {
 
 // TODO(sloretz) make this conversion a public API
 void convert_color(const drake::geometry::Rgba& color,
-                   std_msgs::msg::ColorRGBA& color_out) {
-  color_out.r = color.r();
-  color_out.g = color.g();
-  color_out.b = color.b();
-  color_out.a = color.a();
+                   std_msgs::msg::ColorRGBA* color_out) {
+  color_out->r = color.r();
+  color_out->g = color.g();
+  color_out->b = color.b();
+  color_out->a = color.a();
 }
 
 std::string contact_name(const std::string& name1, const std::string& name2) {
@@ -89,7 +88,7 @@ double calc_uv(double pressure, double min_pressure, double max_pressure) {
 std::vector<uint8_t> GenerateHeatmapPng() {
   return
 #include "./heatmap_png.inc"
-      ;
+      ;  // NOLINT(whitespace/semicolon)
 }
 
 }  // namespace
@@ -207,7 +206,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     ball_msg.lifetime = kMarkerLifetime;
     ball_msg.frame_locked = true;
 
-    convert_color(impl_->params.default_color, ball_msg.color);
+    convert_color(impl_->params.default_color, &ball_msg.color);
 
     ball_msg.scale.x = kPointBallDiameter;
     ball_msg.scale.y = kPointBallDiameter;
@@ -229,7 +228,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     normal_msg.lifetime = kMarkerLifetime;
     normal_msg.frame_locked = true;
 
-    convert_color(impl_->params.default_color, normal_msg.color);
+    convert_color(impl_->params.default_color, &normal_msg.color);
 
     // Set line width
     normal_msg.scale.x = kPointNormalLength / 20.0;
@@ -277,7 +276,7 @@ void ContactMarkersSystem::CalcContactMarkers(
     face_msg.lifetime = kMarkerLifetime;
     face_msg.frame_locked = true;
 
-    convert_color(impl_->params.default_color, face_msg.color);
+    convert_color(impl_->params.default_color, &face_msg.color);
 
     face_msg.scale.x = 1.0;
     face_msg.scale.y = 1.0;

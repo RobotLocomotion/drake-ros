@@ -1,22 +1,15 @@
 #include <chrono>
 #include <memory>
 
+#include "lib/ros_environment/unique.h"
+#include "listener.h"
+#include "talker.h"
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 
-#include "rmw_isolation/rmw_isolation.h"
-
-#include "listener.h"
-#include "talker.h"
-
-
 int main(int argc, char* argv[]) {
-  const char* TEST_TMPDIR = std::getenv("TEST_TMPDIR");
-  if (TEST_TMPDIR != nullptr) {
-    std::string ros_home = std::string(TEST_TMPDIR) + "/.ros";
-    setenv("ROS_HOME", ros_home.c_str(), 1);
-    ros2::isolate_rmw_by_path(argv[0], TEST_TMPDIR);
-  }
+  bazel_ros2_rules::EnforceUniqueROSEnvironment();
+
   rclcpp::init(argc, argv);
 
   auto talker = std::make_shared<Talker>();
@@ -29,7 +22,7 @@ int main(int argc, char* argv[]) {
   auto got_message = listener->NextMessage();
 
   auto result =
-    exec.spin_until_future_complete(got_message, std::chrono::seconds(5));
+      exec.spin_until_future_complete(got_message, std::chrono::seconds(5));
 
   rclcpp::shutdown();
 

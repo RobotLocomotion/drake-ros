@@ -1,17 +1,17 @@
+#pragma once
+
 #include <chrono>
 #include <memory>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 
-
 class Talker : public rclcpp::Node {
  public:
-  Talker() : rclcpp::Node("talker"){
+  Talker() : rclcpp::Node("talker") {
     publisher_ = this->create_publisher<std_msgs::msg::String>("chatter", 10);
-    timer_ = this->create_wall_timer(
-        std::chrono::duration<double>(0.1),
-        std::bind(&Talker::timer_callback, this));
+    timer_ = this->create_wall_timer(std::chrono::duration<double>(0.1),
+                                     std::bind(&Talker::timer_callback, this));
   }
 
  private:

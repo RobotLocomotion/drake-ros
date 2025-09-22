@@ -1,9 +1,10 @@
 # -*- mode: python -*-
 # vi: set ft=python :
 
-load("@ros2//:ament_index.bzl", "ament_index_share_files")
+load("@bazel_ros2_rules//lib:ament_index.bzl", "ament_index_share_files")
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
+load("//tools/lint:lint.bzl", "add_lint_tests")
 
 # We use `ament_index_share_files` so we can write code that can find
 # resources both when built by CMake and by Bazel.
@@ -38,7 +39,7 @@ ros_cc_binary(
         "@drake//systems/primitives:constant_vector_source",
         "@drake//visualization:visualization_config",
         "@drake//visualization:visualization_config_functions",
-        "@drake_ros_repo//:drake_ros",
+        "@drake_ros",
         "@gflags",
     ],
 )
@@ -54,6 +55,9 @@ ros_py_test(
     main = "test/hydroelastic_test.py",
     rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
-        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
+        "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
+        "@rules_python//python/runfiles",
     ],
 )
+
+add_lint_tests()

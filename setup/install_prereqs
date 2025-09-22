@@ -1,0 +1,163 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [[ "${EUID}" -eq 0 && -n "${SUDO_USER:+D}" ]]; then
+  echo 'This script must NOT be run through sudo' >&2
+  exit 1
+fi
+
+MAYBE_SUDO=
+if [[ "${EUID}" -ne 0 ]]; then
+  MAYBE_SUDO=sudo
+fi
+
+### Constants
+
+SETUP_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+ASSETS_DIR="${SETUP_DIR}/assets"
+REPOSITORY_DIR=$(dirname "${SETUP_DIR}")
+
+ROS_DISTRO=jazzy
+DRAKE_VERSION=1.43.0
+UBUNTU_CODENAME=$(. /etc/os-release && echo $VERSION_CODENAME)
+
+### Functions
+
+cat_without_comments() {
+  cat $* | grep -v "^[[:space:]]*#"
+}
+
+install_drake_binary() {
+  DRAKE_BINARY_NAME=drake-${DRAKE_VERSION}-${UBUNTU_CODENAME}
+  DRAKE_BINARY_CHECKSUM="${ASSETS_DIR}/${DRAKE_BINARY_NAME}.tar.gz.sha256"
+  curl -fsSL -o ${DRAKE_BINARY_NAME}.tar.gz \
+    https://github.com/RobotLocomotion/drake/releases/download/v${DRAKE_VERSION}/${DRAKE_BINARY_NAME}.tar.gz
+  cat "${DRAKE_BINARY_CHECKSUM}" | sha256sum --check --status
+  ${MAYBE_SUDO} mkdir -p /opt/drake 
+  ${MAYBE_SUDO} tar -xzf ${DRAKE_BINARY_NAME}.tar.gz -C /opt/drake --strip-components 1
+  ${MAYBE_SUDO} /opt/drake/share/drake/setup/install_prereqs
+}
+
+fetch_drake_sources() {
+  DRAKE_SOURCE_NAME=drake-${DRAKE_VERSION}-source
+  DRAKE_SOURCE_CHECKSUM="${ASSETS_DIR}/${DRAKE_SOURCE_NAME}.tar.gz.sha256"
+  curl -L -o ${DRAKE_SOURCE_NAME}.tar.gz \
+    https://github.com/RobotLocomotion/drake/archive/v${DRAKE_VERSION}.tar.gz
+  cat "${DRAKE_SOURCE_CHECKSUM}" | sha256sum --check --status
+  mkdir -p drake && tar -xzf ${DRAKE_SOURCE_NAME}.tar.gz -C drake --strip-components 1
+}
+
+install_drake_from_sources() {
+  if [ ! -d drake ]; then
+    fetch_drake_sources
+  fi
+  ./drake/setup/ubuntu/install_prereqs --without-bazel
+  ${MAYBE_SUDO} apt install cmake build-essential
+  mkdir -p drake-build
+  cd drake-build
+  cmake -DCMAKE_INSTALL_PREFIX=/opt/drake ..
+  make -j$(nproc)
+  ${MAYBE_SUDO} make install
+}
+
+install_drake_prereqs() {
+ if [ ! -d drake ]; then
+    fetch_drake_sources
+  fi
+  ./drake/setup/install_prereqs --with-bazel
+}
+
+setup_ros_repositories() {
+  # Install ROS tooling as described in https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html
+  ${MAYBE_SUDO} apt install locales
+  ${MAYBE_SUDO} locale-gen en_US en_US.UTF-8
+  ${MAYBE_SUDO} update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+  export LANG=en_US.UTF-8
+
+  ${MAYBE_SUDO} apt install software-properties-common
+  ${MAYBE_SUDO} add-apt-repository universe
+
+  ROS_APT_SOURCE_VERSION=1.1.0
+  ROS_APT_SOURCE_BINARY_NAME=ros2-apt-source_${ROS_APT_SOURCE_VERSION}.${UBUNTU_CODENAME}_all
+  curl -L -o ${ROS_APT_SOURCE_BINARY_NAME}.deb \
+    "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/${ROS_APT_SOURCE_BINARY_NAME}.deb"
+  ${MAYBE_SUDO} apt install ./${ROS_APT_SOURCE_BINARY_NAME}.deb
+  ${MAYBE_SUDO} apt update
+}
+
+install_repository_rosdeps() {
+  ${MAYBE_SUDO} rosdep init || true
+  rosdep update
+  rosdep install -i --rosdistro ${ROS_DISTRO} --from-path ${REPOSITORY_DIR} --skip-keys drake
+}
+
+install_repository_prereqs() {
+  ${MAYBE_SUDO} apt install $(cat_without_comments ${SETUP_DIR}/packages-apt.txt)
+
+  for packages_path in ${REPOSITORY_DIR}/*/setup/packages-apt.txt; do
+    ${MAYBE_SUDO} apt install $(cat_without_comments ${packages_path})
+  done
+
+  for prereqs_path in ${REPOSITORY_DIR}/*/setup/prereqs.sh; do
+    source ${prereqs_path}
+  done
+}
+
+### Program
+
+OPTS=$(getopt -o C: --long with-bazel,with-colcon -n "install_prereqs" -- "$@")
+
+if [ $? -ne 0 ]; then
+  echo "Failed to parse options" >&2
+  exit 1
+fi
+
+eval set -- "$OPTS"
+
+WITH_BAZEL=false
+WITH_COLCON=false
+while true; do
+  case "$1" in
+    --with-bazel)
+      WITH_BAZEL=true
+      shift
+      ;;
+    --with-colcon)
+      WITH_COLCON=true
+      shift
+      ;;
+    -C)
+      mkdir -p "$2"
+      cd "$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Internal error!"
+      exit 1
+      ;;
+  esac
+done
+
+${MAYBE_SUDO} apt update
+${MAYBE_SUDO} apt install curl
+setup_ros_repositories
+
+if $WITH_BAZEL; then
+  install_drake_prereqs
+  install_repository_prereqs
+fi
+
+if $WITH_COLCON; then
+  if [ "$(dpkg --print-architecture)" != "amd64" ]; then
+    install_drake_from_sources
+  else
+    install_drake_binary
+  fi
+  ${MAYBE_SUDO} apt install ros-dev-tools
+  install_repository_rosdeps
+fi
