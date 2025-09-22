@@ -26,7 +26,7 @@ class MinimalSubscriber : public rclcpp::Node {
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
 
   const size_t max_count_;
-  size_t count_;
+  size_t count_{};
 };
 
 int main(int argc, char* argv[]) {

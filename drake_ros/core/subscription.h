@@ -25,32 +25,33 @@ class Subscription final : public rclcpp::SubscriptionBase {
   ~Subscription();
 
 #if RCLCPP_VERSION_GTE(18, 0, 0)
-  rclcpp::dynamic_typesupport::DynamicMessageType::SharedPtr
-  get_shared_dynamic_message_type() override {
+  using DynamicMessage = rclcpp::dynamic_typesupport::DynamicMessage;
+  using DynamicMessageType = rclcpp::dynamic_typesupport::DynamicMessageType;
+  using DynamicSerializationSupport =
+      rclcpp::dynamic_typesupport::DynamicSerializationSupport;
+
+  DynamicMessageType::SharedPtr get_shared_dynamic_message_type() override {
     throw rclcpp::exceptions::UnimplementedError(
         "get_shared_dynamic_message_type is not implemented for Subscription");
   }
 
-  rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr
-  get_shared_dynamic_message() override {
+  DynamicMessage::SharedPtr get_shared_dynamic_message() override {
     throw rclcpp::exceptions::UnimplementedError(
         "get_shared_dynamic_message is not implemented for Subscription");
   }
 
-  rclcpp::dynamic_typesupport::DynamicSerializationSupport::SharedPtr
+  DynamicSerializationSupport::SharedPtr
   get_shared_dynamic_serialization_support() override {
     throw rclcpp::exceptions::UnimplementedError(
         "get_shared_dynamic_serialization_support is not implemented for "
         "Subscription");
   }
 
-  rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr
-  create_dynamic_message() override {
+  DynamicMessage::SharedPtr create_dynamic_message() override {
     throw rclcpp::exceptions::UnimplementedError(
         "create_dynamic_message is not implemented for Subscription");
   }
 
-  using DynamicMessage = rclcpp::dynamic_typesupport::DynamicMessage;
   // NOLINTNEXTLINE(runtime/references)
   void return_dynamic_message(DynamicMessage::SharedPtr& message) override {
     (void)message;
@@ -59,7 +60,7 @@ class Subscription final : public rclcpp::SubscriptionBase {
   }
 
   void handle_dynamic_message(
-      const rclcpp::dynamic_typesupport::DynamicMessage::SharedPtr& message,
+      const DynamicMessage::SharedPtr& message,
       const rclcpp::MessageInfo& message_info) override {
     (void)message;
     (void)message_info;

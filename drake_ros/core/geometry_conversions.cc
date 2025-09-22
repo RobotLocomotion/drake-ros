@@ -1,4 +1,4 @@
-#include "geometry_conversions.h"
+#include "drake_ros/core/geometry_conversions.h"
 
 namespace drake_ros {
 namespace core {

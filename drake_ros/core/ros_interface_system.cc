@@ -1,4 +1,4 @@
-#include "ros_interface_system.h"
+#include "drake_ros/core/ros_interface_system.h"
 
 #include <limits>
 #include <memory>

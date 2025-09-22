@@ -1,4 +1,4 @@
-#include "drake_ros.h"
+#include "drake_ros/core/drake_ros.h"
 
 #include <chrono>
 #include <memory>

@@ -1,12 +1,11 @@
-#include "ros_publisher_system.h"
+#include "drake_ros/core/ros_publisher_system.h"
 
 #include <memory>
 #include <string>
 #include <unordered_set>
 #include <utility>
 
-#include "publisher.h"
-
+#include "drake_ros/core/publisher.h"
 #include "drake_ros/core/serializer_interface.h"
 
 namespace drake_ros {

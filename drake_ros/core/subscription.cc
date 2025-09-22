@@ -1,4 +1,4 @@
-#include "subscription.h"  // NOLINT(build/include)
+#include "drake_ros/core/subscription.h"
 
 #include <memory>
 #include <string>

@@ -1,4 +1,4 @@
-#include "publisher.h"  // NOLINT(build/include)
+#include "drake_ros/core/publisher.h"
 
 #include <string>
 
