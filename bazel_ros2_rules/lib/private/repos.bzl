@@ -66,6 +66,12 @@ def base_ros2_repository(repo_ctx, workspaces):
 
     env = {"PYTHONPATH": "."}
 
+    # Propagate allowed system library patterns to the scraping tools.
+    # The list is provided as a colon-separated string in the environment.
+    # if getattr(repo_ctx.attr, 'allowed_system_libs', []):
+    env["ROS2RULES_ALLOWED_SYSTEM_LIBS"] = \
+        ":".join(repo_ctx.attr.allowed_system_libs)
+
     repo_ctx.report_progress("Generating distro_metadata.json")
     path_to_scrape_distribution_tool = repo_ctx.path(
         repo_ctx.attr._scrape_distribution_tool,
@@ -184,5 +190,13 @@ def base_ros2_repository_attributes():
             default = _label("scripts/compute_system_rosdeps.py"),
             doc = "Tool to compute system rosdep keys for target " +
                   "distribution.",
+        ),
+        "allowed_system_libs": attr.string_list(
+            doc = "Optional list of regular expressions (strings) that " +
+                  "will be added to the scraping tool's allowed system libs " +
+                  "list. Each entry must be a valid regular expression. " +
+                  "Useful to whitelist specific system libs " +
+                  "(e.g. libfoo\\.so[.0-9]*).",
+            default = [],
         ),
     }
