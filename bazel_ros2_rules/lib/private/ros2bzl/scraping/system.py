@@ -39,7 +39,7 @@ def system_link_dirs():
 
     for directory in re.findall(r'SEARCH_DIR\("=([^=]+)"\)', output):
         if os.path.isdir(directory):
-            link_dirs.add(directory)
+            link_dirs.add(os.path.realpath(directory))
     # Filter empty strings
     return tuple([d for d in link_dirs if d])
 
@@ -58,7 +58,7 @@ def system_shared_lib_dirs():
 
     for directory in re.findall(r'(/[^:\t\n]+):', output):
         if os.path.isdir(directory):
-            lib_dirs.add(directory)
+            lib_dirs.add(os.path.realpath(directory))
     # Workaround Singularity redirects, e.g. for `--nv`.
     lib_dirs.add("/.singularity.d/libs")
     # Filter empty strings
