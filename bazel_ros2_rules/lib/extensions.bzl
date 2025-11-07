@@ -17,9 +17,9 @@ def _local_ros2_implementation(module_ctx):
                 "ROS 2 distribution per workspace",
             )
         distro = module.tags.distribution[0]
+        allowed_system_libs += distro.allowed_system_libs
         include_packages += distro.include_packages
         exclude_packages += distro.exclude_packages
-        allowed_system_libs += distro.allowed_system_libs
         if len(distro.overlays) > 0:
             if not module.is_root:
                 fail("Only the root module can specify ROS 2 overlays")
