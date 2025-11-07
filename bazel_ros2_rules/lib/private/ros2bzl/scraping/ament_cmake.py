@@ -19,6 +19,21 @@ _ALLOWED_SYSTEM_LIBS = [
     re.compile(r"libconsole_bridge\.so[.0-9]*"),
 ]
 
+# Allow callers (e.g. the Bazel module extension) to append additional
+# allowed system library patterns via the environment.
+# The environment variable is expected to contain a colon-separated
+# list of regular expressions.
+env_allowed_system_libs = os.environ.get('ROS2RULES_ALLOWED_SYSTEM_LIBS', '')
+patterns = [pat for pat in env_allowed_system_libs.split(':')]
+_ALLOWED_SYSTEM_LIBS.extend(
+    re.compile(pat) for pat in patterns if pat
+)
+
+
+def library_in_regex_list(library, regex_list):
+    basename = os.path.basename(library)
+    return any(regex.fullmatch(basename) for regex in regex_list)
+
 
 def collect_ament_cmake_shared_library_codemodel(
     target, additional_libraries
@@ -72,13 +87,11 @@ def collect_ament_cmake_shared_library_codemodel(
             if library in link_libraries:
                 continue
             if is_system_library(library):
-                if library.startswith('/usr/local'):
+                if library_in_regex_list(library, _ALLOWED_SYSTEM_LIBS):
+                    link_flags.append('-L' + os.path.dirname(library))
+                    link_flags.append('-l:' + os.path.basename(library))
+                elif library.startswith('/usr/local'):
                     local_link_libraries.append(library)
-                for allowed_regex in _ALLOWED_SYSTEM_LIBS:
-                    if allowed_regex.fullmatch(os.path.basename(library)):
-                        link_flags.append('-L' + os.path.dirname(library))
-                        link_flags.append('-l:' + os.path.basename(library))
-                        break
                 continue
             link_libraries.append(library)
     # Fail on any /usr/local libraries

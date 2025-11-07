@@ -4,6 +4,7 @@ load("//lib:repos.bzl", "ros2_local_repository")
 load("//lib/private:utilities.bzl", "find_local_ros2_distribution")
 
 def _local_ros2_implementation(module_ctx):
+    allowed_system_libs = []
     include_packages = []
     exclude_packages = []
     overlays = []
@@ -16,6 +17,7 @@ def _local_ros2_implementation(module_ctx):
                 "ROS 2 distribution per workspace",
             )
         distro = module.tags.distribution[0]
+        allowed_system_libs += distro.allowed_system_libs
         include_packages += distro.include_packages
         exclude_packages += distro.exclude_packages
         if len(distro.overlays) > 0:
@@ -47,6 +49,7 @@ def _local_ros2_implementation(module_ctx):
         exclude_packages = exclude_packages,
         workspaces = [underlay] + overlays,
         jobs = jobs,
+        allowed_system_libs = allowed_system_libs,
     )
 
 # NOTE: This precludes multi-distro setups. That is, there can only be one
@@ -84,6 +87,13 @@ will share the same installation.
                       "configuration and scrapping. " +
                       "Defaults to using all cores.",
                 default = 0,
+            ),
+            "allowed_system_libs": attr.string_list(
+                doc = "Optional list of regular expressions (strings) to " +
+                      "whitelist system libraries for the scraping tool. " +
+                      "Each entry should be a regular expression matching " +
+                      "the library basename (e.g. libfoo\\.so[.0-9]*).",
+                default = [],
             ),
         }),
     },
