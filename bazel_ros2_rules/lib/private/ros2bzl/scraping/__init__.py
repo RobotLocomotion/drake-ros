@@ -10,6 +10,8 @@ from ros2bzl.scraping.python import (
     get_packages_with_prefixes as get_python_packages_with_prefixes
 )
 
+from ros2bzl.utilities import ordered_set
+
 
 def list_all_executables():
     # Delay import to allow testing most of ros2bzl without a ros2 workspace
@@ -53,20 +55,20 @@ def index_all_packages():
 
 
 def build_dependency_graph(packages, include=None, exclude=None):
-    package_set = set(packages)
+    package_set = ordered_set(packages)
     if include:
-        include = set(include)
-        if not package_set.issuperset(include):
-            unknown_packages = tuple(include.difference(package_set))
+        include = ordered_set(include)
+        if not all(p in package_set for p in include):
+            unknown_packages = [p for p in include if p not in package_set]
             msg = 'Cannot find package'
             if len(unknown_packages) == 1:
                 msg += ' ' + repr(unknown_packages[0])
             else:
                 msg += 's ' + repr(unknown_packages)
             raise RuntimeError(msg)
-        package_set &= include
+        package_set = include
     if exclude:
-        package_set -= exclude
+        package_set = [p for p in package_set if p not in exclude]
 
     groups = {}
     for name, metadata in packages.items():
@@ -80,22 +82,22 @@ def build_dependency_graph(packages, include=None, exclude=None):
     while package_set:
         name = package_set.pop()
         metadata = packages[name]
-        dependencies = set(metadata.get('build_export_dependencies', []))
-        dependencies.update(metadata.get('run_dependencies', []))
+        dependencies = metadata.get('build_export_dependencies', [])
+        dependencies += metadata.get('run_dependencies', [])
         if 'group_dependencies' in metadata:
             for group_name in metadata['group_dependencies']:
-                dependencies.update(groups[group_name])
+                dependencies += groups[group_name]
         if exclude:
             dependencies -= exclude
         # Ignore system, non-ROS dependencies
         # NOTE(hidmic): shall we sandbox those too?
-        dependencies = {
+        dependencies = ordered_set([
             dependency_name
             for dependency_name in dependencies
             if dependency_name in packages
-        }
+        ])
         dependency_graph[name] = dependencies
-        package_set.update(dependencies)
+        package_set += [d for d in dependencies if d not in package_set]
 
     packages = {name: packages[name] for name in dependency_graph}
 

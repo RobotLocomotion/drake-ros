@@ -9,6 +9,8 @@ import re
 import subprocess
 import sys
 
+from ros2bzl.utilities import ordered_set
+
 # Standard include files' search paths for compilers in Linux systems.
 # Useful to detect system includes in package exported configuration.
 DEFAULT_INCLUDE_DIRECTORIES = ['/usr/include', '/usr/local/include']
@@ -94,8 +96,8 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
     paths = []
     if link_directories:
         paths.extend(link_directories)
-    paths.extend(set(os.environ.get('LIBRARY_PATH', '').split(':')))
-    paths.extend(set(os.environ.get('LD_LIBRARY_PATH', '').split(':')))
+    paths.extend(ordered_set(os.environ.get('LIBRARY_PATH', '').split(':')))
+    paths.extend(ordered_set(os.environ.get('LD_LIBRARY_PATH', '').split(':')))
     paths.extend(system_link_dirs())
     paths.extend(system_shared_lib_dirs())
 
