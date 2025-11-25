@@ -16,6 +16,7 @@ from ros2bzl.utilities import ordered_set
 DEFAULT_INCLUDE_DIRECTORIES = ['/usr/include', '/usr/local/include']
 
 
+@lru_cache(maxsize=None)
 def is_system_include(include_path):
     """
     Checks whether `include_path` is in a system include directory
@@ -67,6 +68,7 @@ def system_shared_lib_dirs():
     return tuple([d for d in lib_dirs if d])
 
 
+@lru_cache(maxsize=None)
 def is_system_library(library_path):
     """
     Checks whether `library_path` is in a system library directory
@@ -128,6 +130,7 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
 LDD_LINE_PATTERN = re.compile(r' => (/(?:[^\(\)\s]*/)*lib[^\(\)\s]*)')
 
 
+@lru_cache(maxsize=None)
 def find_library_dependencies(library_path):
     """
     Lists all shared library dependencies of a given library.
@@ -146,10 +149,11 @@ def find_library_dependencies(library_path):
             stderr=subprocess.DEVNULL,
             encoding='utf8'
         ).stdout.strip().split('\n')
+        ret = []
         for line in lines:
             match = LDD_LINE_PATTERN.search(line.strip())
             if match:
-                yield match.group(1)
+                ret.append(match.group(1))
+        return ret
     except Exception:
-        pass
-    return
+        return []

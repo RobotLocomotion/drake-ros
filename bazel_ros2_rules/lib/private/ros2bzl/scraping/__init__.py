@@ -1,3 +1,4 @@
+import copy
 import os
 
 from cmake_tools import get_packages_with_prefixes
@@ -82,13 +83,13 @@ def build_dependency_graph(packages, include=None, exclude=None):
     while package_set:
         name = package_set.pop()
         metadata = packages[name]
-        dependencies = metadata.get('build_export_dependencies', [])
-        dependencies += metadata.get('run_dependencies', [])
+        dependencies = copy.deepcopy(metadata.get('build_export_dependencies', []))
+        dependencies += [dep for dep in metadata.get('run_dependencies', []) if dep not in dependencies]
         if 'group_dependencies' in metadata:
             for group_name in metadata['group_dependencies']:
-                dependencies += groups[group_name]
+                dependencies += [dep for dep in groups[group_name] if dep not in dependencies]
         if exclude:
-            dependencies -= exclude
+            dependencies = [dep for dep in dependencies if dep not in exclude]
         # Ignore system, non-ROS dependencies
         # NOTE(hidmic): shall we sandbox those too?
         dependencies = ordered_set([
@@ -97,7 +98,7 @@ def build_dependency_graph(packages, include=None, exclude=None):
             if dependency_name in packages
         ])
         dependency_graph[name] = dependencies
-        package_set += [d for d in dependencies if d not in package_set]
+        package_set += [d for d in dependencies if d not in package_set and d not in dependency_graph]
 
     packages = {name: packages[name] for name in dependency_graph}
 
