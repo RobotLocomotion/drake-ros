@@ -1,5 +1,7 @@
 module(name = "drake_ros")
 
+bazel_dep(name = "rules_cc", version = "0.1.1")
+
 DRAKE_COMMIT = "v1.43.0"
 
 DRAKE_CHECKSUM = (
