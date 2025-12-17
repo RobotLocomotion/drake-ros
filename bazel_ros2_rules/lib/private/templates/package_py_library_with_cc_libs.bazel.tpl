@@ -14,7 +14,7 @@ py_library(
        ] + [
          "{}/*".format(x) for x in @eggs@
        ],
-       exclude=["**/*.py", "**/*.so"],
+       exclude=["**/*.py", "**/*.pyc", "**/*.so"],
        allow_empty = True,
     ) + @data@,
     imports = @imports@,
