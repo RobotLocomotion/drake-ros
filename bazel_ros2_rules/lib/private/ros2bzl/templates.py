@@ -188,8 +188,8 @@ def configure_package_py_library(
             template = 'templates/package_py_library_with_cc_libs.bazel.tpl'
             config.update({
                 'cc_name': c_name("_" + target_name, metadata),
-                'cc_libs': [
-                    sandbox(lib) for lib in properties.cc_libraries],
+                'cc_libs': sorted([
+                    sandbox(lib) for lib in properties.cc_libraries]),
                 'cc_deps': cc_deps
             })
             data.append(c_label("_" + target_name, metadata))
