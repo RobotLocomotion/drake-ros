@@ -1,5 +1,5 @@
+load("@drake//tools/lint:lint.bzl", "add_lint_tests")
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 package(default_visibility = ["//visibility:private"])
 

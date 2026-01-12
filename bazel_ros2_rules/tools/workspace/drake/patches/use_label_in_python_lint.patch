@@ -1,0 +1,24 @@
+--- tools/lint/python_lint.bzl
++++ tools/lint/python_lint.bzl
+@@ -13,8 +13,8 @@ def _python_lint(
+     sh_test(
+         name = name_prefix + "_ruff_check_lint",
+         size = "small",
+-        srcs = ["@ruff"],
+-        data = ["//:.ruff.toml"] + files,
++        srcs = [Label("@ruff")],
++        data = [Label("//:.ruff.toml")] + files,
+         args = ["check"] + locations,
+         tags = ["ruff", "lint"],
+     )
+@@ -23,8 +23,8 @@ def _python_lint(
+     sh_test(
+         name = name_prefix + "_ruff_format_lint",
+         size = "small",
+-        srcs = ["//tools/lint:ruff_format_lint.sh"],
+-        data = ["@ruff", "//:.ruff.toml"] + files,
++        srcs = [Label("//tools/lint:ruff_format_lint.sh")],
++        data = [Label("@ruff"), Label("//:.ruff.toml")] + files,
+         args = locations,
+         tags = ["ruff", "lint"],
+     )
