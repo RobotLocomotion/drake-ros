@@ -20,6 +20,6 @@ ros_py_binary(
         # generated definitions as a dependency. Ideally, it should come
         # through a "roll-up" target.
         "//:ros_msgs_all_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )

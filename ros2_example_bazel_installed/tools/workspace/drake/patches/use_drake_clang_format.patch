@@ -1,0 +1,11 @@
+--- tools/lint/BUILD.bazel
++++ tools/lint/BUILD.bazel
+@@ -46,7 +46,7 @@ drake_py_library(
+     testonly = 1,
+     srcs = ["clang_format.py"],
+     data = [
+-        "//:.clang-format",
++        "@drake//:.clang-format",
+         "@llvm//:bin/clang-format",
+     ],
+     deps = [

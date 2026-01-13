@@ -18,7 +18,7 @@ cc_library(
 py_library(
     name = "dload_shim_py",
     srcs = ["dload_shim.py"],
-    deps = ["@bazel_tools//tools/python/runfiles"],
+    deps = ["@rules_python//python/runfiles"],
 )
 
 add_lint_tests()
