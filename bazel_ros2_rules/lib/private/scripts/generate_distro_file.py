@@ -77,6 +77,7 @@ def generate_distro_file_content(
     packages = distro['packages']
     ament_prefix_paths = distro['paths']['ament_prefix']
     library_load_paths = distro['paths']['library_load']
+    python_paths = distro['paths'].get('python', [])
     ros_distro = distro['ros_distro']
     return interpolate(
         load_resource('templates/distro.bzl.tpl'),
@@ -85,6 +86,8 @@ def generate_distro_file_content(
                 sandbox(path, external=True) for path in ament_prefix_paths],
             'LOAD_PATHS': [
                 sandbox(path, external=True) for path in library_load_paths],
+            'PYTHON_PATHS': [
+                sandbox(path, external=True) for path in python_paths],
             'AVAILABLE_TYPESUPPORT_LIST': [
                 name for name, metadata in packages.items()
                 if 'groups' in metadata and any(
