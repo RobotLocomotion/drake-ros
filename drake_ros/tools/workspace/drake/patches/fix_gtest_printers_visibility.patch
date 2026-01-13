@@ -1,0 +1,15 @@
+--- common/test_utilities/BUILD.bazel
++++ common/test_utilities/BUILD.bazel
+@@ -84,11 +84,7 @@ drake_cc_library(
+     ],
+     tags = ["exclude_from_package"],
+     visibility = [
+-        # We allow two spellings for where gtest came from -- the bazel central
+-        # registry @googletest, or our traditional module extension @gtest.
+-        "@googletest//:__pkg__",
+-        # Remove on 2026-01-01 per @gtest deprecation.
+-        "@gtest//:__pkg__",
++        "//visibility:public",
+     ],
+     deps = [
+         "//common:fmt",

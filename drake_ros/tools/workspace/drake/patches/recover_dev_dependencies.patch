@@ -1,0 +1,18 @@
+--- MODULE.bazel
++++ MODULE.bazel
+@@ -165,7 +165,6 @@ use_repo(maven, "drake_maven_internal")
+ bazel_dep(
+     name = "buildifier_prebuilt",
+     version = "8.2.1",
+-    dev_dependency = True,
+ )
+
+ bazel_dep(
+@@ -211,7 +210,6 @@ single_version_override(
+ bazel_dep(
+     name = "ruff_prebuilt",
+     version = "0.14.4.2",
+-    dev_dependency = True,
+     repo_name = "ruff",
+ )
+
