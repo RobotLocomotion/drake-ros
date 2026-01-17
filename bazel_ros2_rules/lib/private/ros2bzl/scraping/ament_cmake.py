@@ -167,7 +167,7 @@ def collect_ament_cmake_package_properties(name, metadata):
         build_path = project_path.joinpath('build')
         build_path.mkdir()
         try:
-            codemodel = get_cmake_codemodel(project_path, build_path)
+            codemodel = get_cmake_codemodel(project_path, build_path, name)
         except RuntimeError as e:
             message = f"Error occured while generating build for {name}"
             raise RuntimeError(message)
