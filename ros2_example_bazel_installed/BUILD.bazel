@@ -11,12 +11,7 @@ load(
     "ros_py_test",
 )
 load("//tools:cmd_test.bzl", "cmd_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
-
-exports_files([
-    "CPPLINT.cfg",
-    ".clang-format",
-])
+load("@drake//tools/lint:lint.bzl", "add_lint_tests")
 
 # TODO(hidmic): make linter more user-friendly
 cmd_test(
@@ -45,7 +40,7 @@ ros_py_test(
     srcs = ["test/runfiles_test.py"],
     data = ["test/runfiles_test_data.txt"],
     main = "test/runfiles_test.py",
-    deps = ["@bazel_tools//tools/python/runfiles"],
+    deps = ["@rules_python//python/runfiles"],
 )
 
 ros_cc_binary(
@@ -75,7 +70,7 @@ py_test(
         ":shimmed_sentinel_py",
     ],
     deps = [
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 

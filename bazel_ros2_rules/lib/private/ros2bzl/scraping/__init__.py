@@ -7,16 +7,17 @@ from ros2bzl.scraping.metadata import collect_python_package_metadata
 from ros2bzl.scraping.metadata import collect_ros_package_metadata
 
 from ros2bzl.scraping.python import (
-    get_packages_with_prefixes as get_python_packages_with_prefixes
+    get_packages_with_prefixes as get_python_packages_with_prefixes,
 )
 
 
 def list_all_executables():
     # Delay import to allow testing most of ros2bzl without a ros2 workspace
     import ament_index_python
+
     executables = {}
     for prefix in ament_index_python.get_packages_with_prefixes().values():
-        bindir = os.path.join(prefix, 'bin')
+        bindir = os.path.join(prefix, "bin")
         if not os.path.isdir(bindir):
             continue
         for path in os.listdir(bindir):
@@ -31,10 +32,10 @@ def list_all_executables():
 def index_all_packages():
     # Delay import to allow testing most of ros2bzl without a ros2 workspace
     import ament_index_python
+
     packages = {
         name: collect_ros_package_metadata(name, prefix)
-        for name, prefix in
-        ament_index_python.get_packages_with_prefixes().items()
+        for name, prefix in ament_index_python.get_packages_with_prefixes().items()
     }
     search_paths = ament_index_python.get_search_paths()
     cmake_packages = get_packages_with_prefixes(search_paths)
@@ -58,11 +59,11 @@ def build_dependency_graph(packages, include=None, exclude=None):
         include = set(include)
         if not package_set.issuperset(include):
             unknown_packages = tuple(include.difference(package_set))
-            msg = 'Cannot find package'
+            msg = "Cannot find package"
             if len(unknown_packages) == 1:
-                msg += ' ' + repr(unknown_packages[0])
+                msg += " " + repr(unknown_packages[0])
             else:
-                msg += 's ' + repr(unknown_packages)
+                msg += "s " + repr(unknown_packages)
             raise RuntimeError(msg)
         package_set &= include
     if exclude:
@@ -70,9 +71,9 @@ def build_dependency_graph(packages, include=None, exclude=None):
 
     groups = {}
     for name, metadata in packages.items():
-        if 'groups' not in metadata:
+        if "groups" not in metadata:
             continue
-        for group_name in metadata['groups']:
+        for group_name in metadata["groups"]:
             groups.setdefault(group_name, [])
             groups[group_name].append(name)
 
@@ -80,10 +81,10 @@ def build_dependency_graph(packages, include=None, exclude=None):
     while package_set:
         name = package_set.pop()
         metadata = packages[name]
-        dependencies = set(metadata.get('build_export_dependencies', []))
-        dependencies.update(metadata.get('run_dependencies', []))
-        if 'group_dependencies' in metadata:
-            for group_name in metadata['group_dependencies']:
+        dependencies = set(metadata.get("build_export_dependencies", []))
+        dependencies.update(metadata.get("run_dependencies", []))
+        if "group_dependencies" in metadata:
+            for group_name in metadata["group_dependencies"]:
                 dependencies.update(groups[group_name])
         if exclude:
             dependencies -= exclude
@@ -105,18 +106,34 @@ def build_dependency_graph(packages, include=None, exclude=None):
 def scrape_distribution(include=None, exclude=None):
     # Delay import to allow testing most of ros2bzl without a ros2 workspace
     import ament_index_python
+    import sys
+
     packages, dependency_graph = build_dependency_graph(
-        index_all_packages(), include, exclude)
+        index_all_packages(), include, exclude
+    )
     executables = list_all_executables()
-    ld_library_path = os.environ['LD_LIBRARY_PATH']
-    ros_distro = os.environ['ROS_DISTRO']
+    ld_library_path = os.environ["LD_LIBRARY_PATH"]
+    ros_distro = os.environ["ROS_DISTRO"]
+
+    # Collect Python site-packages paths from ament prefixes
+    # Since rules_python 1.7.0 python paths aren't automatically propagated
+    python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
+    python_paths = []
+    for prefix in ament_index_python.get_search_paths():
+        python_site_packages = os.path.join(
+            prefix, "lib", python_version, "site-packages"
+        )
+        if os.path.isdir(python_site_packages):
+            python_paths.append(python_site_packages)
+
     return {
-        'packages': packages,
-        'dependency_graph': dependency_graph,
-        'executables': executables,
-        'ros_distro': ros_distro,
-        'paths': {
-            'ament_prefix': ament_index_python.get_search_paths(),
-            'library_load': ld_library_path.split(os.path.pathsep),
-        }
+        "packages": packages,
+        "dependency_graph": dependency_graph,
+        "executables": executables,
+        "ros_distro": ros_distro,
+        "paths": {
+            "ament_prefix": ament_index_python.get_search_paths(),
+            "library_load": ld_library_path.split(os.path.pathsep),
+            "python": python_paths,
+        },
     }

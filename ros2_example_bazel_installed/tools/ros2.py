@@ -8,7 +8,7 @@ Bazel-based entry point for `ros2` binary, e.g.
 import os
 import sys
 
-from bazel_tools.tools.python.runfiles import runfiles as runfiles_api
+from python.runfiles import runfiles as runfiles_api
 
 
 def main():

@@ -1,6 +1,6 @@
+load("@drake//tools/lint:lint.bzl", "add_lint_tests")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_python//python:defs.bzl", "py_library")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -18,7 +18,7 @@ cc_library(
 py_library(
     name = "dload_shim_py",
     srcs = ["dload_shim.py"],
-    deps = ["@bazel_tools//tools/python/runfiles"],
+    deps = ["@rules_python//python/runfiles"],
 )
 
 add_lint_tests()

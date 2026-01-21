@@ -23,11 +23,9 @@ _ALLOWED_SYSTEM_LIBS = [
 # allowed system library patterns via the environment.
 # The environment variable is expected to contain a colon-separated
 # list of regular expressions.
-env_allowed_system_libs = os.environ.get('ROS2RULES_ALLOWED_SYSTEM_LIBS', '')
-patterns = [pat for pat in env_allowed_system_libs.split(':')]
-_ALLOWED_SYSTEM_LIBS.extend(
-    re.compile(pat) for pat in patterns if pat
-)
+env_allowed_system_libs = os.environ.get("ROS2RULES_ALLOWED_SYSTEM_LIBS", "")
+patterns = [pat for pat in env_allowed_system_libs.split(":")]
+_ALLOWED_SYSTEM_LIBS.extend(re.compile(pat) for pat in patterns if pat)
 
 
 def library_in_regex_list(library, regex_list):
@@ -38,7 +36,7 @@ def library_in_regex_list(library, regex_list):
 def collect_ament_cmake_shared_library_codemodel(
     target, additional_libraries
 ) -> CcProperties:
-    assert 'SHARED_LIBRARY' == target.target_type
+    assert "SHARED_LIBRARY" == target.target_type
 
     link_flags = []
     for flag in target.link_flags:
@@ -51,10 +49,10 @@ def collect_ament_cmake_shared_library_codemodel(
     libraries = []
     for item in target.link_libraries:
         item = item.strip()
-        if item.startswith('-Wl,-rpath'):
+        if item.startswith("-Wl,-rpath"):
             # Ignore rpath setting flags
             continue
-        if item.startswith('-') and not item.startswith('-l'):
+        if item.startswith("-") and not item.startswith("-l"):
             link_flags.append(item)
             continue
         libraries.append(item)
@@ -65,12 +63,12 @@ def collect_ament_cmake_shared_library_codemodel(
     local_link_libraries = []
     for library in libraries:
         if not os.path.isabs(library):
-            if library.startswith('-l'):
+            if library.startswith("-l"):
                 library = library[2:]
             library = find_library_path(
                 library,
                 # Use linker options as well
-                link_flags=link_flags
+                link_flags=link_flags,
             )
             if not library:
                 # Ignore and keep going
@@ -79,25 +77,23 @@ def collect_ament_cmake_shared_library_codemodel(
         # NOTE(hidmic): can the CMake registry be used instead
         # of the ament index to mitigate this?
         library_plus_dependencies = [library]
-        library_plus_dependencies += list(
-            find_library_dependencies(library)
-        )
+        library_plus_dependencies += list(find_library_dependencies(library))
         # Remove duplicates maintaining order.
         for library in library_plus_dependencies:
             if library in link_libraries:
                 continue
             if is_system_library(library):
                 if library_in_regex_list(library, _ALLOWED_SYSTEM_LIBS):
-                    link_flags.append('-L' + os.path.dirname(library))
-                    link_flags.append('-l:' + os.path.basename(library))
-                elif library.startswith('/usr/local'):
+                    link_flags.append("-L" + os.path.dirname(library))
+                    link_flags.append("-l:" + os.path.basename(library))
+                elif library.startswith("/usr/local"):
                     local_link_libraries.append(library)
                 continue
             link_libraries.append(library)
     # Fail on any /usr/local libraries
     if local_link_libraries:
-        error_message = 'Found libraries under /usr/local: '
-        error_message += ', '.join(local_link_libraries)
+        error_message = "Found libraries under /usr/local: "
+        error_message += ", ".join(local_link_libraries)
         raise RuntimeError(error_message)
 
     local_include_directories = []
@@ -105,20 +101,20 @@ def collect_ament_cmake_shared_library_codemodel(
     for path in target.includes + target.system_includes:
         include_directories.append(path)
         if is_system_include(path):
-            if path.startswith('/usr/local'):
+            if path.startswith("/usr/local"):
                 local_include_directories.append(path)
             continue
         include_directories.append(path)
     # Fail on any /usr/local include directories
     if local_include_directories:
-        error_message = 'Found include directories under /usr/local: '
-        error_message += ', '.join(local_include_directories)
+        error_message = "Found include directories under /usr/local: "
+        error_message += ", ".join(local_include_directories)
         raise RuntimeError(error_message)
 
     defines = []
     ignored_defines = [
         # CMake always creates this to help with Win32 dllimport/export macros
-        target.name + '_EXPORTS'
+        target.name + "_EXPORTS"
     ]
     for define in target.defines:
         if define in ignored_defines:
@@ -127,7 +123,7 @@ def collect_ament_cmake_shared_library_codemodel(
 
     compile_flags = []
     ignored_compile_flags = [
-        '-fPIC'  # applies to shared libraries only
+        "-fPIC"  # applies to shared libraries only
     ]
     for flag in target.compile_flags:
         flag = flag.strip()
@@ -140,7 +136,7 @@ def collect_ament_cmake_shared_library_codemodel(
         compile_flags=compile_flags,
         defines=defines,
         link_libraries=link_libraries,
-        link_flags=link_flags
+        link_flags=link_flags,
     )
 
 
@@ -150,42 +146,46 @@ def collect_ament_cmake_package_properties(name, metadata):
     # brought into the same CMake run. The latter could be done for
     # speed
     with TemporaryDirectory(dir=os.getcwd()) as project_path:
-        project_name = 'empty_using_' + name
+        project_name = "empty_using_" + name
         cmakelists_template_path = path_to_resource(
-            'templates/ament_cmake_CMakeLists.txt.in')
-        cmakelists_path = os.path.join(project_path, 'CMakeLists.txt')
-        configure_file(cmakelists_template_path, cmakelists_path, {
-            '@NAME@': project_name, '@PACKAGE@': name
-        })
+            "templates/ament_cmake_CMakeLists.txt.in"
+        )
+        cmakelists_path = os.path.join(project_path, "CMakeLists.txt")
+        configure_file(
+            cmakelists_template_path,
+            cmakelists_path,
+            {"@NAME@": project_name, "@PACKAGE@": name},
+        )
 
-        cmake_prefix_path = os.path.realpath(metadata['prefix'])
-        if 'AMENT_PREFIX_PATH' in os.environ:
-            ament_prefix_path = os.environ['AMENT_PREFIX_PATH']
-            cmake_prefix_path += ';' + ament_prefix_path.replace(':', ';')
+        cmake_prefix_path = os.path.realpath(metadata["prefix"])
+        if "AMENT_PREFIX_PATH" in os.environ:
+            ament_prefix_path = os.environ["AMENT_PREFIX_PATH"]
+            cmake_prefix_path += ";" + ament_prefix_path.replace(":", ";")
 
         project_path = Path(project_path)
-        build_path = project_path.joinpath('build')
+        build_path = project_path.joinpath("build")
         build_path.mkdir()
         try:
             codemodel = get_cmake_codemodel(project_path, build_path)
-        except RuntimeError as e:
+        except RuntimeError:
             message = f"Error occured while generating build for {name}"
             raise RuntimeError(message)
 
         # Should only be one SHARED_LIBRARY target
         target = None
         for target in codemodel.targets:
-            if 'SHARED_LIBRARY' == target.target_type:
+            if "SHARED_LIBRARY" == target.target_type:
                 break
 
         assert target is not None
 
         additional_libraries = []
-        if 'rosidl_interface_packages' in metadata.get('groups', []):
+        if "rosidl_interface_packages" in metadata.get("groups", []):
             # Pick up extra shared libraries in interface packages for
             # proper sandboxing
             glob_pattern = os.path.join(
-                metadata['prefix'], 'lib', f'lib{name}__rosidl*.so')
+                metadata["prefix"], "lib", f"lib{name}__rosidl*.so"
+            )
             additional_libraries.extend(glob.glob(glob_pattern))
         properties = collect_ament_cmake_shared_library_codemodel(
             target, additional_libraries
@@ -193,44 +193,53 @@ def collect_ament_cmake_package_properties(name, metadata):
         return properties
 
 
-def collect_ament_cmake_package_direct_properties(
-    name, metadata, dependencies, cache
-):
-    if 'ament_cmake' not in cache:
-        cache['ament_cmake'] = {}
-    ament_cmake_cache = cache['ament_cmake']
+def collect_ament_cmake_package_direct_properties(name, metadata, dependencies, cache):
+    if "ament_cmake" not in cache:
+        cache["ament_cmake"] = {}
+    ament_cmake_cache = cache["ament_cmake"]
 
     if name not in ament_cmake_cache:
-        ament_cmake_cache[name] = \
-            collect_ament_cmake_package_properties(name, metadata)
+        ament_cmake_cache[name] = collect_ament_cmake_package_properties(name, metadata)
 
     properties = ament_cmake_cache[name]
     for dependency_name, dependency_metadata in dependencies.items():
-        if dependency_metadata.get('build_type') != 'ament_cmake':
+        if dependency_metadata.get("build_type") != "ament_cmake":
             continue
         if dependency_name not in ament_cmake_cache:
-            ament_cmake_cache[dependency_name] = \
-                collect_ament_cmake_package_properties(
-                    dependency_name, dependency_metadata)
+            ament_cmake_cache[dependency_name] = collect_ament_cmake_package_properties(
+                dependency_name, dependency_metadata
+            )
         dependency_properties = ament_cmake_cache[dependency_name]
 
         # Remove duplicates maintaining order.
-        properties.compile_flags = tuple([
-            flags for flags in properties.compile_flags
-            if flags not in dependency_properties.compile_flags
-        ])
-        properties.defines = tuple([
-            flags for flags in properties.defines
-            if flags not in dependency_properties.defines
-        ])
-        properties.link_flags = tuple([
-            flags for flags in properties.link_flags
-            if flags not in dependency_properties.link_flags
-        ])
-        properties.link_libraries = tuple([
-            library for library in properties.link_libraries
-            if library not in dependency_properties.link_libraries
-        ])
+        properties.compile_flags = tuple(
+            [
+                flags
+                for flags in properties.compile_flags
+                if flags not in dependency_properties.compile_flags
+            ]
+        )
+        properties.defines = tuple(
+            [
+                flags
+                for flags in properties.defines
+                if flags not in dependency_properties.defines
+            ]
+        )
+        properties.link_flags = tuple(
+            [
+                flags
+                for flags in properties.link_flags
+                if flags not in dependency_properties.link_flags
+            ]
+        )
+        properties.link_libraries = tuple(
+            [
+                library
+                for library in properties.link_libraries
+                if library not in dependency_properties.link_libraries
+            ]
+        )
         deduplicated_include_directories = []
         for directory in properties.include_directories:
             if directory in dependency_properties.include_directories:
@@ -239,8 +248,7 @@ def collect_ament_cmake_package_direct_properties(
                 if not os.path.exists(os.path.join(directory, name)):
                     continue
             deduplicated_include_directories.append(directory)
-        properties.include_directories = (
-            tuple(deduplicated_include_directories))
+        properties.include_directories = tuple(deduplicated_include_directories)
         # Do not deduplicate link directories in case
         # we're dealing with merge installs.
 
@@ -251,12 +259,14 @@ def precache_ament_cmake_properties(packages, jobs=None):
     ament_cmake_packages = {
         name: metadata
         for name, metadata in packages.items()
-        if metadata.get('build_type') == 'ament_cmake'
+        if metadata.get("build_type") == "ament_cmake"
     }
     with Pool(jobs) as pool:
-        return dict(zip(
-            ament_cmake_packages.keys(), pool.starmap(
-                collect_ament_cmake_package_properties,
-                ament_cmake_packages.items()
+        return dict(
+            zip(
+                ament_cmake_packages.keys(),
+                pool.starmap(
+                    collect_ament_cmake_package_properties, ament_cmake_packages.items()
+                ),
             )
-        ))
+        )

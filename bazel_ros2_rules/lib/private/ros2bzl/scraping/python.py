@@ -12,7 +12,7 @@ from ros2bzl.scraping.properties import PyProperties
 from ros2bzl.scraping.system import find_library_dependencies
 from ros2bzl.scraping.system import is_system_library
 
-EXTENSION_SUFFIX: Final[str] = sysconfig.get_config_var('EXT_SUFFIX')
+EXTENSION_SUFFIX: Final[str] = sysconfig.get_config_var("EXT_SUFFIX")
 
 
 def find_package(name: str) -> Tuple[str, list[str]]:
@@ -20,7 +20,7 @@ def find_package(name: str) -> Tuple[str, list[str]]:
     Find a Python package path and top level module path given its `name`.
     """
     dist = importlib.metadata.distribution(name)
-    top_level = dist.read_text('top_level.txt')
+    top_level = dist.read_text("top_level.txt")
     packages = top_level.splitlines()
     assert len(packages) >= 1
     top_levels = [str(dist.locate_file(package)) for package in packages]
@@ -28,7 +28,7 @@ def find_package(name: str) -> Tuple[str, list[str]]:
 
 
 def get_packages_with_prefixes(
-    prefixes: Optional[Sequence[str]] = None
+    prefixes: Optional[Sequence[str]] = None,
 ) -> Dict[str, pathlib.Path]:
     """
     Get all importable Python packages and the prefixes under
@@ -38,10 +38,10 @@ def get_packages_with_prefixes(
     """
     packages = {}
     for dist in importlib.metadata.distributions():
-        top_level = dist.read_text('top_level.txt')
+        top_level = dist.read_text("top_level.txt")
         if top_level is None:
             continue
-        top_level_path = dist.locate_file('top_level.txt')
+        top_level_path = dist.locate_file("top_level.txt")
         for package_name in top_level.splitlines():
             if prefixes is not None:
                 for prefix in prefixes:
@@ -72,17 +72,18 @@ def collect_python_package_properties(
         [],
     )
     if cc_libraries:
-        cc_libraries.extend(set(
-            dep for library in cc_libraries
-            for dep in find_library_dependencies(library)
-            if not is_system_library(dep)
-        ))
+        cc_libraries.extend(
+            set(
+                dep
+                for library in cc_libraries
+                for dep in find_library_dependencies(library)
+                if not is_system_library(dep)
+            )
+        )
         properties.cc_extensions = [
-            lib for lib in cc_libraries
-            if lib.endswith(EXTENSION_SUFFIX)
+            lib for lib in cc_libraries if lib.endswith(EXTENSION_SUFFIX)
         ]
         properties.cc_libraries = [
-            lib for lib in cc_libraries
-            if not lib.endswith(EXTENSION_SUFFIX)
+            lib for lib in cc_libraries if not lib.endswith(EXTENSION_SUFFIX)
         ]
     return properties

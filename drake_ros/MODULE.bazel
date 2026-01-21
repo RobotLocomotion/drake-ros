@@ -1,11 +1,26 @@
 module(name = "drake_ros")
 
-bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "rules_cc", version = "0.2.14")
 
-DRAKE_COMMIT = "v1.43.0"
+DRAKE_COMMIT = "v1.48.0"
 
 DRAKE_CHECKSUM = (
-    "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
+    "f03fcfebf66902a4f160605215a72d1889d33efbadc5fb008535f42ad8fd6690"
+)
+
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
+
+single_version_override(
+    module_name = "googletest",
+    patches = [
+        "//tools/workspace/googletest:patches/add_drake_alias.patch",
+        "//tools/workspace/googletest:patches/add_drake_printers.patch",
+    ],
+    # We must pin the same version as ~10 lines prior, because our patch to
+    # MODULE.bazel doesn't apply correctly to other versions of googletest,
+    # but Bazel's MVS selection will try to apply it anyway to all versions
+    # being considered when resolving the dependency graph.
+    version = "1.17.0.bcr.1",
 )
 
 bazel_dep(name = "drake")
@@ -16,6 +31,13 @@ archive_override(
     urls = [x.format(DRAKE_COMMIT) for x in [
         "https://github.com/RobotLocomotion/drake/archive/{}.tar.gz",
     ]],
+    patches = [
+        "tools/workspace/drake/patches/recover_dev_dependencies.patch",
+        "tools/workspace/drake/patches/use_label_in_python_lint.patch",
+        "tools/workspace/drake/patches/use_label_in_cpplint.patch",
+        "tools/workspace/drake/patches/use_drake_clang_format.patch",
+        "tools/workspace/drake/patches/fix_gtest_printers_visibility.patch",
+    ],
 )
 
 drake_dep_repositories = use_extension(
@@ -26,9 +48,7 @@ use_repo(
     drake_dep_repositories,
     "eigen",
     "gtest",
-    "pycodestyle",
     "python",
-    "styleguide",
 )
 
 bazel_dep(name = "bazel_ros2_rules")

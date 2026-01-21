@@ -5,7 +5,7 @@ load("@ros2//:ros_cc.bzl", "ros_cc_binary", "ros_cc_test")
 load("@ros2//:ros_py.bzl", "ros_launch", "ros_py_binary", "ros_py_test")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 load("//tools:cmd_test.bzl", "cmd_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
+load("@drake//tools/lint:lint.bzl", "add_lint_tests")
 
 rosidl_interfaces_group(
     name = "ros2_example_apps_msgs",
@@ -260,7 +260,7 @@ ros_py_test(
     main = "test/roslaunch_eg_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 
@@ -274,7 +274,7 @@ ros_py_test(
     main = "test/custom_message_rosbag_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 
@@ -290,7 +290,7 @@ ros_py_test(
     main = "test/custom_message_echo_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 
@@ -305,7 +305,7 @@ ros_py_test(
     main = "test/custom_message_list_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 

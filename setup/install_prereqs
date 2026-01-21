@@ -19,7 +19,7 @@ ASSETS_DIR="${SETUP_DIR}/assets"
 REPOSITORY_DIR=$(dirname "${SETUP_DIR}")
 
 ROS_DISTRO=jazzy
-DRAKE_VERSION=1.43.0
+DRAKE_VERSION=1.48.0
 UBUNTU_CODENAME=$(. /etc/os-release && echo $VERSION_CODENAME)
 
 ### Functions
@@ -34,7 +34,7 @@ install_drake_binary() {
   curl -fsSL -o ${DRAKE_BINARY_NAME}.tar.gz \
     https://github.com/RobotLocomotion/drake/releases/download/v${DRAKE_VERSION}/${DRAKE_BINARY_NAME}.tar.gz
   cat "${DRAKE_BINARY_CHECKSUM}" | sha256sum --check --status
-  ${MAYBE_SUDO} mkdir -p /opt/drake 
+  ${MAYBE_SUDO} mkdir -p /opt/drake
   ${MAYBE_SUDO} tar -xzf ${DRAKE_BINARY_NAME}.tar.gz -C /opt/drake --strip-components 1
   ${MAYBE_SUDO} /opt/drake/share/drake/setup/install_prereqs
 }

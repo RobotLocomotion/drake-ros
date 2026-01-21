@@ -7,11 +7,10 @@ from functools import lru_cache
 import os
 import re
 import subprocess
-import sys
 
 # Standard include files' search paths for compilers in Linux systems.
 # Useful to detect system includes in package exported configuration.
-DEFAULT_INCLUDE_DIRECTORIES = ['/usr/include', '/usr/local/include']
+DEFAULT_INCLUDE_DIRECTORIES = ["/usr/include", "/usr/local/include"]
 
 
 def is_system_include(include_path):
@@ -20,9 +19,7 @@ def is_system_include(include_path):
     i.e. known to compilers.
     """
     include_path = os.path.realpath(include_path)
-    return any(
-        include_path.startswith(path)
-        for path in DEFAULT_INCLUDE_DIRECTORIES)
+    return any(include_path.startswith(path) for path in DEFAULT_INCLUDE_DIRECTORIES)
 
 
 @lru_cache(maxsize=1)
@@ -30,11 +27,11 @@ def system_link_dirs():
     """Get standard search paths for the linker."""
     link_dirs = set()
     output = subprocess.run(
-        ['ld', '--verbose'],
+        ["ld", "--verbose"],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
-        encoding='utf8'
+        encoding="utf8",
     ).stdout.strip()
 
     for directory in re.findall(r'SEARCH_DIR\("=([^=]+)"\)', output):
@@ -49,14 +46,14 @@ def system_shared_lib_dirs():
     """Get standard search paths for the dynamic runtime loader."""
     lib_dirs = set()
     output = subprocess.run(
-        ['ldconfig', '-XN', '--verbose'],
+        ["ldconfig", "-XN", "--verbose"],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
-        encoding='utf8'
+        encoding="utf8",
     ).stdout.strip()
 
-    for directory in re.findall(r'(/[^:\t\n]+):', output):
+    for directory in re.findall(r"(/[^:\t\n]+):", output):
         if os.path.isdir(directory):
             lib_dirs.add(os.path.realpath(directory))
     # Workaround Singularity redirects, e.g. for `--nv`.
@@ -73,7 +70,8 @@ def is_system_library(library_path):
     library_path = os.path.realpath(library_path)
     return any(
         library_path.startswith(path)
-        for path in system_link_dirs() + system_shared_lib_dirs())
+        for path in system_link_dirs() + system_shared_lib_dirs()
+    )
 
 
 def find_library_path(library_name, link_directories=None, link_flags=None):
@@ -89,41 +87,41 @@ def find_library_path(library_name, link_directories=None, link_flags=None):
     :returns: the path to the library if found, None otherwise
     """
     # Adapted from ctypes.util.find_library_path() implementation.
-    pattern = r'/(?:[^\(\)\s]*/)*lib{}\.[^\(\)\s]*'.format(library_name)
+    pattern = r"/(?:[^\(\)\s]*/)*lib{}\.[^\(\)\s]*".format(library_name)
 
     paths = []
     if link_directories:
         paths.extend(link_directories)
-    paths.extend(set(os.environ.get('LIBRARY_PATH', '').split(':')))
-    paths.extend(set(os.environ.get('LD_LIBRARY_PATH', '').split(':')))
+    paths.extend(set(os.environ.get("LIBRARY_PATH", "").split(":")))
+    paths.extend(set(os.environ.get("LD_LIBRARY_PATH", "").split(":")))
     paths.extend(system_link_dirs())
     paths.extend(system_shared_lib_dirs())
 
-    cmd = ['ld', '-t']
+    cmd = ["ld", "-t"]
     if link_flags:
         cmd.extend(link_flags)
     for path in paths:
-        cmd.extend(['-L', path])
-    cmd.extend(['-o', os.devnull, '-l' + library_name])
+        cmd.extend(["-L", path])
+    cmd.extend(["-o", os.devnull, "-l" + library_name])
     try:
         out = subprocess.run(
             cmd,
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
-            encoding='utf8'
+            encoding="utf8",
         ).stdout.strip()
         match = re.search(pattern, out)
         if match:
             path = match.group(0)
             # Remove double forward slashes, if any
-            return os.path.join('/', os.path.relpath(path, '/'))
+            return os.path.join("/", os.path.relpath(path, "/"))
     except Exception:
         pass
     return None
 
 
-LDD_LINE_PATTERN = re.compile(r' => (/(?:[^\(\)\s]*/)*lib[^\(\)\s]*)')
+LDD_LINE_PATTERN = re.compile(r" => (/(?:[^\(\)\s]*/)*lib[^\(\)\s]*)")
 
 
 def find_library_dependencies(library_path):
@@ -137,13 +135,17 @@ def find_library_dependencies(library_path):
       library dependencies
     """
     try:
-        lines = subprocess.run(
-            ['ldd', library_path],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            encoding='utf8'
-        ).stdout.strip().split('\n')
+        lines = (
+            subprocess.run(
+                ["ldd", library_path],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                encoding="utf8",
+            )
+            .stdout.strip()
+            .split("\n")
+        )
         for line in lines:
             match = LDD_LINE_PATTERN.search(line.strip())
             if match:

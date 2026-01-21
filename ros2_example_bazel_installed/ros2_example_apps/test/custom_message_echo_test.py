@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from bazel_tools.tools.python.runfiles import runfiles
+from python.runfiles import runfiles
 from lib.ros_environment.unique import enforce_unique_ros_environment
 
 

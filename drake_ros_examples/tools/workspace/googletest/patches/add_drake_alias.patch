@@ -1,0 +1,12 @@
+[googletest] Adds a backwards compatibility alias for Drake
+
+TODO(jeremy-nimmer) Drop this patch once Drake is using googletest as a module.
+
+--- BUILD.bazel
++++ BUILD.bazel
+@@ -250,3 +250,5 @@
+     srcs = ["googletest/samples/sample10_unittest.cc"],
+     deps = [":gtest"],
+ )
++
++alias(name = "without_main", actual = "gtest_for_library")

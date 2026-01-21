@@ -1,4 +1,4 @@
-load("//tools/lint:lint.bzl", "add_lint_tests")
+load("@drake//tools/lint:lint.bzl", "add_lint_tests")
 load(":rosidl.bzl", "run_calculate_rosidl_capitalization_tests")
 
 run_calculate_rosidl_capitalization_tests()

@@ -1,5 +1,5 @@
 # See `runfiles_direct_test.sh` for motivation.
-from bazel_tools.tools.python.runfiles import runfiles
+from python.runfiles import runfiles
 
 
 def main():
