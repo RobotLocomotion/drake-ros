@@ -40,7 +40,7 @@ ros_cc_test(
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
         "@drake//common",
         "@drake//systems/primitives",
-        "@gtest//:main",
+        "@googletest//:gtest",
         "@ros2//:geometry_msgs_cc",
         "@ros2//:rclcpp_cc",
         "@ros2//:tf2_ros_cc",
