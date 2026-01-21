@@ -11,7 +11,7 @@ def _init_helper(instance, kwargs):
         setattr(instance, name, tuple())
     for key, value in kwargs.items():
         if key not in instance.__slots__:
-            raise TypeError(f'Unexpected keyword argument {key}')
+            raise TypeError(f"Unexpected keyword argument {key}")
         if not value:
             value = tuple()
         else:
@@ -20,14 +20,13 @@ def _init_helper(instance, kwargs):
 
 
 class CcProperties:
-
     __slots__ = (
-        'link_libraries',
-        'include_directories',
-        'compile_flags',
-        'defines',
-        'link_flags',
-        'link_directories'
+        "link_libraries",
+        "include_directories",
+        "compile_flags",
+        "defines",
+        "link_flags",
+        "link_directories",
     )
 
     link_libraries: Tuple[str]
@@ -42,11 +41,10 @@ class CcProperties:
 
 
 class PyProperties:
-
     __slots__ = (
-        'cc_extensions',
-        'cc_libraries',
-        'python_packages',
+        "cc_extensions",
+        "cc_libraries",
+        "python_packages",
     )
 
     cc_extensions: Tuple[str]

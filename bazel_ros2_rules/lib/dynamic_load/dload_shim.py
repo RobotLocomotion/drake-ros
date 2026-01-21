@@ -24,7 +24,7 @@ def do_dload_shim(executable_path, names, actions):
     # NOTE(hidmic): unlike its C++ equivalent, Python runfiles'
     # builtin tools will only look for runfiles in the manifest
     # if there is a manifest
-    runfiles_dir = runfiles.EnvVars()['RUNFILES_DIR']
+    runfiles_dir = runfiles.EnvVars()["RUNFILES_DIR"]
 
     def rlocation(path):
         return runfiles.Rlocation(path) or os.path.join(runfiles_dir, path)
@@ -32,26 +32,26 @@ def do_dload_shim(executable_path, names, actions):
     if SHIMMED_SENTINEL not in os.environ:
         for name, action in zip(names, actions):  # noqa
             action_type, action_args = action[0], action[1:]
-            if action_type == 'replace':
+            if action_type == "replace":
                 assert len(action_args) == 1
                 value = action_args[0]
-            elif action_type == 'set-if-not-set':
+            elif action_type == "set-if-not-set":
                 assert len(action_args) == 1
                 if name in os.environ:
                     continue
                 value = action_args[0]
-            elif action_type == 'path-replace':
+            elif action_type == "path-replace":
                 assert len(action_args) == 1
                 value = rlocation(action_args[0])
-            elif action_type == 'path-prepend':
+            elif action_type == "path-prepend":
                 assert len(action_args) > 0
-                value = ':'.join([rlocation(path) for path in action_args])
+                value = ":".join([rlocation(path) for path in action_args])
                 if name in os.environ:
-                    value += ':' + os.environ[name]
+                    value += ":" + os.environ[name]
             else:
                 assert False  # should never get here
-            if '$PWD' in value:
-                value = value.replace('$PWD', os.getcwd())
+            if "$PWD" in value:
+                value = value.replace("$PWD", os.getcwd())
             os.environ[name] = value
         os.environ[SHIMMED_SENTINEL] = ""
 

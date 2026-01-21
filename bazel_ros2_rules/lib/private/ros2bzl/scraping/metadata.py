@@ -4,16 +4,16 @@ import xml.etree.ElementTree as ET
 
 # Remove elements that have a condition attribute on ROS1
 def remove_ros1_elements(root):
-    ros1_condition_value = '$ROS_VERSION == 1'
+    ros1_condition_value = "$ROS_VERSION == 1"
     elements_to_remove = []
 
     for parent in root.iter():
         for child in list(parent):
-            if 'condition' in child.attrib:
-                if child.get('condition') == ros1_condition_value:
+            if "condition" in child.attrib:
+                if child.get("condition") == ros1_condition_value:
                     elements_to_remove.append((parent, child))
                 else:
-                    child.attrib.pop('condition')
+                    child.attrib.pop("condition")
 
     for parent, child in elements_to_remove:
         parent.remove(child)
@@ -24,29 +24,21 @@ def parse_package_xml(path_to_package_xml):
 
     remove_ros1_elements(tree.getroot())
 
-    depends = set([
-        tag.text for tag in tree.findall('./depend')
-    ])
-    exec_depends = set([
-        tag.text for tag in tree.findall('./exec_depend')
-    ])
-    build_export_depends = set([
-        tag.text for tag in tree.findall('./build_export_depend')
-    ])
-    group_depends = set([
-        tag.text for tag in tree.findall('./group_depend')
-    ])
-    member_of_groups = set([
-        tag.text for tag in tree.findall('./member_of_group')
-    ])
-    build_type = tree.find('./export/build_type').text
+    depends = set([tag.text for tag in tree.findall("./depend")])
+    exec_depends = set([tag.text for tag in tree.findall("./exec_depend")])
+    build_export_depends = set(
+        [tag.text for tag in tree.findall("./build_export_depend")]
+    )
+    group_depends = set([tag.text for tag in tree.findall("./group_depend")])
+    member_of_groups = set([tag.text for tag in tree.findall("./member_of_group")])
+    build_type = tree.find("./export/build_type").text
 
     return dict(
         build_export_dependencies=build_export_depends | depends,
         run_dependencies=exec_depends | depends,
         group_dependencies=group_depends,
         groups=member_of_groups,
-        build_type=build_type
+        build_type=build_type,
     )
 
 
@@ -54,12 +46,12 @@ def parse_plugins_description_xml(path_to_plugins_description_xml):
     plugins_description_xml = ET.parse(path_to_plugins_description_xml)
     root = plugins_description_xml.getroot()
     libraries = []
-    assert root.tag in ['class_libraries', 'library']
-    if 'class_libraries' == root.tag:
-        for child in root.findall('library'):
-            libraries.append(child.attrib['path'])
+    assert root.tag in ["class_libraries", "library"]
+    if "class_libraries" == root.tag:
+        for child in root.findall("library"):
+            libraries.append(child.attrib["path"])
     else:
-        libraries.append(root.attrib['path'])
+        libraries.append(root.attrib["path"])
     assert libraries
     return dict(plugin_libraries=libraries)
 
@@ -67,7 +59,7 @@ def parse_plugins_description_xml(path_to_plugins_description_xml):
 def find_executables(base_path):
     for dirpath, dirnames, filenames in os.walk(base_path):
         # ignore folder starting with .
-        dirnames[:] = [d for d in dirnames if d[0] not in ['.']]
+        dirnames[:] = [d for d in dirnames if d[0] not in ["."]]
         dirnames.sort()
         # select executable files
         for filename in sorted(filenames):
@@ -77,29 +69,29 @@ def find_executables(base_path):
 
 
 DEFAULT_LANGS_PER_BUILD_TYPE = {
-    'cmake': {'cc'},
-    'python': {'py'},
-    'ament_cmake': {'cc'},
-    'ament_python': {'py'},
+    "cmake": {"cc"},
+    "python": {"py"},
+    "ament_cmake": {"cc"},
+    "ament_python": {"py"},
 }
 
 
 def collect_package_langs(metadata):
-    build_type = metadata.get('build_type')
+    build_type = metadata.get("build_type")
     if build_type in DEFAULT_LANGS_PER_BUILD_TYPE:
         return set(DEFAULT_LANGS_PER_BUILD_TYPE[build_type])
     return set()
 
 
 def collect_cmake_package_metadata(name, prefix):
-    metadata = dict(prefix=prefix, build_type='cmake')
-    metadata['langs'] = collect_package_langs(metadata)
+    metadata = dict(prefix=prefix, build_type="cmake")
+    metadata["langs"] = collect_package_langs(metadata)
     return metadata
 
 
 def collect_python_package_metadata(name, prefix):
-    metadata = dict(prefix=prefix, build_type='python')
-    metadata['langs'] = collect_package_langs(metadata)
+    metadata = dict(prefix=prefix, build_type="python")
+    metadata["langs"] = collect_package_langs(metadata)
     return metadata
 
 
@@ -118,10 +110,9 @@ def collect_ros_package_metadata(name, prefix):
     :param prefix: ROS package install prefix
     :returns: metadata as a dictionary
     """
-    share_directory = os.path.join(prefix, 'share', name)
-    ament_index_directory = os.path.join(prefix, 'share', 'ament_index')
-    resource_index_directory = os.path.join(
-        ament_index_directory, 'resource_index')
+    share_directory = os.path.join(prefix, "share", name)
+    ament_index_directory = os.path.join(prefix, "share", "ament_index")
+    resource_index_directory = os.path.join(ament_index_directory, "resource_index")
 
     metadata = dict(
         prefix=prefix,
@@ -129,15 +120,15 @@ def collect_ros_package_metadata(name, prefix):
         ament_index_directory=ament_index_directory,
     )
 
-    lib_directory = os.path.join(prefix, 'lib', name)
+    lib_directory = os.path.join(prefix, "lib", name)
     executables = list(find_executables(lib_directory))
     if executables:
-        metadata['executables'] = executables
+        metadata["executables"] = executables
 
-    path_to_package_xml = os.path.join(share_directory, 'package.xml')
+    path_to_package_xml = os.path.join(share_directory, "package.xml")
     metadata.update(parse_package_xml(path_to_package_xml))
 
-    metadata['langs'] = collect_package_langs(metadata)
+    metadata["langs"] = collect_package_langs(metadata)
 
     # Find any plugins provided by this package
     plugin_libraries = []
@@ -146,20 +137,22 @@ def collect_ros_package_metadata(name, prefix):
         # https://github.com/ros/pluginlib/blob/
         # a11ecea28a587637d51f036e0e04eb194b94abfe/pluginlib/cmake/
         # pluginlib_package_hook.cmake#L22
-        if resource_type.endswith('__pluginlib__plugin'):
+        if resource_type.endswith("__pluginlib__plugin"):
             plugin_resource = os.path.join(
-                resource_index_directory, resource_type, name)
+                resource_index_directory, resource_type, name
+            )
             if os.path.exists(plugin_resource):
-                with open(plugin_resource, 'r') as fin:
+                with open(plugin_resource, "r") as fin:
                     path_to_desc = fin.read()
                 # Strip any trailing newline
                 path_to_desc = path_to_desc.strip()
                 if not os.path.isabs(path_to_desc):
                     path_to_desc = os.path.join(prefix, path_to_desc)
                 if os.path.exists(path_to_desc):
-                    plugin_libraries.extend(parse_plugins_description_xml(
-                        path_to_desc)['plugin_libraries'])
+                    plugin_libraries.extend(
+                        parse_plugins_description_xml(path_to_desc)["plugin_libraries"]
+                    )
     if plugin_libraries:
-        metadata['plugin_libraries'] = plugin_libraries
+        metadata["plugin_libraries"] = plugin_libraries
 
     return metadata

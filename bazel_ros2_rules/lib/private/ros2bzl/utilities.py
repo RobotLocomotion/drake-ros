@@ -1,4 +1,3 @@
-import functools
 import json
 
 
@@ -12,14 +11,11 @@ class StarlarkEncoder(json.JSONEncoder):
 
 def to_starlark_string_dict(d):
     encoder = StarlarkEncoder()
-    return {
-        k: encoder.encode(v)
-        for k, v in d.items()
-    }
+    return {k: encoder.encode(v) for k, v in d.items()}
 
 
 def interpolate(template, config):
     content = template
     for key, value in config.items():
-        content = content.replace('@{}@'.format(key), value)
+        content = content.replace("@{}@".format(key), value)
     return content
