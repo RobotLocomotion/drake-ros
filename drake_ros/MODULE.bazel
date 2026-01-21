@@ -48,9 +48,7 @@ use_repo(
     drake_dep_repositories,
     "eigen",
     "gtest",
-    "pycodestyle",
     "python",
-    "styleguide",
 )
 
 bazel_dep(name = "bazel_ros2_rules")

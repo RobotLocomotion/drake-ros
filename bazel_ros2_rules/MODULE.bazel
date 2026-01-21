@@ -58,9 +58,3 @@ archive_override(
         "tools/workspace/drake/patches/use_drake_clang_format.patch",
     ],
 )
-
-drake_dep_repositories = use_extension(
-    "@drake//tools/workspace:default.bzl",
-    "drake_dep_repositories",
-)
-use_repo(drake_dep_repositories, "pycodestyle", "styleguide")

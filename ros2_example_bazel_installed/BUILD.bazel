@@ -13,11 +13,6 @@ load(
 load("//tools:cmd_test.bzl", "cmd_test")
 load("@drake//tools/lint:lint.bzl", "add_lint_tests")
 
-exports_files([
-    "CPPLINT.cfg",
-    ".clang-format",
-])
-
 # TODO(hidmic): make linter more user-friendly
 cmd_test(
     name = "lint_rosdeps",
