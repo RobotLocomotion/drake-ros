@@ -1,6 +1,6 @@
 module(name = "drake_ros")
 
-bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "rules_cc", version = "0.2.8")
 
 DRAKE_COMMIT = "v1.43.0"
 
