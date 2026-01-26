@@ -10,6 +10,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Werror -Wno-error=deprecated-declarations)
 endif()
 
+message(WARNING "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(WARNING "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
+
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import sys, json; print(json.dumps(sys.path))"
+  OUTPUT_VARIABLE _PY_SYS_PATH
+)
+message(WARNING "python sys.path: ${_PY_SYS_PATH}")
+message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
+
 find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
 find_package(drake_ros REQUIRED)
