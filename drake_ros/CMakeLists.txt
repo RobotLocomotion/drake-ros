@@ -10,6 +10,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Werror -Wno-error=deprecated-declarations)
 endif()
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import sys, json; print(json.dumps(sys.path))"
+  OUTPUT_VARIABLE _PY_SYS_PATH
+)
+message(WARNING "python sys.path: ${_PY_SYS_PATH}")
 find_package(ament_cmake_ros REQUIRED)
 
 find_package(drake REQUIRED)
@@ -64,17 +70,24 @@ if(APPLE)
 else()
   set(LIBRARY_PATH_ENV_VAR "LD_LIBRARY_PATH")
 endif()
-set(
-  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
-  "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
 ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
+message(WARNING "drake_PYTHON_DIR: ${drake_PYTHON_DIR}")
+message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
 ### Python module path environment hook for pydrake
+# string(REPLACE ";" ":" drake_PYTHON_DIR_STR "${drake_PYTHON_DIR}")
 set(
   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
-  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
+  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR_STR}")
 ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
 
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import sys, json; print(json.dumps(sys.path))"
+  OUTPUT_VARIABLE _PY_SYS_PATH
+)
+message(WARNING "python sys.path: ${_PY_SYS_PATH}")
+
+message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
