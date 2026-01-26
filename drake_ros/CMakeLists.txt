@@ -21,11 +21,17 @@ execute_process(
 )
 message(WARNING "python sys.path: ${_PY_SYS_PATH}")
 message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
+find_package(drake REQUIRED)
+
+if(UNIX)
+  unset(WIN32)
+  unset(MSVC)
+  unset(CMAKE_HOST_WIN32)
+endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
-find_package(drake REQUIRED)
 find_package(Python3 COMPONENTS Interpreter Development)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
