@@ -41,7 +41,7 @@ ros_cc_test(
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
-        "@gtest//:without_main",
+        "@googletest//:gtest_for_library",
         "@ros2//:rclcpp_cc",
         "@ros2//:test_msgs_cc",
     ],
@@ -57,7 +57,7 @@ ros_cc_test(
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
         "@drake//systems/analysis:simulator",
         "@drake//systems/framework:diagram_builder",
-        "@gtest//:without_main",
+        "@googletest//:gtest_for_library",
         "@ros2//:rclcpp_cc",
     ],
 )
@@ -70,7 +70,7 @@ ros_cc_test(
     deps = [
         ":core",
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
-        "@gtest//:without_main",
+        "@googletest//:gtest_for_library",
         "@ros2//:rclcpp_cc",
     ],
 )
@@ -83,7 +83,7 @@ ros_cc_test(
     deps = [
         ":core",
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
-        "@gtest//:without_main",
+        "@googletest//:gtest_for_library",
         "@ros2//:rclcpp_cc",
     ],
 )
@@ -96,7 +96,7 @@ ros_cc_test(
     deps = [
         ":core",
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
-        "@gtest//:without_main",
+        "@googletest//:gtest_for_library",
         "@ros2//:rclcpp_cc",
         "@ros2//:test_msgs_cc",
     ],
@@ -110,7 +110,7 @@ ros_cc_test(
     deps = [
         ":core",
         "@bazel_ros2_rules//lib/ros_environment:ros_env_cc",
-        "@gtest//:without_main",
+        "@googletest//:gtest_for_library",
         "@ros2//:rclcpp_cc",
         "@ros2//:test_msgs_cc",
     ],
@@ -123,7 +123,7 @@ ros_cc_test(
     rmw_implementation = "rmw_cyclonedds_cpp",
     deps = [
         ":core",
-        "@gtest//:main",
+        "@googletest//:gtest_main",
     ],
 )
 

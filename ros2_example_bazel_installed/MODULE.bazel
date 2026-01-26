@@ -19,11 +19,12 @@ archive_override(
     ]],
 )
 
-drake_dep_repositories = use_extension(
+drake_dep_dev_repositories = use_extension(
     "@drake//tools/workspace:default.bzl",
     "drake_dep_repositories",
+    dev_dependency = True,
 )
-use_repo(drake_dep_repositories, "pycodestyle", "styleguide")
+use_repo(drake_dep_dev_repositories, "pycodestyle", "styleguide")
 
 bazel_dep(name = "bazel_ros2_rules")
 local_path_override(
