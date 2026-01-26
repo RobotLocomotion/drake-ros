@@ -17,6 +17,7 @@ execute_process(
 )
 message(WARNING "python sys.path: ${_PY_SYS_PATH}")
 find_package(ament_cmake_ros REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 
 find_package(drake REQUIRED)
 find_package(Python3 COMPONENTS Interpreter Development)

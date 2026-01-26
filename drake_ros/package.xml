@@ -9,6 +9,7 @@
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
   <!--
   eigen3_cmake_module is needed to workaround Eigen's inability to forward
   its headers as transitive dependency. For more details, see:
