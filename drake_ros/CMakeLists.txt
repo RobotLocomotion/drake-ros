@@ -79,7 +79,7 @@ message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
 # string(REPLACE ";" ":" drake_PYTHON_DIR_STR "${drake_PYTHON_DIR}")
 set(
   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
-  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR_STR}")
+  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
 ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
 
 execute_process(
