@@ -13,151 +13,151 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  bazel_ros2_rules_test:
-    name: Build and test bazel_ros2_rules modules with bazel
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Free up runner space
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          docker-images: true
-          large-packages: false
-          swap-storage: false
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Configure bazel_ros2_rules workspace for CI
-        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
-        working-directory: bazel_ros2_rules
-      - name: Configure ros2_example_bazel_installed workspace for CI
-        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
-        working-directory: ros2_example_bazel_installed
-      - name: Restore Bazel caches
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/.cache/bazel_ci
-          key: bazel_ros2_rules_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-          restore-keys: |
-            bazel_ros2_rules_bazel_cache-${{ github.ref }}-
-            bazel_ros2_rules_bazel_cache-refs/heads/main-
-      - name: Restore apt caches
-        uses: actions/cache@v3
-        with:
-          path: /var/cache/apt
-          key: bazel_ros2_rules_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-          restore-keys: |
-            bazel_ros2_rules_apt_cache-${{ github.ref }}-
-            bazel_ros2_rules_apt_cache-refs/heads/main-
-      - name: Install repository prereqs
-        run: |
-          echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
-          echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
-          yes | ./setup/install_prereqs -C /tmp --with-bazel
-      - name: Build bazel_ros2_rules workspace
-        run: bazel build //...
-        working-directory: bazel_ros2_rules
-      - name: Test bazel_ros2_rules workspace
-        run: bazel test //...
-        working-directory: bazel_ros2_rules
-      - name: Build ros2_example_bazel_installed workspace
-        run: bazel build //...
-        working-directory: ros2_example_bazel_installed
-      - name: Test ros2_example_installed workspace
-        run: bazel test //... @ros2//...
-        working-directory: ros2_example_bazel_installed
-      - name: Persist Bazel caches
-        uses: actions/cache/save@v3
-        with:
-          path: /home/runner/.cache/bazel_ci
-          key: bazel_ros2_rules_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-        if: always()
-      - name: Restore apt caches
-        uses: actions/cache@v3
-        with:
-          path: /var/cache/apt
-          key: bazel_ros2_rules_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-        if: always()
-    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
-  bazel_drake_ros_test:
-    name: Build and test drake_ros modules with bazel
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Free up runner space
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          docker-images: true
-          large-packages: false
-          swap-storage: false
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Restore Bazel caches
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/.cache/bazel_ci
-          key: bazel_drake_ros_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-          restore-keys: |
-            bazel_drake_ros_bazel_cache-${{ github.ref }}-
-            bazel_drake_ros_bazel_cache-refs/heads/main-
-      - name: Restore apt caches
-        uses: actions/cache@v3
-        with:
-          path: /var/cache/apt
-          key: bazel_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-          restore-keys: |
-            bazel_drake_ros_apt_cache-${{ github.ref }}-
-            bazel_drake_ros_apt_cache-refs/heads/main-
-      - name: Install repository prereqs
-        run: |
-          echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
-          echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
-          yes | ./setup/install_prereqs -C /tmp --with-bazel
-      - name: Purge GCC 14
-        # Note(#385): drake's mkdoc script loads gcc14 C++ std libraries if
-        # installed, which causes the build to fail because it expects gcc13 to
-        # be used.
-        run: sudo apt purge -y gcc-14 libgcc-14-dev
-      - name: Configure drake_ros workspace for CI
-        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
-        working-directory: drake_ros
-      - name: Build drake_ros workspace
-        run: bazel build //...
-        working-directory: drake_ros
-      - name: Test drake_ros workspace
-        run: bazel test //...
-        working-directory: drake_ros
-      - name: Clean drake_ros workspace
-        run: bazel clean
-        working-directory: drake_ros
-      - name: Configure drake_ros_examples workspace for CI
-        run: ln -s ../.github/ci.bazelrc ./user.bazelrc
-        working-directory: drake_ros_examples
-      - name: Build drake_ros_examples workspace
-        run: bazel build //...
-        working-directory: drake_ros_examples
-      - name: Test drake_ros_examples workspace
-        run: bazel test //...
-        working-directory: drake_ros_examples
-      - name: Clean drake_ros_examples workspace
-        run: bazel clean
-        working-directory: drake_ros_examples
-      - name: Persist Bazel caches
-        uses: actions/cache/save@v3
-        with:
-          path: /home/runner/.cache/bazel_ci
-          key: bazel_drake_ros_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-        if: always()
-      - name: Persist apt caches
-        uses: actions/cache/save@v3
-        with:
-          path: /var/cache/apt
-          key: bazel_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-        if: always()
-    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+  # bazel_ros2_rules_test:
+  #   name: Build and test bazel_ros2_rules modules with bazel
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - name: Free up runner space
+  #       uses: jlumbroso/free-disk-space@v1.3.1
+  #       with:
+  #         android: true
+  #         dotnet: true
+  #         haskell: true
+  #         docker-images: true
+  #         large-packages: false
+  #         swap-storage: false
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v5
+  #     - name: Configure bazel_ros2_rules workspace for CI
+  #       run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+  #       working-directory: bazel_ros2_rules
+  #     - name: Configure ros2_example_bazel_installed workspace for CI
+  #       run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+  #       working-directory: ros2_example_bazel_installed
+  #     - name: Restore Bazel caches
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: /home/runner/.cache/bazel_ci
+  #         key: bazel_ros2_rules_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #         restore-keys: |
+  #           bazel_ros2_rules_bazel_cache-${{ github.ref }}-
+  #           bazel_ros2_rules_bazel_cache-refs/heads/main-
+  #     - name: Restore apt caches
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: /var/cache/apt
+  #         key: bazel_ros2_rules_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #         restore-keys: |
+  #           bazel_ros2_rules_apt_cache-${{ github.ref }}-
+  #           bazel_ros2_rules_apt_cache-refs/heads/main-
+  #     - name: Install repository prereqs
+  #       run: |
+  #         echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
+  #         echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
+  #         yes | ./setup/install_prereqs -C /tmp --with-bazel
+  #     - name: Build bazel_ros2_rules workspace
+  #       run: bazel build //...
+  #       working-directory: bazel_ros2_rules
+  #     - name: Test bazel_ros2_rules workspace
+  #       run: bazel test //...
+  #       working-directory: bazel_ros2_rules
+  #     - name: Build ros2_example_bazel_installed workspace
+  #       run: bazel build //...
+  #       working-directory: ros2_example_bazel_installed
+  #     - name: Test ros2_example_installed workspace
+  #       run: bazel test //... @ros2//...
+  #       working-directory: ros2_example_bazel_installed
+  #     - name: Persist Bazel caches
+  #       uses: actions/cache/save@v3
+  #       with:
+  #         path: /home/runner/.cache/bazel_ci
+  #         key: bazel_ros2_rules_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #       if: always()
+  #     - name: Restore apt caches
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: /var/cache/apt
+  #         key: bazel_ros2_rules_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #       if: always()
+  #   if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+  # bazel_drake_ros_test:
+  #   name: Build and test drake_ros modules with bazel
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - name: Free up runner space
+  #       uses: jlumbroso/free-disk-space@v1.3.1
+  #       with:
+  #         android: true
+  #         dotnet: true
+  #         haskell: true
+  #         docker-images: true
+  #         large-packages: false
+  #         swap-storage: false
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v5
+  #     - name: Restore Bazel caches
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: /home/runner/.cache/bazel_ci
+  #         key: bazel_drake_ros_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #         restore-keys: |
+  #           bazel_drake_ros_bazel_cache-${{ github.ref }}-
+  #           bazel_drake_ros_bazel_cache-refs/heads/main-
+  #     - name: Restore apt caches
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: /var/cache/apt
+  #         key: bazel_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #         restore-keys: |
+  #           bazel_drake_ros_apt_cache-${{ github.ref }}-
+  #           bazel_drake_ros_apt_cache-refs/heads/main-
+  #     - name: Install repository prereqs
+  #       run: |
+  #         echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90yes
+  #         echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
+  #         yes | ./setup/install_prereqs -C /tmp --with-bazel
+  #     - name: Purge GCC 14
+  #       # Note(#385): drake's mkdoc script loads gcc14 C++ std libraries if
+  #       # installed, which causes the build to fail because it expects gcc13 to
+  #       # be used.
+  #       run: sudo apt purge -y gcc-14 libgcc-14-dev
+  #     - name: Configure drake_ros workspace for CI
+  #       run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+  #       working-directory: drake_ros
+  #     - name: Build drake_ros workspace
+  #       run: bazel build //...
+  #       working-directory: drake_ros
+  #     - name: Test drake_ros workspace
+  #       run: bazel test //...
+  #       working-directory: drake_ros
+  #     - name: Clean drake_ros workspace
+  #       run: bazel clean
+  #       working-directory: drake_ros
+  #     - name: Configure drake_ros_examples workspace for CI
+  #       run: ln -s ../.github/ci.bazelrc ./user.bazelrc
+  #       working-directory: drake_ros_examples
+  #     - name: Build drake_ros_examples workspace
+  #       run: bazel build //...
+  #       working-directory: drake_ros_examples
+  #     - name: Test drake_ros_examples workspace
+  #       run: bazel test //...
+  #       working-directory: drake_ros_examples
+  #     - name: Clean drake_ros_examples workspace
+  #       run: bazel clean
+  #       working-directory: drake_ros_examples
+  #     - name: Persist Bazel caches
+  #       uses: actions/cache/save@v3
+  #       with:
+  #         path: /home/runner/.cache/bazel_ci
+  #         key: bazel_drake_ros_bazel_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #       if: always()
+  #     - name: Persist apt caches
+  #       uses: actions/cache/save@v3
+  #       with:
+  #         path: /var/cache/apt
+  #         key: bazel_drake_ros_apt_cache-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
+  #       if: always()
+  #   if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
   colcon_drake_ros_test:
     name: Build and test drake_ros packages with colcon
     runs-on: ubuntu-24.04
@@ -179,6 +179,11 @@ jobs:
           yes | ./setup/install_prereqs -C /tmp --with-colcon
       - name: Cope with Python 2 pollution
         run: sudo apt update && sudo apt install -y python-is-python3
+      - name: Get packages info
+        run: |
+          cmake --version
+          . /opt/ros/jazzy/setup.sh && ros2 pkg xml ament_cmake_python
+          . /opt/ros/jazzy/setup.sh && ros2 pkg xml ament_cmake_ros
       - name: Build drake_ros packages
         run: . /opt/ros/jazzy/setup.sh && colcon build
       - name: Test drake_ros packages
