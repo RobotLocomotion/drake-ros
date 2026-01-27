@@ -10,9 +10,31 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Werror -Wno-error=deprecated-declarations)
 endif()
 
-find_package(ament_cmake_ros REQUIRED)
+message(WARNING "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(WARNING "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import sys, json; print(json.dumps(sys.path))"
+  OUTPUT_VARIABLE _PY_SYS_PATH
+)
+message(WARNING "python sys.path: ${_PY_SYS_PATH}")
+message(WARNING "PYTHONPATH: $ENV{PYTHONPATH}")
 find_package(drake REQUIRED)
+
+if(UNIX)
+  unset(WIN32)
+  unset(MSVC)
+  unset(CMAKE_HOST_WIN32)
+endif()
+
+find_package(ament_cmake_ros REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+find_package(ament_cmake_core REQUIRED) # Needed for ament_environment_hooks
+
+message("ament_cmake_python version: ${ament_cmake_python_VERSION}")
+
 find_package(Python3 COMPONENTS Interpreter Development)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
@@ -36,7 +58,16 @@ add_subdirectory(drake_ros)
 # Ament installation must happen in top-level, including Python package
 # installation.
 # TODO(sloretz) exclude drake_ros/test folder
+# Note: Block the automatic hook registration from ament_cmake_python
+set(_AMENT_CMAKE_PYTHON_ENVIRONMENT_HOOK_REGISTERED TRUE)
 ament_python_install_package(drake_ros)
+# Manually register the PYTHONPATH environment hook
+ament_get_python_install_dir(PYTHON_INSTALL_DIR)
+file(TO_CMAKE_PATH "${PYTHON_INSTALL_DIR}" PYTHON_INSTALL_DIR)
+set(AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pythonpath
+  "prepend-non-duplicate;PYTHONPATH;${PYTHON_INSTALL_DIR}")
+ament_environment_hooks(
+  "${ament_cmake_package_templates_ENVIRONMENT_HOOK_PYTHONPATH}")
 
 # Generate same python package in build directory for use in tests to allow
 # for non-install-space testing of this package. For more information, see
@@ -64,16 +95,16 @@ if(APPLE)
 else()
   set(LIBRARY_PATH_ENV_VAR "LD_LIBRARY_PATH")
 endif()
-set(
-  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
-  "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
-ament_environment_hooks("env-hooks/drake_library_path.sh.in")
+# set(
+#   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
+#   "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
+# ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
-### Python module path environment hook for pydrake
-set(
-  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
-  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
-ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
+# ### Python module path environment hook for pydrake
+# set(
+#   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
+#   "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
+# ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
 
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
