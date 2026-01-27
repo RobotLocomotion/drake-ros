@@ -182,8 +182,6 @@ jobs:
       - name: Get packages info
         run: |
           cmake --version
-          . /opt/ros/jazzy/setup.sh && ros2 pkg xml ament_cmake_python
-          . /opt/ros/jazzy/setup.sh && ros2 pkg xml ament_cmake_ros
       - name: Build drake_ros packages
         run: . /opt/ros/jazzy/setup.sh && colcon build
       - name: Test drake_ros packages

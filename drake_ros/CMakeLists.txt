@@ -55,6 +55,8 @@ add_subdirectory(drake_ros)
 # Ament installation must happen in top-level, including Python package
 # installation.
 # TODO(sloretz) exclude drake_ros/test folder
+ament_get_python_install_dir(python_install_dir)
+message(WARNING "Installing python package to: ${python_install_dir}")
 ament_python_install_package(drake_ros)
 
 # Generate same python package in build directory for use in tests to allow
@@ -83,16 +85,16 @@ if(APPLE)
 else()
   set(LIBRARY_PATH_ENV_VAR "LD_LIBRARY_PATH")
 endif()
-set(
-  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
-  "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
-ament_environment_hooks("env-hooks/drake_library_path.sh.in")
+# set(
+#   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_drake_library_path
+#   "prepend-non-duplicate;${LIBRARY_PATH_ENV_VAR};${DRAKE_LIBRARY_DIR}")
+# ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
-### Python module path environment hook for pydrake
-set(
-  AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
-  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
-ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
+# ### Python module path environment hook for pydrake
+# set(
+#   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
+#   "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
+# ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
 
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
