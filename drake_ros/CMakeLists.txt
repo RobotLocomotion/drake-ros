@@ -31,6 +31,8 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+find_package(ament_cmake_core REQUIRED) # Needed for ament_environment_hooks
+
 message("ament_cmake_python version: ${ament_cmake_python_VERSION}")
 
 find_package(Python3 COMPONENTS Interpreter Development)
@@ -56,9 +58,16 @@ add_subdirectory(drake_ros)
 # Ament installation must happen in top-level, including Python package
 # installation.
 # TODO(sloretz) exclude drake_ros/test folder
-ament_get_python_install_dir(python_install_dir)
-message(WARNING "Installing python package to: ${python_install_dir}")
+# Note: Block the automatic hook registration from ament_cmake_python
+set(_AMENT_CMAKE_PYTHON_ENVIRONMENT_HOOK_REGISTERED TRUE)
 ament_python_install_package(drake_ros)
+# Manually register the PYTHONPATH environment hook
+ament_get_python_install_dir(PYTHON_INSTALL_DIR)
+file(TO_CMAKE_PATH "${PYTHON_INSTALL_DIR}" PYTHON_INSTALL_DIR)
+set(AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pythonpath
+  "prepend-non-duplicate;PYTHONPATH;${PYTHON_INSTALL_DIR}")
+ament_environment_hooks(
+  "${ament_cmake_package_templates_ENVIRONMENT_HOOK_PYTHONPATH}")
 
 # Generate same python package in build directory for use in tests to allow
 # for non-install-space testing of this package. For more information, see
