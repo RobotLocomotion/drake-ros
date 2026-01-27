@@ -31,6 +31,7 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+message("ament_cmake_python version: ${ament_cmake_python_VERSION}")
 
 find_package(Python3 COMPONENTS Interpreter Development)
 # Must use Drake's fork of Pybind11
