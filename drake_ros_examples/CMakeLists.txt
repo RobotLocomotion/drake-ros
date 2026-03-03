@@ -12,6 +12,7 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(drake REQUIRED)
+set(Python3_ROOT_DIR "${drake_PYTHON_DIR}/../..")
 find_package(drake_ros REQUIRED)
 find_package(gflags REQUIRED COMPONENTS shared)
 

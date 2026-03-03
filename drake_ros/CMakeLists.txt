@@ -13,15 +13,10 @@ endif()
 find_package(ament_cmake_ros REQUIRED)
 
 find_package(drake REQUIRED)
-# Derive the Python interpreter path directly from drake's known Python dir
-# rather than letting CMake's find_package(Python3) auto-detect, which on
-# GitHub Actions runners (with miniconda and multiple cached Pythons) can
-# pick up the wrong interpreter. That would cause ament_cmake_python to
-# compute a backslash-prefixed PYTHON_INSTALL_DIR and corrupt the PYTHONPATH
-# environment hook for downstream packages.
-cmake_path(GET drake_PYTHON_DIR PARENT_PATH _drake_python_lib_dir)
-cmake_path(GET _drake_python_lib_dir PARENT_PATH _drake_python_prefix)
-set(Python3_ROOT_DIR "${_drake_python_prefix}")
+# Set Python3_ROOT_DIR from drake's known Python path so that find_package(Python3)
+# and ament_cmake_python both use the same interpreter as drake was built against,
+# rather than conda or a cached Python on the GitHub Actions runner.
+set(Python3_ROOT_DIR "${drake_PYTHON_DIR}/../..")
 find_package(Python3 COMPONENTS Interpreter Development)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
