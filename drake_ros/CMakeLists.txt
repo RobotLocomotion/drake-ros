@@ -13,6 +13,15 @@ endif()
 find_package(ament_cmake_ros REQUIRED)
 
 find_package(drake REQUIRED)
+# Derive the Python interpreter path directly from drake's known Python dir
+# rather than letting CMake's find_package(Python3) auto-detect, which on
+# GitHub Actions runners (with miniconda and multiple cached Pythons) can
+# pick up the wrong interpreter. That would cause ament_cmake_python to
+# compute a backslash-prefixed PYTHON_INSTALL_DIR and corrupt the PYTHONPATH
+# environment hook for downstream packages.
+cmake_path(GET drake_PYTHON_DIR PARENT_PATH _drake_python_lib_dir)
+cmake_path(GET _drake_python_lib_dir PARENT_PATH _drake_python_prefix)
+set(Python3_ROOT_DIR "${_drake_python_prefix}")
 find_package(Python3 COMPONENTS Interpreter Development)
 # Must use Drake's fork of Pybind11
 find_package(pybind11 REQUIRED HINTS "${drake_DIR}/../pybind11" NO_DEFAULT_PATH)
@@ -70,15 +79,9 @@ set(
 ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
 ### Python module path environment hook for pydrake
-# drake_PYTHON_DIR may be a CMake list (semicolon-separated) when drake
-# exports multiple paths. Convert it to a colon-separated string so the
-# ament env hook descriptor and the .sh.in template receive a valid shell
-# PATH value instead of a literal CMake list.
-string(REPLACE ";" ":" drake_PYTHON_DIR_SHELL "${drake_PYTHON_DIR}")
-message(STATUS "drake_ros: drake_PYTHON_DIR resolved to '${drake_PYTHON_DIR_SHELL}'")
 set(
   AMENT_CMAKE_ENVIRONMENT_HOOKS_DESC_pydrake_pythonpath
-  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR_SHELL}")
+  "prepend-non-duplicate;PYTHONPATH;${drake_PYTHON_DIR}")
 ament_environment_hooks("env-hooks/pydrake_pythonpath.sh.in")
 
 
