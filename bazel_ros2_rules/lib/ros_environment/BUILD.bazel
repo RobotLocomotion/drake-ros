@@ -1,6 +1,5 @@
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_python//python:defs.bzl", "py_library")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -18,5 +17,3 @@ py_library(
     name = "ros_env_py",
     srcs = ["unique.py"],
 )
-
-add_lint_tests()

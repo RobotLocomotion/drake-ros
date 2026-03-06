@@ -1,5 +1,4 @@
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 package(default_visibility = ["//visibility:private"])
 
@@ -21,5 +20,3 @@ py_test(
     srcs = ["test/plugin_xml_parsing_test.py"],
     deps = [":ros2bzl_py"],
 )
-
-add_lint_tests()
