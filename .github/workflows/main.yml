@@ -52,6 +52,8 @@ jobs:
       - name: Load container image
         run: |
           docker load < /tmp/drake-ros-image.tar.gz
+      - name: Configure AppArmor for ROS network isolation
+        uses: ./.github/actions/configure-apparmor
       - name: Run bazel_ros2_rules tests
         run: |
           docker run --rm --privileged \
@@ -77,6 +79,8 @@ jobs:
       - name: Load container image
         run: |
           docker load < /tmp/drake-ros-image.tar.gz
+      - name: Configure AppArmor for ROS network isolation
+        uses: ./.github/actions/configure-apparmor
       - name: Run drake_ros bazel tests
         run: |
           docker run --rm --privileged \
@@ -102,9 +106,11 @@ jobs:
       - name: Load container image
         run: |
           docker load < /tmp/drake-ros-image.tar.gz
+      - name: Configure AppArmor for ROS network isolation
+        uses: ./.github/actions/configure-apparmor
       - name: Run colcon tests
         run: |
-          docker run --rm --privileged \
+          docker run --rm \
             -v ${{ github.workspace }}:/drake-ros \
             -u $(id -u):$(id -g) \
             drake-ros:ci-${{ github.sha }} \
