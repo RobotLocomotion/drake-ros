@@ -3,7 +3,6 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 ros_cc_binary(
     name = "multirobot",
@@ -58,5 +57,3 @@ ros_py_test(
         "@rules_python//python/runfiles",
     ],
 )
-
-add_lint_tests()

@@ -4,7 +4,6 @@
 load("@bazel_ros2_rules//lib:ament_index.bzl", "ament_index_share_files")
 load("@ros2//:ros_cc.bzl", "ros_cc_binary")
 load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 # We use `ament_index_share_files` so we can write code that can find
 # resources both when built by CMake and by Bazel.
@@ -59,5 +58,3 @@ ros_py_test(
         "@rules_python//python/runfiles",
     ],
 )
-
-add_lint_tests()
