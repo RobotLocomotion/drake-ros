@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 import subprocess
+import sys
+import threading
 from typing import List
 
 
@@ -111,7 +113,50 @@ class CodeModel:
             self.targets.append(Target(target_file))
 
 
-def get_cmake_codemodel(project_path: Path, build_path: Path) -> CodeModel:
+class Subprocess:
+    """Subprocess wrapper that prints subprocess logs with prefix"""
+
+    def __init__(self, prefix: str):
+        self.prefix = ('[' + prefix + '] ' if prefix else '').encode('utf-8')
+        self.proc = None
+        self.threads = []
+
+    def _forward_with_prefix(self, in_stream, out_stream):
+        for line in iter(in_stream.readline, b''):
+            out_stream.write(self.prefix + line)
+            out_stream.flush()
+        in_stream.close()
+
+    def popen(self, *args, **kwargs):
+        kwargs.update(
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=0,
+        )
+        self.proc = subprocess.Popen(*args, **kwargs)
+        self.threads = [
+            threading.Thread(target=self._forward_with_prefix,
+                             args=(self.proc.stdout, sys.stdout.buffer)),
+            threading.Thread(target=self._forward_with_prefix,
+                             args=(self.proc.stderr, sys.stderr.buffer)),
+        ]
+        for th in self.threads:
+            th.start()
+
+    def wait(self) -> int:
+        if self.proc is None:
+            raise RuntimeError('Process is not started')
+        returncode = self.proc.wait()
+        for th in self.threads:
+            th.join()
+        return returncode
+
+    def run(self, *args, **kwargs) -> int:
+        self.popen(*args, **kwargs)
+        return self.wait()
+
+
+def get_cmake_codemodel(project_path: Path, build_path: Path, label: str = '') -> CodeModel:
     """
     Use the cmake-file-api to get information about the code model of a CMake
     project.
@@ -132,8 +177,8 @@ def get_cmake_codemodel(project_path: Path, build_path: Path) -> CodeModel:
     query_path.joinpath('codemodel-v2').touch()
 
     args = ['cmake', str(project_path)]
-    result = subprocess.run(args, cwd=str(build_path))
-    if result.returncode != 0:
+    returncode = Subprocess(prefix=label).run(args, cwd=str(build_path))
+    if returncode != 0:
         raise RuntimeError("CMake error occurred on project. See build logs")
 
     # There should only be one file, but just in case the latest is the
