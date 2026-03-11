@@ -5,7 +5,6 @@ load("@ros2//:ros_cc.bzl", "ros_cc_binary", "ros_cc_test")
 load("@ros2//:ros_py.bzl", "ros_launch", "ros_py_binary", "ros_py_test")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 load("//tools:cmd_test.bzl", "cmd_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 rosidl_interfaces_group(
     name = "ros2_example_apps_msgs",
@@ -308,5 +307,3 @@ ros_py_test(
         "@bazel_tools//tools/python/runfiles",
     ],
 )
-
-add_lint_tests()

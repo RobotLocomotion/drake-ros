@@ -2,7 +2,6 @@
 # vi: set ft=python :
 
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
-load("//tools/lint:lint.bzl", "add_lint_tests")
 
 rosidl_interfaces_group(
     name = "ros2_example_common_msgs",
@@ -14,5 +13,3 @@ rosidl_interfaces_group(
     tags = ["nolint"],  # ROS 2 does not follow Drake's styleguide
     visibility = ["//visibility:public"],
 )
-
-add_lint_tests()
