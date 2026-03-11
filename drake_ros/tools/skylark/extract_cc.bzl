@@ -2,6 +2,8 @@
 Routines for extracting cc object files from targets.
 """
 
+load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
+
 def _extract_cc_object_files_ctx(ctx, cc_info):
     # https://bazel.build/rules/lib/CcInfo
     object_files = []

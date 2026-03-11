@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load(":extract_cc.bzl", "extract_direct_cc_hdrs_srcs_and_transitive_data")
 
 def _make_solib_name(name):
@@ -74,7 +76,7 @@ def drake_ros_cc_relink_as_shared_library(
     # a precise remapping of the dependencies of `deps_to_relink`.
 
     # Create header library with transitive deps.
-    native.cc_library(
+    cc_library(
         name = hdrs_target,
         hdrs = hdrs,
         deps = deps,
@@ -83,7 +85,7 @@ def drake_ros_cc_relink_as_shared_library(
     )
 
     # Create main shared library.
-    native.cc_binary(
+    cc_binary(
         name = solib,
         srcs = srcs,
         linkshared = 1,
@@ -94,7 +96,7 @@ def drake_ros_cc_relink_as_shared_library(
     )
 
     # Expose shared library and headers for transitive dependencies.
-    native.cc_library(
+    cc_library(
         name = name,
         srcs = [solib],
         deps = [":" + hdrs_target],

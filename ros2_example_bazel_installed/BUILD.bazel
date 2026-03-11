@@ -10,6 +10,7 @@ load(
     "ros_py_binary",
     "ros_py_test",
 )
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
 load("//tools:cmd_test.bzl", "cmd_test")
 
 # TODO(hidmic): make linter more user-friendly

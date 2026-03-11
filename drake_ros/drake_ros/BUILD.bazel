@@ -3,6 +3,8 @@ load(
     "pybind_py_library",
 )
 load("@ros2//:ros_py.bzl", "ros_py_test")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_python//python:defs.bzl", "py_library")
 
 # TODO(Aditya): Add focused unittest for qos_pybind.h
 cc_library(

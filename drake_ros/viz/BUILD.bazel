@@ -1,4 +1,5 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 # Dependencies for both static and shared libraries that will not violate ODR.
 cc_library(
