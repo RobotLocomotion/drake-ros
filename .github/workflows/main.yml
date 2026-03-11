@@ -13,6 +13,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  pre_commit:
+    name: Run linters and formatters
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files --show-diff-on-failure
+    if: "! contains(github.event.pull_request.labels.*.name, 'status: defer ci')"
+
   build_container:
     name: Build drake-ros container image
     runs-on: ubuntu-24.04
