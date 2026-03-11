@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 import glob
 import importlib.metadata
+from importlib.metadata import PackageNotFoundError  # noqa: F401
 import pathlib
 import sysconfig
 from typing import Any, Dict, Final, Optional, Tuple
