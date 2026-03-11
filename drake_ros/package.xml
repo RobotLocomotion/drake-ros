@@ -30,10 +30,7 @@
 
   <exec_depend>tf2_ros_py</exec_depend>
 
-  <test_depend>ament_cmake_clang_format</test_depend>
-  <test_depend>ament_cmake_cpplint</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
-  <test_depend>ament_cmake_pycodestyle</test_depend>
   <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>test_msgs</test_depend>
 

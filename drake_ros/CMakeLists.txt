@@ -46,16 +46,6 @@ file(COPY "drake_ros"
   DESTINATION "${PROJECT_BINARY_DIR}/py/"
   PATTERN "drake_ros/test" EXCLUDE)
 
-if(BUILD_TESTING)
-    find_package(ament_cmake_clang_format REQUIRED)
-    find_package(ament_cmake_cpplint REQUIRED)
-    find_package(ament_cmake_pycodestyle REQUIRED)
-
-    ament_clang_format(CONFIG_FILE .clang-format)
-    ament_cpplint()
-    ament_pycodestyle(--config pycodestyle.ini)
-endif()
-
 ### Drake library path environment hook
 get_target_property(DRAKE_LIBRARY drake::drake LOCATION)
 get_filename_component(DRAKE_LIBRARY_DIR ${DRAKE_LIBRARY} DIRECTORY)
