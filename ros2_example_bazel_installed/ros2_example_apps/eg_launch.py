@@ -1,6 +1,6 @@
-from python.runfiles import runfiles
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
+from python.runfiles import runfiles
 
 
 def generate_launch_description():
@@ -11,9 +11,11 @@ def generate_launch_description():
     talker_bin = r.Rlocation(f"{prefix}/eg_talker")
     listener_bin = r.Rlocation(f"{prefix}/eg_listener")
 
-    return LaunchDescription([
-        # Running a talker written in python.
-        ExecuteProcess(cmd=[talker_bin]),
-        # Running a listener written in cpp.
-        ExecuteProcess(cmd=[listener_bin]),
-    ])
+    return LaunchDescription(
+        [
+            # Running a talker written in python.
+            ExecuteProcess(cmd=[talker_bin]),
+            # Running a listener written in cpp.
+            ExecuteProcess(cmd=[listener_bin]),
+        ]
+    )

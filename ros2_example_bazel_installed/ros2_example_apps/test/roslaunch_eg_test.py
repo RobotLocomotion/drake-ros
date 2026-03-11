@@ -1,6 +1,4 @@
-import os
 import subprocess
-import sys
 
 from bazel_tools.tools.python.runfiles import runfiles
 from lib.ros_environment.unique import enforce_unique_ros_environment
@@ -29,5 +27,5 @@ def main():
     test_launch_xml()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

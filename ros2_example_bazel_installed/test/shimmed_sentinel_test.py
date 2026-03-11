@@ -29,14 +29,12 @@ def run_bazel_target(target, env, *args):
     # See RobotLocomotion/drake-ros#106 for more info.
     env.update(r.EnvVars())
     p = subprocess.Popen(
-        [r.Rlocation(target)] + list(args),
-        env=env,
-        stdout=subprocess.PIPE)
+        [r.Rlocation(target)] + list(args), env=env, stdout=subprocess.PIPE
+    )
     return p.communicate()[0].decode()
 
 
 class TestShim(unittest.TestCase):
-
     def setUp(self):
         assert SHIM_SENTINEL not in os.environ
 
@@ -44,49 +42,55 @@ class TestShim(unittest.TestCase):
 
     def test_shimmed_once_cc_reexec(self):
         stdout = run_bazel_target(
-            "ros2_example_bazel_installed/shimmed_sentinel_cc_reexec", {})
+            "ros2_example_bazel_installed/shimmed_sentinel_cc_reexec", {}
+        )
         result = json.loads(stdout)
-        self.assertTrue(result['shimmed'])
-        self.assertTrue(result['AMENT_PREFIX_PATH present'])
+        self.assertTrue(result["shimmed"])
+        self.assertTrue(result["AMENT_PREFIX_PATH present"])
 
     def test_shimmed_once_cc_ldwrap(self):
         stdout = run_bazel_target(
-            "ros2_example_bazel_installed/shimmed_sentinel_cc_ldwrap", {})
+            "ros2_example_bazel_installed/shimmed_sentinel_cc_ldwrap", {}
+        )
         result = json.loads(stdout)
-        self.assertTrue(result['shimmed'])
-        self.assertTrue(result['AMENT_PREFIX_PATH present'])
+        self.assertTrue(result["shimmed"])
+        self.assertTrue(result["AMENT_PREFIX_PATH present"])
 
     def test_mock_shimmed_twice_cc_reexec(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_cc_reexec",
-            self._mock_shimmed_env)
+            self._mock_shimmed_env,
+        )
         result = json.loads(stdout)
-        self.assertTrue(result['shimmed'])
-        self.assertFalse(result['AMENT_PREFIX_PATH present'])
+        self.assertTrue(result["shimmed"])
+        self.assertFalse(result["AMENT_PREFIX_PATH present"])
 
     def test_mock_shimmed_twice_cc_ldwrap(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_cc_ldwrap",
-            self._mock_shimmed_env)
+            self._mock_shimmed_env,
+        )
         result = json.loads(stdout)
-        self.assertTrue(result['shimmed'])
-        self.assertFalse(result['AMENT_PREFIX_PATH present'])
+        self.assertTrue(result["shimmed"])
+        self.assertFalse(result["AMENT_PREFIX_PATH present"])
 
     def test_shimmed_once_py(self):
         stdout = run_bazel_target(
-            "ros2_example_bazel_installed/shimmed_sentinel_py", {})
+            "ros2_example_bazel_installed/shimmed_sentinel_py", {}
+        )
         result = json.loads(stdout)
-        self.assertTrue(result['shimmed'])
-        self.assertTrue(result['AMENT_PREFIX_PATH present'])
+        self.assertTrue(result["shimmed"])
+        self.assertTrue(result["AMENT_PREFIX_PATH present"])
 
     def test_mock_shimmed_twice_py(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_py",
-            self._mock_shimmed_env)
+            self._mock_shimmed_env,
+        )
         result = json.loads(stdout)
-        self.assertTrue(result['shimmed'])
-        self.assertFalse(result['AMENT_PREFIX_PATH present'])
+        self.assertTrue(result["shimmed"])
+        self.assertFalse(result["AMENT_PREFIX_PATH present"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

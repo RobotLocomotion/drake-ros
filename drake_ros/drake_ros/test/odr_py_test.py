@@ -9,9 +9,9 @@ This strategy is similar to Drake's odr_test.py
 
 import unittest
 
-from pydrake.geometry import GeometryId
-
 from drake_ros._cc._test import NextGeometryId
+
+from pydrake.geometry import GeometryId
 
 
 class OdrTest(unittest.TestCase):
@@ -25,5 +25,5 @@ class OdrTest(unittest.TestCase):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

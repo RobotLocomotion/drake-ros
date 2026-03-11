@@ -1,16 +1,14 @@
-import pytest
 import random
 import sys
 
-import drake_ros
-from drake_ros.ros_message_type_caster_test_via_specific_types import (
-    TestTypecastingViaSpecificMacro,
-)
 from drake_ros.ros_message_type_caster_test_via_all import (
     TestTypecastingViaAllMacro,
 )
-
-from geometry_msgs.msg import Polygon, Point32, Quaternion
+from drake_ros.ros_message_type_caster_test_via_specific_types import (
+    TestTypecastingViaSpecificMacro,
+)
+from geometry_msgs.msg import Point32, Polygon, Quaternion
+import pytest
 
 
 def make_quaternion():
@@ -62,5 +60,5 @@ def test_msg_polygon():
         TestTypecastingViaSpecificMacro(msg=p)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(pytest.main(sys.argv))

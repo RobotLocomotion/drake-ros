@@ -1,31 +1,21 @@
-import os
 import math
 import sys
 
 import numpy as np
-
-import drake_ros.core
-from drake_ros.core import RosInterfaceSystem
-from drake_ros.tf2 import SceneTfBroadcasterSystem
-from drake_ros.tf2 import SceneTfBroadcasterParams
-
-from pydrake.common.value import AbstractValue
-from pydrake.math import RigidTransform
-from pydrake.math import RollPitchYaw
-from pydrake.math import RotationMatrix
-from pydrake.geometry import FramePoseVector
-from pydrake.geometry import GeometryFrame
-from pydrake.geometry import SceneGraph
-
-from pydrake.systems.framework import DiagramBuilder
-from pydrake.systems.framework import TriggerType
-from pydrake.systems.primitives import ConstantValueSource
-
 import pytest
-
 import rclpy
 import rclpy.time
 import tf2_ros
+
+from pydrake.common.value import AbstractValue
+from pydrake.geometry import FramePoseVector, GeometryFrame, SceneGraph
+from pydrake.math import RigidTransform, RollPitchYaw, RotationMatrix
+from pydrake.systems.framework import DiagramBuilder, TriggerType
+from pydrake.systems.primitives import ConstantValueSource
+
+import drake_ros.core
+from drake_ros.core import RosInterfaceSystem
+from drake_ros.tf2 import SceneTfBroadcasterParams, SceneTfBroadcasterSystem
 
 
 def test_nominal_case():
@@ -34,67 +24,71 @@ def test_nominal_case():
     builder = DiagramBuilder()
 
     sys_ros_interface = builder.AddSystem(
-        RosInterfaceSystem('test_tf_broadcaster_py'))
+        RosInterfaceSystem("test_tf_broadcaster_py")
+    )
 
     scene_graph = builder.AddSystem(SceneGraph())
-    source_id = scene_graph.RegisterSource('test_source')
-    odom_frame = scene_graph.RegisterFrame(
-        source_id, GeometryFrame('odom'))
+    source_id = scene_graph.RegisterSource("test_source")
+    odom_frame = scene_graph.RegisterFrame(source_id, GeometryFrame("odom"))
     base_link_frame = scene_graph.RegisterFrame(
-        source_id, odom_frame, GeometryFrame('base_link'))
+        source_id, odom_frame, GeometryFrame("base_link")
+    )
 
     X_WO = RigidTransform(
-        R=RotationMatrix.Identity(),
-        p=np.array([1., 1., 0.]))
+        R=RotationMatrix.Identity(), p=np.array([1.0, 1.0, 0.0])
+    )
     X_OB = RigidTransform(
-        rpy=RollPitchYaw(0., 0., math.pi / 2.),
-        p=np.array([1., 1., 0.]))
+        rpy=RollPitchYaw(0.0, 0.0, math.pi / 2.0), p=np.array([1.0, 1.0, 0.0])
+    )
 
     pose_vector = FramePoseVector()
     pose_vector.set_value(odom_frame, X_WO)
     pose_vector.set_value(base_link_frame, X_OB)
 
     pose_vector_source = builder.AddSystem(
-        ConstantValueSource(AbstractValue.Make(pose_vector)))
+        ConstantValueSource(AbstractValue.Make(pose_vector))
+    )
 
     builder.Connect(
         pose_vector_source.get_output_port(),
-        scene_graph.get_source_pose_port(source_id))
+        scene_graph.get_source_pose_port(source_id),
+    )
 
     scene_tf_broadcaster = builder.AddSystem(
         SceneTfBroadcasterSystem(
             sys_ros_interface.get_ros_interface(),
             params=SceneTfBroadcasterParams(
                 publish_triggers={TriggerType.kForced}
-            )
+            ),
         )
     )
 
     builder.Connect(
         scene_graph.get_query_output_port(),
-        scene_tf_broadcaster.get_graph_query_input_port())
+        scene_tf_broadcaster.get_graph_query_input_port(),
+    )
 
     diagram = builder.Build()
     context = diagram.CreateDefaultContext()
 
     rclpy.init()
-    node = rclpy.create_node('tf_listener')
+    node = rclpy.create_node("tf_listener")
 
     buffer_ = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(buffer_, node, spin_thread=False)  # noqa
 
-    time = rclpy.time.Time(seconds=13.)
+    time = rclpy.time.Time(seconds=13.0)
     stamp = time.to_msg()
 
     context.SetTime(time.nanoseconds / 1e9)
     diagram.ForcedPublish(context)
 
-    future = buffer_.wait_for_transform_async('world', 'odom', time)
+    future = buffer_.wait_for_transform_async("world", "odom", time)
     rclpy.spin_until_future_complete(node, future, timeout_sec=2)
 
     assert future.done()
     assert future.result()
-    world_to_odom = buffer_.lookup_transform('world', 'odom', time)
+    world_to_odom = buffer_.lookup_transform("world", "odom", time)
     assert world_to_odom.header.stamp.sec == stamp.sec
     assert world_to_odom.header.stamp.nanosec == stamp.nanosec
     p_WO = X_WO.translation()
@@ -107,8 +101,8 @@ def test_nominal_case():
     assert math.isclose(world_to_odom.transform.rotation.z, R_WO.z())
     assert math.isclose(world_to_odom.transform.rotation.w, R_WO.w())
 
-    assert buffer_.can_transform('odom', 'base_link', time)
-    odom_to_base_link = buffer_.lookup_transform('odom', 'base_link', time)
+    assert buffer_.can_transform("odom", "base_link", time)
+    odom_to_base_link = buffer_.lookup_transform("odom", "base_link", time)
     assert odom_to_base_link.header.stamp.sec == stamp.sec
     assert odom_to_base_link.header.stamp.nanosec == stamp.nanosec
     p_OB = X_OB.translation()
@@ -122,11 +116,10 @@ def test_nominal_case():
     assert math.isclose(odom_to_base_link.transform.rotation.w, R_OB.w())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
-        from lib.ros_environment.unique import (
-            enforce_unique_ros_environment
-        )
+        from lib.ros_environment.unique import enforce_unique_ros_environment
+
         enforce_unique_ros_environment()
     except ImportError:
         pass

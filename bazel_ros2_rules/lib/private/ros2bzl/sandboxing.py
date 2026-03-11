@@ -21,13 +21,12 @@ def make_path_mapping(name, mapping):
       and yields a path inside the workspace, and optionally takes
       an ``external`` keyword argument.
     """
+
     def _map(path, external=False):
         path = os.path.normpath(path)
         for outer_path, inner_path in mapping.items():
             if path.startswith(outer_path):
-                path = os.path.normpath(
-                    path.replace(outer_path, inner_path)
-                )
+                path = os.path.normpath(path.replace(outer_path, inner_path))
                 if external:
                     path = os.path.join(name, path)
                 return path

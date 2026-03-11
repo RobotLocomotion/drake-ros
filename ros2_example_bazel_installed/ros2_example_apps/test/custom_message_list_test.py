@@ -1,4 +1,3 @@
-import os
 import subprocess
 
 from bazel_tools.tools.python.runfiles import runfiles
@@ -13,7 +12,9 @@ def main():
 
     interfaces = subprocess.run(
         [ros2_bin, "interface", "list"],
-        check=True, text=True, stdout=subprocess.PIPE,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
     ).stdout
     print(interfaces)
     assert "ros2_example_apps_msgs/msg/Status" in interfaces

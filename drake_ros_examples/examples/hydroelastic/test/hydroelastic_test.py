@@ -5,9 +5,8 @@ from python.runfiles import runfiles
 
 def main():
     try:
-        from lib.ros_environment.unique import (
-            enforce_unique_ros_environment
-        )
+        from lib.ros_environment.unique import enforce_unique_ros_environment
+
         enforce_unique_ros_environment()
     except ImportError:
         pass
@@ -19,5 +18,5 @@ def main():
     print("[ Done ]")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

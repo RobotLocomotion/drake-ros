@@ -1,6 +1,5 @@
 import rclpy
 import rclpy.node
-
 from ros2_example_apps_msgs.msg import Status
 
 
