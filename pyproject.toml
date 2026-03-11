@@ -1,0 +1,35 @@
+# Contains configuration settings for linting Python.
+
+[tool.ruff]
+
+line-length = 80
+
+target-version = "py312"
+
+[tool.ruff.lint]
+# E = pycodestyle errors
+# F = pyflakes
+# I = isort
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
+
+force-sort-within-sections = true
+
+order-by-type = false
+
+case-sensitive = true
+
+# Custom sections ordering
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "drake",
+    "first-party",
+    "local-folder",
+]
+
+[tool.ruff.lint.isort.sections]
+
+drake = ["drake", "pydrake"]
