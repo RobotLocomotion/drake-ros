@@ -1,0 +1,11 @@
+name: Configure AppArmor for ROS network isolation
+description: Disable AppArmor restrictions to allow unprivileged user namespaces for ROS network isolation
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AppArmor for ROS network isolation
+      shell: bash
+      run: |
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0

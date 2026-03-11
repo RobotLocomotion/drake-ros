@@ -15,9 +15,24 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Switch to non-root sudoer user
-RUN apt update && apt install -y adduser sudo && rm -rf /var/lib/apt/lists/*
+RUN apt update && \
+    apt install -y \
+      adduser \
+      curl \
+      sudo && \
+    rm -rf /var/lib/apt/lists/*
 RUN adduser ubuntu sudo && echo "ubuntu ALL=NOPASSWD: ALL" >> /etc/sudoers.d/ubuntu
-USER ubuntu
+
+# Install fixuid for UID/GID mapping
+RUN USER=ubuntu && \
+    GROUP=ubuntu && \
+    curl -SsL https://github.com/boxboat/fixuid/releases/download/v0.6.0/fixuid-0.6.0-linux-amd64.tar.gz | tar -C /usr/local/bin -xzf - && \
+    chown root:root /usr/local/bin/fixuid && \
+    chmod 4755 /usr/local/bin/fixuid && \
+    mkdir -p /etc/fixuid && \
+    printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
+
+USER ubuntu:ubuntu
 
 # Cache dependencies
 COPY setup /tmp/drake-ros/setup
@@ -32,3 +47,7 @@ COPY drake_ros_examples/package.xml /tmp/drake-ros/drake_ros_examples/package.xm
 RUN yes | /tmp/drake-ros/setup/install_prereqs \
      -C /tmp/throwaway --with-bazel --with-colcon && \
    sudo rm -rf /tmp/throwaway /var/lib/apt/lists/*
+
+# Set up fixuid as entrypoint for runtime UID/GID mapping
+ENTRYPOINT ["fixuid"]
+CMD ["/bin/bash"]

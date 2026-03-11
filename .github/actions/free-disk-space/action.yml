@@ -1,0 +1,15 @@
+name: Free up runner disk space
+description: Remove unnecessary files to free up disk space on GitHub runners
+
+runs:
+  using: composite
+  steps:
+    - name: Free up runner space
+      uses: jlumbroso/free-disk-space@v1.3.1
+      with:
+        android: true
+        dotnet: true
+        haskell: true
+        docker-images: false
+        large-packages: false
+        swap-storage: false
