@@ -1,6 +1,9 @@
+#include <algorithm>
 #include <filesystem>
 #include <limits>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <drake/common/find_resource.h>
 #include <drake/geometry/drake_visualizer.h>

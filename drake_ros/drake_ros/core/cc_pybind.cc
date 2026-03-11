@@ -1,5 +1,9 @@
+#include <algorithm>
 #include <memory>
+#include <string>
 #include <unordered_set>
+#include <utility>
+#include <vector>
 
 #include <drake/systems/framework/leaf_system.h>
 #include <pybind11/pybind11.h>
@@ -107,21 +111,34 @@ void DefCore(py::module m) {
     py::class_<Class>(m, "CppNodeOptions", py::module_local())
         .def(ParamInit<Class>())
         .def_property(
-            "arguments", [](const Class& self) { return self.arguments(); },
+            "arguments",
+            [](const Class& self) {
+              return self.arguments();
+            },
             [](Class* self, const std::vector<std::string>& value) {
               self->arguments(value);
             })
         .def_property(
             "use_global_arguments",
-            [](const Class& self) { return self.use_global_arguments(); },
-            [](Class* self, bool value) { self->use_global_arguments(value); })
+            [](const Class& self) {
+              return self.use_global_arguments();
+            },
+            [](Class* self, bool value) {
+              self->use_global_arguments(value);
+            })
         .def_property(
             "enable_rosout",
-            [](const Class& self) { return self.enable_rosout(); },
-            [](Class* self, bool value) { self->enable_rosout(value); })
+            [](const Class& self) {
+              return self.enable_rosout();
+            },
+            [](Class* self, bool value) {
+              self->enable_rosout(value);
+            })
         .def_property(
             "use_intra_process_comms",
-            [](const Class& self) { return self.use_intra_process_comms(); },
+            [](const Class& self) {
+              return self.use_intra_process_comms();
+            },
             [](Class* self, bool value) {
               self->use_intra_process_comms(value);
             })
@@ -135,8 +152,12 @@ void DefCore(py::module m) {
             })
         .def_property(
             "use_clock_thread",
-            [](const Class& self) { return self.use_clock_thread(); },
-            [](Class* self, bool value) { self->use_clock_thread(value); })
+            [](const Class& self) {
+              return self.use_clock_thread();
+            },
+            [](Class* self, bool value) {
+              self->use_clock_thread(value);
+            })
         .def_property(
             "allow_undeclared_parameters",
             [](const Class& self) {

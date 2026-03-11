@@ -1,4 +1,4 @@
-#include "drake/geometry/geometry_ids.h"
+#include <drake/geometry/geometry_ids.h>
 #include <pybind11/pybind11.h>
 
 #include "drake_ros/drake_ros_pybind.h"
@@ -17,8 +17,9 @@ void DefTest(py::module m) {
   // whose "linkage" may have state.
   // In this case, `get_new_id()` will effectively function as a counter
   // whose state *should* come from `drake_shared_library`.
-  m.def("NextGeometryId",
-        []() { return drake::geometry::GeometryId::get_new_id(); });
+  m.def("NextGeometryId", []() {
+    return drake::geometry::GeometryId::get_new_id();
+  });
 }
 
 PYBIND11_MODULE(_cc, m) {

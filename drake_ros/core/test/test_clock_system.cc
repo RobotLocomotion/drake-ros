@@ -1,3 +1,6 @@
+#include <memory>
+#include <utility>
+
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <gtest/gtest.h>
@@ -39,7 +42,9 @@ GTEST_TEST(Integration, clock_system) {
   auto subscription =
       direct_ros_node->create_subscription<rosgraph_msgs::msg::Clock>(
           "/clock", rclcpp::ClockQoS(),
-          [&](const rosgraph_msgs::msg::Clock::SharedPtr) { msg_counter++; });
+          [&](const rosgraph_msgs::msg::Clock::SharedPtr) {
+            msg_counter++;
+          });
 
   simulator->AdvanceTo(simulator_context.get_time() + 1.0);
   rclcpp::spin_some(direct_ros_node);

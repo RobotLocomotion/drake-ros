@@ -5,7 +5,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
+#include <string>
 
 using bazel::tools::cpp::runfiles::Runfiles;
 

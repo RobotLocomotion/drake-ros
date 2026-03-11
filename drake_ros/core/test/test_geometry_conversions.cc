@@ -197,9 +197,13 @@ GTEST_TEST(GeometryConversions, Transform) {
 
 // We should distinguish between translational and rotational values.
 
-Eigen::Vector3d MakeDummyVector3ForRotation() { return {0.1, 0.2, 0.3}; }
+Eigen::Vector3d MakeDummyVector3ForRotation() {
+  return {0.1, 0.2, 0.3};
+}
 
-Eigen::Vector3d MakeDummyVector3ForTranslation() { return {1.0, 2.0, 3.0}; }
+Eigen::Vector3d MakeDummyVector3ForTranslation() {
+  return {1.0, 2.0, 3.0};
+}
 
 geometry_msgs::msg::Vector3 MakeDummyRosVector3ForRotation() {
   // Represents same quantity as MakeDummyVector3ForRotation.

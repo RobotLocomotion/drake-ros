@@ -5,9 +5,9 @@
 #include <string>
 #include <unordered_set>
 
-#include "drake/multibody/plant/contact_results.h"
 #include <drake/geometry/geometry_roles.h>
 #include <drake/geometry/rgba.h>
+#include <drake/multibody/plant/contact_results.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake_ros/core/drake_ros.h>

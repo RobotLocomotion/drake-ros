@@ -1,7 +1,8 @@
 #include <string>
 
-#include "internal_name_conventions.h"  // NOLINT
 #include <gtest/gtest.h>
+
+#include "internal_name_conventions.h"  // NOLINT
 
 GTEST_TEST(NameConventions, CalcMarkerNamespace) {
   EXPECT_EQ("prefix_geometry_owning_source_name",
