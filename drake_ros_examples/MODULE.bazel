@@ -1,11 +1,12 @@
 module(name = "drake_ros_examples")
 
 bazel_dep(name = "rules_python", version = "1.5.1")
+bazel_dep(name = "gflags", version = "2.2.2.bcr.1")
 
-DRAKE_COMMIT = "v1.43.0"
+DRAKE_COMMIT = "v1.51.0"
 
 DRAKE_CHECKSUM = (
-    "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
+    "e0ffb23fbbec6cc6a7dfe11beed04bcd5583cdb4bf187271b1b0977f7c292f51"
 )
 
 bazel_dep(name = "drake")
@@ -25,7 +26,6 @@ drake_dep_repositories = use_extension(
 use_repo(
     drake_dep_repositories,
     "drake_models",
-    "gflags",
     "python",
 )
 
