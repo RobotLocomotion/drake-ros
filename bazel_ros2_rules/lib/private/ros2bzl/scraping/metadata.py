@@ -1,6 +1,8 @@
 import os
 import xml.etree.ElementTree as ET
 
+from ros2bzl.utilities import ordered_set
+
 
 # Remove elements that have a condition attribute on ROS1
 def remove_ros1_elements(root):
@@ -24,26 +26,26 @@ def parse_package_xml(path_to_package_xml):
 
     remove_ros1_elements(tree.getroot())
 
-    depends = set([
+    depends = ordered_set([
         tag.text for tag in tree.findall('./depend')
     ])
-    exec_depends = set([
+    exec_depends = ordered_set([
         tag.text for tag in tree.findall('./exec_depend')
-    ])
-    build_export_depends = set([
+    ] + depends)
+    build_export_depends = ordered_set([
         tag.text for tag in tree.findall('./build_export_depend')
-    ])
-    group_depends = set([
+    ] + depends)
+    group_depends = ordered_set([
         tag.text for tag in tree.findall('./group_depend')
     ])
-    member_of_groups = set([
+    member_of_groups = ordered_set([
         tag.text for tag in tree.findall('./member_of_group')
     ])
     build_type = tree.find('./export/build_type').text
 
     return dict(
-        build_export_dependencies=build_export_depends | depends,
-        run_dependencies=exec_depends | depends,
+        build_export_dependencies=build_export_depends,
+        run_dependencies=exec_depends,
         group_dependencies=group_depends,
         groups=member_of_groups,
         build_type=build_type

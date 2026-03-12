@@ -23,3 +23,13 @@ def interpolate(template, config):
     for key, value in config.items():
         content = content.replace('@{}@'.format(key), value)
     return content
+
+def ordered_set(l: list) -> list:
+    """
+    Returns an ordered set from a list of values
+
+    Works for Python 3.7 and up
+
+    From https://stackoverflow.com/a/53657523
+    """
+    return list(dict.fromkeys(l))

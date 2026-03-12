@@ -17,6 +17,7 @@ import sys
 
 from ros2bzl.scraping import scrape_distribution
 
+from ros2bzl.utilities import ordered_set
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -44,8 +45,8 @@ def main():
     args = parse_arguments()
 
     distro = scrape_distribution(
-        set(args.include_packages),
-        set(args.exclude_packages))
+        ordered_set(args.include_packages),
+        ordered_set(args.exclude_packages))
 
     json.dump(distro, args.output, default=list)
 

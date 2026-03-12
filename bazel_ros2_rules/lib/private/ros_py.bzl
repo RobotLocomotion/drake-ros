@@ -64,11 +64,11 @@ def ros_import_binary(
         srcs = [shim_name],
         main = shim_name,
         tags = ["nolint"] + kwargs.get("tags", []),
-        data = [executable] + kwargs.get("data", []),
-        deps = kwargs.get("deps", []) + [
+        data = sorted([executable] + kwargs.get("data", [])),
+        deps = sorted(kwargs.get("deps", []) + [
             "@bazel_ros2_rules//lib/dynamic_load:dload_shim_py",
             "@bazel_ros2_rules//lib/network_isolation:network_isolation_py",
-        ],
+        ]),
     )
     py_binary_rule(name = name, **kwargs)
 
