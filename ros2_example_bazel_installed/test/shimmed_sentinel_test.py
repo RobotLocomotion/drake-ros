@@ -14,7 +14,7 @@ import os
 import subprocess
 import unittest
 
-from bazel_tools.tools.python.runfiles import runfiles
+from python.runfiles import runfiles
 
 SHIM_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED"
 
