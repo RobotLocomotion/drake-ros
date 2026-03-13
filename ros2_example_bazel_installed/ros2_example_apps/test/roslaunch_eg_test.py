@@ -1,7 +1,7 @@
 import subprocess
 
-from python.runfiles import runfiles
 from lib.ros_environment.unique import enforce_unique_ros_environment
+from python.runfiles import runfiles
 
 
 def test_launch_py():

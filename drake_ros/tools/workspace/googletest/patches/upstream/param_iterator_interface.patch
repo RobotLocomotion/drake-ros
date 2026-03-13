@@ -20,7 +20,7 @@ https://github.com/google/googletest/pull/4871
 +  // Make available for subclasses to use to implement Clone().
 +  ParamIteratorInterface(const ParamIteratorInterface&) = default;
  };
- 
+
  // Class iterating over elements provided by an implementation of
 @@ -842,7 +846,7 @@ class CartesianProductGenerator
    template <class I>
@@ -37,12 +37,12 @@ https://github.com/google/googletest/pull/4871
      }
 -    ~IteratorImpl() override = default;
 +    ~IteratorImpl() final = default;
- 
+
      const ParamGeneratorInterface<ParamType>* BaseGenerator() const override {
        return base_;
 @@ -898,6 +902,8 @@ class CartesianProductGenerator
      }
- 
+
     private:
 +    IteratorImpl(const IteratorImpl&) = default;
 +

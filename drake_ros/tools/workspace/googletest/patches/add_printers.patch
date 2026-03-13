@@ -30,7 +30,7 @@ Reasoning for not upstreaming this patch: Drake-specific dependency.
 +++ googletest/include/gtest/gtest-printers.h
 @@ -115,3 +115,6 @@
  #include "gtest/internal/gtest-port.h"
- 
+
 +#include "drake/common/test_utilities/eigen_printer.h"
 +#include "drake/common/test_utilities/fmt_format_printer.h"
 +

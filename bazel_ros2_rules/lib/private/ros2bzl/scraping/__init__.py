@@ -111,6 +111,7 @@ def scrape_distribution(include=None, exclude=None):
     import sys
 
     import ament_index_python
+
     packages, dependency_graph = build_dependency_graph(
         index_all_packages(), include, exclude
     )
@@ -123,10 +124,9 @@ def scrape_distribution(include=None, exclude=None):
     python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
     python_paths = []
     for prefix in ament_index_python.get_search_paths():
-        python_site_packages = os.path.join(prefix,
-                                            "lib",
-                                            python_version,
-                                            "site-packages")
+        python_site_packages = os.path.join(
+            prefix, "lib", python_version, "site-packages"
+        )
         if os.path.isdir(python_site_packages):
             python_paths.append(python_site_packages)
 
@@ -139,5 +139,5 @@ def scrape_distribution(include=None, exclude=None):
             "ament_prefix": ament_index_python.get_search_paths(),
             "library_load": ld_library_path.split(os.path.pathsep),
             "python": python_paths,
-        }
+        },
     }
