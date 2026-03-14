@@ -7,10 +7,10 @@
 #
 # Author: Adeeb Abbas
 
-version: '3.8'
 services:
   drake_ros:
     container_name: drake_ros_container
+    platform: linux/arm64
     # Use the drake-ros image for the simulation environment
     # This image contains the necessary dependencies and configurations for running Drake ROS integration projects
     image: RobotLocomotion/drake-ros
@@ -31,6 +31,7 @@ services:
     tty: true
   novnc:
     container_name: novnc_container
+    platform: linux/amd64  # x86-only image; runs under QEMU emulation on ARM64
     image: theasp/novnc:latest
     environment:
       # Set the desired display resolution for the noVNC server

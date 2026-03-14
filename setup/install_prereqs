@@ -52,11 +52,11 @@ install_drake_from_sources() {
   if [ ! -d drake ]; then
     fetch_drake_sources
   fi
-  ./drake/setup/ubuntu/install_prereqs --without-bazel
+  ./drake/setup/install_prereqs --without-bazel
   ${MAYBE_SUDO} apt install cmake build-essential
   mkdir -p drake-build
   cd drake-build
-  cmake -DCMAKE_INSTALL_PREFIX=/opt/drake ..
+  cmake -DCMAKE_INSTALL_PREFIX=/opt/drake ../drake
   make -j$(nproc)
   ${MAYBE_SUDO} make install
 }
