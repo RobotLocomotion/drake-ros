@@ -1,9 +1,11 @@
+#include <memory>
 #include <string>
+#include <unordered_set>
 
-#include "internal_name_conventions.h"  // NOLINT
 #include <gtest/gtest.h>
 
 #include "drake_ros/tf2/name_conventions.h"
+#include "internal_name_conventions.h"  // NOLINT
 
 using drake::geometry::FrameId;
 using drake::multibody::ModelInstanceIndex;

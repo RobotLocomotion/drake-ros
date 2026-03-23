@@ -1,6 +1,7 @@
 module(name = "drake_ros")
 
 bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "rules_python", version = "1.5.1")
 
 DRAKE_COMMIT = "v1.43.0"
 
@@ -26,9 +27,7 @@ use_repo(
     drake_dep_repositories,
     "eigen",
     "gtest",
-    "pycodestyle",
     "python",
-    "styleguide",
 )
 
 bazel_dep(name = "bazel_ros2_rules")

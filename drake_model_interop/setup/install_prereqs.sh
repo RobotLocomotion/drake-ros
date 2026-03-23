@@ -9,4 +9,3 @@ sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_rel
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 apt-get update
 apt-get install ignition-edifice
-

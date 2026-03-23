@@ -1,38 +1,29 @@
 import argparse
-import os
-import os.path
-import pathlib
 
 import numpy
 
-import drake_ros.core
-from drake_ros.core import ClockSystem
-from drake_ros.core import RosInterfaceSystem
-from drake_ros.tf2 import SceneTfBroadcasterSystem
-from drake_ros.tf2 import SceneTfBroadcasterParams
-
-from drake_ros.viz import RvizVisualizer
-from drake_ros.viz import RvizVisualizerParams
-
-from pydrake.common import FindResourceOrThrow
 from pydrake.geometry import DrakeVisualizer
 from pydrake.math import RigidTransform
 from pydrake.multibody.parsing import Parser
 from pydrake.multibody.plant import AddMultibodyPlant, MultibodyPlantConfig
-from pydrake.multibody.tree import JointIndex
 from pydrake.systems.analysis import Simulator
-from pydrake.systems.framework import DiagramBuilder
-from pydrake.systems.framework import TriggerType
+from pydrake.systems.framework import DiagramBuilder, TriggerType
 from pydrake.systems.primitives import ConstantVectorSource
+
+import drake_ros.core
+from drake_ros.core import ClockSystem, RosInterfaceSystem
+from drake_ros.tf2 import SceneTfBroadcasterParams, SceneTfBroadcasterSystem
+from drake_ros.viz import RvizVisualizer, RvizVisualizerParams
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--simulation_sec',
+        "--simulation_sec",
         type=float,
-        default=float('inf'),
-        help='How many seconds to run the simulation')
+        default=float("inf"),
+        help="How many seconds to run the simulation",
+    )
     args = parser.parse_args()
 
     # Create a Drake diagram
@@ -40,7 +31,7 @@ def main():
     # Initialise the ROS infrastructure
     drake_ros.core.init()
     # Create a Drake system to interface with ROS
-    sys_ros_interface = builder.AddSystem(RosInterfaceSystem('multirobot'))
+    sys_ros_interface = builder.AddSystem(RosInterfaceSystem("multirobot"))
     ClockSystem.AddToBuilder(builder, sys_ros_interface.get_ros_interface())
 
     # Add a multibody plant and a scene graph to hold the robots
@@ -57,12 +48,13 @@ def main():
             params=SceneTfBroadcasterParams(
                 publish_triggers={TriggerType.kPeriodic},
                 publish_period=viz_dt,
-            )
+            ),
         )
     )
     builder.Connect(
         scene_graph.get_query_output_port(),
-        scene_tf_broadcaster.get_graph_query_input_port())
+        scene_tf_broadcaster.get_graph_query_input_port(),
+    )
 
     # Add a system to output the visualisation markers for rviz
     scene_visualizer = builder.AddSystem(
@@ -71,17 +63,19 @@ def main():
             params=RvizVisualizerParams(
                 publish_triggers={TriggerType.kPeriodic},
                 publish_period=viz_dt,
-            )
+            ),
         )
     )
     builder.Connect(
         scene_graph.get_query_output_port(),
-        scene_visualizer.get_graph_query_input_port())
+        scene_visualizer.get_graph_query_input_port(),
+    )
 
     # Prepare to load the robot model
     model_file_url = (
-        'package://drake_models/iiwa_description/urdf/'
-        'iiwa14_polytope_collision.urdf')
+        "package://drake_models/iiwa_description/urdf/"
+        "iiwa14_polytope_collision.urdf"
+    )
     model_name = "kuka_iiwa"
 
     # Create a 5x5 array of manipulators
@@ -96,8 +90,9 @@ def main():
             parser = Parser(plant)
             (iiwa,) = parser.AddModels(url=model_file_url)
             models[x].append(iiwa)
-            plant.RenameModelInstance(model_instance=iiwa,
-                                      name=model_name + str(x) + '_' + str(y))
+            plant.RenameModelInstance(
+                model_instance=iiwa, name=model_name + str(x) + "_" + str(y)
+            )
 
             # Weld the robot to world so it doesn't fall through floor
             base_frame = plant.GetFrameByName("base", models[x][y])
@@ -119,10 +114,11 @@ def main():
             # Connect the constant value to the robot
             builder.Connect(
                 constant.get_output_port(0),
-                plant.get_actuation_input_port(models[x][y]))
+                plant.get_actuation_input_port(models[x][y]),
+            )
 
     # Add a Drake visualiser instance to the diagram
-    viz = DrakeVisualizer.AddToBuilder(builder, scene_graph)
+    _viz = DrakeVisualizer.AddToBuilder(builder, scene_graph)
 
     # Build the complete system from the diagram
     diagram = builder.Build()
@@ -137,10 +133,11 @@ def main():
     step = 0.1
     while simulator_context.get_time() < args.simulation_sec:
         next_time = min(
-            simulator_context.get_time() + step, args.simulation_sec,
+            simulator_context.get_time() + step,
+            args.simulation_sec,
         )
         simulator.AdvanceTo(next_time)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

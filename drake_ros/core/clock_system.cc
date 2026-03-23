@@ -1,5 +1,9 @@
 #include "clock_system.h"
 
+#include <string>
+#include <tuple>
+#include <unordered_set>
+
 #include <rclcpp/time.hpp>
 
 using drake_ros::core::ClockSystem;

@@ -13,4 +13,3 @@ sudo ./setup/install_prereqs.sh
 ```
 
 TODO(marcoag): Add the rest of the steps when the actual scripts are added into the repo.
-

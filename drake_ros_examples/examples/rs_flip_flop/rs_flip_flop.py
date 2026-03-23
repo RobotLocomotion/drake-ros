@@ -9,39 +9,37 @@ S: true  R: false | Q: false      Q_not: true
 S: false R: true  | Q: true       Q_not: false
 S: true  R: true  | Q: invalid    Q_not: invalid
 """  # noqa
+
 import argparse
 
-import drake_ros.core
-from drake_ros.core import RosInterfaceSystem
-from drake_ros.core import RosPublisherSystem
-from drake_ros.core import RosSubscriberSystem
-
-from pydrake.systems.analysis import Simulator
-from pydrake.systems.framework import DiagramBuilder
-from pydrake.systems.framework import UnrestrictedUpdateEvent
-from pydrake.common.value import AbstractValue
-from pydrake.systems.framework import LeafSystem
-
+from rclpy.qos import QoSProfile
 from std_msgs.msg import Bool
 
-from rclpy.qos import QoSProfile
+from pydrake.common.value import AbstractValue
+from pydrake.systems.analysis import Simulator
+from pydrake.systems.framework import (
+    DiagramBuilder,
+    LeafSystem,
+    UnrestrictedUpdateEvent,
+)
+
+import drake_ros.core
+from drake_ros.core import (
+    RosInterfaceSystem,
+    RosPublisherSystem,
+    RosSubscriberSystem,
+)
 
 
 class NorGate(LeafSystem):
-
     def __init__(self):
         super().__init__()
-        self._a = self.DeclareAbstractInputPort(
-            "A", AbstractValue.Make(Bool())
-        )
-        self._b = self.DeclareAbstractInputPort(
-            "B", AbstractValue.Make(Bool())
-        )
+        self._a = self.DeclareAbstractInputPort("A", AbstractValue.Make(Bool()))
+        self._b = self.DeclareAbstractInputPort("B", AbstractValue.Make(Bool()))
 
         self.DeclareAbstractOutputPort(
-            'Q',
-            lambda: AbstractValue.Make(Bool()),
-            self._calc_output_value)
+            "Q", lambda: AbstractValue.Make(Bool()), self._calc_output_value
+        )
 
     def _calc_output_value(self, context, data):
         a = self._a.Eval(context)
@@ -62,10 +60,11 @@ class Memory(LeafSystem):
         self.DeclareAbstractState(AbstractValue.Make(initial_value))
 
         self.DeclareAbstractOutputPort(
-            'Q',
+            "Q",
             lambda: AbstractValue.Make(initial_value),
             self._calc_output_value,
-            {self.all_state_ticket()})
+            {self.all_state_ticket()},
+        )
 
         self.DeclarePerStepEvent(
             UnrestrictedUpdateEvent(self._move_input_to_state)
@@ -73,7 +72,8 @@ class Memory(LeafSystem):
 
     def _move_input_to_state(self, context, event, state):
         state.get_mutable_abstract_state().get_mutable_value(0).SetFrom(
-            AbstractValue.Make(self._input.Eval(context)))
+            AbstractValue.Make(self._input.Eval(context))
+        )
 
     def _calc_output_value(self, context, output):
         output.SetFrom(context.get_abstract_state().get_value(0))
@@ -82,10 +82,11 @@ class Memory(LeafSystem):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--simulation_sec',
+        "--simulation_sec",
         type=float,
-        default=float('inf'),
-        help='How many seconds to run the simulation')
+        default=float("inf"),
+        help="How many seconds to run the simulation",
+    )
     args = parser.parse_args()
 
     drake_ros.core.init()
@@ -96,15 +97,27 @@ def main():
 
     qos = QoSProfile(depth=10)
 
-    sys_pub_Q = builder.AddSystem(RosPublisherSystem.Make(
-        Bool, "Q", qos, sys_ros_interface.get_ros_interface()))
-    sys_pub_Q_not = builder.AddSystem(RosPublisherSystem.Make(
-        Bool, "Q_not", qos, sys_ros_interface.get_ros_interface()))
+    sys_pub_Q = builder.AddSystem(
+        RosPublisherSystem.Make(
+            Bool, "Q", qos, sys_ros_interface.get_ros_interface()
+        )
+    )
+    sys_pub_Q_not = builder.AddSystem(
+        RosPublisherSystem.Make(
+            Bool, "Q_not", qos, sys_ros_interface.get_ros_interface()
+        )
+    )
 
-    sys_sub_S = builder.AddSystem(RosSubscriberSystem.Make(
-        Bool, "S", qos, sys_ros_interface.get_ros_interface()))
-    sys_sub_R = builder.AddSystem(RosSubscriberSystem.Make(
-        Bool, "R", qos, sys_ros_interface.get_ros_interface()))
+    sys_sub_S = builder.AddSystem(
+        RosSubscriberSystem.Make(
+            Bool, "S", qos, sys_ros_interface.get_ros_interface()
+        )
+    )
+    sys_sub_R = builder.AddSystem(
+        RosSubscriberSystem.Make(
+            Bool, "R", qos, sys_ros_interface.get_ros_interface()
+        )
+    )
 
     sys_nor_gate_1 = builder.AddSystem(NorGate())
     sys_nor_gate_2 = builder.AddSystem(NorGate())
@@ -112,35 +125,32 @@ def main():
     sys_memory = builder.AddSystem(Memory(Bool()))
 
     builder.Connect(
-        sys_nor_gate_1.GetOutputPort('Q'),
-        sys_memory.get_input_port(0)
+        sys_nor_gate_1.GetOutputPort("Q"), sys_memory.get_input_port(0)
     )
 
     builder.Connect(
         sys_sub_S.get_output_port(0),
-        sys_nor_gate_1.GetInputPort('A'),
+        sys_nor_gate_1.GetInputPort("A"),
     )
     builder.Connect(
-        sys_nor_gate_2.GetOutputPort('Q'),
-        sys_nor_gate_1.GetInputPort('B'),
+        sys_nor_gate_2.GetOutputPort("Q"),
+        sys_nor_gate_1.GetInputPort("B"),
     )
 
     builder.Connect(
         sys_memory.get_output_port(0),
-        sys_nor_gate_2.GetInputPort('A'),
+        sys_nor_gate_2.GetInputPort("A"),
     )
     builder.Connect(
         sys_sub_R.get_output_port(0),
-        sys_nor_gate_2.GetInputPort('B'),
+        sys_nor_gate_2.GetInputPort("B"),
     )
 
     builder.Connect(
-        sys_nor_gate_1.GetOutputPort('Q'),
-        sys_pub_Q.get_input_port(0)
+        sys_nor_gate_1.GetOutputPort("Q"), sys_pub_Q.get_input_port(0)
     )
     builder.Connect(
-        sys_nor_gate_2.GetOutputPort('Q'),
-        sys_pub_Q_not.get_input_port(0)
+        sys_nor_gate_2.GetOutputPort("Q"), sys_pub_Q_not.get_input_port(0)
     )
 
     diagram = builder.Build()
@@ -152,10 +162,11 @@ def main():
     step = 0.1
     while simulator_context.get_time() < args.simulation_sec:
         next_time = min(
-            simulator_context.get_time() + step, args.simulation_sec,
+            simulator_context.get_time() + step,
+            args.simulation_sec,
         )
         simulator.AdvanceTo(next_time)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

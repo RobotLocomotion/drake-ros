@@ -1,18 +1,20 @@
 /** @file
  An example of visualizing ContactSurfaces with RViz.  */
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <string>
 #include <utility>
 
-#include "drake/multibody/meshcat/contact_visualizer.h"
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <drake/geometry/kinematics_vector.h>
 #include <drake/geometry/meshcat.h>
 #include <drake/geometry/meshcat_visualizer.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/math/rigid_transform.h>
+#include <drake/multibody/meshcat/contact_visualizer.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/analysis/simulator.h>

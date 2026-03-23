@@ -10,8 +10,8 @@ def make_unique_ros_environment(
     """
     Generates a unique ROS 2 environment for tests and processes.
 
-    Note this environment does not imply isolation. 
-    See //lib/network_isolation for same host isolation.  
+    Note this environment does not imply isolation.
+    See //lib/network_isolation for same host isolation.
 
     Warning:
         scratch_directory should generally be unique to prevent collisions

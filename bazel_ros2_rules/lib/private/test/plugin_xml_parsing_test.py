@@ -5,9 +5,8 @@ from ros2bzl.scraping.metadata import parse_plugins_description_xml
 
 
 class PluginXmlParsingTest(unittest.TestCase):
-
     def test_one_library(self):
-        with tempfile.NamedTemporaryFile(mode='w') as pxml:
+        with tempfile.NamedTemporaryFile(mode="w") as pxml:
             pxml.write("""
                 <library path="foobar">
                     <class type="pkg::FooBar" base_class_type="pkg::World">
@@ -17,11 +16,11 @@ class PluginXmlParsingTest(unittest.TestCase):
                 """)
             pxml.flush()
             result = parse_plugins_description_xml(pxml.name)
-        self.assertIn('plugin_libraries', result)
-        self.assertEqual(['foobar'], result['plugin_libraries'])
+        self.assertIn("plugin_libraries", result)
+        self.assertEqual(["foobar"], result["plugin_libraries"])
 
     def test_class_libraries_one_library(self):
-        with tempfile.NamedTemporaryFile(mode='w') as pxml:
+        with tempfile.NamedTemporaryFile(mode="w") as pxml:
             pxml.write("""
                 <class_libraries>
                     <library path="foobar">
@@ -33,11 +32,11 @@ class PluginXmlParsingTest(unittest.TestCase):
                 """)
             pxml.flush()
             result = parse_plugins_description_xml(pxml.name)
-        self.assertIn('plugin_libraries', result)
-        self.assertEqual(['foobar'], result['plugin_libraries'])
+        self.assertIn("plugin_libraries", result)
+        self.assertEqual(["foobar"], result["plugin_libraries"])
 
     def test_class_libraries_two_library(self):
-        with tempfile.NamedTemporaryFile(mode='w') as pxml:
+        with tempfile.NamedTemporaryFile(mode="w") as pxml:
             pxml.write("""
                 <class_libraries>
                     <library path="foobar">
@@ -54,9 +53,9 @@ class PluginXmlParsingTest(unittest.TestCase):
                 """)
             pxml.flush()
             result = parse_plugins_description_xml(pxml.name)
-        self.assertIn('plugin_libraries', result)
-        self.assertEqual(['foobar', 'bazfoo'], result['plugin_libraries'])
+        self.assertIn("plugin_libraries", result)
+        self.assertEqual(["foobar", "bazfoo"], result["plugin_libraries"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

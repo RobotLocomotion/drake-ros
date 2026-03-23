@@ -10,8 +10,8 @@ WARNING: `bazel run` does not work as expected
 """  # noqa
 
 import os
-import shutil
 import select
+import shutil
 import subprocess
 import time
 

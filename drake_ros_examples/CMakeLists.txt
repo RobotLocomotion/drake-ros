@@ -19,12 +19,4 @@ add_subdirectory(examples/hydroelastic)
 add_subdirectory(examples/multirobot)
 add_subdirectory(examples/rs_flip_flop)
 
-if(BUILD_TESTING)
-  find_package(ament_cmake_clang_format REQUIRED)
-  find_package(ament_cmake_cpplint REQUIRED)
-
-  ament_clang_format(CONFIG_FILE .clang-format)
-  ament_cpplint()
-endif()
-
 ament_package()

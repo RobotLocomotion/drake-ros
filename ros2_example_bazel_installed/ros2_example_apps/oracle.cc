@@ -60,10 +60,12 @@ class Oracle : public rclcpp::Node {
 
   void handle_accepted_action(const std::shared_ptr<DoGoalHandle> handle) {
     action_start_time_ = this->get_clock()->now();
-    action_loop_ = this->create_wall_timer(
-        rclcpp::Duration{handle->get_goal()->period}
-            .to_chrono<std::chrono::nanoseconds>(),
-        [this, handle]() { this->handle_rite_action(handle); });
+    action_loop_ =
+        this->create_wall_timer(rclcpp::Duration{handle->get_goal()->period}
+                                    .to_chrono<std::chrono::nanoseconds>(),
+                                [this, handle]() {
+                                  this->handle_rite_action(handle);
+                                });
   }
 
   void handle_rite_action(const std::shared_ptr<DoGoalHandle> handle) {

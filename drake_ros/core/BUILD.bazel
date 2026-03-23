@@ -1,5 +1,5 @@
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
-load("//tools/lint:lint.bzl", "add_lint_tests")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 # Dependencies for both static and shared libraries that will not violate ODR.
 cc_library(
@@ -126,5 +126,3 @@ ros_cc_test(
         "@gtest//:main",
     ],
 )
-
-add_lint_tests()

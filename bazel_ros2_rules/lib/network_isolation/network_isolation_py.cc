@@ -1,5 +1,6 @@
-#include "network_isolation.h"
 #include <Python.h>
+
+#include "network_isolation.h"
 
 // Method wrapper definitions
 static PyObject* create_linux_network_namespaces(PyObject*, PyObject*) {

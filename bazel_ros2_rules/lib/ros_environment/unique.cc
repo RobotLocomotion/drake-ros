@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <string>
 
 namespace bazel_ros2_rules {
 

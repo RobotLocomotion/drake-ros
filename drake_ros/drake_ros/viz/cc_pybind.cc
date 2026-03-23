@@ -1,4 +1,5 @@
 #include <memory>
+#include <unordered_set>
 
 #include <drake/systems/framework/diagram.h>
 #include <pybind11/pybind11.h>

@@ -5,7 +5,8 @@ from bazel_tools.tools.python.runfiles import runfiles
 def main():
     r = runfiles.Create()
     file_path = r.Rlocation(
-        "ros2_example_bazel_installed/test/runfiles_test_data.txt")
+        "ros2_example_bazel_installed/test/runfiles_test_data.txt"
+    )
     print(file_path)
     print("Good!")
 

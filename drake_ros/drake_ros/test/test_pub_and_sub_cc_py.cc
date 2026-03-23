@@ -1,3 +1,5 @@
+#include <utility>
+
 #include <pybind11/pybind11.h>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/int32.hpp>
@@ -13,8 +15,10 @@ using std_msgs::msg::Int32;
 class CppPubAndSub {
  public:
   explicit CppPubAndSub(rclcpp::Node::SharedPtr node) : node_(node) {
-    sub_ = node_->create_subscription<Int32>(
-        "/cpp_sub", 1, [this](const Int32& message) { value_ = message.data; });
+    sub_ = node_->create_subscription<Int32>("/cpp_sub", 1,
+                                             [this](const Int32& message) {
+                                               value_ = message.data;
+                                             });
     pub_ = node_->create_publisher<Int32>("/cpp_pub", 1);
   }
 

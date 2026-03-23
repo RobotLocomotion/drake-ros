@@ -1,12 +1,10 @@
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
-
 from std_msgs.msg import String
 
 
 class MinimalPublisher(Node):
-
     def __init__(self, *, max_count=10):
         super().__init__("node")
         qos = rclpy.qos.QoSProfile(

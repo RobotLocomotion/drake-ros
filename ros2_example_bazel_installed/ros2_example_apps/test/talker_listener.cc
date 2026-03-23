@@ -1,11 +1,12 @@
 #include <chrono>
 #include <memory>
 
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/string.hpp>
+
 #include "lib/ros_environment/unique.h"
 #include "listener.h"
 #include "talker.h"
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
 
 int main(int argc, char* argv[]) {
   bazel_ros2_rules::EnforceUniqueROSEnvironment();

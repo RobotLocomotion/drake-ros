@@ -53,9 +53,13 @@ DrakeRos::DrakeRos(rclcpp::Node::SharedPtr ros_node) : impl_(new Impl()) {
 
 DrakeRos::~DrakeRos() {}
 
-const rclcpp::Node& DrakeRos::get_node() const { return *impl_->node; }
+const rclcpp::Node& DrakeRos::get_node() const {
+  return *impl_->node;
+}
 
-rclcpp::Node* DrakeRos::get_mutable_node() const { return impl_->node.get(); }
+rclcpp::Node* DrakeRos::get_mutable_node() const {
+  return impl_->node.get();
+}
 
 void DrakeRos::Spin(int timeout_millis) {
   if (timeout_millis < 0) {
@@ -72,7 +76,9 @@ void init(int argc, const char** argv) {
   }
 }
 
-bool shutdown() { return rclcpp::shutdown(); }
+bool shutdown() {
+  return rclcpp::shutdown();
+}
 
 }  // namespace core
 }  // namespace drake_ros
