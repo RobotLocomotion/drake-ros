@@ -15,8 +15,8 @@ import shutil
 import subprocess
 import time
 
-from bazel_tools.tools.python.runfiles import runfiles
 from lib.ros_environment.unique import enforce_unique_ros_environment
+from python.runfiles import runfiles
 
 
 def read_available(f, timeout=0.0, chunk_size=1024):

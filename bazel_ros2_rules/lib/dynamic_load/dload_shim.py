@@ -1,7 +1,7 @@
 import os
 import sys
 
-from bazel_tools.tools.python.runfiles import runfiles as runfiles_api
+from python.runfiles import runfiles as runfiles_api
 
 SHIMMED_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED"
 

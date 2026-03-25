@@ -260,7 +260,7 @@ ros_py_test(
     main = "test/roslaunch_eg_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 
@@ -274,7 +274,7 @@ ros_py_test(
     main = "test/custom_message_rosbag_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 
@@ -290,7 +290,7 @@ ros_py_test(
     main = "test/custom_message_echo_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )
 
@@ -305,6 +305,6 @@ ros_py_test(
     main = "test/custom_message_list_test.py",
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
-        "@bazel_tools//tools/python/runfiles",
+        "@rules_python//python/runfiles",
     ],
 )

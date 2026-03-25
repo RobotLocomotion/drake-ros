@@ -108,6 +108,8 @@ def build_dependency_graph(packages, include=None, exclude=None):
 
 def scrape_distribution(include=None, exclude=None):
     # Delay import to allow testing most of ros2bzl without a ros2 workspace
+    import sys
+
     import ament_index_python
 
     packages, dependency_graph = build_dependency_graph(
@@ -116,6 +118,18 @@ def scrape_distribution(include=None, exclude=None):
     executables = list_all_executables()
     ld_library_path = os.environ["LD_LIBRARY_PATH"]
     ros_distro = os.environ["ROS_DISTRO"]
+
+    # Collect Python site-packages paths from ament prefixes
+    # Since rules_python 1.6.3 python paths aren"t automatically propagated
+    python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
+    python_paths = []
+    for prefix in ament_index_python.get_search_paths():
+        python_site_packages = os.path.join(
+            prefix, "lib", python_version, "site-packages"
+        )
+        if os.path.isdir(python_site_packages):
+            python_paths.append(python_site_packages)
+
     return {
         "packages": packages,
         "dependency_graph": dependency_graph,
@@ -124,5 +138,6 @@ def scrape_distribution(include=None, exclude=None):
         "paths": {
             "ament_prefix": ament_index_python.get_search_paths(),
             "library_load": ld_library_path.split(os.path.pathsep),
+            "python": python_paths,
         },
     }

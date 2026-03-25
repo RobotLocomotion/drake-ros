@@ -1,12 +1,12 @@
 module(name = "drake_ros")
 
-bazel_dep(name = "rules_cc", version = "0.1.1")
-bazel_dep(name = "rules_python", version = "1.5.1")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_python", version = "1.6.3")
 
-DRAKE_COMMIT = "v1.43.0"
+DRAKE_COMMIT = "v1.51.0"
 
 DRAKE_CHECKSUM = (
-    "635c125187c6758b1bfc7698b59f6f9bfc64a902575e191cccce74be8c6f47ee"
+    "e0ffb23fbbec6cc6a7dfe11beed04bcd5583cdb4bf187271b1b0977f7c292f51"
 )
 
 bazel_dep(name = "drake")
@@ -26,7 +26,6 @@ drake_dep_repositories = use_extension(
 use_repo(
     drake_dep_repositories,
     "eigen",
-    "gtest",
     "python",
 )
 
@@ -66,3 +65,22 @@ local_ros2.distribution(
 use_repo(local_ros2, ros2 = "local_ros2")
 
 register_toolchains("@python//:all")
+
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
+single_version_override(
+    module_name = "googletest",
+    # These patches must be the exact same as those in drake's MODULE.bazel
+    # for the pinned drake version (see DRAKE_VERSION).
+    # So that we have a consistent googletest drake_ros and drake.
+    patches = [
+        "//tools/workspace/googletest:patches/upstream/exception_shadowing.patch",  # noqa
+        "//tools/workspace/googletest:patches/upstream/param_iterator_interface.patch",  # noqa
+        "//tools/workspace/googletest:patches/add_printers.patch",
+        "//tools/workspace/googletest:patches/defines.patch",
+    ],
+    # We must pin the same version as ~10 lines prior, because our patch to
+    # MODULE.bazel doesn't apply correctly to other versions of googletest,
+    # but Bazel's MVS selection will try to apply it anyway to all versions
+    # being considered when resolving the dependency graph.
+    version = "1.17.0.bcr.2",
+)
