@@ -19,6 +19,13 @@ rosidl_interfaces_group(
     ],
 )
 
+rosidl_interfaces_group(
+    name = "policy_msgs",
+    interfaces = [
+        "srv/PolicyReset.idl",
+    ],
+)
+
 # This builds oracle.cc using the "reexec" strategy for shimming.
 ros_cc_binary(
     name = "oracle_cc_reexec",
@@ -306,5 +313,13 @@ ros_py_test(
     deps = [
         "@bazel_ros2_rules//lib/ros_environment:ros_env_py",
         "@bazel_tools//tools/python/runfiles",
+    ],
+)
+
+ros_cc_test(
+    name = "policy_msgs_test_cc",
+    srcs = ["test/policy_msgs_test.cc"],
+    deps = [
+        ":policy_msgs_cc",
     ],
 )

@@ -1,0 +1,17 @@
+module policy_msgs
+{
+  module srv
+  {
+    @final
+    struct PolicyReset_Request
+    {
+      int64 seed;
+    };
+
+    @final
+    struct PolicyReset_Response
+    {
+      boolean success;
+    };
+  };
+};

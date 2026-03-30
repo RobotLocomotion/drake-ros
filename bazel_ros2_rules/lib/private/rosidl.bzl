@@ -382,29 +382,57 @@ def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
 
     Additional keyword arguments are those common to all rules.
     """
-    translated_interfaces = []
-    for ifc in interfaces:
-        base, _, ext = ifc.rpartition(".")
-        translated_interfaces.append("{}/{}.idl".format(group, base))
-    rosidl_translate_genrule(
-        name = name + "_translate",
-        output_format = "idl",
-        translated_interfaces = translated_interfaces,
-        group = group,
-        output_dir = group,
-        interfaces = interfaces,
-        includes = includes,
-        **kwargs
-    )
+    idl_srcs = [ifc for ifc in interfaces if ifc.endswith(".idl")]
+    translate_srcs = [ifc for ifc in interfaces if not ifc.endswith(".idl")]
+
+    all_translated_paths = []
+    combined_defs_deps = []
+
+    if translate_srcs:
+        msg_srv_outs = []
+        for ifc in translate_srcs:
+            base, _, _ = ifc.rpartition(".")
+            msg_srv_outs.append("{}/{}.idl".format(group, base))
+
+        all_translated_paths.extend(msg_srv_outs)
+        combined_defs_deps.append(_make_public_label(name, "_translate_msgs"))
+
+        rosidl_translate_genrule(
+            name = name + "_translate_msgs",
+            output_format = "idl",
+            translated_interfaces = msg_srv_outs,
+            group = group,
+            output_dir = group,
+            interfaces = translate_srcs,
+            includes = includes,
+            **kwargs
+        )
+
+    if idl_srcs:
+        idl_outs = []
+        for ifc in idl_srcs:
+            base, _, _ = ifc.rpartition(".")
+            idl_outs.append("{}/{}.idl".format(group, base))
+
+        all_translated_paths.extend(idl_outs)
+        combined_defs_deps.append(_make_public_label(name, "_translate_idls"))
+
+        rosidl_idl_passthrough(
+            name = name + "_translate_idls",
+            interfaces = idl_srcs,
+            translated_interfaces = idl_outs,
+            **kwargs
+        )
 
     interface_hashes = []
-    for ifc in translated_interfaces:
-        base, _, ext = ifc.rpartition(".")
+    for ifc_path in all_translated_paths:
+        base, _, _ = ifc_path.rpartition(".")
         interface_hashes.append("{}.json".format(base))
+
     rosidl_hash_genrule(
         name = name + "_hash",
         generated_hashes = interface_hashes,
-        interfaces = translated_interfaces,
+        interfaces = all_translated_paths,
         includes = includes,
         group = group,
         output_dir = group,
@@ -414,19 +442,14 @@ def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
     rosidl_generate_ament_index_entry(
         name = name + "_ament_index",
         group = group,
-        definitions_deps = [_make_public_label(name, "_translate")],
+        definitions_deps = combined_defs_deps,
         **kwargs
     )
 
     native.filegroup(
         name = name,
-        srcs = [
-            _make_public_label(name, "_translate"),
-            _make_public_label(name, "_hash"),
-        ],
-        data = [
-            _make_public_label(name, "_ament_index"),
-        ],
+        srcs = combined_defs_deps + [_make_public_label(name, "_hash")],
+        data = [_make_public_label(name, "_ament_index")],
         **kwargs
     )
 
@@ -1620,6 +1643,29 @@ def rosidl_c_support(
         linkstatic = True,
         **kwargs
     )
+
+def _rosidl_idl_passthrough_impl(ctx):
+    if len(ctx.files.interfaces) != len(ctx.outputs.translated_interfaces):
+        fail("The number of input interfaces must match the number of output translated_interfaces")
+
+    for src, out in zip(ctx.files.interfaces, ctx.outputs.translated_interfaces):
+        ctx.actions.symlink(
+            output = out,
+            target_file = src,
+        )
+
+    return [
+        DefaultInfo(files = depset(ctx.outputs.translated_interfaces)),
+        RosInterfaces(interfaces = ctx.outputs.translated_interfaces),
+    ]
+
+rosidl_idl_passthrough = rule(
+    implementation = _rosidl_idl_passthrough_impl,
+    attrs = {
+        "interfaces": attr.label_list(allow_files = [".idl"], mandatory = True),
+        "translated_interfaces": attr.output_list(mandatory = True),
+    },
+)
 
 def rosidl_interfaces_group(
         name,
