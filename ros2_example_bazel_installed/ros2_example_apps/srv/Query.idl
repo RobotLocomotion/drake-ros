@@ -1,0 +1,17 @@
+module idl_msgs
+{
+  module srv
+  {
+    @final
+    struct Query_Request
+    {
+      string query;
+    };
+
+    @final
+    struct Query_Response
+    {
+      string reply;
+    };
+  };
+};

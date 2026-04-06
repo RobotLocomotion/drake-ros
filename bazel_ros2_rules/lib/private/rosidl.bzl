@@ -199,20 +199,23 @@ def _rosidl_translate_genrule_impl(ctx):
         map_each = _as_include_flag,
         uniquify = True,
     )
-    args.add(ctx.attr.group)
-    args.add_all(ctx.files.interfaces, map_each = _as_idl_tuple)
-    inputs = ctx.files.interfaces + ctx.files.includes
-    ctx.actions.run_shell(
-        tools = [ctx.executable._tool],
-        arguments = [args],
-        inputs = inputs,
-        command = "{} $@ > /dev/null".format(
-            ctx.executable._tool.path,
-        ),
-        outputs = ctx.outputs.translated_interfaces,
-    )
+    to_translate = [f for f in ctx.files.interfaces if f.extension != "idl"]
+    passthrough = [f for f in ctx.files.interfaces if f.extension == "idl"]
+    if to_translate:
+        args.add(ctx.attr.group)
+        args.add_all(to_translate, map_each = _as_idl_tuple)
+        inputs = to_translate + ctx.files.includes
+        ctx.actions.run_shell(
+            tools = [ctx.executable._tool],
+            arguments = [args],
+            inputs = inputs,
+            command = "{} $@ > /dev/null".format(
+                ctx.executable._tool.path,
+            ),
+            outputs = ctx.outputs.translated_interfaces,
+        )
     return [
-        DefaultInfo(files = depset(ctx.outputs.translated_interfaces)),
+        DefaultInfo(files = depset(passthrough + ctx.outputs.translated_interfaces)),
         RosInterfaces(interfaces = (
             ctx.files.interfaces + ctx.outputs.translated_interfaces
         )),
@@ -382,10 +385,12 @@ def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
 
     Additional keyword arguments are those common to all rules.
     """
+    idl_interfaces = [ifc for ifc in interfaces if ifc.endswith(".idl")]
     translated_interfaces = []
     for ifc in interfaces:
         base, _, ext = ifc.rpartition(".")
-        translated_interfaces.append("{}/{}.idl".format(group, base))
+        if ext != "idl":
+            translated_interfaces.append("{}/{}.idl".format(group, base))
     rosidl_translate_genrule(
         name = name + "_translate",
         output_format = "idl",
@@ -401,10 +406,13 @@ def rosidl_definitions_filegroup(name, group, interfaces, includes, **kwargs):
     for ifc in translated_interfaces:
         base, _, ext = ifc.rpartition(".")
         interface_hashes.append("{}.json".format(base))
+    for ifc in idl_interfaces:
+        base, _, _ = ifc.rpartition(".")
+        interface_hashes.append("{}/{}.json".format(group, base))
     rosidl_hash_genrule(
         name = name + "_hash",
         generated_hashes = interface_hashes,
-        interfaces = translated_interfaces,
+        interfaces = translated_interfaces + idl_interfaces,
         includes = includes,
         group = group,
         output_dir = group,
