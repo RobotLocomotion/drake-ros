@@ -64,19 +64,25 @@ def _ament_index_share_files_impl(ctx):
         package_marker_path: package_marker_out,
     }
 
-    for src in ctx.attr.srcs:
-        # src is a target that could have multiple files
-        for file in src.files.to_list():
-            sp = file.short_path
-            if sp.startswith(ctx.attr.strip_prefix):
-                sp = sp[len(ctx.attr.strip_prefix):]
-            symlink_path = paths.join(
-                ctx.attr.prefix,
-                "share",
-                ctx.attr.package_name,
-                sp,
-            )
-            runfiles_symlinks[symlink_path] = file
+    def _add_files(targets):
+        for src in targets:
+            for file in depset(transitive = [
+                src.files,
+                src[DefaultInfo].default_runfiles.files,
+            ]).to_list():
+                sp = file.short_path
+                if sp.startswith(ctx.attr.strip_prefix):
+                    sp = sp[len(ctx.attr.strip_prefix):]
+                symlink_path = paths.join(
+                    ctx.attr.prefix,
+                    "share",
+                    ctx.attr.package_name,
+                    sp,
+                )
+                runfiles_symlinks[symlink_path] = file
+
+    _add_files(ctx.attr.srcs)
+    _add_files(ctx.attr.data)
 
     return [
         AmentIndex(prefix = ctx.attr.prefix),
@@ -91,6 +97,10 @@ ament_index_share_files = rule(
         srcs = attr.label_list(
             mandatory = True,
             allow_empty = False,
+            allow_files = True,
+        ),
+        data = attr.label_list(
+            allow_empty = True,
             allow_files = True,
         ),
         # A prefix is required because the shim can't prepend the runfiles
