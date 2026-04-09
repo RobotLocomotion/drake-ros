@@ -259,10 +259,9 @@ ros_launch(
 )
 
 # Uses launch_ros.actions.Node, the natural ROS 2 pattern, by registering
-# the Bazel-built binaries in a fake ament prefix via package_name=.
+# the Bazel-built binaries in a fake ament prefix.
 ros_launch(
     name = "eg_launch_with_action_node",
-    package_name = "ros2_example_apps",
     data = [
         ":eg_listener",
         ":eg_talker",

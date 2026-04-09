@@ -60,6 +60,8 @@ def _ament_index_files_impl(ctx):
     for src in ctx.attr.srcs:
         if ctx.attr.subdirectory == "lib":
             exe_file = src.files_to_run.executable
+            if exe_file == None:
+                continue
             symlink_path = paths.join(
                 ctx.attr.prefix,
                 "lib",

@@ -202,11 +202,6 @@ def ros_launch(
         # runfiles.py to use "this repository" in a way that doesn't require
         # bespoke information.
         workspace_name = None,
-        # Optional ROS 2 package name. When set, an ament_index_executables
-        # target is created from the data= labels, enabling
-        # launch_ros.actions.Node(package=..., executable=...) to find
-        # Bazel-built binaries without a colcon install space.
-        package_name = None,
         **kwargs):
     main = "{}_roslaunch_main.py".format(name)
     launch_respath = _make_respath(launch_file, workspace_name)
@@ -228,11 +223,11 @@ def ros_launch(
         ],
     )
 
-    if package_name:
+    if data:
         index_target = "_{}_ament_index".format(name)
         ament_index_executables(
             name = index_target,
-            package_name = package_name,
+            package_name = native.package_name(),
             srcs = data,
             visibility = ["//visibility:private"],
         )
