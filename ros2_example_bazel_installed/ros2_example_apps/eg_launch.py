@@ -8,8 +8,8 @@ def generate_launch_description():
     # features and limitations.
     r = runfiles.Create()
     prefix = "ros2_example_bazel_installed/ros2_example_apps"
-    talker_bin = r.Rlocation(f"{prefix}/eg_talker")
-    listener_bin = r.Rlocation(f"{prefix}/eg_listener")
+    talker_bin = r.Rlocation(f"{prefix}/eg_talker", source_repo="")
+    listener_bin = r.Rlocation(f"{prefix}/eg_listener", source_repo="")
 
     return LaunchDescription(
         [
