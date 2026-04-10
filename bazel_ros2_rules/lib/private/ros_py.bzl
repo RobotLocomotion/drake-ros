@@ -195,7 +195,6 @@ def ros_launch(
         name,
         launch_file,
         args = [],
-        data = [],
         deps = [],
         visibility = None,
         # TODO(eric.cousineau): Remove this once Bazel provides a way to tell
@@ -213,6 +212,7 @@ def ros_launch(
         #   }
         executables = {},
         **kwargs):
+    data = []
     main = "{}_roslaunch_main.py".format(name)
     launch_respath = _make_respath(launch_file, workspace_name)
 
@@ -234,6 +234,8 @@ def ros_launch(
     )
 
     for pkg_name, pkg_executables in executables.items():
+        if type(pkg_executables) != type([]):
+            fail("executables['{}'] must be a list, got {}".format(pkg_name, type(pkg_executables)))
         index_target = "_{}_ament_index_{}".format(name, pkg_name)
         ament_index_share_files(
             name = index_target,

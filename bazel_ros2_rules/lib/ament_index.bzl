@@ -70,17 +70,14 @@ def _ament_index_share_files_impl(ctx):
             )
             root_symlinks[symlink_path] = file
 
-    for exe in ctx.attr.executables:
-        exe_file = exe.files_to_run.executable
-        if exe_file == None:
-            continue
+    for executable in ctx.attr.executables:
         symlink_path = paths.join(
             ctx.attr.prefix,
             "lib",
             ctx.attr.package_name,
-            exe_file.basename,
+            executable.files_to_run.executable.basename,
         )
-        root_symlinks[symlink_path] = exe_file
+        root_symlinks[symlink_path] = executable.files_to_run.executable
 
     return [
         AmentIndex(prefix = ctx.attr.prefix),
@@ -98,7 +95,7 @@ ament_index_share_files = rule(
         ),
         executables = attr.label_list(
             allow_empty = True,
-            allow_files = True,
+            allow_files = False,
         ),
         # A prefix is required because the shim can't prepend the runfiles
         # root to AMENT_PREFIX_PATH
