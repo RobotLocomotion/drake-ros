@@ -253,10 +253,12 @@ ros_launch(
 # Uses an xml launch file to spawn the talker and listener.
 ros_launch(
     name = "roslaunch_eg_xml",
-    data = [
-        ":eg_listener",
-        ":eg_talker",
-    ],
+    executables = {
+        "ros2_example_apps": [
+            ":eg_listener",
+            ":eg_talker",
+        ],
+    },
     launch_file = "eg_launch.xml",
     workspace_name = workspace_name,
 )
