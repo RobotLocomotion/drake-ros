@@ -1,6 +1,10 @@
 # -*- python -*-
 
 load(
+    "@bazel_ros2_rules//lib:ament_index.bzl",
+    "ament_index_share_files",
+)
+load(
     "@bazel_ros2_rules//lib:kwargs.bzl",
     "filter_to_only_common_kwargs",
     "remove_test_specific_kwargs",
@@ -198,6 +202,16 @@ def ros_launch(
         # runfiles.py to use "this repository" in a way that doesn't require
         # bespoke information.
         workspace_name = None,
+        # dict mapping ROS 2 package name to a list of executable
+        # targets to expose via the ament resource index, enabling
+        # launch_ros.actions.Node(package=..., executable=...) to find
+        # Bazel-built binaries without a colcon install space.
+        # Example:
+        #   executables = {
+        #       "my_pkg": [":talker", ":listener"],
+        #       "other_pkg": ["//other_pkg:some_node"],
+        #   }
+        executables = {},
         **kwargs):
     main = "{}_roslaunch_main.py".format(name)
     launch_respath = _make_respath(launch_file, workspace_name)
@@ -218,6 +232,17 @@ def ros_launch(
             REPOSITORY_ROOT + ":ros2",
         ],
     )
+
+    for pkg_name, pkg_executables in executables.items():
+        index_target = "_{}_ament_index_{}".format(name, pkg_name)
+        ament_index_share_files(
+            name = index_target,
+            package_name = pkg_name,
+            executables = pkg_executables,
+            visibility = ["//visibility:private"],
+        )
+        data = data + pkg_executables + [":" + index_target]
+
     data = data + [launch_file]
 
     if "tags" not in kwargs:
