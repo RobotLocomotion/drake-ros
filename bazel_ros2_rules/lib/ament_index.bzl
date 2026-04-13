@@ -71,6 +71,8 @@ def _ament_index_share_files_impl(ctx):
             root_symlinks[symlink_path] = file
 
     for executable in ctx.attr.executables:
+        if executable.files_to_run.executable == None:
+            fail("{} is not an executable target".format(executable.label))
         symlink_path = paths.join(
             ctx.attr.prefix,
             "lib",
