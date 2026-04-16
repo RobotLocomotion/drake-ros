@@ -64,25 +64,21 @@ def _ament_index_share_files_impl(ctx):
         package_marker_path: package_marker_out,
     }
 
-    def _add_files(targets):
-        for src in targets:
-            for file in depset(transitive = [
-                src.files,
-                src[DefaultInfo].default_runfiles.files,
-            ]).to_list():
-                sp = file.short_path
-                if sp.startswith(ctx.attr.strip_prefix):
-                    sp = sp[len(ctx.attr.strip_prefix):]
-                symlink_path = paths.join(
-                    ctx.attr.prefix,
-                    "share",
-                    ctx.attr.package_name,
-                    sp,
-                )
-                runfiles_symlinks[symlink_path] = file
-
-    _add_files(ctx.attr.srcs)
-    _add_files(ctx.attr.data)
+    for src in ctx.attr.srcs:
+        for file in depset(transitive = [
+            src.files,
+            src[DefaultInfo].default_runfiles.files,
+        ]).to_list():
+            sp = file.short_path
+            if sp.startswith(ctx.attr.strip_prefix):
+                sp = sp[len(ctx.attr.strip_prefix):]
+            symlink_path = paths.join(
+                ctx.attr.prefix,
+                "share",
+                ctx.attr.package_name,
+                sp,
+            )
+            runfiles_symlinks[symlink_path] = file
 
     return [
         AmentIndex(prefix = ctx.attr.prefix),
@@ -97,10 +93,6 @@ ament_index_share_files = rule(
         srcs = attr.label_list(
             mandatory = True,
             allow_empty = False,
-            allow_files = True,
-        ),
-        data = attr.label_list(
-            allow_empty = True,
             allow_files = True,
         ),
         # A prefix is required because the shim can't prepend the runfiles
@@ -141,7 +133,8 @@ with the same package.
 
 Args:
     package_name: name of a ROS 2 package to which these share files belong
-    srcs: files to put into the share directory
+    srcs: targets whose files are placed into the share directory. Both
+      direct files and transitive runfiles are included.
     prefix: optional prefix to give to the generated runfiles.
     strip_prefix: optional prefix to strip from the short_path of the files
 
