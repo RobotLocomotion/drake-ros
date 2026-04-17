@@ -65,8 +65,10 @@ def _ament_index_share_files_impl(ctx):
     }
 
     for src in ctx.attr.srcs:
-        # src is a target that could have multiple files
-        for file in src.files.to_list():
+        for file in depset(transitive = [
+            src.files,
+            src[DefaultInfo].default_runfiles.files,
+        ]).to_list():
             sp = file.short_path
             if sp.startswith(ctx.attr.strip_prefix):
                 sp = sp[len(ctx.attr.strip_prefix):]
@@ -131,7 +133,8 @@ with the same package.
 
 Args:
     package_name: name of a ROS 2 package to which these share files belong
-    srcs: files to put into the share directory
+    srcs: targets whose files are placed into the share directory. Both
+      direct files and transitive runfiles are included.
     prefix: optional prefix to give to the generated runfiles.
     strip_prefix: optional prefix to strip from the short_path of the files
 
