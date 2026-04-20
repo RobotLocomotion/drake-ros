@@ -240,12 +240,10 @@ workspace_name = "ros2_example_bazel_installed"
 # by registering the Bazel-built binaries in a fake ament prefix.
 ros_launch(
     name = "roslaunch_eg_py",
-    executables = {
-        "ros2_example_apps": [
-            ":eg_listener",
-            ":eg_talker",
-        ],
-    },
+    executables = [
+        ":eg_listener",
+        ":eg_talker",
+    ],
     launch_file = "eg_launch.py",
     workspace_name = workspace_name,
 )
@@ -253,12 +251,10 @@ ros_launch(
 # Uses an xml launch file to spawn the talker and listener.
 ros_launch(
     name = "roslaunch_eg_xml",
-    executables = {
-        "ros2_example_apps": [
-            ":eg_listener",
-            ":eg_talker",
-        ],
-    },
+    executables = [
+        ":eg_listener",
+        ":eg_talker",
+    ],
     launch_file = "eg_launch.xml",
     workspace_name = workspace_name,
 )
