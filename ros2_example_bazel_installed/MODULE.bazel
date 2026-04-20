@@ -17,9 +17,11 @@ ROS_REQUIRED_PACKAGES = [
     "rclcpp_action",
     "rclpy",
     "rosbag2",
+    "realsense2_description",
     "ros2bag_mcap_cli",
     "ros2bag_sqlite3_cli",
     "tf2_py",
+    "xacro",
 ] + [
     # These are possible RMW implementations. Uncomment one and only one to
     # change implementations

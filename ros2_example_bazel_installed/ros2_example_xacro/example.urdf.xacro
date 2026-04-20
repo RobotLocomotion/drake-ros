@@ -1,0 +1,13 @@
+<!-- urdf/robot.urdf.xacro -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Should be able to include `.xacros` via a relative path (data= attribute) -->
+  <xacro:include filename="snippet.xacro"/>
+  <!-- Should be able to compose with local `.xacros` -->
+  <xacro:include filename="$(find my_robot)/urdf/macros.xacro"/>
+  <!-- Should be able to bring `.xacros` installed in the system (via `realsense2_description` for this example)-->
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
+   <!-- Should be able to retrieve xacro args-->
+   <xacro:arg name="sim" default="true" />
+   <xacro:property name="sim_mode" value="$(arg sim)"/>
+   <sim>${sim_mode}</sim>
+</robot>
