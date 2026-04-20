@@ -6,8 +6,10 @@ ros-jazzy-rclpy
 ros-jazzy-rosbag2
 ros-jazzy-rosbag2-storage-mcap
 ros-jazzy-rosbag2-storage-sqlite3
+ros-jazzy-realsense2-description
 ros-jazzy-tf2-py
 ros-jazzy-rmw-cyclonedds-cpp
+ros-jazzy-xacro
 
 # APT-SOURCE: http://*.ubuntu.com/ubuntu
 gdb

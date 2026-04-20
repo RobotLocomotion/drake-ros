@@ -5,6 +5,7 @@ COMMON_FILES_MANIFEST = [
     "ros_cc.bzl",
     "ros_py.bzl",
     "rosidl.bzl",
+    "xacro.bzl",
     "cmake_tools/__init__.py",
     "cmake_tools/file_api.py",
     "cmake_tools/packages.py",

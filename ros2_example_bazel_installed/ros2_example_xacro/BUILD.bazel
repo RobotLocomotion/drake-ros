@@ -1,0 +1,20 @@
+load("@ros2//:ros_py.bzl", "ros_py_test")
+load("@ros2//:xacro.bzl", "ros_xacro")
+
+ros_xacro(
+    name = "example",
+    src = "example.urdf.xacro",
+    data = ["snippet.xacro"],
+    ros_packages = {
+        "my_robot": glob(["urdf/**"]),
+    },
+    xacro_args = ["sim:=false"],
+)
+
+ros_py_test(
+    name = "xacro_test",
+    srcs = ["test/xacro_test.py"],
+    data = [":example"],
+    main = "test/xacro_test.py",
+    deps = ["@rules_python//python/runfiles"],
+)
