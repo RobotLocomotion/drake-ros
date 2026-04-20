@@ -1,6 +1,10 @@
 # -*- python -*-
 
 load(
+    "@bazel_ros2_rules//lib:ament_index.bzl",
+    "ament_index_share_files",
+)
+load(
     "@bazel_ros2_rules//lib:kwargs.bzl",
     "filter_to_only_common_kwargs",
     "remove_test_specific_kwargs",
@@ -174,12 +178,7 @@ os.execv(ros2_bin, args)
 def _make_respath(relpath, workspace_name):
     repo = native.repository_name()
     if repo == "@":
-        if workspace_name == None:
-            fail(
-                "Please provide `ros_launch(*, workspace_name)` so that " +
-                "paths can be resolved properly",
-            )
-        repo = workspace_name
+        repo = workspace_name if workspace_name != None else native.module_name()
     pkg = native.package_name()
     if pkg != "":
         pieces = [repo, pkg, relpath]
@@ -194,10 +193,22 @@ def ros_launch(
         data = [],
         deps = [],
         visibility = None,
-        # TODO(eric.cousineau): Remove this once Bazel provides a way to tell
-        # runfiles.py to use "this repository" in a way that doesn't require
-        # bespoke information.
+        # Optional: overrides the Bzlmod module name as the ament package name.
+        # Only needed when the desired package name differs from the module name.
         workspace_name = None,
+        # Executable targets to expose via the ament resource index under
+        # lib/<package_name>/, enabling
+        # launch_ros.actions.Node(package=<package_name>, executable=...) to
+        # find Bazel-built binaries without a colcon install space.
+        # Example:
+        #   executables = [":talker", ":listener"],
+        executables = [],
+        # Data file targets to expose via the ament resource index under
+        # share/<package_name>/, enabling FindPackageShare(<package_name>)
+        # and get_package_share_directory(<package_name>) to locate them.
+        # Example:
+        #   share = ["//my_pkg:config_files"],
+        share = [],
         **kwargs):
     main = "{}_roslaunch_main.py".format(name)
     launch_respath = _make_respath(launch_file, workspace_name)
@@ -218,6 +229,19 @@ def ros_launch(
             REPOSITORY_ROOT + ":ros2",
         ],
     )
+
+    if executables or share:
+        package_name = workspace_name if workspace_name != None else native.module_name()
+        index_target = "_{}_ament_index".format(name)
+        ament_index_share_files(
+            name = index_target,
+            package_name = package_name,
+            executables = executables,
+            srcs = share,
+            visibility = ["//visibility:private"],
+        )
+        data = data + executables + share + [":" + index_target]
+
     data = data + [launch_file]
 
     if "tags" not in kwargs:
