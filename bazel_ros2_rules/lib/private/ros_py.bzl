@@ -15,6 +15,7 @@ load(
 )
 load(
     ":common.bzl",
+    "generate_file",
     "incorporate_rmw_implementation",
 )
 load(
@@ -22,6 +23,8 @@ load(
     "REPOSITORY_ROOT",
     "RUNTIME_ENVIRONMENT",
 )
+
+_WORKSPACE_NAME = Label(REPOSITORY_ROOT + ":ros2").workspace_name
 
 def ros_import_binary(
         name,
@@ -144,24 +147,7 @@ def _add_deps(existing, new):
             deps.append(dep)
     return deps
 
-def _generate_file_impl(ctx):
-    out = ctx.actions.declare_file(ctx.label.name)
-    ctx.actions.write(out, ctx.attr.content, ctx.attr.is_executable)
-    return [DefaultInfo(
-        files = depset([out]),
-        data_runfiles = ctx.runfiles(files = [out]),
-    )]
-
-_generate_file = rule(
-    attrs = {
-        "content": attr.string(mandatory = True),
-        "is_executable": attr.bool(default = False),
-    },
-    output_to_genfiles = True,
-    implementation = _generate_file_impl,
-)
-
-_LAUNCH_PY_TEMPLATE = """
+_LAUNCH_PY_TEMPLATE = """\
 import os
 import sys
 
@@ -170,7 +156,7 @@ from python.runfiles import runfiles as runfiles_api
 assert __name__ == "__main__"
 runfiles = runfiles_api.Create()
 launch_file = runfiles.Rlocation({launch_respath})  # noqa
-ros2_bin = runfiles.Rlocation("ros2/ros2")
+ros2_bin = runfiles.Rlocation("{ros2_rlocation}")
 args = [ros2_bin, "launch", launch_file] + sys.argv[1:]
 os.execv(ros2_bin, args)
 """
@@ -215,8 +201,9 @@ def ros_launch(
 
     content = _LAUNCH_PY_TEMPLATE.format(
         launch_respath = repr(launch_respath),
+        ros2_rlocation = _WORKSPACE_NAME + "/ros2",
     )
-    _generate_file(
+    generate_file(
         name = main,
         content = content,
         visibility = ["//visibility:private"],

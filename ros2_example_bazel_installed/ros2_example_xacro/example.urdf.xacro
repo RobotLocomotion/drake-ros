@@ -6,8 +6,13 @@
   <xacro:include filename="$(find my_robot)/urdf/macros.xacro"/>
   <!-- Should be able to bring `.xacros` installed in the system (via `realsense2_description` for this example)-->
   <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
-   <!-- Should be able to retrieve xacro args-->
-   <xacro:arg name="sim" default="true" />
-   <xacro:property name="sim_mode" value="$(arg sim)"/>
-   <sim>${sim_mode}</sim>
+  <!-- Should be able to retrieve xacro args-->
+  <xacro:arg name="sim" default="true" />
+  <xacro:property name="sim_mode" value="$(arg sim)"/>
+  <sim>${sim_mode}</sim>
+  <!-- Instantiate the D435i sensor to verify $(find realsense2_description) actually resolved. -->
+  <link name="base_link"/>
+  <xacro:sensor_d435i parent="base_link" name="head_camera" use_nominal_extrinsics="true">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:sensor_d435i>
 </robot>

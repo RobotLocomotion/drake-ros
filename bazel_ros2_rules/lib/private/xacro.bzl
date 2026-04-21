@@ -2,6 +2,7 @@
 """
 
 load("@bazel_ros2_rules//lib:ament_index.bzl", "ament_index_share_files")
+load(":common.bzl", "generate_file")
 load(":distro.bzl", "REPOSITORY_ROOT")
 load(":ros_py.bzl", "ros_py_binary")
 
@@ -9,20 +10,6 @@ load(":ros_py.bzl", "ros_py_binary")
 # Label.workspace_name handles both Bzlmod ("@@name//") and WORKSPACE ("@name//")
 # formats correctly without manual string manipulation.
 _WORKSPACE_NAME = Label(REPOSITORY_ROOT + ":xacro").workspace_name
-
-def _xacro_generate_file_impl(ctx):
-    out = ctx.actions.declare_file(ctx.label.name)
-    ctx.actions.write(out, ctx.attr.content, is_executable = True)
-    return [DefaultInfo(
-        files = depset([out]),
-        data_runfiles = ctx.runfiles(files = [out]),
-    )]
-
-_xacro_generate_file = rule(
-    attrs = {"content": attr.string(mandatory = True)},
-    output_to_genfiles = True,
-    implementation = _xacro_generate_file_impl,
-)
 
 # Runner script template.  The outer dload shim (from ros_py_binary) has
 # already set AMENT_PREFIX_PATH to include both system and user-package
@@ -41,7 +28,7 @@ os.execv(xacro_bin, [xacro_bin] + sys.argv[1:])
 """
 
 def _ros_xacro_impl(ctx):
-    output = ctx.actions.declare_file(ctx.attr.name + ".urdf")
+    output = ctx.actions.declare_file(ctx.label.name + ".urdf")
     args = ctx.actions.args()
     args.add(ctx.file.src)
     args.add("-o", output)
@@ -62,9 +49,9 @@ _ros_xacro_rule = rule(
             doc = "The main .urdf.xacro file to process.",
         ),
         "data": attr.label_list(
-            allow_files = [".xacro"],
+            allow_files = True,
             default = [],
-            doc = "Additional .xacro files included via relative paths.",
+            doc = "Additional files included via relative paths (e.g. .xacro, .yaml).",
         ),
         "xacro_args": attr.string_list(
             default = [],
@@ -80,7 +67,7 @@ _ros_xacro_rule = rule(
     implementation = _ros_xacro_impl,
 )
 
-def ros_xacro(name, src, data = [], ros_packages = {}, xacro_args = [], visibility = None, **kwargs):
+def ros_xacro(name, src, data = [], ros_packages = {}, xacro_args = [], visibility = None):
     """Transforms a .urdf.xacro file into a .urdf file.
 
     User-defined packages are declared inline via the ros_packages dict.  Each
@@ -107,10 +94,11 @@ def ros_xacro(name, src, data = [], ros_packages = {}, xacro_args = [], visibili
     Args:
         name:         target name; the output file is named <name>.urdf
         src:          the .urdf.xacro source file
-        data:         additional .xacro files included via relative paths
-                      (i.e. plain <xacro:include filename="other.xacro"/>);
-                      must be listed here so Bazel sandboxes them and tracks
-                      them as dependencies for incremental rebuilds
+        data:         additional files included via relative paths
+                      (e.g. plain <xacro:include filename="other.xacro"/>
+                      or referenced .yaml configs); must be listed here so
+                      Bazel sandboxes them and tracks them as dependencies
+                      for incremental rebuilds
         ros_packages: dict mapping ROS package name to list of share files;
                       files are stripped of the calling package's path prefix
                       automatically before being placed under share/<pkg>/
@@ -133,7 +121,7 @@ def ros_xacro(name, src, data = [], ros_packages = {}, xacro_args = [], visibili
     runner_data = [REPOSITORY_ROOT + ":xacro"] + pkg_targets
 
     runner_main = "_{}_runner_main.py".format(name)
-    _xacro_generate_file(
+    generate_file(
         name = runner_main,
         content = _XACRO_RUNNER_TEMPLATE.format(
             xacro_rlocation = _WORKSPACE_NAME + "/xacro",

@@ -38,8 +38,25 @@ def test_relative_include_expanded():
     )
 
 
+def test_system_package_include_resolved():
+    """$(find realsense2_description) is resolved and its macros are expanded.
+
+    Verifies that ros_xacro sets AMENT_PREFIX_PATH so xacro can find
+    system-installed ROS packages. The D435i macro from
+    realsense2_description is instantiated in the example xacro; if the
+    include had not resolved, xacro would have exited non-zero and the
+    output URDF would not exist.
+    """
+    content = _read_urdf()
+    assert 'name="head_camera_link"' in content, (
+        "Expected D435i links from realsense2_description in output:\n"
+        + content
+    )
+
+
 if __name__ == "__main__":
     test_sim_arg_is_substituted()
     test_local_package_macros_expanded()
     test_relative_include_expanded()
+    test_system_package_include_resolved()
     print("All tests passed.")
