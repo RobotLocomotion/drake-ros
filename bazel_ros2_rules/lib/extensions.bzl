@@ -39,7 +39,7 @@ def _local_ros2_implementation(module_ctx):
             "rosidl_default_generators",
             "service_msgs",
             "unique_identifier_msgs",
-            "xacro",  # required by the ros_xacro rule in xacro.bzl
+            "xacro",
         ]
 
     underlay = find_local_ros2_distribution(module_ctx)
