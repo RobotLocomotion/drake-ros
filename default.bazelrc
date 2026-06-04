@@ -1,6 +1,6 @@
-# Use C++20.
-build --cxxopt=-std=c++20
-build --host_cxxopt=-std=c++20
+# Use C++23.
+build --cxxopt=-std=c++23
+build --host_cxxopt=-std=c++23
 
 # Use Python 3.
 build --python_path=/usr/bin/python3

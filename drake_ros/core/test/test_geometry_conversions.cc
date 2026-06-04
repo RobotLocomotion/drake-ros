@@ -1,3 +1,4 @@
+#include <drake/common/fmt_eigen.h>
 #include <gtest/gtest.h>
 
 #include "drake_ros/core/geometry_conversions.h"
