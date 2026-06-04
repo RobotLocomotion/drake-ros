@@ -246,6 +246,110 @@ def ros_launch(
         **kwargs
     )
 
+_LAUNCH_TEST_MAIN_TEMPLATE = """\
+import os
+import sys
+
+from python.runfiles import runfiles as runfiles_api
+
+assert __name__ == "__main__"
+runfiles = runfiles_api.Create()
+launch_test_file = runfiles.Rlocation({launch_test_respath})
+
+# This shim only ever runs inside a Bazel test sandbox. The sandbox sets
+# HOME=/does_not_exist (read-only) and the project .bazelrc sets ROS_HOME to
+# a similar sentinel. RCL log-dir priority: ROS_LOG_DIR > $ROS_HOME/log >
+# $HOME/.ros/log. Redirect all three unconditionally to the per-test tmpdir.
+_tmpdir = os.environ.get("TEST_TMPDIR", "/tmp")
+os.environ["ROS_LOG_DIR"] = _tmpdir
+os.environ["ROS_HOME"] = _tmpdir
+os.environ["HOME"] = _tmpdir
+
+sys.argv = ["launch_test", launch_test_file] + sys.argv[1:]
+
+from launch_testing.launch_test import main
+sys.exit(main())
+"""
+
+def ros_launch_test(
+        name,
+        launch_test_file,
+        workspace_name = None,
+        executables = [],
+        share = [],
+        data = [],
+        deps = [],
+        rmw_implementation = None,
+        isolate = True,
+        **kwargs):
+    """
+    Builds a launch_testing test and wraps it with a shim that will inject the
+    minimal runtime environment necessary for execution when depending on
+    targets from this ROS 2 local repository.
+
+    The test file must export generate_test_description() and any number of
+    unittest.TestCase subclasses following the launch_testing convention.
+
+    Args:
+        name: test target name
+        launch_test_file: label of the launch_testing test file
+        workspace_name: optional ament package name override (defaults to
+            the Bzlmod module name)
+        executables: executable targets to register in the ament index,
+            enabling Node(package=<pkg>, executable=...) lookups
+        share: data file targets to register under share/<pkg>/, enabling
+            FindPackageShare(<pkg>) and get_package_share_directory(<pkg>)
+        data: additional runtime data deps
+        deps: additional Python deps beyond launch_testing and launch
+        rmw_implementation: optional RMW implementation to run against
+        isolate: whether to use network namespace isolation (default True)
+
+    Additional keyword arguments are forwarded to ros_py_test.
+    """
+    main = "{}_launch_test_main.py".format(name)
+    launch_test_respath = _make_respath(launch_test_file, workspace_name)
+
+    generate_file(
+        name = main,
+        content = _LAUNCH_TEST_MAIN_TEMPLATE.format(
+            launch_test_respath = repr(launch_test_respath),
+        ),
+        visibility = ["//visibility:private"],
+        testonly = True,
+    )
+
+    if executables or share:
+        package_name = workspace_name if workspace_name != None else native.module_name()
+        index_target = "_{}_ament_index".format(name)
+        ament_index_share_files(
+            name = index_target,
+            package_name = package_name,
+            executables = executables,
+            srcs = share,
+            visibility = ["//visibility:private"],
+        )
+        data = data + executables + share + [":" + index_target]
+
+    tags = list(kwargs.pop("tags", []))
+    if "nolint" not in tags:
+        tags.append("nolint")
+
+    ros_py_test(
+        name = name,
+        srcs = [main],
+        main = main,
+        data = data + [launch_test_file],
+        deps = deps + [
+            "@bazel_ros2_rules//deps/python/runfiles",
+            "@ros2//:launch_testing_py",
+            "@ros2//:launch_py",
+        ],
+        rmw_implementation = rmw_implementation,
+        isolate = isolate,
+        tags = tags,
+        **kwargs
+    )
+
 def ros_py_test(
         name,
         rmw_implementation = None,

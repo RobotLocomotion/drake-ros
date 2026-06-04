@@ -32,6 +32,7 @@ python3-numpy
 python3-packaging
 python3-pkg-resources
 python3-psutil
+python3-pytest
 python3-rosdistro-modules
 python3-yaml
 python_cmake_module

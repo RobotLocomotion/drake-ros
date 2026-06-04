@@ -2,7 +2,7 @@
 # vi: set ft=python :
 
 load("@ros2//:ros_cc.bzl", "ros_cc_binary", "ros_cc_test")
-load("@ros2//:ros_py.bzl", "ros_launch", "ros_py_binary", "ros_py_test")
+load("@ros2//:ros_py.bzl", "ros_launch", "ros_launch_test", "ros_py_binary", "ros_py_test")
 load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//tools:cmd_test.bzl", "cmd_test")
@@ -257,6 +257,35 @@ ros_launch(
     ],
     launch_file = "eg_launch.xml",
     workspace_name = workspace_name,
+)
+
+ros_launch_test(
+    name = "roslaunch_eg_launch_test",
+    size = "medium",
+    # roslaunch_eg_py carries eg_talker and eg_listener in its ament index
+    # (via executables= on its ros_launch declaration). Listing it in data=
+    # propagates those indexes into AMENT_PREFIX_PATH at test runtime.
+    data = [
+        ":roslaunch_eg_py",
+    ],
+    launch_test_file = "test/roslaunch_eg_launch_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
+)
+
+ros_launch_test(
+    name = "roslaunch_eg_node_launch_test",
+    size = "medium",
+    # roslaunch_eg_py registers eg_talker and eg_listener in the ament index
+    # under package "ros2_example_bazel_installed", making them discoverable
+    # by launch_ros.actions.Node without an explicit Rlocation call.
+    data = [
+        ":roslaunch_eg_py",
+    ],
+    launch_test_file = "test/roslaunch_eg_node_launch_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        "@ros2//:launch_ros_py",
+    ],
 )
 
 ros_py_test(

@@ -34,6 +34,8 @@ def _local_ros2_implementation(module_ctx):
         include_packages += [
             "action_msgs",
             "builtin_interfaces",
+            "launch_testing",
+            "launch_testing_ros",
             "ros2cli_common_extensions",
             "ros2cli",
             "rosidl_default_generators",
