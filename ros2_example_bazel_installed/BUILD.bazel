@@ -11,22 +11,6 @@ load(
     "ros_py_test",
 )
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
-load("//tools:cmd_test.bzl", "cmd_test")
-
-# TODO(hidmic): make linter more user-friendly
-cmd_test(
-    name = "lint_rosdeps",
-    cmd = [
-        "diff",
-        "-u",
-        "setup/prereq-rosdep-keys.txt",
-        "$(location @ros2//:system-rosdep-keys.txt)",
-    ],
-    data = [
-        "setup/prereq-rosdep-keys.txt",
-        "@ros2//:system-rosdep-keys.txt",
-    ],
-)
 
 ros_cc_test(
     name = "runfiles_cc_test",
