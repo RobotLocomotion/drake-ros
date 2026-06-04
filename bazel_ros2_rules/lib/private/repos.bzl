@@ -117,20 +117,6 @@ def base_ros2_repository(repo_ctx, workspaces):
     if result.stderr:
         print(result.stderr)
 
-    repo_ctx.report_progress("Generating system-rosdep-keys.txt")
-    path_to_compute_system_rosdeps_tool = repo_ctx.path(
-        repo_ctx.attr._compute_system_rosdeps_tool,
-    )
-    cmd = [
-        "./run.bash",
-        str(path_to_compute_system_rosdeps_tool),
-        "distro_metadata.json",
-    ]
-    cmd.extend(["-o", "system-rosdep-keys.txt"])
-    result = execute_or_fail(repo_ctx, cmd, quiet = True)
-    if result.stderr:
-        print(result.stderr)
-
 def _label(relpath):
     return Label("//lib/private:" + relpath)
 
@@ -186,11 +172,6 @@ def base_ros2_repository_attributes():
             default = _label("scripts/generate_build_file.py"),
             doc = "Tool to generate BUILD.bazel file from distribution " +
                   "metadata.",
-        ),
-        "_compute_system_rosdeps_tool": attr.label(
-            default = _label("scripts/compute_system_rosdeps.py"),
-            doc = "Tool to compute system rosdep keys for target " +
-                  "distribution.",
         ),
         "allowed_system_libs": attr.string_list(
             doc = "Optional list of regular expressions (strings) that " +
