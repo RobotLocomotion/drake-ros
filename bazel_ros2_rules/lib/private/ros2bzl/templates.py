@@ -135,15 +135,10 @@ def configure_package_cc_library(
 
 def configure_package_rmw_implementation_override(name, properties, sandbox):
     """
-    Emits a genrule that copies this RMW implementation package's own
-    librmw_<name>.so to a file named librmw_implementation.so, so it can be
-    linked directly (at build time, no dlopen()) in place of the real
-    rmw_implementation dispatch library. Only called for packages in the
-    "rmw_implementation_packages" group; see generate_build_file.py.
-
-    Returns (target_name, template, config), or (target_name, None, None) if
-    this package does not ship a librmw_<name>.so of its own to override
-    with (in which case the caller should skip writing anything).
+    Emits a genrule copying this package's own librmw_<name>.so to
+    librmw_implementation.so, so it can be linked in directly instead of
+    dlopen()'d at runtime. Returns (target_name, None, None) if this package
+    doesn't ship its own librmw_<name>.so.
     """
     target_name = "%s_as_rmw_implementation" % name
     libraries = [sandbox(library) for library in properties.link_libraries]

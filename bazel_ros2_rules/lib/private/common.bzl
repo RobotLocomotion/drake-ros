@@ -60,36 +60,25 @@ def incorporate_rmw_implementation(
         rmw_implementation_explicit = False):
     """
     Args:
-        rmw_implementation_explicit: if False (the default, and today's
-            behavior, unchanged), the RMW implementation is selected at
-            runtime via the RMW_IMPLEMENTATION environment variable, which
-            rmw_implementation's dispatch library resolves with dlopen().
-
-            If True, a build-time-renamed copy of the chosen backend
-            (`<rmw_implementation>_as_rmw_implementation`) is linked in
-            place of the dispatch library instead: librcl.so's (and
-            librclcpp.so's, etc.) dependency on librmw_implementation.so is
-            satisfied directly, with no dlopen() and no dependency on
-            RMW_IMPLEMENTATION being set correctly at runtime. Only
-            supported for RMW implementation packages that ship their own
-            librmw_<name>.so (checked at BUILD_FILE generation time; see
-            configure_package_rmw_implementation_override).
+        rmw_implementation_explicit: if True, links a build-time-renamed
+            copy of the backend in place of rmw_implementation's dispatch
+            library, so librcl.so resolves it directly with no dlopen() and
+            no RMW_IMPLEMENTATION env var needed. Defaults to False (today's
+            unchanged runtime dlopen()-based selection). Only works for
+            backends that ship their own librmw_<name>.so; see
+            configure_package_rmw_implementation_override.
     """
     env_changes = dict(env_changes)
     if rmw_implementation_explicit:
-        # Depend on the backend's own _cc library too (not just the renamed
-        # override), so its transitive shared library dependencies (e.g.
-        # libddsc.so.0, iceoryx, ...) are present in the runfiles tree.
+        # Also depend on the backend's own _cc library, for its transitive
+        # shared library deps (libddsc.so.0, iceoryx, ...).
         backend = REPOSITORY_ROOT + ":%s_cc" % rmw_implementation
         override = REPOSITORY_ROOT + ":%s_as_rmw_implementation" % rmw_implementation
         kwargs["data"] = kwargs.get("data", []) + [backend, override]
 
-        # REPOSITORY_ROOT is "@@<canonical repo name>//"; the ${LOAD_PATH}
-        # path-prepend entries below are runfiles-relative paths rooted at
-        # <canonical repo name>, matching the convention already used by
-        # every other entry in RUNTIME_ENVIRONMENT (see distro.bzl).
-        # ${LOAD_PATH} (LD_LIBRARY_PATH) entries are directories to search,
-        # not the library file itself.
+        # ${LOAD_PATH} entries must be directories, not the .so file itself;
+        # rooted at REPOSITORY_ROOT's canonical repo name, like every other
+        # RUNTIME_ENVIRONMENT entry (see distro.bzl).
         canonical_repo_name = REPOSITORY_ROOT[2:-2]
         override_runfiles_dir = "{}/{}".format(
             canonical_repo_name, rmw_implementation)
