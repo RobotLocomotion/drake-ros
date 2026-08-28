@@ -77,18 +77,24 @@ def incorporate_rmw_implementation(
     """
     env_changes = dict(env_changes)
     if rmw_implementation_explicit:
+        # Depend on the backend's own _cc library too (not just the renamed
+        # override), so its transitive shared library dependencies (e.g.
+        # libddsc.so.0, iceoryx, ...) are present in the runfiles tree.
+        backend = REPOSITORY_ROOT + ":%s_cc" % rmw_implementation
         override = REPOSITORY_ROOT + ":%s_as_rmw_implementation" % rmw_implementation
-        kwargs["data"] = kwargs.get("data", []) + [override]
+        kwargs["data"] = kwargs.get("data", []) + [backend, override]
 
         # REPOSITORY_ROOT is "@@<canonical repo name>//"; the ${LOAD_PATH}
         # path-prepend entries below are runfiles-relative paths rooted at
         # <canonical repo name>, matching the convention already used by
         # every other entry in RUNTIME_ENVIRONMENT (see distro.bzl).
+        # ${LOAD_PATH} (LD_LIBRARY_PATH) entries are directories to search,
+        # not the library file itself.
         canonical_repo_name = REPOSITORY_ROOT[2:-2]
-        override_runfiles_path = "{}/{}/librmw_implementation.so".format(
+        override_runfiles_dir = "{}/{}".format(
             canonical_repo_name, rmw_implementation)
         env_changes["${LOAD_PATH}"] = (
-            ["path-prepend", override_runfiles_path] +
+            ["path-prepend", override_runfiles_dir] +
             env_changes["${LOAD_PATH}"][1:]
         )
     else:
