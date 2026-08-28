@@ -133,6 +133,41 @@ def configure_package_cc_library(
     )
 
 
+def configure_package_rmw_implementation_override(name, properties, sandbox):
+    """
+    Emits a genrule that copies this RMW implementation package's own
+    librmw_<name>.so to a file named librmw_implementation.so, so it can be
+    linked directly (at build time, no dlopen()) in place of the real
+    rmw_implementation dispatch library. Only called for packages in the
+    "rmw_implementation_packages" group; see generate_build_file.py.
+
+    Returns (target_name, template, config), or (target_name, None, None) if
+    this package does not ship a librmw_<name>.so of its own to override
+    with (in which case the caller should skip writing anything).
+    """
+    target_name = "%s_as_rmw_implementation" % name
+    libraries = [sandbox(library) for library in properties.link_libraries]
+    primary_library_basename = "lib%s.so" % name
+    primary_libraries = [
+        library for library in libraries
+        if library.split("/")[-1] == primary_library_basename
+    ]
+    if not primary_libraries:
+        return (target_name, None, None)
+
+    template_path = "templates/package_rmw_implementation_override.bazel.tpl"
+    config = {
+        "name": target_name,
+        "srcs": [primary_libraries[0]],
+        "outs": ["%s/librmw_implementation.so" % name],
+    }
+    return (
+        target_name,
+        load_resource(template_path),
+        to_starlark_string_dict(config),
+    )
+
+
 def configure_package_meta_py_library(name, metadata, dependencies):
     deps = []
     for dependency_name, dependency_metadata in dependencies.items():
