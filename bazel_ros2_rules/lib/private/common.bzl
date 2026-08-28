@@ -53,11 +53,48 @@ generate_file = rule(
 )
 """Writes a string to a file at build time."""
 
-def incorporate_rmw_implementation(kwargs, env_changes, rmw_implementation):
-    target = REPOSITORY_ROOT + ":%s_cc" % rmw_implementation
-    kwargs["data"] = kwargs.get("data", []) + [target]
+def incorporate_rmw_implementation(
+        kwargs,
+        env_changes,
+        rmw_implementation,
+        rmw_implementation_explicit = False):
+    """
+    Args:
+        rmw_implementation_explicit: if False (the default, and today's
+            behavior, unchanged), the RMW implementation is selected at
+            runtime via the RMW_IMPLEMENTATION environment variable, which
+            rmw_implementation's dispatch library resolves with dlopen().
+
+            If True, a build-time-renamed copy of the chosen backend
+            (`<rmw_implementation>_as_rmw_implementation`) is linked in
+            place of the dispatch library instead: librcl.so's (and
+            librclcpp.so's, etc.) dependency on librmw_implementation.so is
+            satisfied directly, with no dlopen() and no dependency on
+            RMW_IMPLEMENTATION being set correctly at runtime. Only
+            supported for RMW implementation packages that ship their own
+            librmw_<name>.so (checked at BUILD_FILE generation time; see
+            configure_package_rmw_implementation_override).
+    """
     env_changes = dict(env_changes)
-    env_changes.update({
-        "RMW_IMPLEMENTATION": ["replace", rmw_implementation],
-    })
+    if rmw_implementation_explicit:
+        override = REPOSITORY_ROOT + ":%s_as_rmw_implementation" % rmw_implementation
+        kwargs["data"] = kwargs.get("data", []) + [override]
+
+        # REPOSITORY_ROOT is "@@<canonical repo name>//"; the ${LOAD_PATH}
+        # path-prepend entries below are runfiles-relative paths rooted at
+        # <canonical repo name>, matching the convention already used by
+        # every other entry in RUNTIME_ENVIRONMENT (see distro.bzl).
+        canonical_repo_name = REPOSITORY_ROOT[2:-2]
+        override_runfiles_path = "{}/{}/librmw_implementation.so".format(
+            canonical_repo_name, rmw_implementation)
+        env_changes["${LOAD_PATH}"] = (
+            ["path-prepend", override_runfiles_path] +
+            env_changes["${LOAD_PATH}"][1:]
+        )
+    else:
+        target = REPOSITORY_ROOT + ":%s_cc" % rmw_implementation
+        kwargs["data"] = kwargs.get("data", []) + [target]
+        env_changes.update({
+            "RMW_IMPLEMENTATION": ["replace", rmw_implementation],
+        })
     return kwargs, env_changes

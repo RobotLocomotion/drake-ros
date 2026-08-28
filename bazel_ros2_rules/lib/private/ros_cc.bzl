@@ -23,6 +23,7 @@ load(
 def ros_cc_binary(
         name,
         rmw_implementation = None,
+        rmw_implementation_explicit = False,
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
         shim = "reexec",
@@ -37,6 +38,11 @@ def ros_cc_binary(
     Args:
         name: C/C++ binary target name
         rmw_implementation: optional RMW implementation to run against
+        rmw_implementation_explicit: if True, link the chosen rmw_implementation
+            in directly at build time instead of selecting it at runtime via the
+            RMW_IMPLEMENTATION environment variable and rmw_implementation's own
+            dlopen()-based dispatch. Defaults to False (today's behavior,
+            unchanged). See incorporate_rmw_implementation() in common.bzl.
         cc_binary_rule: optional cc_binary() rule override
         cc_library_rule: optional cc_library() rule override
         shim: optional tactic to use for shimming ("reexec" or "ldwrap")
@@ -72,6 +78,7 @@ def ros_cc_binary(
                 kwargs,
                 env_changes,
                 rmw_implementation = rmw_implementation,
+                rmw_implementation_explicit = rmw_implementation_explicit,
             )
 
     # Declare an unshimmed, manual binary. For the "reexec" case, this will be
