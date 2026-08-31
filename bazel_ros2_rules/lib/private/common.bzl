@@ -63,8 +63,9 @@ def incorporate_rmw_implementation(
         rmw_implementation_explicit: if True, links a build-time-renamed
             copy of the backend in place of rmw_implementation's dispatch
             library, so librcl.so resolves it directly with no dlopen() and
-            no RMW_IMPLEMENTATION env var needed. Defaults to False (today's
-            unchanged runtime dlopen()-based selection). Only works for
+            no RMW_IMPLEMENTATION env var needed. If False, the RMW
+            implementation is selected at runtime via RMW_IMPLEMENTATION and
+            rmw_implementation's own dlopen()-based dispatch. Only works for
             backends that ship their own librmw_<name>.so; see
             configure_package_rmw_implementation_override.
     """

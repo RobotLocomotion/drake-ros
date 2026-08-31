@@ -39,8 +39,8 @@ def ros_cc_binary(
         name: C/C++ binary target name
         rmw_implementation: optional RMW implementation to run against
         rmw_implementation_explicit: if True, links the backend in at build
-            time instead of runtime dlopen() dispatch. Defaults to False
-            (today's behavior). See incorporate_rmw_implementation().
+            time instead of selecting it at runtime via dlopen(). Defaults
+            to False. See incorporate_rmw_implementation().
         cc_binary_rule: optional cc_binary() rule override
         cc_library_rule: optional cc_library() rule override
         shim: optional tactic to use for shimming ("reexec" or "ldwrap")
