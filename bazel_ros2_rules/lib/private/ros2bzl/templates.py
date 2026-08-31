@@ -135,10 +135,9 @@ def configure_package_cc_library(
 
 def configure_package_rmw_implementation_override(name, properties, sandbox):
     """
-    Emits a genrule copying this package's own librmw_<name>.so to
-    librmw_implementation.so, so it can be linked in directly instead of
-    dlopen()'d at runtime. Returns (target_name, None, None) if this package
-    doesn't ship its own librmw_<name>.so.
+    Emits a genrule copying librmw_<name>.so to librmw_implementation.so, so
+    it can be linked in directly instead of dlopen()'d. Returns
+    (target_name, None, None) if this package has no librmw_<name>.so.
     """
     target_name = "%s_as_rmw_implementation" % name
     libraries = [sandbox(library) for library in properties.link_libraries]
