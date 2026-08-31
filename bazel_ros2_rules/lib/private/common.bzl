@@ -53,11 +53,39 @@ generate_file = rule(
 )
 """Writes a string to a file at build time."""
 
-def incorporate_rmw_implementation(kwargs, env_changes, rmw_implementation):
-    target = REPOSITORY_ROOT + ":%s_cc" % rmw_implementation
-    kwargs["data"] = kwargs.get("data", []) + [target]
+def incorporate_rmw_implementation(
+        kwargs,
+        env_changes,
+        rmw_implementation,
+        rmw_implementation_explicit = False):
+    """
+    Args:
+        rmw_implementation_explicit: if True, links the backend in at build
+            time in place of rmw_implementation's dispatch library, instead
+            of the default runtime dlopen() via RMW_IMPLEMENTATION. Only
+            works for backends shipping their own librmw_<name>.so; see
+            configure_package_rmw_implementation_override.
+    """
     env_changes = dict(env_changes)
-    env_changes.update({
-        "RMW_IMPLEMENTATION": ["replace", rmw_implementation],
-    })
+    if rmw_implementation_explicit:
+        # Also depend on the backend's own _cc library, for its transitive deps.
+        backend = REPOSITORY_ROOT + ":%s_cc" % rmw_implementation
+        override = REPOSITORY_ROOT + ":%s_as_rmw_implementation" % rmw_implementation
+        kwargs["data"] = kwargs.get("data", []) + [backend, override]
+
+        # ${LOAD_PATH} entries must be directories, not the .so itself,
+        # rooted like every other RUNTIME_ENVIRONMENT entry (see distro.bzl).
+        canonical_repo_name = REPOSITORY_ROOT[2:-2]
+        override_runfiles_dir = "{}/{}".format(
+            canonical_repo_name, rmw_implementation)
+        env_changes["${LOAD_PATH}"] = (
+            ["path-prepend", override_runfiles_dir] +
+            env_changes["${LOAD_PATH}"][1:]
+        )
+    else:
+        target = REPOSITORY_ROOT + ":%s_cc" % rmw_implementation
+        kwargs["data"] = kwargs.get("data", []) + [target]
+        env_changes.update({
+            "RMW_IMPLEMENTATION": ["replace", rmw_implementation],
+        })
     return kwargs, env_changes

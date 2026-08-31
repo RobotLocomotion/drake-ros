@@ -30,6 +30,7 @@ COMMON_FILES_MANIFEST = [
     "templates/package_meta_py_library.bazel.tpl",
     "templates/package_py_library_with_cc_libs.bazel.tpl",
     "templates/package_py_library.bazel.tpl",
+    "templates/package_rmw_implementation_override.bazel.tpl",
     "templates/package_share_filegroup.bazel.tpl",
     "templates/prologue.bazel",
 ]
