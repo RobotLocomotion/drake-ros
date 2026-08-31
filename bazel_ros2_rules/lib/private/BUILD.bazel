@@ -20,3 +20,10 @@ py_test(
     srcs = ["test/plugin_xml_parsing_test.py"],
     deps = [":ros2bzl_py"],
 )
+
+py_test(
+    name = "configure_package_rmw_implementation_override_test",
+    srcs = ["test/configure_package_rmw_implementation_override_test.py"],
+    data = ["templates/package_rmw_implementation_override.bazel.tpl"],
+    deps = [":ros2bzl_py"],
+)
