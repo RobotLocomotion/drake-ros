@@ -108,9 +108,9 @@ def generate_distro_file_content(
                         )
                     ],
                     "REPOSITORY_ROOT": "@@{}//".format(repo_name),
-                    "DEFAULT_LOCALHOST_ONLY": "1"
+                    "DEFAULT_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"
                     if default_localhost_only
-                    else "0",
+                    else "SUBNET",
                     "DEFAULT_ROS_DISTRO": ros_distro,
                 }
             ),
