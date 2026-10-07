@@ -36,6 +36,7 @@ from ros2bzl.templates import (
     configure_package_interfaces_filegroup,
     configure_package_meta_py_library,
     configure_package_py_library,
+    configure_package_rmw_implementation_override,
     configure_package_share_filegroup,
     configure_prologue,
 )
@@ -144,6 +145,13 @@ def write_build_file(fd, repo_name, distro, sandbox, cache):
             )
 
             fd.write(interpolate(template, config) + "\n")
+
+            if name in rmw_implementation_packages:
+                _, template, config = configure_package_rmw_implementation_override(
+                    name, properties, sandbox
+                )
+                if template is not None:
+                    fd.write(interpolate(template, config) + "\n")
 
             if "rosidl_interface_packages" in metadata.get("groups", []):
                 # Alias C++ library as C library for interface packages
