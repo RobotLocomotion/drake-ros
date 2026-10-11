@@ -3,10 +3,10 @@ module(name = "drake_ros")
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "rules_python", version = "1.6.3")
 
-DRAKE_COMMIT = "v1.51.0"
+DRAKE_COMMIT = "v1.52.1"
 
 DRAKE_CHECKSUM = (
-    "e0ffb23fbbec6cc6a7dfe11beed04bcd5583cdb4bf187271b1b0977f7c292f51"
+    "c53d5352a694c470f049ff5e67809d82a0644d72a88f338daecebe47e9a476be"
 )
 
 bazel_dep(name = "drake")

@@ -19,7 +19,7 @@ ASSETS_DIR="${SETUP_DIR}/assets"
 REPOSITORY_DIR=$(dirname "${SETUP_DIR}")
 
 ROS_DISTRO=jazzy
-DRAKE_VERSION=1.51.0
+DRAKE_VERSION=1.52.1
 UBUNTU_CODENAME=$(. /etc/os-release && echo $VERSION_CODENAME)
 
 ### Functions
