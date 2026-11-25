@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import pytest
 import rclpy
+import rclpy.duration
 import rclpy.time
 import tf2_ros
 
@@ -81,10 +82,15 @@ def test_nominal_case():
     stamp = time.to_msg()
 
     context.SetTime(time.nanoseconds / 1e9)
-    diagram.ForcedPublish(context)
 
+    # /tf keeps no history for late subscribers, so a single publish is lost
+    # if it happens before the listener has been discovered. Keep publishing
+    # until the transform arrives (or a generous deadline expires).
     future = buffer_.wait_for_transform_async("world", "odom", time)
-    rclpy.spin_until_future_complete(node, future, timeout_sec=2)
+    deadline = node.get_clock().now() + rclpy.duration.Duration(seconds=10)
+    while not future.done() and node.get_clock().now() < deadline:
+        diagram.ForcedPublish(context)
+        rclpy.spin_until_future_complete(node, future, timeout_sec=0.1)
 
     assert future.done()
     assert future.result()
