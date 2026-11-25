@@ -34,6 +34,84 @@ COMMON_FILES_MANIFEST = [
     "templates/prologue.bazel",
 ]
 
+def _is_outside_repository(repo_ctx, path):
+    # Bazel refuses to watch paths inside the repository being fetched
+    # (e.g. an extracted ros2_archive), so those are skipped.
+    root = str(repo_ctx.path("."))
+    path = str(path)
+    return path != root and not path.startswith(root + "/")
+
+def _watch_if_exists(repo_ctx, path):
+    path = repo_ctx.path(path)
+    if path.exists and _is_outside_repository(repo_ctx, path):
+        repo_ctx.watch(path)
+        return True
+    return False
+
+def _watch_listing_if_exists(repo_ctx, path):
+    path = repo_ctx.path(path)
+    if path.exists and path.is_dir and _is_outside_repository(repo_ctx, path):
+        path.readdir(watch = "yes")
+
+def _watch_tree_if_exists(repo_ctx, path):
+    path = repo_ctx.path(path)
+    if path.exists and path.is_dir and _is_outside_repository(repo_ctx, path):
+        repo_ctx.watch_tree(path)
+
+def _watch_scraping_inputs(repo_ctx, workspaces):
+    """
+    Tells Bazel which inputs the scraped repository depends on, so it
+    gets re-scraped automatically when any of them change.
+
+    Bazel does not track anything the scraping tools read through
+    `repo_ctx.execute()`, so without this a stale BUILD.bazel survives
+    both package upgrades on disk and edits to the scraping code.
+
+    The watched set is kept small on purpose: every watched path is
+    checked on each Bazel command, and a re-scrape costs minutes.
+    """
+
+    # 1. The scraping code and templates themselves.
+    for file_ in repo_ctx.attr._common_files:
+        repo_ctx.watch(file_)
+    for tool in [
+        repo_ctx.attr._run_template_file,
+        repo_ctx.attr._scrape_distribution_tool,
+        repo_ctx.attr._generate_distro_file_tool,
+        repo_ctx.attr._generate_build_file_tool,
+        repo_ctx.attr._compute_system_rosdeps_tool,
+    ]:
+        repo_ctx.watch(tool)
+
+    metadata = json.decode(repo_ctx.read("distro_metadata.json"))
+    packages = metadata["packages"]
+
+    # 2. Packages appearing in or disappearing from the workspaces.
+    # The workspace root listing catches new packages in isolated
+    # (colcon default) installs; the ament resource index listing
+    # catches them in merged installs such as /opt/ros/<distro>.
+    prefixes = {path: None for path in workspaces}
+    for package in packages.values():
+        prefixes[package["prefix"]] = None
+    for path in workspaces:
+        _watch_listing_if_exists(repo_ctx, path)
+    for prefix in prefixes:
+        _watch_listing_if_exists(
+            repo_ctx,
+            prefix + "/share/ament_index/resource_index/packages",
+        )
+
+    # 3. Each scraped package: its manifest (version and dependencies)
+    # and its exported CMake configuration (libraries, include paths,
+    # flags), which is what the generated cc_library targets mirror.
+    for name, package in packages.items():
+        share_directory = package.get(
+            "share_directory",
+            package["prefix"] + "/share/" + name,
+        )
+        _watch_if_exists(repo_ctx, share_directory + "/package.xml")
+        _watch_tree_if_exists(repo_ctx, share_directory + "/cmake")
+
 def base_ros2_repository(repo_ctx, workspaces):
     """
     Provides the base main logic to setup a ROS 2 repository given a
@@ -130,6 +208,9 @@ def base_ros2_repository(repo_ctx, workspaces):
     result = execute_or_fail(repo_ctx, cmd, quiet = True)
     if result.stderr:
         print(result.stderr)
+
+    repo_ctx.report_progress("Watching scraping inputs for changes")
+    _watch_scraping_inputs(repo_ctx, workspaces)
 
 def _label(relpath):
     return Label("//lib/private:" + relpath)
